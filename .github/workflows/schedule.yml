@@ -1,0 +1,44 @@
+name: Schedule
+on:
+  workflow_dispatch:
+    inputs:
+      sdk_channel:
+        description: '.NET SDK channel'
+        required: false
+        default: '11.0'
+        type: string
+      dry_run:
+        description: 'Dry run (dispatch commands are logged but not executed)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  schedule:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          clean: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        shell: bash
+        run: npm ci --prefix bench
+
+      - name: Run schedule stage
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          npx --prefix bench tsx bench/src/main.ts \
+            --stages check-out-tracking,enumerate-daily-packs,enumerate-release-packs,schedule \
+            --sdk-channel "${{ inputs.sdk_channel || '11.0' }}" \
+            ${{ inputs.dry_run && '--dry-run' || '' }}

@@ -1,0 +1,43 @@
+<Project>
+
+  <!-- Detect SDK version and bundled runtime version -->
+  <PropertyGroup Condition="'$(NETCoreSdkVersion)' == ''">
+    <NETCoreSdkVersion>$([System.IO.Path]::GetFileName('$(MSBuildBinPath)'))</NETCoreSdkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(BundledNETCoreAppPackageVersion)' == ''">
+    <_BundledVersionsFile>$(MSBuildBinPath)\Microsoft.NETCoreSdk.BundledVersions.props</_BundledVersionsFile>
+    <BundledNETCoreAppPackageVersion Condition="Exists('$(_BundledVersionsFile)')">$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(_BundledVersionsFile)')), '&lt;BundledNETCoreAppPackageVersion&gt;([^&lt;]+)&lt;').Groups[1].Value)</BundledNETCoreAppPackageVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <_SdkTfm>net$(NETCoreSdkVersion.Split('.')[0]).$(NETCoreSdkVersion.Split('.')[1])</_SdkTfm>
+    <BenchmarkTargetFramework Condition="'$(BenchmarkTargetFramework)' == ''">$(_SdkTfm)</BenchmarkTargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <MicrosoftAspNetCoreVersion>$(BundledNETCoreAppPackageVersion)</MicrosoftAspNetCoreVersion>
+    <MicrosoftEntityFrameworkCoreVersion>$(BundledNETCoreAppPackageVersion)</MicrosoftEntityFrameworkCoreVersion>
+    <MicrosoftAspNetCoreWebUtilitiesVersion>$(BundledNETCoreAppPackageVersion)</MicrosoftAspNetCoreWebUtilitiesVersion>
+  </PropertyGroup>
+
+  <!-- default shared versions of dependencies -->
+  <PropertyGroup>
+    <UnoShowMeTheXAMLVersion>2.0.0-dev0015</UnoShowMeTheXAMLVersion>
+    <UnoCommunityToolkitVersion>7.1.200</UnoCommunityToolkitVersion>
+    <UnoCoreExtensionsVersion>4.0.1</UnoCoreExtensionsVersion>
+    <MicrosoftExtensionsLoggingVersion>9.0.0</MicrosoftExtensionsLoggingVersion>
+    <MudBlazorVersion>9.1.0</MudBlazorVersion>
+    <MudBlazorAspNetCoreVersion>9.0.3</MudBlazorAspNetCoreVersion>
+    <BlazorAnalyticsVersion>4.0.0</BlazorAnalyticsVersion>
+    <BytexDigitalCookieConsentVersion>1.2.1</BytexDigitalCookieConsentVersion>
+    <FuzzySharpVersion>2.0.2</FuzzySharpVersion>
+    <MarkdigVersion>1.0.1</MarkdigVersion>
+    <BlazoredLocalStorageVersion>4.5.0</BlazoredLocalStorageVersion>
+    <WebPushVersion>1.0.12</WebPushVersion>
+    <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
+    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.25112.101</MicrosoftNetCompilersRazorToolsetVersion>
+    <FluentValidationVersion>12.1.1</FluentValidationVersion>
+    <HavitBlazorVersion>4.23.0</HavitBlazorVersion>
+    <HavitBlazorSmartVersion>4.23.0-preview04</HavitBlazorSmartVersion>
+    <NetEscapadesEnumGeneratorsVersion>1.0.0-beta20</NetEscapadesEnumGeneratorsVersion>
+  </PropertyGroup>
+</Project>

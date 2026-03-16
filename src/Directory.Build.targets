@@ -1,0 +1,46 @@
+<Project>
+    <Target Name="SetBenchmarkPreset" BeforeTargets="Build">
+        <Message Text="Using BenchmarkPreset: '$(BenchmarkPreset)'" Importance="High" />
+        <Message Text="Using RuntimePackDir: '$(RuntimePackDir)'" Importance="High"
+                 Condition="'$(RuntimePackDir)' != ''" />
+    </Target>
+
+    <!--
+      Override the resolved runtime pack with a custom-built or downloaded one.
+      Set /p:RuntimePackDir=<path-to-extracted-nupkg> on the dotnet publish command.
+      See docs/runtime-pack.md for details.
+    -->
+    <Target Name="UpdateRuntimePack" AfterTargets="ResolveFrameworkReferences"
+            Condition="'$(RuntimePackDir)' != ''">
+        <ItemGroup>
+            <ResolvedRuntimePack PackageDirectory="$(RuntimePackDir)"
+                                 Condition="'%(ResolvedRuntimePack.FrameworkName)' == 'Microsoft.NETCore.App'" />
+        </ItemGroup>
+        <Message Text="Overriding runtime pack with: $(RuntimePackDir)" Importance="High" />
+    </Target>
+
+    <Target Name="RenameFingerprinting" AfterTargets="ComputeAndCopyFilesToPublishDirectory"
+             Condition="'$(BenchmarkPreset)' == 'EnableFingerprinting'">
+
+        <PropertyGroup>
+            <_PublishedIndexHtml>$(PublishDir)\wwwroot\index.html</_PublishedIndexHtml>
+            <_PublishedIndexFpHtml>$(PublishDir)\wwwroot\index-fp.html</_PublishedIndexFpHtml>
+        </PropertyGroup>
+
+        <Message Text="Overriding index.html with index-fp.html to enable fingerprinting for JS and MJS files." Importance="High" />
+
+        <Copy SourceFiles="$(_PublishedIndexFpHtml)"
+              DestinationFiles="$(_PublishedIndexHtml)"
+              OverwriteReadOnlyFiles="true"
+              Condition="Exists('$(_PublishedIndexFpHtml)') and Exists('$(_PublishedIndexHtml)')" />
+        <Copy SourceFiles="$(_PublishedIndexFpHtml)"
+              DestinationFiles="$(_PublishedIndexHtml)"
+              OverwriteReadOnlyFiles="true"
+              Condition="Exists('$(_PublishedIndexFpHtml).br') and Exists('$(_PublishedIndexHtml).br')" />
+        <Copy SourceFiles="$(_PublishedIndexFpHtml)"
+              DestinationFiles="$(_PublishedIndexHtml)"
+              OverwriteReadOnlyFiles="true"
+              Condition="Exists('$(_PublishedIndexFpHtml).gz') and Exists('$(_PublishedIndexHtml).gz')" />
+    </Target>
+
+</Project>

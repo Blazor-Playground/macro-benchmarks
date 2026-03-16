@@ -1,0 +1,131 @@
+<Project>
+
+  <PropertyGroup>
+    <BenchmarkPreset Condition="'$(BenchmarkPreset)' == ''">DevLoop</BenchmarkPreset>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <!-- 
+  Keep in sync with src\bench-viewer\Components\FilterPanel.razor 
+  -->
+
+  <!-- Preset DevLoop -->
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'DevLoop'">
+    <Configuration>Debug</Configuration>
+    <WasmBuildNative>false</WasmBuildNative>
+
+    <WasmEmitSymbolMap>true</WasmEmitSymbolMap>
+    <MetricsSupport>true</MetricsSupport>
+    <EventSourceSupport>true</EventSourceSupport>
+    <StackTraceSupport>true</StackTraceSupport>
+    <DebugSymbols>true</DebugSymbols>
+    <CompressionEnabled>false</CompressionEnabled>
+    <WasmEnableWebcil>false</WasmEnableWebcil>
+    <WasmIncludeFullIcuData>true</WasmIncludeFullIcuData>
+
+    <EnableAggressiveTrimming>false</EnableAggressiveTrimming>
+    <PublishTrimmed>false</PublishTrimmed>
+  </PropertyGroup>
+
+  <!-- Preset NoWorkload -->
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NoWorkload'">
+    <Configuration>Release</Configuration>
+    <WasmBuildNative>false</WasmBuildNative>
+
+    <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
+    <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
+
+  <!-- Preset NativeRelink -->
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NativeRelink' or '$(BenchmarkPreset)' == 'EnableFingerprinting'">
+    <Configuration>Release</Configuration>
+    <WasmBuildNative>true</WasmBuildNative>
+    <WasmNativeStrip>true</WasmNativeStrip>
+
+    <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
+    <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
+
+  <!-- Preset Aot -->
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Aot'">
+    <Configuration>Release</Configuration>
+    <WasmBuildNative>true</WasmBuildNative>
+    <WasmNativeStrip>true</WasmNativeStrip>
+    <RunAOTCompilation>true</RunAOTCompilation>
+
+    <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
+    <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
+
+  <!-- Preset NoJiterp -->
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NoJiterp'">
+    <Configuration>Release</Configuration>
+    <WasmBuildNative>true</WasmBuildNative>
+    <WasmNativeStrip>true</WasmNativeStrip>
+    <BlazorWebAssemblyJiterpreter>false</BlazorWebAssemblyJiterpreter>
+
+    <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
+    <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
+
+  <!-- Preset Invariant -->
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Invariant' or '$(BenchmarkPreset)' == 'NoReflectionEmit'">
+    <Configuration>Release</Configuration>
+    <WasmBuildNative>true</WasmBuildNative>
+    <WasmNativeStrip>true</WasmNativeStrip>
+
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <InvariantTimeZone>true</InvariantTimeZone>
+
+    <EnableDiagnostics>false</EnableDiagnostics>
+    <MetricsSupport>false</MetricsSupport>
+    <EventSourceSupport>false</EventSourceSupport>
+    <StackTraceSupport>false</StackTraceSupport>
+    <DebugSymbols>false</DebugSymbols>
+    <PredefinedCulturesOnly>true</PredefinedCulturesOnly>
+    <StackTraceLineNumberSupport>false</StackTraceLineNumberSupport>
+    <WasmEmitSymbolMap>false</WasmEmitSymbolMap>
+
+    <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>full</TrimMode>
+  </PropertyGroup>
+
+  <!-- Preset NoReflectionEmit -->
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NoReflectionEmit'">
+    <DynamicCodeSupport>false</DynamicCodeSupport>
+    <StackTraceSupport>false</StackTraceSupport>
+  </PropertyGroup>
+
+  <!-- Preset EnableFingerprinting -->
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'EnableFingerprinting'">
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(BenchmarkPreset)' == 'EnableFingerprinting'">
+    <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />
+    <StaticWebAssetFingerprintPattern Include="MJS" Pattern="*.mjs" Expression="#[.{fingerprint}]!" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(BenchmarkPreset)' != 'EnableFingerprinting'">
+    <WasmFingerprintAssets>false</WasmFingerprintAssets>
+    <BlazorFingerprintBlazorJs>false</BlazorFingerprintBlazorJs>
+  </PropertyGroup>
+
+  <!-- consider
+    <WasmFingerprintAssets>false</WasmFingerprintAssets>
+    <BlazorFingerprintBlazorJs>false</BlazorFingerprintBlazorJs>
+    <TrimMode>link</TrimMode>
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+    <EnableDiagnostics>true</EnableDiagnostics>
+    <WasmNativeStrip>false</WasmNativeStrip>
+    <WasmNativeDebugSymbols>true</WasmNativeDebugSymbols>
+    <WasmEnableHotReload>false</WasmEnableHotReload>
+    <WasmEnableWebcil>false</WasmEnableWebcil>
+    <CompressionEnabled>false</CompressionEnabled>
+
+  <ItemGroup>
+    <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />
+    <StaticWebAssetFingerprintPattern Include="MJS" Pattern="*.mjs" Expression="#[.{fingerprint}]!" />
+  </ItemGroup>
+  -->
+
+</Project>

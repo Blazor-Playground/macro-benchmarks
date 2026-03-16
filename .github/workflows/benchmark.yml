@@ -1,0 +1,357 @@
+name: Benchmark
+on:
+  schedule:
+    - cron: '0 4 * * *'  # Daily at 04:00 UTC
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      sdk_version:
+        description: 'Specific SDK version (empty = latest nightly)'
+        required: false
+        default: ''
+        type: string
+      sdk_channel:
+        description: '.NET SDK channel'
+        required: false
+        default: '11.0'
+        type: string
+      runtime_commit:
+        description: 'Specific dotnet/runtime commit hash to benchmark (patches SDK with matching runtime pack)'
+        required: false
+        default: ''
+        type: string
+      runtime_pack:
+        description: 'Specific runtime pack version (e.g. 11.0.0-preview.3.26153.109)'
+        required: false
+        default: ''
+        type: string
+      dry_run:
+        description: 'Dry run (run benchmarks but do not publish results)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  # ── Job 1: Resolve SDK version ─────────────────────────────────────────────
+  resolve:
+    name: Resolve (${{ inputs.sdk_version || 'latest' }})
+    runs-on: ubuntu-latest
+    container: ghcr.io/${{ github.repository }}/browser-bench-build:latest
+    permissions:
+      contents: write
+      packages: read
+    timeout-minutes: 15
+    outputs:
+      sdk-version: ${{ steps.sdk-version.outputs.sdk-version }}
+      runtime-commit-date: ${{ steps.sdk-version.outputs.runtime-commit-date }}
+      runtime-commit-message: ${{ steps.sdk-version.outputs.runtime-commit-message }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          clean: false
+
+      - name: Export container env to GitHub Actions
+        shell: bash
+        run: echo "ARTIFACTS_DIR=${ARTIFACTS_DIR:-artifacts}" >> "$GITHUB_ENV"
+
+      - name: Resolve SDK
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          npx --prefix bench tsx bench/src/main.ts \
+            --stages check-out-tracking,enumerate-daily-packs,enumerate-release-packs,update-cache,resolve-sdk \
+            --context "${ARTIFACTS_DIR}/bench-context.json" \
+            --sdk-channel "${{ inputs.sdk_channel || '11.0' }}" \
+            ${{ inputs.sdk_version && format('--sdk-version "{0}"', inputs.sdk_version) || '' }} \
+            ${{ inputs.runtime_commit && format('--runtime-commit "{0}"', inputs.runtime_commit) || '' }} \
+            ${{ inputs.runtime_pack && format('--runtime-pack "{0}"', inputs.runtime_pack) || '' }} \
+            --runtime mono \
+            ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
+
+      - name: Read SDK version
+        id: sdk-version
+        shell: bash
+        run: |
+          SDK_VERSION=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.sdkInfo?.sdkVersion || '')")
+          COMMIT_DATE=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.sdkInfo?.runtimeCommitDateTime?.split('T')[0] || '')")
+          COMMIT_MSG=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); const m=c.sdkInfo?.runtimeCommitMessage||''; console.log(m.length>60?m.slice(0,60)+'…':m)")
+          echo "sdk-version=$SDK_VERSION" >> "$GITHUB_OUTPUT"
+          echo "runtime-commit-date=$COMMIT_DATE" >> "$GITHUB_OUTPUT"
+          echo "runtime-commit-message=$COMMIT_MSG" >> "$GITHUB_OUTPUT"
+          echo "SDK version: $SDK_VERSION" >&2
+          echo "Runtime commit: $COMMIT_DATE $COMMIT_MSG" >&2
+
+      - name: Upload bench context
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: bench-context
+          path: ${{ env.ARTIFACTS_DIR }}/bench-context.json
+          if-no-files-found: error
+          retention-days: 7
+
+  # ── Job 2: Build all apps ──────────────────────────────────────────────────
+  build:
+    name: Build (${{ needs.resolve.outputs.sdk-version }}, ${{ needs.resolve.outputs.runtime-commit-date }}, ${{ needs.resolve.outputs.runtime-commit-message }})
+    needs: resolve
+    runs-on: ubuntu-latest
+    container: ghcr.io/${{ github.repository }}/browser-bench-build:latest
+    permissions:
+      contents: write
+      packages: read
+    timeout-minutes: 60
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          clean: false
+
+      - name: Export container env to GitHub Actions
+        shell: bash
+        run: echo "ARTIFACTS_DIR=${ARTIFACTS_DIR:-artifacts}" >> "$GITHUB_ENV"
+
+      - name: Download bench context
+        uses: actions/download-artifact@v8
+        with:
+          name: bench-context
+          path: ${{ env.ARTIFACTS_DIR }}
+
+      - name: Build all apps
+        shell: bash
+        run: |
+          npx --prefix bench tsx bench/src/main.ts \
+            --stages download-sdk,build,deploy-latest-app \
+            --context "${ARTIFACTS_DIR}/bench-context.json" \
+            --runtime mono \
+            ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
+
+      - name: Read run ID
+        id: run-id
+        shell: bash
+        run: |
+          RUN_ID=$(cat "${ARTIFACTS_DIR}/results/.run-id")
+          echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "Run ID: $RUN_ID" >&2
+
+      - name: Set matrix output
+        id: matrix
+        shell: bash
+        run: |
+          MANIFEST="${ARTIFACTS_DIR}/results/${{ steps.run-id.outputs.run-id }}/build-manifest.json"
+          if [ ! -f "$MANIFEST" ]; then
+            echo "matrix=[]" >> "$GITHUB_OUTPUT"
+            echo "⚠ No build manifest found" >&2
+            exit 0
+          fi
+          # Extract {app, preset} for the GHA matrix
+          MATRIX=$(node --input-type=module -e "
+            import { readFileSync } from 'node:fs';
+            const m = JSON.parse(readFileSync('$MANIFEST', 'utf-8'));
+            console.log(JSON.stringify(m.map(e => ({ app: e.app, preset: e.preset }))));
+          ")
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+          echo "Build matrix: $MATRIX" >&2
+
+      - name: Upload bench context
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: bench-context
+          path: ${{ env.ARTIFACTS_DIR }}/bench-context.json
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 7
+
+      - name: Upload results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: build-results
+          path: ${{ env.ARTIFACTS_DIR }}/results/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload all builds
+        uses: actions/upload-artifact@v7
+        if: always() && steps.matrix.outputs.matrix != '[]'
+        with:
+          name: all-builds
+          path: ${{ env.ARTIFACTS_DIR }}/publish/
+          if-no-files-found: error
+          retention-days: 3
+
+  # ── Job 3: Measure (matrix: app × preset, all engines per job) ─────────────
+  measure:
+    name: Measure ${{ matrix.app }}/${{ matrix.preset }}
+    needs: [resolve, build]
+    if: needs.build.outputs.matrix != '[]' && needs.build.outputs.matrix != ''
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository }}/browser-bench-measure:latest
+      options: --user 1001
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.build.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          clean: false
+
+      - name: Export container env to GitHub Actions
+        shell: bash
+        run: echo "ARTIFACTS_DIR=${ARTIFACTS_DIR:-artifacts}" >> "$GITHUB_ENV"
+
+      - name: Symlink pre-installed node_modules into workspace
+        shell: bash
+        run: entrypoint.sh true
+
+      - name: Download bench context
+        uses: actions/download-artifact@v8
+        with:
+          name: bench-context
+          path: ${{ env.ARTIFACTS_DIR }}
+
+      - name: Download results
+        uses: actions/download-artifact@v8
+        with:
+          name: build-results
+          path: ${{ env.ARTIFACTS_DIR }}/results
+
+      - name: Download builds
+        uses: actions/download-artifact@v8
+        with:
+          name: all-builds
+          path: ${{ env.ARTIFACTS_DIR }}/publish
+
+      - name: Run measurements
+        shell: bash
+        run: |
+          npx --prefix bench tsx bench/src/main.ts \
+            --stages measure \
+            --context "${ARTIFACTS_DIR}/bench-context.json" \
+            --app "${{ matrix.app }}" \
+            --preset "${{ matrix.preset }}" \
+            --runtime mono \
+            --retries 3 \
+            --timeout 300000 \
+            ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
+
+      - name: Upload results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: results-${{ matrix.app }}-${{ matrix.preset }}
+          path: ${{ env.ARTIFACTS_DIR }}/results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # ── Job 3: Aggregate results and update views ──────────────────────────────
+  aggregate:
+    name: Aggregate
+    needs: [resolve, build, measure]
+    if: always() && needs.measure.result != 'skipped'
+    runs-on: ubuntu-latest
+    container: ghcr.io/${{ github.repository }}/browser-bench-build:latest
+    permissions:
+      contents: write
+      packages: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          clean: false
+
+      - name: Export container env to GitHub Actions
+        shell: bash
+        run: echo "ARTIFACTS_DIR=${ARTIFACTS_DIR:-artifacts}" >> "$GITHUB_ENV"
+
+      - name: Symlink pre-installed node_modules into workspace
+        shell: bash
+        run: entrypoint.sh true
+
+      - name: Download bench context
+        uses: actions/download-artifact@v8
+        with:
+          name: bench-context
+          path: ${{ env.ARTIFACTS_DIR }}
+
+      - name: Download build results
+        uses: actions/download-artifact@v8
+        with:
+          name: build-results
+          path: ${{ env.ARTIFACTS_DIR }}/results
+
+      - name: Download all measurement results
+        uses: actions/download-artifact@v8
+        with:
+          pattern: results-*
+          path: ${{ env.ARTIFACTS_DIR }}/results
+          merge-multiple: true
+
+      - name: List collected results
+        shell: bash
+        run: find "${ARTIFACTS_DIR}/results" -name '*.json' | head -150 || true
+
+      - name: Transform and update views
+        shell: bash
+        run: |
+          npx --prefix bench tsx bench/src/main.ts \
+            --stages transform-views,update-views \
+            --context "${ARTIFACTS_DIR}/bench-context.json" \
+            --runtime mono \
+            ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
+
+      - name: Upload final results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: final-results
+          path: ${{ env.ARTIFACTS_DIR }}/results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # ── Job 5: Schedule untested SDK versions ──────────────────────────────────
+  schedule:
+    name: Schedule
+    needs: [resolve, aggregate]
+    if: always() && needs.aggregate.result == 'success'
+    runs-on: ubuntu-latest
+    container: ghcr.io/${{ github.repository }}/browser-bench-build:latest
+    permissions:
+      contents: write
+      actions: write
+      packages: read
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          clean: false
+
+      - name: Export container env to GitHub Actions
+        shell: bash
+        run: echo "ARTIFACTS_DIR=${ARTIFACTS_DIR:-artifacts}" >> "$GITHUB_ENV"
+
+      - name: Symlink pre-installed node_modules into workspace
+        shell: bash
+        run: entrypoint.sh true
+
+      - name: Download bench context
+        uses: actions/download-artifact@v8
+        with:
+          name: bench-context
+          path: ${{ env.ARTIFACTS_DIR }}
+
+      - name: Run schedule
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          npx --prefix bench tsx bench/src/main.ts \
+            --stages check-out-tracking,schedule \
+            --context "${ARTIFACTS_DIR}/bench-context.json" \
+            --runtime mono \
+            ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}

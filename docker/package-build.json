@@ -1,0 +1,10 @@
+{
+    "name": "macro-benchmarks-build",
+    "version": "0.1.0",
+    "private": true,
+    "description": "Dependencies for building .NET WASM apps (build image)",
+    "type": "module",
+    "engines": {
+        "node": ">=24.0.0"
+    }
+}

@@ -1,0 +1,18 @@
+<Project>
+  <Import Project="versions.props" />
+
+  <Import Project="presets.props" />
+
+  <!-- Prevent MSB5022: ILLink/WASM tasks need IBuildEngine callbacks, so
+       they must run in-process rather than in the out-of-proc task host. -->
+  <PropertyGroup>
+    <MSBuildDisableTaskHost>true</MSBuildDisableTaskHost>
+  </PropertyGroup>
+
+  <!-- bin/obj location: artifacts/{bin,obj}/{app}/{BuildLabel}/{BenchmarkPreset} -->
+  <PropertyGroup>
+    <BuildLabel Condition="'$(BuildLabel)' == ''">local</BuildLabel>
+    <ArtifactsPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'artifacts', 'bin', '$(MSBuildProjectName)', '$(BuildLabel)', '$(BenchmarkPreset)'))</ArtifactsPath>
+    <BaseIntermediateOutputPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'artifacts', 'obj', '$(MSBuildProjectName)', '$(BuildLabel)', '$(BenchmarkPreset)'))</BaseIntermediateOutputPath>
+  </PropertyGroup>
+</Project>

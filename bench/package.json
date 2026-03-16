@@ -1,0 +1,19 @@
+{
+    "name": "macro-benchmarks-cli",
+    "version": "0.1.0",
+    "private": true,
+    "description": ".NET Browser WASM Benchmark CLI",
+    "type": "module",
+    "scripts": {
+        "dev": "tsx src/main.ts",
+        "test": "node --import tsx --test tests/**/*.test.ts"
+    },
+    "engines": {
+        "node": ">=24.0.0"
+    },
+    "devDependencies": {
+        "@types/node": "^22.19.15",
+        "tsx": "^4.19.4",
+        "typescript": "^5.8.3"
+    }
+}

@@ -1,5 +1,5 @@
 /* /Layout/MainLayout.razor.rz.scp.css */
-#blazor-error-ui[b-q74ke9f4l3] {
+#blazor-error-ui[b-zfwe33mbqm] {
     background: lightyellow;
     bottom: 0;
     box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
@@ -11,7 +11,7 @@
     z-index: 1000;
 }
 
-#blazor-error-ui .dismiss[b-q74ke9f4l3] {
+#blazor-error-ui .dismiss[b-zfwe33mbqm] {
     cursor: pointer;
     position: absolute;
     right: 0.75rem;

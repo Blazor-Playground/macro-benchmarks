@@ -1,0 +1,106 @@
+{
+  "lastUpdated": "2026-03-16T15:52:24.455Z",
+  "activeRelease": "net11",
+  "releases": [
+    "net8",
+    "net9",
+    "net10"
+  ],
+  "weeks": [
+    "2026-03-09"
+  ],
+  "apps": [
+    "blazing-pizza",
+    "empty-blazor",
+    "havit-bootstrap",
+    "micro-benchmarks",
+    "mud-blazor"
+  ],
+  "metrics": {
+    "blazing-pizza": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-total",
+      "memory-peak",
+      "pizza-walkthrough",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ],
+    "empty-blazor": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-total",
+      "memory-peak",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ],
+    "havit-bootstrap": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-total",
+      "havit-walkthrough",
+      "memory-peak",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ],
+    "micro-benchmarks": [
+      "compile-time",
+      "exception-ops",
+      "js-interop-ops",
+      "json-parse-ops",
+      "memory-peak",
+      "time-to-create-dotnet-cold",
+      "time-to-exit-cold",
+      "wasm-memory-size"
+    ],
+    "mud-blazor": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-total",
+      "memory-peak",
+      "mud-walkthrough",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ]
+  },
+  "dimensions": {
+    "runtimes": [
+      "mono"
+    ],
+    "presets": [
+      "aot",
+      "dev-loop",
+      "invariant",
+      "native-relink",
+      "no-jiterp",
+      "no-reflection-emit",
+      "no-workload"
+    ],
+    "profiles": [
+      "desktop",
+      "mobile"
+    ],
+    "engines": [
+      "chrome",
+      "firefox",
+      "node",
+      "v8"
+    ]
+  }
+}

@@ -44,9 +44,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-16T12:16:35.439Z",
-      "ciRunId": "23141352622",
-      "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23141352622"
+      "benchmarkDateTime": "2026-03-16T17:26:18.264Z",
+      "ciRunId": "23154797482",
+      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23154797482"
     }
   ],
   "apps": {

@@ -232,6 +232,7 @@ jobs:
         run: |
           npx --prefix bench tsx bench/src/main.ts \
             --stages measure \
+            --verbose \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
             --app "${{ matrix.app }}" \
             --preset "${{ matrix.preset }}" \
@@ -301,6 +302,7 @@ jobs:
         run: |
           npx --prefix bench tsx bench/src/main.ts \
             --stages transform-views,update-views \
+            --verbose \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
             --runtime mono \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}

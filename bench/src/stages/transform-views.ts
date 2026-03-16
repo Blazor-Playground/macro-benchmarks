@@ -234,10 +234,10 @@ async function writeBucketView(
     await mkdir(dir, { recursive: true });
 
     const columnKey = type === 'week'
-        ? (r: LoadedResult) => r.runtimeGitHash
+        ? (r: LoadedResult) => r.vmrGitHash
         : (r: LoadedResult) => r.sdkVersion;
     const getColumnId = type === 'week'
-        ? (column: SdkInfo) => column.runtimeGitHash
+        ? (column: SdkInfo) => column.vmrGitHash
         : (column: SdkInfo) => column.sdkVersion;
 
     // Deduplicate columns
@@ -267,12 +267,13 @@ async function writeBucketView(
     // Sort columns
     const columns: SdkInfo[] = type === 'week'
         ? [...columnMap.values()].sort((a, b) =>
-            a.runtimeCommitDateTime.localeCompare(b.runtimeCommitDateTime))
+            a.runtimeCommitDateTime.localeCompare(b.runtimeCommitDateTime)
+            || a.sdkVersion.localeCompare(b.sdkVersion))
         : [...columnMap.values()].sort((a, b) =>
             compareSdkVersion(a.sdkVersion, b.sdkVersion));
 
     const colIndex = new Map(columns.map((c, i) => [
-        type === 'week' ? c.runtimeGitHash : c.sdkVersion, i,
+        type === 'week' ? c.vmrGitHash : c.sdkVersion, i,
     ]));
 
     // Build grid: app → metric → rowKey → values[]

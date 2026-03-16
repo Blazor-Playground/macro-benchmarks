@@ -95,6 +95,30 @@
       "benchmarkDateTime": "2026-03-16T14:51:12.002Z",
       "ciRunId": "23147880864",
       "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23147880864"
+    },
+    {
+      "sdkVersion": "10.0.200",
+      "runtimeGitHash": "081d220c0a773ffb7c6bea6b48727833576a65ef",
+      "aspnetCoreGitHash": "233fc7812a61ec7edd51b9e04063f3ed77ec71fe",
+      "sdkGitHash": "9396d43dc6d7b16db3af666867585c4f4db99628",
+      "vmrGitHash": "40cd698e5cfb2d90f436889726ee01f48d99f3ab",
+      "runtimeCommitDateTime": "2026-02-18T18:36:50Z",
+      "runtimeCommitAuthor": "github-actions[bot]",
+      "runtimeCommitMessage": "[release/10.0] fix Vector2/3 EqualsAny (#124223)",
+      "aspnetCoreCommitDateTime": "2026-02-18T19:09:30Z",
+      "aspnetCoreVersion": "10.0.4",
+      "runtimePackVersion": "10.0.4",
+      "workloadVersion": "10.0.105",
+      "bootstrapSdkVersion": "10.0.103",
+      "releaseDate": "2026-03-10",
+      "major": 10,
+      "minor": 0,
+      "patch": 200,
+      "channel": "10.0",
+      "isPrerelease": false,
+      "benchmarkDateTime": "2026-03-16T21:42:15.043Z",
+      "ciRunId": "23165591211",
+      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23165591211"
     }
   ],
   "apps": {

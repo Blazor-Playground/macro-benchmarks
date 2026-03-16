@@ -20,9 +20,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-16T19:31:41.805Z",
-      "ciRunId": "23160083946",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23160083946"
+      "benchmarkDateTime": "2026-03-16T23:49:30.624Z",
+      "ciRunId": "23170079090",
+      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23170079090"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26163.115",

@@ -1,0 +1,8 @@
+# Auto detect text files and normalize line endings
+* text=auto
+
+# Shell scripts must always use LF (bash breaks on CRLF)
+*.sh text eol=lf
+
+# Dockerfile must use LF
+Dockerfile text eol=lf

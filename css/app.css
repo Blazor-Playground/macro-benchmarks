@@ -183,17 +183,20 @@ code {
     align-items: center;
 }
 
+.sidebar-title {
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
 .sidebar-header a {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.4);
     text-decoration: none;
     line-height: 1;
+    flex-shrink: 0;
 }
 
 .sidebar-header a:hover {
-    color: #fff;
-}
-
-.sidebar-header h6 {
     color: #fff;
 }
 

@@ -44,9 +44,9 @@
       "patch": 102,
       "channel": "9.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-16T13:04:02.593Z",
-      "ciRunId": "23143350587",
-      "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23143350587"
+      "benchmarkDateTime": "2026-03-16T18:15:31.192Z",
+      "ciRunId": "23157496923",
+      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23157496923"
     },
     {
       "sdkVersion": "9.0.200",

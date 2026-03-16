@@ -178,6 +178,19 @@ code {
     padding: 0.75rem 1rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-header a {
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    line-height: 1;
+}
+
+.sidebar-header a:hover {
+    color: #fff;
 }
 
 .sidebar-header h6 {
@@ -240,10 +253,6 @@ code {
 
 .commit-info-block+hr+.commit-info-block {
     opacity: 0.85;
-}
-
-.time-range-selector {
-    white-space: nowrap;
 }
 
 .chart-container {

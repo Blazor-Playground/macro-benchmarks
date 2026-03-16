@@ -1,0 +1,10 @@
+<linker>
+	<assembly fullname="Uno.Gallery" />
+	<assembly fullname="System.Core">
+		<!-- This is required by Json.NET and any expression.Compile caller -->
+		<type fullname="System.Linq.Expressions*" />
+	</assembly>
+	<assembly fullname="Uno.UI">
+		<type fullname="Uno.UI.Helpers.Automation" />
+	</assembly>
+</linker>

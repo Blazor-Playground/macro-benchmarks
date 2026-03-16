@@ -1,0 +1,161 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using Microsoft.AspNetCore.Components
+<span class="atSign">&#64;</span>using System.ComponentModel.DataAnnotations
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDropContainer</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">KanbanTaskItem</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_dropContainer</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_tasks</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ItemsSelector</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>((item,column) =&gt; item.Status == column)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ItemDropped</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">TaskUpdated</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex flex-row</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+	<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ChildContent</span><span class="htmlTagDelimiter">&gt;</span>
+		<span class="atSign">&#64;</span>foreach (var item in _sections)
+		{
+			<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Elevation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Width</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">224px</span><span class="quot">&quot;</span> <span class="htmlAttributeName">MinHeight</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">400px</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-4 ma-4 d-flex flex-column mud-background-gray rounded-lg</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+				<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudToolBar</span> <span class="htmlAttributeName">Gutters</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">false</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+					<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.subtitle1</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">b</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>item.Name<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">b</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+					<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSpacer</span> <span class="htmlTagDelimiter">/&gt;</span>
+					<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudMenu</span> <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Rounded.MoreHoriz</span><span class="quot">&quot;</span> <span class="htmlAttributeName">AnchorOrigin</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Origin</span><span class="enumValue">.BottomRight</span><span class="quot">&quot;</span> <span class="htmlAttributeName">TransformOrigin</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Origin</span><span class="enumValue">.TopRight</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ListClass</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-2 d-flex flex-column</span><span class="quot">&quot;</span> <span class="htmlAttributeName">PopoverClass</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mud-elevation-25</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+						<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Size</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Size</span><span class="enumValue">.Small</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Error</span><span class="quot">&quot;</span> <span class="htmlAttributeName">StartIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Outlined.Delete</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>( () =&gt; DeleteSection(item))</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Delete section<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+						<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Size</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Size</span><span class="enumValue">.Small</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Default</span><span class="quot">&quot;</span> <span class="htmlAttributeName">StartIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Rounded.Edit</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Rename section<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+					<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudMenu</span><span class="htmlTagDelimiter">&gt;</span>
+				<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudToolBar</span><span class="htmlTagDelimiter">&gt;</span>
+				<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDropZone</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">KanbanTaskItem</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Identifier</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>item.Name</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mud-height-full</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+				<span class="atSign">&#64;</span>if (item.NewTaskOpen)
+				{
+					<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Elevation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">25</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-2 rounded-lg</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+						<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTextField</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">item.NewTaskName</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Placeholder</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">New Task</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Underline</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">false</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Margin</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Margin</span><span class="enumValue">.Dense</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mx-2 mt-n2</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTextField</span><span class="htmlTagDelimiter">&gt;</span>
+						<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; AddTask(item))</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Size</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Size</span><span class="enumValue">.Small</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">FullWidth</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Add task<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+					<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+				}
+				else
+				{
+					<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; item.NewTaskOpen = !item.NewTaskOpen)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">StartIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Add</span><span class="quot">&quot;</span> <span class="htmlAttributeName">FullWidth</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">rounded-lg py-2</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Add task<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+				}
+			<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+		}
+		<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-4</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Elevation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Width</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">224px</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+			<span class="atSign">&#64;</span>if (_addSectionOpen)
+			{
+				<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Elevation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Width</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">224px</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-4 d-flex flex-column mud-background-gray rounded-lg</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+					<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">EditForm</span> <span class="htmlAttributeName">Model</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>newSectionModel</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnValidSubmit</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">OnValidSectionSubmit</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+						<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">DataAnnotationsValidator</span> <span class="htmlTagDelimiter">/&gt;</span>
+						<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTextField</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">newSectionModel.Name</span><span class="quot">&quot;</span> <span class="htmlAttributeName">For</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; newSectionModel.Name)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Placeholder</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">New section</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Underline</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">false</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTextField</span><span class="htmlTagDelimiter">&gt;</span>
+						<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">ButtonType</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">ButtonType</span><span class="enumValue">.Submit</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Size</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Size</span><span class="enumValue">.Small</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">FullWidth</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Add section<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+					<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">EditForm</span><span class="htmlTagDelimiter">&gt;</span>
+				<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+			}
+			else
+			{
+				<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">OpenAddNewSection</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Outlined</span><span class="quot">&quot;</span> <span class="htmlAttributeName">StartIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Add</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">rounded-lg py-2</span><span class="quot">&quot;</span> <span class="htmlAttributeName">FullWidth</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Add section<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+			}
+		<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+	<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ChildContent</span><span class="htmlTagDelimiter">&gt;</span>
+	<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ItemRenderer</span><span class="htmlTagDelimiter">&gt;</span>
+		<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Elevation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">25</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-4 rounded-lg my-3</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Name<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+	<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ItemRenderer</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDropContainer</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+	<span class="keyword">private</span> MudDropContainer&lt;KanbanTaskItem&gt; _dropContainer;
+
+	<span class="keyword">private</span> <span class="keyword">bool</span> _addSectionOpen;
+	<span class="comment">/* handling board events */</span>
+	<span class="keyword">private</span> <span class="keyword">void</span> TaskUpdated(MudItemDropInfo&lt;KanbanTaskItem&gt; info)
+	{
+		info.Item.Status = info.DropzoneIdentifier;
+	}
+
+	<span class="comment">/* Setup for board  */</span>
+	<span class="keyword">private</span> List&lt;KanBanSections&gt; _sections = <span class="keyword">new</span>()
+		{
+			<span class="keyword">new</span> KanBanSections(<span class="string">&quot;To Do&quot;</span>, <span class="keyword">false</span>, String.Empty),
+			<span class="keyword">new</span> KanBanSections(<span class="string">&quot;In Process&quot;</span>, <span class="keyword">false</span>, String.Empty),
+			<span class="keyword">new</span> KanBanSections(<span class="string">&quot;Done&quot;</span>, <span class="keyword">false</span>, String.Empty),
+		};
+
+	<span class="keyword">public</span> <span class="keyword">class</span> KanBanSections
+	{
+		<span class="keyword">public</span> <span class="keyword">string</span> Name { <span class="keyword">get</span>; init; }
+		<span class="keyword">public</span> <span class="keyword">bool</span> NewTaskOpen { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+		<span class="keyword">public</span> <span class="keyword">string</span> NewTaskName { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+		<span class="keyword">public</span> KanBanSections(<span class="keyword">string</span> name, <span class="keyword">bool</span> newTaskOpen, <span class="keyword">string</span> newTaskName)
+		{
+			Name = name;
+			NewTaskOpen = newTaskOpen;
+			NewTaskName = newTaskName;
+		}
+	}
+	<span class="keyword">public</span> <span class="keyword">class</span> KanbanTaskItem
+	{
+		<span class="keyword">public</span> <span class="keyword">string</span> Name { <span class="keyword">get</span>; init; }
+		<span class="keyword">public</span> <span class="keyword">string</span> Status { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+		<span class="keyword">public</span> KanbanTaskItem(<span class="keyword">string</span> name, <span class="keyword">string</span> status)
+		{
+			Name = name;
+			Status = status;
+		}
+	}
+
+	<span class="keyword">private</span> List&lt;KanbanTaskItem&gt; _tasks = <span class="keyword">new</span>()
+		{
+			<span class="keyword">new</span> KanbanTaskItem(<span class="string">&quot;Write unit test&quot;</span>, <span class="string">&quot;To Do&quot;</span>),
+			<span class="keyword">new</span> KanbanTaskItem(<span class="string">&quot;Some docu stuff&quot;</span>, <span class="string">&quot;To Do&quot;</span>),
+			<span class="keyword">new</span> KanbanTaskItem(<span class="string">&quot;Walking the dog&quot;</span>, <span class="string">&quot;To Do&quot;</span>),
+		};
+
+	KanBanNewForm newSectionModel = <span class="keyword">new</span> KanBanNewForm();
+
+	<span class="keyword">public</span> <span class="keyword">class</span> KanBanNewForm
+	{
+		[Required]
+		[StringLength(<span class="number">10</span>, ErrorMessage = <span class="string">&quot;Name length can&#39;t be more than 10.&quot;</span>)]
+		<span class="keyword">public</span> <span class="keyword">string</span> Name { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+	}
+
+	<span class="keyword">private</span> <span class="keyword">void</span> OnValidSectionSubmit(EditContext context)
+	{
+		_sections.Add(<span class="keyword">new</span> KanBanSections(newSectionModel.Name, <span class="keyword">false</span>, String.Empty));
+		newSectionModel.Name = <span class="keyword">string</span>.Empty;
+		_addSectionOpen = <span class="keyword">false</span>;
+	}
+
+	<span class="keyword">private</span> <span class="keyword">void</span> OpenAddNewSection()
+	{
+		_addSectionOpen = <span class="keyword">true</span>;
+	}
+
+	<span class="keyword">private</span> <span class="keyword">void</span> AddTask(KanBanSections section)
+	{
+		_tasks.Add(<span class="keyword">new</span> KanbanTaskItem(section.NewTaskName, section.Name));
+		section.NewTaskName = <span class="keyword">string</span>.Empty;
+		section.NewTaskOpen = <span class="keyword">false</span>;
+		_dropContainer.Refresh();
+	}
+
+	<span class="keyword">private</span> <span class="keyword">void</span> DeleteSection(KanBanSections section)
+	{
+		<span class="keyword">if</span> (_sections.Count == <span class="number">1</span>)
+		{
+			_tasks.Clear();
+			_sections.Clear();
+		}
+		<span class="keyword">else</span>
+		{
+			<span class="keyword">int</span> newIndex = _sections.IndexOf(section) - <span class="number">1</span>;
+			<span class="keyword">if</span> (newIndex &lt; <span class="number">0</span>)
+			{
+				newIndex = <span class="number">0</span>;
+			}
+
+			_sections.Remove(section);
+
+			<span class="keyword">var</span> tasks = _tasks.Where(x =&gt; x.Status == section.Name);
+			<span class="keyword">foreach</span> (<span class="keyword">var</span> item <span class="keyword">in</span> tasks)
+			{
+				item.Status = _sections[newIndex].Name;
+			}
+		}
+	}
+}
+</pre></div>
+</div>

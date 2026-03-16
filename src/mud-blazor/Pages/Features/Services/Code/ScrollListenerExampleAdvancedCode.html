@@ -1,0 +1,87 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>inject IScrollListenerFactory ScrollListenerFactory
+<span class="atSign">&#64;</span>inject IScrollManager ScrollManager
+<span class="atSign">&#64;</span>implements IAsyncDisposable
+
+<span class="htmlComment">&lt;!--suppress CssUnresolvedCustomProperty --&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">style</span><span class="htmlTagDelimiter">&gt;</span>
+    .scroll_wrapper {
+        width: 50%;
+        height: 100%;
+    }
+
+    #scroll_advanced {
+        padding: 16px;
+        overflow-y: scroll;
+        scrollbar-width: none;
+        height: 20rem;
+        width: 100%;
+    }
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">style</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">scroll_wrapper</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Row</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">AlignItems</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">AlignItems</span><span class="enumValue">.Center</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Spacing</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">id</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">scroll_advanced</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex flex-column gap-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="atSign">&#64;</span>for (var i = 0; i &lt; 100; i++)
+        {
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-8</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>($&quot;background-color: {ColorPalette[i % ColorPalette.Length]};&quot;)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Outlined</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">/&gt;</span>
+        }
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mud-width-full</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSlider</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_scrollBarValue&quot; <span class="atSign">&#64;</span>bind-Value:after=&quot;OnScrollBarValueChanged</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Step</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0.1</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Vertical</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">readonly</span> <span class="keyword">string</span>[] ColorPalette =
+    [
+        Colors.Blue.Accent3, Colors.Teal.Accent3, Colors.Amber.Accent3, Colors.Orange.Accent3, Colors.Red.Accent3,
+        Colors.DeepPurple.Accent3, Colors.Green.Accent3, Colors.LightBlue.Accent3, Colors.Teal.Lighten1, Colors.Amber.Lighten1,
+        Colors.Orange.Lighten1, Colors.Red.Lighten1, Colors.DeepPurple.Lighten1, Colors.Green.Lighten1, Colors.LightBlue.Lighten1,
+        Colors.Amber.Darken2, Colors.Orange.Darken2, Colors.Red.Darken2, Colors.DeepPurple.Darken2, Colors.Gray.Darken2
+    ];
+
+    <span class="keyword">private</span> IScrollListener _scrollListener;
+    <span class="keyword">private</span> <span class="keyword">double</span> _scrollBarValue = <span class="number">100</span>;
+    <span class="keyword">private</span> <span class="keyword">double</span> _scrollHeight;
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">async</span> Task OnAfterRenderAsync(<span class="keyword">bool</span> firstRender)
+    {
+        <span class="keyword">await</span> <span class="keyword">base</span>.OnAfterRenderAsync(firstRender);
+        <span class="keyword">if</span> (firstRender)
+        {
+            _scrollListener = ScrollListenerFactory.Create(<span class="string">&quot;#scroll_advanced&quot;</span>, <span class="number">0</span>);
+            _scrollListener.OnScroll += ScrollListenerOnScroll;
+
+            <span class="keyword">var</span> scrollData = <span class="keyword">await</span> _scrollListener.GetCurrentScrollDataAsync();
+            ScrollListenerOnScroll(<span class="keyword">null</span>, scrollData);
+        }
+    }
+
+    <span class="keyword">public</span> <span class="keyword">async</span> ValueTask DisposeAsync()
+    {
+        <span class="keyword">if</span> (_scrollListener != <span class="keyword">null</span>)
+        {
+            <span class="keyword">await</span> _scrollListener.DisposeAsync();
+        }
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> ScrollListenerOnScroll(<span class="keyword">object</span> sender, ScrollEventArgs e)
+    {
+        <span class="keyword">var</span> maxScroll = e.ScrollHeight - e.ClientHeight;
+        <span class="keyword">var</span> scrollPercentage = maxScroll &gt; <span class="number">0</span> ? e.ScrollTop / maxScroll * <span class="number">100</span> : <span class="number">0</span>;
+        _scrollBarValue = <span class="number">100</span> - scrollPercentage;
+        _scrollHeight = e.ScrollHeight;
+        StateHasChanged();
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> OnScrollBarValueChanged()
+    {
+        <span class="keyword">var</span> scrollTo = (<span class="number">100</span> - _scrollBarValue) / <span class="number">100</span> * _scrollHeight;
+        ScrollManager.ScrollToAsync(<span class="string">&quot;#scroll_advanced&quot;</span>, <span class="number">0</span>, Convert.ToInt32(scrollTo), ScrollBehavior.Auto);
+    }
+}
+</pre></div>
+</div>

@@ -1,0 +1,97 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using System.Net.Http.Json
+<span class="atSign">&#64;</span>using MudBlazor.Examples.Data.Models
+<span class="atSign">&#64;</span>inject HttpClient HttpClient
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDataGrid</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_dataGrid</span><span class="quot">&quot;</span> <span class="htmlAttributeName">MultiSelection</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_elements</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Filterable</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+    <span class="htmlAttributeName">Hideable</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Groupable</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">GroupExpanded</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">false</span><span class="quot">&quot;</span> <span class="htmlAttributeName">GroupClassFunc</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">GroupClassFunc</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ToolBarContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.h6</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Periodic Elements<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSpacer</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ToolBarContent</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">GroupTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">span</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">font-weight:bold</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="atSign">&#64;</span>context.Title: <span class="atSign">&#64;</span>context.Grouping.Key Count: <span class="atSign">&#64;</span>context.Grouping.Count()
+            <span class="atSign">&#64;</span>if (context.DataGrid.FilteredItems.Count() != 0)
+            {
+                <span class="atSign">&#64;</span>string.Format(&quot; Percentage: {0:P1}&quot;, context.Grouping.Count() / ((double)context.DataGrid.FilteredItems.Count()))
+            }
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">span</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">GroupTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Number</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Nr</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Filterable</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">false</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Groupable</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">false</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Sign</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Name</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Position</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Molar</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Molar mass</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Group</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Category</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Grouping</span> <span class="htmlAttributeName">GroupBy</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_groupBy</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">GroupTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="atSign">&#64;</span>if (_customizeGroupTemplate)
+                {
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">span</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">font-weight:bold</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Group: <span class="atSign">&#64;</span>context.Grouping.Key <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChip</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Outlined</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Size</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Size</span><span class="enumValue">.Small</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>total <span class="atSign">&#64;</span>context.Grouping.Count()<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChip</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">span</span><span class="htmlTagDelimiter">&gt;</span>
+                }
+                else
+                {
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">span</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">font-weight:bold</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Category: <span class="atSign">&#64;</span>context.Grouping.Key<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">span</span><span class="htmlTagDelimiter">&gt;</span>
+                }
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">GroupTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">PropertyColumn</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PagerContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDataGridPager</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Element</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">PagerContent</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDataGrid</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex flex-wrap mt-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">bool</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_customizeGroupTemplate</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Color.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Customize Group Template<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">bool</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_customizeGroupBy</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Color.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ValueChanged</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>CustomizeByGroupChanged</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Customize Group By<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>ExpandAllGroupsAsync</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Color.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Expand all<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>CollapseAllGroupsAsync</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Color.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Collapse all<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> IEnumerable&lt;Element&gt; _elements = <span class="keyword">new</span> List&lt;Element&gt;();
+    <span class="keyword">private</span> MudDataGrid&lt;Element&gt; _dataGrid = <span class="keyword">null</span>!;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _customizeGroupTemplate;
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">bool</span> _customizeGroupBy;
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">readonly</span> <span class="keyword">string</span>[] _nonmetals = [<span class="string">&quot;H&quot;</span>, <span class="string">&quot;He&quot;</span>,<span class="string">&quot;N&quot;</span>, <span class="string">&quot;O&quot;</span>, <span class="string">&quot;F&quot;</span>, <span class="string">&quot;Ne&quot;</span>, <span class="string">&quot;Cl&quot;</span>, <span class="string">&quot;Ar&quot;</span>, <span class="string">&quot;Kr&quot;</span>, <span class="string">&quot;Xe&quot;</span>, <span class="string">&quot;Rn&quot;</span>, <span class="string">&quot;Br&quot;</span>, <span class="string">&quot;C&quot;</span>, <span class="string">&quot;P&quot;</span>, <span class="string">&quot;Se&quot;</span>, <span class="string">&quot;Se&quot;</span>, <span class="string">&quot;I&quot;</span>];
+
+    <span class="keyword">private</span> <span class="keyword">readonly</span> Func&lt;Element, <span class="keyword">object</span>&gt; _groupBy = x =&gt; 
+    {
+        <span class="keyword">if</span> (_customizeGroupBy)
+            <span class="keyword">return</span> _nonmetals.Contains(x.Sign) ? <span class="string">&quot;Nonmetal&quot;</span>:  <span class="string">&quot;Metal&quot;</span>;
+        <span class="keyword">return</span> x.Group;
+    };
+
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">string</span> GroupClassFunc(GroupDefinition&lt;Element&gt; item)
+    {
+        <span class="keyword">return</span> item.Grouping.Key?.ToString() == <span class="string">&quot;Nonmetal&quot;</span> || item.Grouping.Key?.ToString() == <span class="string">&quot;Other&quot;</span>
+                ? <span class="string">&quot;mud-theme-warning&quot;</span>
+                : <span class="keyword">string</span>.Empty;
+    }
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">async</span> Task OnInitializedAsync()
+    {
+        _elements = <span class="keyword">await</span> HttpClient.GetFromJsonAsync&lt;List&lt;Element&gt;&gt;(<span class="string">&quot;webapi/periodictable&quot;</span>);
+    }
+
+    <span class="keyword">private</span> Task ExpandAllGroupsAsync()
+    {
+        <span class="keyword">return</span> _dataGrid.ExpandAllGroupsAsync();
+    }
+
+    <span class="keyword">private</span> Task CollapseAllGroupsAsync()
+    {
+        <span class="keyword">return</span> _dataGrid.CollapseAllGroupsAsync();
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> CustomizeByGroupChanged(<span class="keyword">bool</span> isChecked)
+    {
+        _customizeGroupBy = isChecked;
+        _dataGrid.GroupItems();
+    }
+}
+</pre></div>
+</div>

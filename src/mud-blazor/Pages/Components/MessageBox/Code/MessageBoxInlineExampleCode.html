@@ -1,0 +1,29 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Error</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">OnButtonClickedAsync</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Delete<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChip</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>_state<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChip</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudMessageBox</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_mudMessageBox</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Warning</span><span class="quot">&quot;</span> <span class="htmlAttributeName">CancelText</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Cancel</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MessageContent</span><span class="htmlTagDelimiter">&gt;</span>
+        Deleting can <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">b</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">i</span><span class="htmlTagDelimiter">&gt;</span>not<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">i</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">b</span><span class="htmlTagDelimiter">&gt;</span> be undone!
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MessageContent</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">YesButton</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Error</span><span class="quot">&quot;</span> <span class="htmlAttributeName">StartIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.DeleteForever</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Delete!<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">YesButton</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudMessageBox</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code
+{
+    <span class="keyword">private</span> MudMessageBox _mudMessageBox;
+    <span class="keyword">private</span> <span class="keyword">string</span> _state = <span class="string">&quot;Message box hasn&#39;t been opened yet&quot;</span>;
+
+    <span class="keyword">private</span> <span class="keyword">async</span> Task OnButtonClickedAsync()
+    {
+        <span class="keyword">bool</span>? result = <span class="keyword">await</span> _mudMessageBox.ShowAsync();
+        _state = result <span class="keyword">is</span> <span class="keyword">null</span> ? <span class="string">&quot;Canceled&quot;</span> : <span class="string">&quot;Deleted!&quot;</span>;
+        StateHasChanged();
+    }
+}
+</pre></div>
+</div>

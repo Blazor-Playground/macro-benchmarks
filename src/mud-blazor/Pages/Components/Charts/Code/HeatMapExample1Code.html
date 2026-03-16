@@ -1,0 +1,81 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChart</span> <span class="htmlAttributeName">ChartType</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">ChartType</span><span class="enumValue">.HeatMap</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartSeries</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_series</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartOptions</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_options</span><span class="quot">&quot;</span>
+              <span class="htmlAttributeName">ChartLabels</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_xLabels</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Width</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">100%</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Height</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">350px</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChart</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-4 mt-2 d-flex justify-center</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">AddColor</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Disabled</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(_colorCount &gt;= 5)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Add Color<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>onclick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">RandomizeData</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mx-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Randomize<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">RemoveColor</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Disabled</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(_colorCount &lt;= 1)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Secondary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Remove Color<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span> <span class="htmlAttributeName">Row</span> <span class="htmlAttributeName">Justify</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Justify</span><span class="enumValue">.Center</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="atSign">&#64;</span>for (var i = 0; i &lt; _colors.Length; i++)
+    {
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-2 mx-1</span><span class="quot">&quot;</span>
+                  <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>($&quot;background-color: {_colors[i]}; width: 50px; height: 50px;{(i &gt; _colorCount -1 ? string.Empty : &quot;border: 2px solid black;&quot; )}&quot;)</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+    }
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Align</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Align</span><span class="enumValue">.Center</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.h6</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Number of Colors Selected: <span class="atSign">&#64;</span>_colorCount<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">int</span> _colorCount = <span class="number">1</span>;
+    <span class="keyword">private</span> <span class="keyword">readonly</span> <span class="keyword">string</span>[] _colors = [<span class="string">&quot;#5AC8FA&quot;</span>, <span class="string">&quot;#34C759&quot;</span>, <span class="string">&quot;#007AFF&quot;</span>, <span class="string">&quot;#FFCC00&quot;</span>, <span class="string">&quot;#e03131&quot;</span>];
+    <span class="keyword">private</span> List&lt;ChartSeries&lt;<span class="keyword">double</span>&gt;&gt; _series = [];
+    <span class="keyword">private</span> ChartOptions _options = <span class="keyword">new</span>();
+    <span class="keyword">private</span> <span class="keyword">string</span>[] _xLabels = [];
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> OnInitialized()
+    {
+        <span class="keyword">base</span>.OnInitialized();
+        BuildOptions();
+        RandomizeData();
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> AddColor()
+    {
+        _colorCount++;
+        BuildOptions();
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> RemoveColor()
+    {
+        _colorCount--;
+        BuildOptions();
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> BuildOptions()
+    {
+        <span class="keyword">var</span> options = <span class="keyword">new</span> ChartOptions
+        {
+            ShowToolTips = <span class="keyword">false</span>,
+            ChartPalette = _colors.Take(_colorCount).ToArray()
+        };
+        _options = options;
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> RandomizeData()
+    {
+        <span class="keyword">string</span>[] xaxis = [<span class="string">&quot;A&quot;</span>, <span class="keyword">string</span>.Empty, <span class="string">&quot;C&quot;</span>,];
+        <span class="keyword">var</span> heatMapSeries = <span class="keyword">new</span> List&lt;ChartSeries&lt;<span class="keyword">double</span>&gt;&gt;();
+        <span class="keyword">var</span> dataPoints = xaxis.Length;
+        <span class="keyword">foreach</span> (<span class="keyword">var</span> x <span class="keyword">in</span> xaxis)
+        {
+            <span class="keyword">var</span> data = <span class="keyword">new</span> <span class="keyword">double</span>[dataPoints];
+            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; dataPoints; i++)
+            {
+                data[i] = Math.Round(Random.Shared.NextDouble() * <span class="number">100</span>, <span class="number">2</span>);
+            }
+            heatMapSeries.Add(<span class="keyword">new</span> ChartSeries&lt;<span class="keyword">double</span>&gt; { Name = x, Data = data });
+        }
+        _xLabels = xaxis;
+        _series = heatMapSeries;
+        BuildOptions();
+    }
+}
+</pre></div>
+</div>

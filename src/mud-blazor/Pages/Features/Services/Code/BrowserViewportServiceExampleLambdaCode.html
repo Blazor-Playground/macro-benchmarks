@@ -1,0 +1,37 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using MudBlazor.Services
+<span class="atSign">&#64;</span>inject IBrowserViewportService BrowserViewportService
+<span class="atSign">&#64;</span>implements IAsyncDisposable
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span> <span class="htmlAttributeName">Spacing</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">2</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>Browser width: <span class="atSign">&#64;</span>_currentBrowserWindowSize.Width px<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>Browser height: <span class="atSign">&#64;</span>_currentBrowserWindowSize.Height px<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">readonly</span> Guid _observerId = Guid.NewGuid();
+    <span class="keyword">private</span> BrowserWindowSize _currentBrowserWindowSize = <span class="keyword">new</span>();
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">async</span> Task OnAfterRenderAsync(<span class="keyword">bool</span> firstRender)
+    {
+        <span class="keyword">await</span> <span class="keyword">base</span>.OnAfterRenderAsync(firstRender);
+
+        <span class="keyword">if</span> (firstRender)
+        {
+            <span class="keyword">await</span> BrowserViewportService.SubscribeAsync(_observerId, args =&gt;
+            {
+                _currentBrowserWindowSize = args.BrowserWindowSize;
+                StateHasChanged();
+            });
+        }
+    }
+
+    <span class="keyword">public</span> <span class="keyword">async</span> ValueTask DisposeAsync()
+    {
+        <span class="keyword">await</span> BrowserViewportService.UnsubscribeAsync(_observerId);
+    }
+}
+</pre></div>
+</div>

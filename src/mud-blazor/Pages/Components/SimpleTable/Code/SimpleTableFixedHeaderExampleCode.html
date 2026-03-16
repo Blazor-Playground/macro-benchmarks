@@ -1,0 +1,46 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSimpleTable</span> <span class="htmlAttributeName">Hover</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Dense</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">FixedHeader</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>fixedheader</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(fixedheader?&quot;height:300px;&quot;:&quot;&quot;)</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">thead</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">tr</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="atSign">&#64;</span>foreach (var h in headings)
+            {
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">th</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>h<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">th</span><span class="htmlTagDelimiter">&gt;</span>
+            }
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">tr</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">thead</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">tbody</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="atSign">&#64;</span>foreach (var row in rows)
+        {
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">tr</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="atSign">&#64;</span>foreach (var x in row.Split())
+                {
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">td</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>x<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">td</span><span class="htmlTagDelimiter">&gt;</span>
+                }
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">tr</span><span class="htmlTagDelimiter">&gt;</span>
+        }
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">tbody</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSimpleTable</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">fixedheader</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Fixed Header<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">bool</span> fixedheader = <span class="keyword">true</span>;
+    <span class="keyword">string</span>[] headings = { <span class="string">&quot;ID&quot;</span>, <span class="string">&quot;Name&quot;</span>, <span class="string">&quot;Email&quot;</span>, <span class="string">&quot;Gender&quot;</span>, <span class="string">&quot;IP Address&quot;</span> };
+    <span class="keyword">string</span>[] rows = {
+        <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;1 Aiden a.reed+work<span class="atSign">&#64;</span>example.com Male 192.0.2.10&quot;</span>,
+        <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;2 Mason mason_gray-1<span class="atSign">&#64;</span>example.net Male 192.0.2.21&quot;</span>,
+        <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;3 Leo leo.hart1990<span class="atSign">&#64;</span>example.org Male 198.51.100.32&quot;</span>,
+        <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;4 Zara zara.armstrong.sales+eu<span class="atSign">&#64;</span>example.com Female 198.51.100.43&quot;</span>,
+        <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;5 Rowan rowan.phillips_team<span class="atSign">&#64;</span>example.net Male 198.51.100.54&quot;</span>,
+        <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;6 Iris iris_morgan<span class="atSign">&#64;</span>example.org Female 203.0.113.65&quot;</span>,
+        <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;7 Ethan ethan.brooks+dev<span class="atSign">&#64;</span>example.com Male 203.0.113.76&quot;</span>,
+        <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;8 Noah n.carter-hr<span class="atSign">&#64;</span>example.net Male 203.0.113.87&quot;</span>,
+        <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;9 Lily lily_green123<span class="atSign">&#64;</span>example.org Female 192.0.2.98&quot;</span>,
+        <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;10 Nina nina.olsen+news<span class="atSign">&#64;</span>example.com Female 192.0.2.109&quot;</span>,
+        <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;11 Owen owen.davis_uk<span class="atSign">&#64;</span>example.net Male 198.51.100.111&quot;</span>,
+        <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;12 Emma emma.klein-ops<span class="atSign">&#64;</span>example.org Female 203.0.113.122&quot;</span>,
+    };
+}
+</pre></div>
+</div>

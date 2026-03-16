@@ -1,0 +1,70 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>inject ISnackbar Snackbar
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDataGrid</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ClientInfo</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Clients</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Filterable</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName">RowContextMenuClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>((_rightClick ? OpenMenuContent : null)!)</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName">RowClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>((!_rightClick ? OpenMenuContent : null)!)</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Username</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Username</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.HwId</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">HWID</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">TemplateColumn</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ClientInfo</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Status</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">CellTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChip</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Error</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Size</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Size</span><span class="enumValue">.Small</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Offline<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChip</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">CellTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">TemplateColumn</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PagerContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span> <span class="htmlAttributeName">Row</span> <span class="htmlAttributeName">AlignItems</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">AlignItems</span><span class="enumValue">.Center</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ml-2</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">strong</span><span class="htmlTagDelimiter">&gt;</span>Activator:<span class="htmlEntity">&amp;nbsp;</span><span class="htmlEntity">&amp;nbsp;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">strong</span><span class="htmlTagDelimiter">&gt;</span> Left Click<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ml-n3</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_rightClick</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Right Click</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">PagerContent</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDataGrid</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudMenu</span> <span class="htmlAttributeName">PositionAtCursor</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_contextMenu</span><span class="quot">&quot;</span> <span class="htmlAttributeName">id</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_contextMenu</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudMenuItem</span> <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Block</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        Ban <span class="atSign">&#64;</span>_contextRow?.Username
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudMenuItem</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudMenuItem</span> <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Info</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>ShowHiddenInfo</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        View Details for <span class="atSign">&#64;</span>_contextRow?.HwId
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudMenuItem</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudMenu</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+#nullable enable
+    <span class="keyword">private</span> ClientInfo? _contextRow;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _rightClick = <span class="keyword">true</span>;
+    <span class="keyword">private</span> MudMenu _contextMenu = <span class="keyword">null</span>!;
+
+    <span class="keyword">public</span> List&lt;ClientInfo&gt; Clients =
+    [
+        <span class="keyword">new</span>() { Username = <span class="string">&quot;user123&quot;</span>, HwId = <span class="string">&quot;000-000-000-000&quot;</span>, HiddenInformation = <span class="string">&quot;Not good Grid info for user123&quot;</span> },
+        <span class="keyword">new</span>() { Username = <span class="string">&quot;joedoe&quot;</span>, HwId = <span class="string">&quot;111-000-111-000&quot;</span>, HiddenInformation = <span class="string">&quot;Not good Grid info for joedoe&quot;</span> }
+    ];
+
+    <span class="keyword">private</span> <span class="keyword">async</span> Task OpenMenuContent(DataGridRowClickEventArgs&lt;ClientInfo&gt; args)
+    {
+        _contextRow = args.Item;
+        <span class="keyword">await</span> _contextMenu.OpenMenuAsync(args.MouseEventArgs);
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> ShowHiddenInfo()
+    {
+        <span class="keyword">if</span> (_contextRow <span class="keyword">is</span> not <span class="keyword">null</span>)
+        {
+            Snackbar.Add($<span class="string">&quot;Hidden information for {_contextRow.HwId}: {_contextRow.HiddenInformation}&quot;</span>, Severity.Info);
+        }
+    }
+
+    <span class="keyword">public</span> <span class="keyword">class</span> ClientInfo
+    {
+        <span class="keyword">public</span> <span class="keyword">string</span> Username { <span class="keyword">get</span>; <span class="keyword">set</span>; } = <span class="keyword">string</span>.Empty;
+
+        <span class="keyword">public</span> <span class="keyword">string</span> HwId { <span class="keyword">get</span>; <span class="keyword">set</span>; } = <span class="keyword">string</span>.Empty;
+
+        <span class="keyword">public</span> <span class="keyword">string</span> HiddenInformation { <span class="keyword">get</span>; <span class="keyword">set</span>; } = <span class="keyword">string</span>.Empty;
+    }
+}
+</pre></div>
+</div>

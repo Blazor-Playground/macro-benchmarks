@@ -1,0 +1,30 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">doc-section-component-container</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChart</span> <span class="htmlAttributeName">ChartType</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">ChartType</span><span class="enumValue">.Rose</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartSeries</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_series</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-SelectedIndex</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_selectedIndex</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartOptions</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_options</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Width</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">100%</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Height</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">300px</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">CustomGraphics</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">text</span> <span class="htmlAttributeName">x</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">50</span><span class="quot">&quot;</span>
+                  <span class="htmlAttributeName">y</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">25</span><span class="quot">&quot;</span>
+                  <span class="htmlAttributeName">dominant-baseline</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">middle</span><span class="quot">&quot;</span>
+                  <span class="htmlAttributeName">text-anchor</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">middle</span><span class="quot">&quot;</span>
+                  <span class="htmlAttributeName">fill</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_options.ChartPalette[Math.Max(0, _selectedIndex)]</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>(_selectedIndex == -1 ? &quot;&quot; : $&quot;Selected: {_series[0].Data[_selectedIndex].Y}&quot;)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">text</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">CustomGraphics</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChart</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>Selected Index: <span class="atSign">&#64;</span>_selectedIndex<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">int</span> _selectedIndex = -<span class="number">1</span>;
+    <span class="keyword">private</span> List&lt;ChartSeries&lt;<span class="keyword">double</span>&gt;&gt; _series = <span class="keyword">new</span>() { <span class="keyword">new</span>() { Name = <span class="string">&quot;Single Series&quot;</span>, Data = <span class="keyword">new</span> <span class="keyword">double</span>[] { <span class="number">70</span>, <span class="number">20</span>, <span class="number">40</span>, <span class="number">50</span>, <span class="number">80</span> } } };
+    <span class="keyword">private</span> RoseChartOptions _options = <span class="keyword">new</span> RoseChartOptions
+    {
+        ShowValues = <span class="keyword">true</span>,
+        AngleOffset = <span class="number">45</span>,
+        ScaleFactor = <span class="number">0</span>.<span class="number">8</span>,
+        ShowToolTips = <span class="keyword">false</span>,
+    };
+}
+</pre></div>
+</div>

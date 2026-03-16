@@ -1,0 +1,29 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>inject ISnackbar Snackbar
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>onclick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>AddCloseAfterNavSnackbar</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+   Closes after navigation
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>onclick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>AddSnackbar</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    Default snackbar
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code{
+    <span class="keyword">public</span> <span class="keyword">void</span> AddSnackbar()
+    {
+        Snackbar.Add(<span class="string">&quot;Remains open after navigation.&quot;</span>, Severity.Normal);
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> AddCloseAfterNavSnackbar()
+    {
+        Snackbar.Add(<span class="string">&quot;Will close after navigation.&quot;</span>, Severity.Normal, (options) =&gt;
+        {
+            options.CloseAfterNavigation = <span class="keyword">true</span>;
+        });
+    }
+}
+</pre></div>
+</div>

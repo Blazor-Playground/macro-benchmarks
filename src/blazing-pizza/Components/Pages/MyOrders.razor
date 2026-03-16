@@ -1,0 +1,45 @@
+@page "/myorders"
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@inject IRepository Repository
+@attribute [Authorize]
+
+<PageTitle>Blazing Pizza - My Orders</PageTitle>
+
+<div class="main" data-testid="myorders-main">
+	<TemplatedList Loader="LoadOrders" ListGroupClass="orders-list">
+		<Loading>Loading...</Loading>
+		<Empty>
+			<h2>No orders placed</h2>
+			<a class="btn btn-success" href="" data-testid="order-some-pizza-link">Order some pizza</a>
+		</Empty>
+		<Item Context="item">
+			<div class="col">
+				<h5>@item.Order.CreatedTime.ToLongDateString()</h5>
+				Items:
+				<strong>@item.Order.Pizzas.Count()</strong>;
+				Total price:
+				<strong>£@item.Order.GetFormattedTotalPrice()</strong>
+			</div>
+			<div class="col">
+				Status: <strong>@item.StatusText</strong>
+			</div>
+			<div class="col flex-grow-0">
+				<a href="myorders/@item.Order.OrderId" class="btn btn-success" data-testid="track-order-@item.Order.OrderId">
+					Track &gt;
+				</a>
+			</div>
+		</Item>
+	</TemplatedList>
+</div>
+@code {
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthenticationState { get; set; } = default!;
+
+	async Task<IEnumerable<OrderWithStatus>> LoadOrders()
+	{
+		var authState = await AuthenticationState;
+		var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "fake-user-id";
+		return await Repository.GetOrdersAsync(userId);
+	}
+}

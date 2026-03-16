@@ -1,0 +1,52 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>inject IDialogService DialogService
+
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>onclick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">DeleteUserAsync</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Error</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Delete records<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>onclick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ConfirmAsync</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Success</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Remove email<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>onclick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">DownloadAsync</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Warning</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Slow computer<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+
+    <span class="keyword">private</span> Task DeleteUserAsync()
+    {
+        <span class="keyword">var</span> parameters = <span class="keyword">new</span> DialogParameters&lt;DialogTemplateExample_Dialog&gt;
+        {
+            { x =&gt; x.ContentText, <span class="string">&quot;Do you really want to delete these records? This process cannot be undone.&quot;</span> },
+            { x =&gt; x.ButtonText, <span class="string">&quot;Delete&quot;</span> },
+            { x =&gt; x.Color, Color.Error }
+        };
+
+        <span class="keyword">var</span> options = <span class="keyword">new</span> DialogOptions() { CloseButton = <span class="keyword">true</span>, MaxWidth = MaxWidth.ExtraSmall };
+
+        <span class="keyword">return</span> DialogService.ShowAsync&lt;DialogTemplateExample_Dialog&gt;(<span class="string">&quot;Delete&quot;</span>, parameters, options);
+    }
+
+    <span class="keyword">private</span> Task ConfirmAsync()
+    {
+        <span class="keyword">var</span> parameters = <span class="keyword">new</span> DialogParameters&lt;DialogTemplateExample_Dialog&gt;
+        {
+            { x =&gt; x.ContentText, <span class="string">&quot;Are you sure you want to remove thisguy<span class="atSign">&#64;</span>emailz.com from this account?&quot;</span> },
+            { x =&gt; x.ButtonText, <span class="string">&quot;Yes&quot;</span> },
+            { x =&gt; x.Color, Color.Success }
+        };
+
+        <span class="keyword">return</span> DialogService.ShowAsync&lt;DialogTemplateExample_Dialog&gt;(<span class="string">&quot;Confirm&quot;</span>, parameters);
+    }
+
+    <span class="keyword">private</span> Task DownloadAsync()
+    {
+        <span class="keyword">var</span> parameters = <span class="keyword">new</span> DialogParameters&lt;DialogTemplateExample_Dialog&gt;
+        {
+            { x =&gt; x.ContentText, <span class="string">&quot;Your computer seems very slow, click the download button to download free RAM.&quot;</span> },
+            { x =&gt; x.ButtonText, <span class="string">&quot;Download&quot;</span> },
+            { x =&gt; x.Color, Color.Info }
+        };
+
+        <span class="keyword">return</span> DialogService.ShowAsync&lt;DialogTemplateExample_Dialog&gt;(<span class="string">&quot;Slow Computer Detected&quot;</span>, parameters);
+    }
+}
+</pre></div>
+</div>

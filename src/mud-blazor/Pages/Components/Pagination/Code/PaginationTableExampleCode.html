@@ -1,0 +1,43 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using MudBlazor.Examples.Data.Models
+<span class="atSign">&#64;</span>inject HttpClient httpClient
+<span class="atSign">&#64;</span>using System.Net.Http.Json
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTable</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_table</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_elements</span><span class="quot">&quot;</span> <span class="htmlAttributeName">RowsPerPage</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">4</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Hover</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Breakpoint</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Breakpoint</span><span class="enumValue">.Sm</span><span class="quot">&quot;</span> <span class="htmlAttributeName">LoadingProgressColor</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Info</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">HeaderContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Nr<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Sign<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Name<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Position<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Molar mass<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">HeaderContent</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">RowTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Nr</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Number<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Sign</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Sign<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Name</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Name<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Position</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Position<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Molar mass</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Molar<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">RowTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PagerContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPagination</span> <span class="htmlAttributeName">SelectedChanged</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">PageChanged</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Count</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>((_table.GetFilteredItemsCount() + _table.RowsPerPage - 1) / _table.RowsPerPage)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">PagerContent</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTable</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> MudTable&lt;Element&gt; _table;
+    <span class="keyword">private</span> IEnumerable&lt;Element&gt; _elements = <span class="keyword">new</span> List&lt;Element&gt;();
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">async</span> Task OnInitializedAsync()
+    {
+        _elements = <span class="keyword">await</span> httpClient.GetFromJsonAsync&lt;List&lt;Element&gt;&gt;(<span class="string">&quot;webapi/periodictable&quot;</span>);
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> PageChanged(<span class="keyword">int</span> i)
+    {
+        _table.NavigateTo(i - <span class="number">1</span>);
+    }
+}
+</pre></div>
+</div>

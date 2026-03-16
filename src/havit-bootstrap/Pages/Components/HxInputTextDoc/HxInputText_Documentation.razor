@@ -1,0 +1,18 @@
+@attribute [Route("/components/" + nameof(HxInputText))]
+
+<ApiDoc Type="typeof(HxInputText)">
+    <DocHeading Title="Basic usage" />
+    <Demo Type="typeof(HxInputText_Demo)" Tabs="false" />
+
+    <DocHeading Title="Input type" />
+    <p>You can set the input type using the <code>InputType</code> parameter, for example, <code>InputType.Password</code>:</p>
+    <Demo Type="typeof(HxInputText_Demo_Password)" />
+
+    <DocHeading Title="Input mode" />
+    <p><code>InputMode</code> is a hint to browsers regarding the type of virtual keyboard configuration to use when editing.</p>
+    <Demo Type="typeof(HxInputText_Demo_InputMode)" />
+
+	<DocHeading Id="SelectOnFocus" Title="Select on focus" />
+	<p>The <code>SelectOnFocus</code> parameter allows you to determine whether all the text within the input field is automatically selected when it receives focus.</p>
+	<Demo Type="typeof(HxInputText_Demo_SelectOnFocus)" />
+</ApiDoc>

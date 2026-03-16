@@ -1,0 +1,8 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDatePicker</span> 
+    <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Not working days, Sunday in red</span><span class="quot">&quot;</span>   
+    <span class="htmlAttributeName">IsDateDisabledFunc</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>((DateTime dt)=&gt;((int)dt.DayOfWeek &gt; 0 &amp;&amp; (int)dt.DayOfWeek &lt; 6))</span><span class="quot">&quot;</span>
+    <span class="htmlAttributeName">AdditionalDateClassesFunc</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>((DateTime dt)=&gt;((int)dt.DayOfWeek == 0 ? &quot;red-text text-accent-4&quot; : &quot;&quot;))</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">/&gt;</span>
+</pre></div>
+</div>

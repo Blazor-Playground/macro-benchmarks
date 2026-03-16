@@ -1,0 +1,46 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using FluentValidation
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudForm</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTextField</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">creditCardNr</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Validation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>ccValidator.Validation</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Immediate</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Credit card nr</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudForm</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code { 
+    <span class="comment">// This is a valid Visa test card number</span>
+    <span class="keyword">string</span> creditCardNr = <span class="string">&quot;4012 8888 8888 1881&quot;</span>;
+
+    <span class="comment">// The validation rules (overkill, I know, but very fluent):</span>
+    FluentValueValidator&lt;<span class="keyword">string</span>&gt; ccValidator = <span class="keyword">new</span> FluentValueValidator&lt;<span class="keyword">string</span>&gt;(x =&gt; x
+        .NotEmpty()
+        .Length(<span class="number">1</span>,<span class="number">100</span>)
+        .CreditCard());
+
+    <span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;summary&gt;</span>
+    <span class="xmlDocTag">///</span><span class="xmlDocComment"> A glue class to make it easy to define validation rules for single values using FluentValidation</span>
+    <span class="xmlDocTag">///</span><span class="xmlDocComment"> You can reuse this class for all your fields, like for the credit card rules above.</span>
+    <span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;/summary&gt;</span>
+    <span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;typeparam name=&quot;T&quot;&gt;</span><span class="xmlDocTag">&lt;/typeparam&gt;</span>
+    <span class="keyword">public</span> <span class="keyword">class</span> FluentValueValidator&lt;T&gt; : AbstractValidator&lt;T&gt;
+    {
+        <span class="keyword">public</span> FluentValueValidator(Action&lt;IRuleBuilderInitial&lt;T, T&gt;&gt; rule)
+        {
+            rule(RuleFor(x =&gt; x));
+        }
+
+        <span class="keyword">private</span> IEnumerable&lt;<span class="keyword">string</span>&gt; ValidateValue(T arg)
+        {
+            <span class="keyword">var</span> result = Validate(arg);
+            <span class="keyword">if</span> (result.IsValid)
+                <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">string</span>[<span class="number">0</span>];
+            <span class="keyword">return</span> result.Errors.Select(e =&gt; e.ErrorMessage);
+        }
+
+        <span class="keyword">public</span> Func&lt;T, IEnumerable&lt;<span class="keyword">string</span>&gt;&gt; Validation =&gt; ValidateValue;
+    }
+}
+</pre></div>
+</div>

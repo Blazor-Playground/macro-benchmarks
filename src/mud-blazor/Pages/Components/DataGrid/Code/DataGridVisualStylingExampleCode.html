@@ -1,0 +1,69 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using System.Net.Http.Json
+<span class="atSign">&#64;</span>using MudBlazor.Examples.Data.Models
+<span class="atSign">&#64;</span>inject HttpClient httpClient
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDataGrid</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Elements.Take(4)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Hover</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_hover</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Dense</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_dense</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Striped</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_striped</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Bordered</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_bordered</span><span class="quot">&quot;</span>
+    <span class="htmlAttributeName">RowStyleFunc</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_rowStyleFunc</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Number</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Nr</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Sign</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Name</span><span class="quot">&quot;</span> <span class="htmlAttributeName">CellStyleFunc</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_cellStyleFunc</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Position</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Molar</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Molar mass</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDataGrid</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex flex-wrap mt-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_hover</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Hover<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_dense</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Secondary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Dense<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_striped</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Tertiary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Striped<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_bordered</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Warning</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Bordered<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> IEnumerable&lt;Element&gt; Elements = <span class="keyword">new</span> List&lt;Element&gt;();
+    <span class="keyword">private</span> <span class="keyword">bool</span> _hover;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _dense;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _striped;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _bordered;
+    <span class="comment">// style the rows where the Element.Position == 0 to have italic text.</span>
+    <span class="keyword">private</span> Func&lt;Element, <span class="keyword">int</span>, <span class="keyword">string</span>&gt; _rowStyleFunc =&gt; (x, i) =&gt;
+    {
+        <span class="keyword">if</span> (x.Position == <span class="number">0</span>)
+            <span class="keyword">return</span> <span class="string">&quot;font-style:italic&quot;</span>;
+
+        <span class="keyword">return</span> <span class="string">&quot;&quot;</span>;
+    };
+    <span class="comment">// style the cells according to the element&#39;s physical classification and the molar mass.</span>
+    <span class="keyword">private</span> Func&lt;Element, <span class="keyword">string</span>&gt; _cellStyleFunc =&gt; x =&gt;
+    {
+        <span class="keyword">string</span> style = <span class="string">&quot;&quot;</span>;
+
+        <span class="keyword">if</span> (x.Number == <span class="number">1</span>)
+            style += <span class="string">&quot;background-color:#8CED8C&quot;</span>;
+
+        <span class="keyword">else</span> <span class="keyword">if</span> (x.Number == <span class="number">2</span>)
+            style += <span class="string">&quot;background-color:#E5BDE5&quot;</span>;
+
+        <span class="keyword">else</span> <span class="keyword">if</span> (x.Number == <span class="number">3</span>)
+            style += <span class="string">&quot;background-color:#EACE5D&quot;</span>;
+
+        <span class="keyword">else</span> <span class="keyword">if</span> (x.Number == <span class="number">4</span>)
+            style += <span class="string">&quot;background-color:#F1F165&quot;</span>;
+
+        <span class="keyword">if</span> (x.Molar &gt; <span class="number">5</span>)
+            style += <span class="string">&quot;;font-weight:bold&quot;</span>;
+
+        <span class="keyword">return</span> style;
+    };
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">async</span> Task OnInitializedAsync()
+    {
+        Elements = <span class="keyword">await</span> httpClient.GetFromJsonAsync&lt;List&lt;Element&gt;&gt;(<span class="string">&quot;webapi/periodictable&quot;</span>);
+    }
+}
+</pre></div>
+</div>

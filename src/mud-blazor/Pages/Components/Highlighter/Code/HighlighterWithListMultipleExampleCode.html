@@ -1,0 +1,35 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Elevation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudList</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudListSubheader</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTextField</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">searchTerm</span><span class="quot">&quot;</span> <span class="htmlAttributeName">AdornmentIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.People</span><span class="quot">&quot;</span>
+                          <span class="htmlAttributeName">Adornment</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Adornment</span><span class="enumValue">.End</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Immediate</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Outlined</span><span class="quot">&quot;</span>
+                          <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Names to search</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudListSubheader</span><span class="htmlTagDelimiter">&gt;</span>
+
+        <span class="atSign">&#64;</span>{
+            string[] searchTerms = searchTerm.Split(split);
+            for (int i = 0; i &lt; searchTerms.Length; i++)
+                searchTerms[i] = searchTerms[i].Trim();
+        }
+        <span class="atSign">&#64;</span>foreach (var name in names)
+        {
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudListItem</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>key</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">name</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Person</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudHighlighter</span> <span class="htmlAttributeName">Text</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>name</span><span class="quot">&quot;</span> <span class="htmlAttributeName">HighlightedTexts</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>searchTerms</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudListItem</span><span class="htmlTagDelimiter">&gt;</span>
+        }
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudList</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">string</span> searchTerm = <span class="string">&quot;William Jordan, Oliver&quot;</span>;
+    IEnumerable&lt;<span class="keyword">string</span>&gt; names = <span class="keyword">new</span> List&lt;<span class="keyword">string</span>&gt;
+    {
+        <span class="string">&quot;William Jordan&quot;</span>, <span class="string">&quot;Oliver Jones&quot;</span>, <span class="string">&quot;William Johnson&quot;</span>, <span class="string">&quot;Daniel Williams&quot;</span>, <span class="string">&quot;Oliver Simpson&quot;</span>
+    };
+    <span class="keyword">static</span> <span class="keyword">readonly</span> <span class="keyword">char</span>[] split = <span class="keyword">new</span> <span class="keyword">char</span>[] { <span class="string">&#39;;&#39;</span>, <span class="string">&#39;,&#39;</span>, <span class="string">&#39;.&#39;</span> };
+}
+</pre></div>
+</div>

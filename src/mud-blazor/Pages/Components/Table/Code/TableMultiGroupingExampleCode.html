@@ -1,0 +1,87 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using System.Net.Http.Json
+<span class="atSign">&#64;</span>using MudBlazor.Examples.Data.Models
+<span class="atSign">&#64;</span>inject HttpClient httpClient
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">style</span><span class="htmlTagDelimiter">&gt;</span>
+    .mud-table-cell-custom-group {
+        font-weight: 500;
+    }
+
+    .mud-table-cell-custom-group-footer {
+        padding-bottom: 50px;
+        text-align: right;
+    }
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">style</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>Total items: <span class="atSign">&#64;</span>Elements?.Count() - Selected items: <span class="atSign">&#64;</span>selectedItems?.Count<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTable</span> <span class="htmlAttributeName">Hover</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Breakpoint</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Breakpoint</span><span class="enumValue">.Sm</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Height</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">500px</span><span class="quot">&quot;</span> <span class="htmlAttributeName">FixedHeader</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+          <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>Elements</span><span class="quot">&quot;</span>
+          <span class="htmlAttributeName">GroupBy</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_groupDefinition</span><span class="quot">&quot;</span>
+          <span class="htmlAttributeName">GroupHeaderStyle</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">background-color:var(--mud-palette-background-gray)</span><span class="quot">&quot;</span>
+          <span class="htmlAttributeName">GroupFooterClass</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mb-4</span><span class="quot">&quot;</span>
+          <span class="htmlAttributeName">Dense</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_dense</span><span class="quot">&quot;</span>
+          <span class="htmlAttributeName">MultiSelection</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_multiSelect</span><span class="quot">&quot;</span>
+          <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-SelectedItems</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">selectedItems</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">HeaderContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Nr<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Sign<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Name<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Group<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Position<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Molar mass<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">HeaderContent</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">GroupHeaderTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mud-table-cell-custom-group</span><span class="quot">&quot;</span> <span class="htmlAttributeName">colspan</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">6</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>($&quot;{context.GroupName}: {context.Key}&quot;)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">GroupHeaderTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">RowTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Nr</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Number<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Sign</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Sign<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Name</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Name<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Group</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Group<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Position</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Position<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">text-align:right</span><span class="quot">&quot;</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Molar mass</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Molar<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">RowTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">GroupFooterTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mud-table-cell-custom-group mud-table-cell-custom-group-footer</span><span class="quot">&quot;</span> <span class="htmlAttributeName">colspan</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">6</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Total Mass: <span class="atSign">&#64;</span>context.Items.Sum((e) =&gt; e.Molar)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">GroupFooterTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTable</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_dense</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Dense<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_multiSelect</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>MultiSelect<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_groupDefinition.Indentation</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Indentation<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_groupDefinition.Expandable</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Expandable (Root Level)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_groupDefinition.InnerGroup.Expandable</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Expandable (Second Level)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">bool</span> _dense = <span class="keyword">false</span>;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _multiSelect = <span class="keyword">true</span>;
+    <span class="keyword">private</span> HashSet&lt;Element&gt; selectedItems = <span class="keyword">new</span> HashSet&lt;Element&gt;();
+
+    <span class="keyword">private</span> TableGroupDefinition&lt;Element&gt; _groupDefinition = <span class="keyword">new</span> TableGroupDefinition&lt;Element&gt;()
+    {
+        GroupName = <span class="string">&quot;Group&quot;</span>,
+        Indentation = <span class="keyword">false</span>,
+        Expandable = <span class="keyword">false</span>,
+        Selector = (e) =&gt; e.Group,
+        InnerGroup = <span class="keyword">new</span> TableGroupDefinition&lt;Element&gt;()
+        {
+            GroupName = <span class="string">&quot;Position&quot;</span>,
+            Expandable = <span class="keyword">false</span>,
+            Selector = (e) =&gt; e.Position
+        }
+
+    };
+
+
+    <span class="keyword">private</span> IEnumerable&lt;Element&gt; Elements = <span class="keyword">new</span> List&lt;Element&gt;();
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">async</span> Task OnInitializedAsync()
+    {
+        Elements = <span class="keyword">await</span> httpClient.GetFromJsonAsync&lt;List&lt;Element&gt;&gt;(<span class="string">&quot;webapi/periodictable&quot;</span>);
+    }
+}
+</pre></div>
+</div>

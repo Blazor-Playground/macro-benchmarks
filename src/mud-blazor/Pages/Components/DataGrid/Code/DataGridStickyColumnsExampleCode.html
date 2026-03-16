@@ -1,0 +1,36 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using System.Net.Http.Json
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDataGrid</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_users</span><span class="quot">&quot;</span> <span class="htmlAttributeName">HorizontalScrollbar</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Bordered</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Dense</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Name</span><span class="quot">&quot;</span> <span class="htmlAttributeName">StickyLeft</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Age</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.FillerColumn</span><span class="quot">&quot;</span> <span class="htmlAttributeName">HeaderStyle</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">white-space:nowrap</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">HeaderTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="atSign">&#64;</span>((MarkupString)$&quot;This is a really long column{string.Join(&quot;&quot;, Enumerable.Repeat(&quot;<span class="htmlEntity">&amp;nbsp;</span>&quot;, 1000))}...&quot;)
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">HeaderTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">PropertyColumn</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Salary</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">TemplateColumn</span> <span class="htmlAttributeName">StickyRight</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">CellTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudIconButton</span> <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Outlined.Edit</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Size</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Size.Small</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">CellTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">TemplateColumn</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDataGrid</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">public</span> record User(<span class="keyword">string</span> Name, <span class="keyword">int</span> Age, <span class="keyword">string</span> FillerColumn, <span class="keyword">decimal</span> Salary);
+
+    <span class="keyword">private</span> IEnumerable&lt;User&gt; _users = <span class="keyword">new</span> List&lt;User&gt;
+    {
+        <span class="keyword">new</span> User(<span class="string">&quot;Sam&quot;</span>, <span class="number">56</span>, <span class="string">&quot;...&quot;</span>, 50_000.00M), 
+        <span class="keyword">new</span> User(<span class="string">&quot;Alicia&quot;</span>, <span class="number">54</span>, <span class="string">&quot;...&quot;</span>, 75_000.00M), 
+        <span class="keyword">new</span> User(<span class="string">&quot;Ira&quot;</span>, <span class="number">27</span>, <span class="string">&quot;...&quot;</span>, 102_000.00M),
+        <span class="keyword">new</span> User(<span class="string">&quot;John&quot;</span>, <span class="number">32</span>, <span class="string">&quot;...&quot;</span>, 132_000.00M),
+    };
+}
+</pre></div>
+</div>

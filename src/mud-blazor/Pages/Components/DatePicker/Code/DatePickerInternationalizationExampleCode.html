@@ -1,0 +1,48 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using System.Globalization
+<span class="atSign">&#64;</span>using System.Reflection
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDatePicker</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Current UI Culture</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Date</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_date</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDatePicker</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Persian</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Date</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_date</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Culture</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>GetPersianCulture()</span><span class="quot">&quot;</span> <span class="htmlAttributeName">TitleDateFormat</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">dddd, dd MMMM</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">/&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDatePicker</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Chinese</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Date</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_date</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Culture</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>CultureInfo.GetCultureInfo(&quot;zh-Hans&quot;)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">TitleDateFormat</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">dddd, dd MMMM</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">/&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> DateTime? _date = <span class="keyword">new</span> DateTime(<span class="number">2021</span>, <span class="number">02</span>, <span class="number">14</span>); <span class="comment">// 1399-11-26 in Persian calendar</span>
+
+    <span class="keyword">public</span> CultureInfo GetPersianCulture()
+    {
+        <span class="keyword">var</span> culture = <span class="keyword">new</span> CultureInfo(<span class="string">&quot;fa-IR&quot;</span>);
+        DateTimeFormatInfo formatInfo = culture.DateTimeFormat;
+        formatInfo.AbbreviatedDayNames = <span class="keyword">new</span>[] { <span class="string">&quot;ی&quot;</span>, <span class="string">&quot;د&quot;</span>, <span class="string">&quot;س&quot;</span>, <span class="string">&quot;چ&quot;</span>, <span class="string">&quot;پ&quot;</span>, <span class="string">&quot;ج&quot;</span>, <span class="string">&quot;ش&quot;</span> };
+        formatInfo.DayNames = <span class="keyword">new</span>[] { <span class="string">&quot;یکشنبه&quot;</span>, <span class="string">&quot;دوشنبه&quot;</span>, <span class="string">&quot;سه شنبه&quot;</span>, <span class="string">&quot;چهار شنبه&quot;</span>, <span class="string">&quot;پنجشنبه&quot;</span>, <span class="string">&quot;جمعه&quot;</span>, <span class="string">&quot;شنبه&quot;</span> };
+        <span class="keyword">var</span> monthNames = <span class="keyword">new</span>[]
+        {
+            <span class="string">&quot;فروردین&quot;</span>, <span class="string">&quot;اردیبهشت&quot;</span>, <span class="string">&quot;خرداد&quot;</span>, <span class="string">&quot;تیر&quot;</span>, <span class="string">&quot;مرداد&quot;</span>, <span class="string">&quot;شهریور&quot;</span>, <span class="string">&quot;مهر&quot;</span>, <span class="string">&quot;آبان&quot;</span>, <span class="string">&quot;آذر&quot;</span>, <span class="string">&quot;دی&quot;</span>, <span class="string">&quot;بهمن&quot;</span>,
+            <span class="string">&quot;اسفند&quot;</span>,
+            <span class="string">&quot;&quot;</span>,
+        };
+        formatInfo.AbbreviatedMonthNames =
+            formatInfo.MonthNames =
+                formatInfo.MonthGenitiveNames = formatInfo.AbbreviatedMonthGenitiveNames = monthNames;
+        formatInfo.AMDesignator = <span class="string">&quot;ق.ظ&quot;</span>;
+        formatInfo.PMDesignator = <span class="string">&quot;ب.ظ&quot;</span>;
+        formatInfo.ShortDatePattern = <span class="string">&quot;yyyy/MM/dd&quot;</span>;
+        formatInfo.LongDatePattern = <span class="string">&quot;dddd, dd MMMM,yyyy&quot;</span>;
+        formatInfo.FirstDayOfWeek = DayOfWeek.Saturday;
+        Calendar cal = <span class="keyword">new</span> PersianCalendar();
+        FieldInfo fieldInfo = culture.GetType().GetField(<span class="string">&quot;calendar&quot;</span>, BindingFlags.NonPublic | BindingFlags.Instance);
+        <span class="keyword">if</span> (fieldInfo != <span class="keyword">null</span>)
+            fieldInfo.SetValue(culture, cal);
+        FieldInfo info = formatInfo.GetType().GetField(<span class="string">&quot;calendar&quot;</span>, BindingFlags.NonPublic | BindingFlags.Instance);
+        <span class="keyword">if</span> (info != <span class="keyword">null</span>)
+            info.SetValue(formatInfo, cal);
+        culture.NumberFormat.NumberDecimalSeparator = <span class="string">&quot;/&quot;</span>;
+        culture.NumberFormat.DigitSubstitution = DigitShapes.NativeNational;
+        culture.NumberFormat.NumberNegativePattern = <span class="number">0</span>;
+        <span class="keyword">return</span> culture;
+    }
+}
+</pre></div>
+</div>

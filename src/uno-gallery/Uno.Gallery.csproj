@@ -1,0 +1,100 @@
+<Project Sdk="Uno.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(BenchmarkTargetFramework)-browserwasm</TargetFramework>
+    <DashName>uno-gallery</DashName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <NoWarn>$(NoWarn);Uno0001;CS8622;CS8618;CS8601;CS8602;CS8625;CS8604;CS8605;CS8603;CS8612;CS8767;CS8600;CS8619;CS0169;CS8632;IL2111;IL2067;IL2072;IL2104;IL2122</NoWarn>
+    <OutputType>Exe</OutputType>
+    <ApplicationTitle>Gallery</ApplicationTitle>
+    <ApplicationId>uno.platform.gallery</ApplicationId>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>1</ApplicationVersion>
+    <IsSkiaWasm>true</IsSkiaWasm>
+    <UnoFeatures>
+      Material;
+      Toolkit;
+      Cupertino;
+      Lottie;
+      Skia;
+      Svg;
+      MediaElement;
+      WebView;
+      SkiaRenderer;
+    </UnoFeatures>
+    <DefineConstants>$(DefineConstants);IS_WASM_SKIA</DefineConstants>
+    <DefineConstants>$(DefineConstants);HAS_SKIA_RENDERER</DefineConstants>
+    <DefineConstants>$(DefineConstants);__WASM__</DefineConstants>
+    <WasmShellWebAppBasePath>/</WasmShellWebAppBasePath>
+  </PropertyGroup>
+  <ItemGroup>
+    <IncludeXamlNamespaces Include="not_mobile" Visible="False" />
+    <ExcludeXamlNamespaces Include="mobile" Visible="False" />
+  </ItemGroup>
+
+  <!--
+  <PropertyGroup Condition="'$(Configuration)'=='Debug' or '$(IsUiAutomationMappingEnabled)'=='True'">
+    <IsUiAutomationMappingEnabled>True</IsUiAutomationMappingEnabled>
+    <DefineConstants>$(DefineConstants);USE_UITESTS</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release' and '$(WasmShellMonoRuntimeExecutionMode)'=='InterpreterAndAOT'">
+    <WasmAotFileName Condition="'$(IsUiAutomationMappingEnabled)'=='' AND '$(UseNativeRendering)' != 'true' ">aot-skiawasm.profile</WasmAotFileName>
+    <WasmAotFileName Condition="'$(IsUiAutomationMappingEnabled)'=='' AND '$(UseNativeRendering)' == 'true' ">aot.profile</WasmAotFileName>
+    <WasmAotFileName Condition="'$(IsUiAutomationMappingEnabled)'=='True'">aot-uitests.profile</WasmAotFileName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <WasmShellMonoRuntimeExecutionMode>InterpreterAndAOT</WasmShellMonoRuntimeExecutionMode>
+    <WasmShellEmccLinkOptimization>false</WasmShellEmccLinkOptimization>
+    <WasmShellEnableEmccProfiling>true</WasmShellEnableEmccProfiling>
+  </PropertyGroup>
+  -->
+
+  <ItemGroup>
+    <PackageReference Include="Uno.ShowMeTheXAML" Version="$(UnoShowMeTheXAMLVersion)" />
+    <PackageReference Include="Uno.ShowMeTheXAML.MSBuild" Version="$(UnoShowMeTheXAMLVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="$(MicrosoftExtensionsLoggingVersion)" />
+    <PackageReference Include="Uno.Core.Extensions.Disposables" Version="$(UnoCoreExtensionsVersion)" />
+    <PackageReference Include="Uno.Core.Extensions.Compatibility" Version="$(UnoCoreExtensionsVersion)" />
+    <PackageReference Include="Uno.CommunityToolkit.WinUI.UI.Controls" Version="$(UnoCommunityToolkitVersion)" />
+    <PackageReference Include="Uno.CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="$(UnoCommunityToolkitVersion)" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <!-- Pre-compiled TypeScript output (see Phase 4 of uno-plan.md) -->
+    <EmbeddedResource Include="Platforms\WebAssembly\WasmScripts\UnoGallery.js" />
+    <WasmShellMonoEnvironment Include="MONO_GC_PARAMS" Value="soft-heap-limit=512m,nursery-size=64m,evacuation-threshold=66,major=marksweep" />
+  </ItemGroup>
+
+
+  <!-- TODO fix me -->
+  <PropertyGroup>
+    <EnableAggressiveTrimming>false</EnableAggressiveTrimming>
+    <PublishTrimmed>false</PublishTrimmed>
+    <WasmNativeStrip>false</WasmNativeStrip>
+  </PropertyGroup>
+
+  <!-- https://github.com/dotnet/runtime/issues/109289 -->
+  <Target Name="Issue109289_Workaround" AfterTargets="_BrowserWasmWriteRspForLinking" Condition=" $(NETCoreSdkVersion.Contains('9.0.100')) ">
+    <ItemGroup>
+      <_WasmLinkStepArgs Remove="@(_EmccLinkStepArgs)" />
+      <_EmccLinkStepArgs Remove="&quot;%(_WasmNativeFileForLinking.Identity)&quot;" />
+      <_WasmLinkDependencies Remove="@(_WasmNativeFileForLinking)" />
+
+      <_SkiaSharpToReorder Include="@(_WasmNativeFileForLinking)" Condition="$([System.String]::Copy('%(FullPath)').Contains('SkiaSharp'))" />
+      <_WasmNativeFileForLinking Remove="@(_SkiaSharpToReorder)" />
+      <_WasmNativeFileForLinking Include="@(_SkiaSharpToReorder)" />
+
+      <_EmccLinkStepArgs Include="&quot;%(_WasmNativeFileForLinking.Identity)&quot;" />
+      <_WasmLinkDependencies Include="@(_WasmNativeFileForLinking)" />
+      <_WasmLinkStepArgs Include="@(_EmccLinkStepArgs)" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Hack disable PWA -->
+  <Target Name="KillPWA" AfterTargets="ProcessResizedImagesWasm">
+    <PropertyGroup>
+      <WasmPWAManifestFile></WasmPWAManifestFile>
+    </PropertyGroup>
+  </Target>
+
+</Project>

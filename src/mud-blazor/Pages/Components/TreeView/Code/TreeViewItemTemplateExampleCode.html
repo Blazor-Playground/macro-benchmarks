@@ -1,0 +1,65 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Width</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">300px</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Elevation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTreeView</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>TreeItems</span><span class="quot">&quot;</span> <span class="htmlAttributeName">SelectionMode</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">SelectionMode</span><span class="enumValue">.MultiSelection</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-SelectedValues</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">SelectedValues</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ItemTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="atSign">&#64;</span>{
+                // Casting context from TreeItemData<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">string</span><span class="htmlTagDelimiter">&gt;</span> to our own derived class TreeItemPresenter
+                // for convenient usage in the template
+                var presenter = context as TreeItemPresenter;
+            }
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTreeViewItem</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Expanded</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>context.Expanded</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>context.Children</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>context.Value</span><span class="quot">&quot;</span>
+                             <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>context.Icon</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Text</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>context.Text</span><span class="quot">&quot;</span> <span class="htmlAttributeName">EndText</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>presenter?.Number?.ToString()</span><span class="quot">&quot;</span> <span class="htmlAttributeName">EndTextTypo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Typo.caption</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ItemTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTreeView</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span> <span class="htmlAttributeName">Row</span> <span class="htmlAttributeName">Justify</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Justify</span><span class="enumValue">.Center</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">width: 100%</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Typo.subtitle1</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Sum of selected items: <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChip</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>GetSelectedSum()<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChip</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">public</span> IReadOnlyCollection&lt;<span class="keyword">string</span>&gt; SelectedValues { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+    <span class="keyword">public</span> List&lt;TreeItemData&lt;<span class="keyword">string</span>&gt;&gt; TreeItems { <span class="keyword">get</span>; <span class="keyword">set</span>; } = <span class="keyword">new</span>();
+    <span class="keyword">public</span> Dictionary&lt;<span class="keyword">string</span>, <span class="keyword">int</span>?&gt; ValueMap { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+    <span class="keyword">public</span> <span class="keyword">class</span> TreeItemPresenter : TreeItemData&lt;<span class="keyword">string</span>&gt;
+    {
+        <span class="keyword">public</span> <span class="keyword">int</span>? Number { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+        <span class="keyword">public</span> TreeItemPresenter(<span class="keyword">string</span> text, <span class="keyword">string</span> icon, <span class="keyword">int</span>? number = <span class="keyword">null</span>) : <span class="keyword">base</span>(text)
+        {
+            Text = text;
+            Icon = icon;
+            Number = number;
+        }
+    }
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> OnInitialized()
+    {
+        TreeItems.Add(<span class="keyword">new</span> TreeItemPresenter(<span class="string">&quot;All Mail&quot;</span>, Icons.Material.Filled.Email));
+        TreeItems.Add(<span class="keyword">new</span> TreeItemPresenter(<span class="string">&quot;Trash&quot;</span>, Icons.Material.Filled.Delete));
+        TreeItems.Add(<span class="keyword">new</span> TreeItemPresenter(<span class="string">&quot;Categories&quot;</span>, Icons.Material.Filled.Label) {
+            Expanded = <span class="keyword">true</span>,
+            Children = [
+                    <span class="keyword">new</span> TreeItemPresenter(<span class="string">&quot;Social&quot;</span>, Icons.Material.Filled.Group, <span class="number">90</span>),
+                    <span class="keyword">new</span> TreeItemPresenter(<span class="string">&quot;Updates&quot;</span>, Icons.Material.Filled.Info, <span class="number">2294</span>),
+                    <span class="keyword">new</span> TreeItemPresenter(<span class="string">&quot;Forums&quot;</span>, Icons.Material.Filled.QuestionAnswer, <span class="number">3566</span>),
+                    <span class="keyword">new</span> TreeItemPresenter(<span class="string">&quot;Promotions&quot;</span>, Icons.Material.Filled.LocalOffer, <span class="number">733</span>)
+                ]
+        });
+        TreeItems.Add(<span class="keyword">new</span> TreeItemPresenter(<span class="string">&quot;History&quot;</span>, Icons.Material.Filled.Label));
+        ValueMap = TreeItems.Concat(TreeItems.SelectMany(x =&gt; x.Children ?? [])).OfType&lt;TreeItemPresenter&gt;().ToDictionary(x =&gt; x.Value, x =&gt; x.Number);
+    }
+
+    <span class="keyword">public</span> <span class="keyword">int</span> GetSelectedSum()
+    {
+        <span class="keyword">if</span> (SelectedValues <span class="keyword">is</span> <span class="keyword">null</span>)
+            <span class="keyword">return</span> <span class="number">0</span>;
+        <span class="keyword">return</span> SelectedValues.Select(x =&gt; ValueMap.GetValueOrDefault(x, <span class="number">0</span>)).Sum(i =&gt; i ?? <span class="number">0</span>);
+    }
+}
+</pre></div>
+</div>

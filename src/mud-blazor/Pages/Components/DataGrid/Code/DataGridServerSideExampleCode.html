@@ -1,0 +1,125 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using System.Net.Http.Json
+<span class="atSign">&#64;</span>using MudBlazor.Examples.Data.Models
+<span class="atSign">&#64;</span>inject HttpClient httpClient
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDataGrid</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">dataGrid</span><span class="quot">&quot;</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Element</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ServerData</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ServerReload</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Filterable</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">false</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ToolBarContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.h6</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Periodic Elements<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSpacer</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTextField</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ValueChanged</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(s=&gt;OnSearch(s))</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Placeholder</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Search</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Adornment</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Adornment</span><span class="enumValue">.Start</span><span class="quot">&quot;</span>
+                      <span class="htmlAttributeName">AdornmentIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Search</span><span class="quot">&quot;</span> <span class="htmlAttributeName">IconSize</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Size</span><span class="enumValue">.Medium</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mt-0</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTextField</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ToolBarContent</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Number</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Nr</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Sign</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">TemplateColumn</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(nameof(Element.Name))</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Sortable</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">CellTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>(context.Item.Name ?? &quot;-&quot;)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">CellTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">TemplateColumn</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Position</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Molar</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Molar mass</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Group</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Category</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Sortable</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">CellTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="atSign">&#64;</span>(context.Item.Group ?? &quot;-&quot;)
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">CellTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">PropertyColumn</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PagerContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDataGridPager</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Element</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">PagerContent</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDataGrid</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    MudDataGrid&lt;Element&gt; dataGrid;
+    <span class="keyword">string</span> searchString = <span class="keyword">null</span>;
+
+    <span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;summary&gt;</span>
+    <span class="xmlDocTag">///</span><span class="xmlDocComment"> Here we simulate getting the paged, filtered and ordered data from the server</span>
+    <span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;/summary&gt;</span>
+    <span class="keyword">private</span> <span class="keyword">async</span> Task&lt;GridData&lt;Element&gt;&gt; ServerReload(GridState&lt;Element&gt; state, CancellationToken token)
+    {
+        IEnumerable&lt;Element&gt; data = <span class="keyword">await</span> httpClient.GetFromJsonAsync&lt;List&lt;Element&gt;&gt;(<span class="string">&quot;webapi/periodictable&quot;</span>, token);
+        <span class="keyword">await</span> Task.Delay(<span class="number">300</span>, token);
+        data = data.Where(element =&gt;
+        {
+            <span class="keyword">if</span>(<span class="keyword">string</span>.IsNullOrWhiteSpace(searchString))
+                <span class="keyword">return</span> <span class="keyword">true</span>;
+            <span class="keyword">if</span>(element.Sign.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                <span class="keyword">return</span> <span class="keyword">true</span>;
+            <span class="keyword">if</span>(element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                <span class="keyword">return</span> <span class="keyword">true</span>;
+            <span class="keyword">if</span>($<span class="string">&quot;{element.Number} {element.Position} {element.Molar}&quot;</span>.Contains(searchString))
+                <span class="keyword">return</span> <span class="keyword">true</span>;
+            <span class="keyword">return</span> <span class="keyword">false</span>;
+        }).ToArray();
+        <span class="keyword">var</span> totalItems = data.Count();
+
+        <span class="keyword">var</span> sortDefinition = state.SortDefinitions.FirstOrDefault();
+        <span class="keyword">if</span>(sortDefinition != <span class="keyword">null</span>)
+        {
+            <span class="keyword">switch</span>(sortDefinition.SortBy)
+            {
+                <span class="keyword">case</span> nameof(Element.Number):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o =&gt; o.Number
+                    );
+                    <span class="keyword">break</span>;
+                <span class="keyword">case</span> nameof(Element.Sign):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o =&gt; o.Sign
+                    );
+                    <span class="keyword">break</span>;
+                <span class="keyword">case</span> nameof(Element.Position):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o =&gt; o.Position
+                    );
+                    <span class="keyword">break</span>;
+                <span class="keyword">case</span> nameof(Element.Molar):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o =&gt; o.Molar
+                    );
+                    <span class="keyword">break</span>;
+                <span class="keyword">case</span> nameof(Element.Group):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o =&gt; o.Group
+                    );
+                    <span class="keyword">break</span>;
+                <span class="keyword">default</span>:
+                    <span class="keyword">var</span> sortByColumn = dataGrid.RenderedColumns.First(c =&gt; c.PropertyName == sortDefinition.SortBy);
+                    <span class="keyword">switch</span> (sortByColumn.Title) 
+                    {
+                        <span class="keyword">case</span> nameof(Element.Name):
+                            data = data.OrderByDirection(
+                                sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                                o =&gt; o.Name
+                            );
+                            <span class="keyword">break</span>; 
+                    }
+                    <span class="keyword">break</span>;
+            }
+        }
+
+        <span class="keyword">var</span> pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        <span class="keyword">return</span> <span class="keyword">new</span> GridData&lt;Element&gt; {
+            TotalItems = totalItems,
+            Items = pagedData
+        };
+    }
+
+    <span class="keyword">private</span> Task OnSearch(<span class="keyword">string</span> text)
+    {
+        searchString = text;
+        <span class="keyword">return</span> dataGrid.ReloadServerData();
+    }
+}
+</pre></div>
+</div>

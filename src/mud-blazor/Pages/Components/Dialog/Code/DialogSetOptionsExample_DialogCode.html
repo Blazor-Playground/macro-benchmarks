@@ -1,0 +1,92 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using System.Web
+
+<span class="atSign">&#64;</span>inject NavigationManager NavigationManager
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDialog</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">DialogContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex flex-column py-1</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ChangeTitleAsync</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Change Title<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ToggleCloseButtonAsync</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Toggle Close Button<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ToggleFullWidthAsync</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Toggle Full Width<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ToggleHeaderAsync</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Toggle Header<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudCheckBox</span> <span class="htmlAttributeName">TriState</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">bool?</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">MudDialog.Options.CloseOnNavigation</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ValueChanged</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(async v =&gt; await CloseOnNavigationChangedAsync(v))</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Close On Navigation<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudCheckBox</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ChangeUrl</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Change Url<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">DialogContent</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">DialogActions</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Close</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>OK<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">DialogActions</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDialog</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    [CascadingParameter]
+    <span class="keyword">private</span> IMudDialogInstance MudDialog { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+    [SupplyParameterFromQuery(Name = <span class="string">&quot;example&quot;</span>)]
+    <span class="keyword">public</span> <span class="keyword">int</span>? QueryParameterExample { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> OnParametersSet() {
+        QueryParameterExample ??= <span class="number">0</span>;
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> Close() =&gt; MudDialog.Close(DialogResult.Ok(<span class="keyword">true</span>));
+
+    <span class="keyword">private</span> Task ChangeTitleAsync() =&gt; MudDialog.SetTitleAsync($<span class="string">&quot;Current time is: {DateTime.Now}&quot;</span>);
+
+    <span class="keyword">private</span> Task ToggleCloseButtonAsync()
+    {
+        <span class="keyword">var</span> options = MudDialog.Options with
+        {
+            CloseButton = !(MudDialog.Options.CloseButton ?? <span class="keyword">false</span>)
+        };
+
+        <span class="keyword">return</span> MudDialog.SetOptionsAsync(options);
+    }
+
+    <span class="keyword">private</span> Task ToggleFullWidthAsync()
+    {
+        <span class="keyword">var</span> options = MudDialog.Options with
+        {
+            FullWidth = !(MudDialog.Options.FullWidth ?? <span class="keyword">true</span>)
+        };
+
+        <span class="keyword">return</span> MudDialog.SetOptionsAsync(options);
+    }
+
+    <span class="keyword">private</span> Task ToggleHeaderAsync()
+    {
+        <span class="keyword">var</span> options = MudDialog.Options with
+        {
+            NoHeader = !(MudDialog.Options.NoHeader ?? <span class="keyword">false</span>)
+        };
+
+        <span class="keyword">return</span> MudDialog.SetOptionsAsync(options);
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> ChangeUrl() {
+        <span class="keyword">var</span> uri = <span class="keyword">new</span> Uri(NavigationManager.Uri);
+
+        <span class="keyword">var</span> query = HttpUtility.ParseQueryString(uri.Query);
+
+        query[<span class="string">&quot;example&quot;</span>] = (QueryParameterExample + <span class="number">1</span>).ToString();
+
+        <span class="keyword">var</span> newUri = $<span class="string">&quot;{uri.GetLeftPart(UriPartial.Path)}?{query}&quot;</span>;
+
+        NavigationManager.NavigateTo(newUri);
+    }
+
+    <span class="keyword">private</span> Task CloseOnNavigationChangedAsync(<span class="keyword">bool</span>? closeOnNavigation)
+    {
+        <span class="keyword">var</span> options = MudDialog.Options with
+        {
+            CloseOnNavigation = closeOnNavigation
+        };
+
+        <span class="keyword">return</span> MudDialog.SetOptionsAsync(options);
+    }
+}
+</pre></div>
+</div>

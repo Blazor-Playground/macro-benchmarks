@@ -1,0 +1,24 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using System.Threading
+<span class="atSign">&#64;</span>using System.Net.Http.Json
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudGrid</span><span class="htmlTagDelimiter">&gt;</span>
+	<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span> <span class="htmlAttributeName">xs</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">12</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+		<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudAutocomplete</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">US States</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_state</span><span class="quot">&quot;</span> <span class="htmlAttributeName">SearchFunc</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>Search</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Outlined</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ShowProgressIndicator</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+	<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudGrid</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+	[Inject] <span class="keyword">private</span> HttpClient HttpClient { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+	<span class="keyword">private</span> <span class="keyword">string</span> _state;
+
+	<span class="keyword">private</span> <span class="keyword">async</span> Task&lt;IEnumerable&lt;<span class="keyword">string</span>&gt;&gt; Search(<span class="keyword">string</span> value, CancellationToken token)
+	{
+		<span class="comment">// Forward the CancellationToken to methods which supported, such as HttpClient and DbContext</span>
+		<span class="keyword">return</span> <span class="keyword">await</span> HttpClient.GetFromJsonAsync&lt;IEnumerable&lt;<span class="keyword">string</span>&gt;&gt;($<span class="string">&quot;webapi/AmericanStates/searchWithDelay/{value ?? string.Empty}&quot;</span>, token);
+	}
+}
+</pre></div>
+</div>

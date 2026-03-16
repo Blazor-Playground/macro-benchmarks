@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Restore-only project used to download a specific runtime pack version
+    into the NuGet global packages cache via `dotnet restore`.
+
+    Usage:
+      dotnet restore src/restore/restore-runtime-pack.proj /p:RuntimePackVersion=11.0.0-preview.3.26153.117
+
+    The restored package lands in $(NUGET_PACKAGES)/microsoft.netcore.app.runtime.mono.browser-wasm/{version}/
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(BenchmarkTargetFramework)</TargetFramework>
+    <RuntimePackVersion>$(RuntimePackVersion)</RuntimePackVersion>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(RuntimePackVersion)' != ''">
+    <PackageDownload Include="Microsoft.NETCore.App.Runtime.Mono.browser-wasm" Version="[$(RuntimePackVersion)]" />
+  </ItemGroup>
+</Project>

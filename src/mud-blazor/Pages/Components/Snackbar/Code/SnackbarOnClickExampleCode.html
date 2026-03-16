@@ -1,0 +1,30 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>inject ISnackbar Snackbar
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>Show</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    Open clickable snackbar
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+
+    <span class="keyword">void</span> Show()
+    {
+        Snackbar.Add(<span class="string">&quot;I got a message for you&quot;</span>, Severity.Normal, config =&gt;
+        {
+            config.OnClick = snackbar =&gt;
+            {
+                SayHello();
+                <span class="keyword">return</span> Task.CompletedTask;
+            };
+        });
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> SayHello()
+    {
+        Snackbar.Add(<span class="string">&quot;Hello World!&quot;</span>);
+    }
+}
+</pre></div>
+</div>

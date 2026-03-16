@@ -1,0 +1,29 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Width</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">250px</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">py-3 mb-4</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Elevation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudNavMenu</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudNavGroup</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Settings</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Expanded</span><span class="htmlOperator">=</span><span class="htmlAttributeValue">_expanded</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudNavLink</span> <span class="htmlAttributeName">Href</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">/users</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Users<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudNavLink</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudNavLink</span> <span class="htmlAttributeName">Href</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">/security</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Security<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudNavLink</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudNavGroup</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudNavMenu</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+    The MudNavGroup is
+    <span class="atSign">&#64;</span>if (_expanded)
+    {
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">b</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mud-theme-tertiary rounded pa-2 ml-2</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>expanded<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">b</span><span class="htmlTagDelimiter">&gt;</span>
+    }
+    else
+    {
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">b</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mud-theme-error rounded pa-2 ml-2</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>collapsed<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">b</span><span class="htmlTagDelimiter">&gt;</span>
+    }
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code{
+    <span class="keyword">bool</span> _expanded = <span class="keyword">true</span>;
+}
+</pre></div>
+</div>

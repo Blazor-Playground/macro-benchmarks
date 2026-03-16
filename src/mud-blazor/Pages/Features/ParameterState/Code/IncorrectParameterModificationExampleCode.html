@@ -1,0 +1,18 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> MudCollapse _collapseRef = <span class="keyword">null</span>!;
+
+<span class="preprocessorKeyword">#pragma</span> warning disable BL0005
+    <span class="keyword">private</span> <span class="keyword">void</span> Update()
+    {
+        <span class="comment">//Parameter modifications such as this are ignored on components utilizing parameter state.</span>
+        _collapseRef.Expanded = <span class="keyword">true</span>; <span class="comment">// ❌ Not recommended</span>
+    }
+<span class="preprocessorKeyword">#pragma</span> warning restore BL0005
+}
+</pre></div>
+</div>

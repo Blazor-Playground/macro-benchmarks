@@ -1,0 +1,68 @@
+@page "/myorders/{orderId:int}"
+
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@attribute [Authorize]
+@inject IRepository Repository
+
+<div class="main">
+	@if (invalidOrder)
+	{
+		<h2>Nope</h2>
+		<p>Sorry, this order could not be loaded.</p>
+	}
+	else if (orderWithStatus is null)
+	{
+		<text>Loading...</text>
+	}
+	else
+	{
+		<div class="track-order" data-testid="track-order">
+			<div class="track-order-title" data-testid="track-order-title">
+				<h2>
+					Order placed @orderWithStatus.Order.CreatedTime.ToLongDateString()
+				</h2>
+				<p class="ml-auto mb-0">
+					Status: <strong data-testid="order-status">@orderWithStatus.StatusText</strong>
+				</p>
+			</div>
+			<div class="track-order-body">
+				<div class="track-order-details">
+					<OrderReview Order="orderWithStatus.Order" />
+				</div>
+
+				<div class="track-order-map" data-testid="track-order-map">
+					 <Map Zoom="13" Markers="orderWithStatus?.MapMarkers" />
+				</div>
+
+			</div>
+		</div>
+	}
+</div>
+
+@code {
+	[Parameter] public int OrderId { get; set; }
+
+	[CascadingParameter]
+	public Task<AuthenticationState?> AuthenticationState { get; set; }
+
+	OrderWithStatus? orderWithStatus;
+	bool invalidOrder;
+
+	protected override async Task OnParametersSetAsync()
+	{
+		if (AuthenticationState is not null)
+		{
+			var authState = await AuthenticationState;
+			var user = authState?.User;
+
+			if (user == null || user?.Identity?.IsAuthenticated == false)
+			{
+				return;
+			}
+
+			var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+			orderWithStatus = await Repository.GetOrderWithStatus(OrderId, userId);
+		}
+	}
+}

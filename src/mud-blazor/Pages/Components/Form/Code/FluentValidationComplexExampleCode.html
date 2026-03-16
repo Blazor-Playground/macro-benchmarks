@@ -1,0 +1,205 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using FluentValidation
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudCard</span><span class="htmlTagDelimiter">&gt;</span>
+	<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudForm</span> <span class="htmlAttributeName">Model</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>model</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>form</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Validation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(orderValidator.ValidateValue)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ValidationDelay</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+		<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudCardContent</span><span class="htmlTagDelimiter">&gt;</span>
+				<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTextField</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">model.Name</span><span class="quot">&quot;</span>                              
+							  <span class="htmlAttributeName">For</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; model.Name)</span><span class="quot">&quot;</span>
+							  <span class="htmlAttributeName">Immediate</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+							  <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Name</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+
+				<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTextField</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">model.Email</span><span class="quot">&quot;</span>
+							  <span class="htmlAttributeName">For</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; model.Email)</span><span class="quot">&quot;</span>
+							  <span class="htmlAttributeName">Immediate</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+							  <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Email</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+
+				<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTextField</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">model.CCNumber</span><span class="quot">&quot;</span>
+							  <span class="htmlAttributeName">For</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; model.CCNumber)</span><span class="quot">&quot;</span>
+							  <span class="htmlAttributeName">Immediate</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+							  <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Credit card nr</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+
+				<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTextField</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">model.Address.Address</span><span class="quot">&quot;</span>
+							  <span class="htmlAttributeName">For</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; model.Address.Address)</span><span class="quot">&quot;</span>
+							  <span class="htmlAttributeName">Immediate</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+							  <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Address</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+
+				<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTextField</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">model.Address.City</span><span class="quot">&quot;</span>
+							  <span class="htmlAttributeName">For</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; model.Address.City)</span><span class="quot">&quot;</span>
+							  <span class="htmlAttributeName">Immediate</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+							  <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">City</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+
+				<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTextField</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">model.Address.Country</span><span class="quot">&quot;</span>
+							  <span class="htmlAttributeName">For</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; model.Address.Country)</span><span class="quot">&quot;</span>
+							  <span class="htmlAttributeName">Immediate</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+							  <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Country</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudCardContent</span><span class="htmlTagDelimiter">&gt;</span>
+		<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudCardContent</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-0</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+
+			<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTable</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>model.OrderDetails</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Hover</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Breakpoint</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Breakpoint</span><span class="enumValue">.None</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Dense</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Elevation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+				<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">HeaderContent</span><span class="htmlTagDelimiter">&gt;</span>
+					<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Description<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+					<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Offer<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+				<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">HeaderContent</span><span class="htmlTagDelimiter">&gt;</span>
+				<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">RowTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+					<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Description</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+						<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudForm</span> <span class="htmlAttributeName">Model</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>context</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Validation</span><span class="htmlOperator">=</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(orderDetailsValidator.ValidateValue)</span><span class="htmlTagDelimiter">&gt;</span>
+  							<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTextField</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Enter Description</span><span class="quot">&quot;</span> 
+                              <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">context.Description</span><span class="quot">&quot;</span> 
+                              <span class="htmlAttributeName">For</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">(() =&gt; context.Description)</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+  						<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudForm</span><span class="htmlTagDelimiter">&gt;</span>
+					<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+					<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Offer</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+						<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudForm</span> <span class="htmlAttributeName">Model</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>context</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+  							<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudNumericField</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Enter Offer</span><span class="quot">&quot;</span> 
+                                               <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">context.Offer</span><span class="quot">&quot;</span> 
+                                               <span class="htmlAttributeName">Validation</span><span class="htmlOperator">=</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(orderDetailsValidator.ValidateValue)</span>
+                                               <span class="htmlAttributeName">For</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">(() =&gt; context.Offer)</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+  						<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudForm</span><span class="htmlTagDelimiter">&gt;</span>
+					<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+				<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">RowTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+			<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTable</span><span class="htmlTagDelimiter">&gt;</span>
+
+		<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudCardContent</span><span class="htmlTagDelimiter">&gt;</span>
+	<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudForm</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudCardActions</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ml-auto</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(async () =&gt; await Submit())</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Order<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudCardActions</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudCard</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+	[Inject] ISnackbar Snackbar { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+    MudForm form;
+
+    OrderModelFluentValidator orderValidator = <span class="keyword">new</span> OrderModelFluentValidator();
+
+	OrderDetailsModelFluentValidator orderDetailsValidator = <span class="keyword">new</span> OrderDetailsModelFluentValidator();
+
+    OrderModel model = <span class="keyword">new</span> OrderModel();
+
+    <span class="keyword">public</span> <span class="keyword">class</span> OrderModel
+    {
+        <span class="keyword">public</span> <span class="keyword">string</span> Name { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> <span class="keyword">string</span> Email { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> <span class="keyword">string</span> CCNumber { <span class="keyword">get</span>; <span class="keyword">set</span>; } = <span class="string">&quot;4012 8888 8888 1881&quot;</span>;
+        <span class="keyword">public</span> AddressModel Address { <span class="keyword">get</span>; <span class="keyword">set</span>; } = <span class="keyword">new</span> AddressModel();
+		<span class="keyword">public</span> List&lt;OrderDetailsModel&gt; OrderDetails = <span class="keyword">new</span> List&lt;OrderDetailsModel&gt;()
+		{
+			<span class="keyword">new</span> OrderDetailsModel()
+				{
+					Description = <span class="string">&quot;Perform Work order 1&quot;</span>,
+					Offer = <span class="number">100</span>
+				},
+			<span class="keyword">new</span> OrderDetailsModel()
+		};
+	}
+
+    <span class="keyword">public</span> <span class="keyword">class</span> AddressModel
+    {
+        <span class="keyword">public</span> <span class="keyword">string</span> Address { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> <span class="keyword">string</span> City { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> <span class="keyword">string</span> Country { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+    }
+
+	<span class="keyword">public</span> <span class="keyword">class</span> OrderDetailsModel
+	{
+		<span class="keyword">public</span> <span class="keyword">string</span> Description { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+		<span class="keyword">public</span> <span class="keyword">decimal</span> Offer { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+	}
+
+    <span class="keyword">private</span> <span class="keyword">async</span> Task Submit()
+    {
+        <span class="keyword">await</span> form.ValidateAsync();
+
+        <span class="keyword">if</span> (form.IsValid)
+        {
+            Snackbar.Add(<span class="string">&quot;Submitted!&quot;</span>);
+        }
+    }
+
+    <span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;summary&gt;</span>
+    <span class="xmlDocTag">///</span><span class="xmlDocComment"> A standard AbstractValidator which contains multiple rules and can be shared with the back end API</span>
+    <span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;/summary&gt;</span>
+    <span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;typeparam name=&quot;OrderModel&quot;&gt;</span><span class="xmlDocTag">&lt;/typeparam&gt;</span>
+    <span class="keyword">public</span> <span class="keyword">class</span> OrderModelFluentValidator : AbstractValidator&lt;OrderModel&gt;
+    {
+        <span class="keyword">public</span> OrderModelFluentValidator()
+        {
+            RuleFor(x =&gt; x.Name)
+                .NotEmpty()
+                .Length(<span class="number">1</span>,<span class="number">100</span>);
+
+            RuleFor(x =&gt; x.Email)
+                .Cascade(CascadeMode.Stop)
+                .NotEmpty()
+                .EmailAddress()
+                .MustAsync(<span class="keyword">async</span> (value, cancellationToken) =&gt; <span class="keyword">await</span> IsUniqueAsync(value));
+
+            RuleFor(x =&gt; x.CCNumber)
+                .NotEmpty()
+                .Length(<span class="number">1</span>,<span class="number">100</span>)
+                .CreditCard();
+
+            RuleFor(x =&gt; x.Address.Address)
+                .NotEmpty()
+                .Length(<span class="number">1</span>,<span class="number">100</span>);
+
+            RuleFor(x =&gt; x.Address.City)
+                .NotEmpty()
+                .Length(<span class="number">1</span>,<span class="number">100</span>);
+
+            RuleFor(x =&gt; x.Address.Country)
+                .NotEmpty()
+                .Length(<span class="number">1</span>,<span class="number">100</span>);
+
+			RuleForEach(x =&gt; x.OrderDetails)
+				.SetValidator(<span class="keyword">new</span> OrderDetailsModelFluentValidator());
+		}
+
+        <span class="keyword">private</span> <span class="keyword">async</span> Task&lt;<span class="keyword">bool</span>&gt; IsUniqueAsync(<span class="keyword">string</span> email)
+        {
+            <span class="comment">// Simulates a long running http call</span>
+            <span class="keyword">await</span> Task.Delay(<span class="number">2000</span>);
+            <span class="keyword">return</span> email.ToLower() != <span class="string">&quot;test<span class="atSign">&#64;</span>test.com&quot;</span>;
+        }
+
+        <span class="keyword">public</span> Func&lt;<span class="keyword">object</span>, <span class="keyword">string</span>, Task&lt;IEnumerable&lt;<span class="keyword">string</span>&gt;&gt;&gt; ValidateValue =&gt; <span class="keyword">async</span> (model, propertyName) =&gt;
+        {
+            <span class="keyword">var</span> result = <span class="keyword">await</span> ValidateAsync(ValidationContext&lt;OrderModel&gt;.CreateWithOptions((OrderModel)model, x =&gt; x.IncludeProperties(propertyName)));
+            <span class="keyword">if</span> (result.IsValid)
+                <span class="keyword">return</span> Array.Empty&lt;<span class="keyword">string</span>&gt;();
+            <span class="keyword">return</span> result.Errors.Select(e =&gt; e.ErrorMessage);
+        };
+    }
+
+	<span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;summary&gt;</span>
+    <span class="xmlDocTag">///</span><span class="xmlDocComment"> A standard AbstractValidator for the Collection Object</span>
+    <span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;/summary&gt;</span>
+    <span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;typeparam name=&quot;OrderDetailsModel&quot;&gt;</span><span class="xmlDocTag">&lt;/typeparam&gt;</span>
+    <span class="keyword">public</span> <span class="keyword">class</span> OrderDetailsModelFluentValidator : AbstractValidator&lt;OrderDetailsModel&gt;
+    {
+        <span class="keyword">public</span> OrderDetailsModelFluentValidator()
+        {
+            RuleFor(x =&gt; x.Description)
+                .NotEmpty()
+                .Length(<span class="number">1</span>,<span class="number">100</span>);
+
+			RuleFor(x =&gt; x.Offer)
+				.GreaterThan(<span class="number">0</span>)
+				.LessThan(<span class="number">999</span>);
+        }
+
+        <span class="keyword">public</span> Func&lt;<span class="keyword">object</span>, <span class="keyword">string</span>, Task&lt;IEnumerable&lt;<span class="keyword">string</span>&gt;&gt;&gt; ValidateValue =&gt; <span class="keyword">async</span> (model, propertyName) =&gt;
+        {
+            <span class="keyword">var</span> result = <span class="keyword">await</span> ValidateAsync(ValidationContext&lt;OrderDetailsModel&gt;.CreateWithOptions((OrderDetailsModel)model, x =&gt; x.IncludeProperties(propertyName)));
+            <span class="keyword">if</span> (result.IsValid)
+                <span class="keyword">return</span> Array.Empty&lt;<span class="keyword">string</span>&gt;();
+            <span class="keyword">return</span> result.Errors.Select(e =&gt; e.ErrorMessage);
+        };
+    }
+}
+</pre></div>
+</div>

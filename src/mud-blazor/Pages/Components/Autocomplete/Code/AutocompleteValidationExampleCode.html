@@ -1,0 +1,151 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using System.ComponentModel.DataAnnotations
+<span class="atSign">&#64;</span>using System.Threading
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudGrid</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span> <span class="htmlAttributeName">xs</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">12</span><span class="quot">&quot;</span> <span class="htmlAttributeName">sm</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">6</span><span class="quot">&quot;</span> <span class="htmlAttributeName">md</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">EditForm</span> <span class="htmlAttributeName">EditContext</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">editContext1</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">DataAnnotationsValidator</span> <span class="htmlTagDelimiter">/&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudAutocomplete</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">US States</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">choice1.State</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Required</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName">SearchFunc</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>SearchAsync</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Immediate</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">CoerceValue</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>coerceValue</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ResetValueOnEmptyText</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName">AdornmentIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Search</span><span class="quot">&quot;</span> <span class="htmlAttributeName">AdornmentColor</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName">For</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; choice1.State)</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">/&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">ButtonType</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">ButtonType</span><span class="enumValue">.Button</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> 
+             <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ml-auto mt-3 mb-3</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(()=&gt;success1=editContext1.Validate())</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Validate<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+                   <span class="atSign">&#64;</span>if (success1)
+                   {
+                       <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Success</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Success<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+                   }
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">EditForm</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span> <span class="htmlAttributeName">xs</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">12</span><span class="quot">&quot;</span> <span class="htmlAttributeName">sm</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">6</span><span class="quot">&quot;</span> <span class="htmlAttributeName">md</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">EditForm</span> <span class="htmlAttributeName">EditContext</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">editContext2</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">DataAnnotationsValidator</span> <span class="htmlTagDelimiter">/&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudAutocomplete</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">US States</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">choice2.State</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Required</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName">SearchFunc</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>SearchAsync</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Immediate</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">CoerceValue</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>coerceValue</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ResetValueOnEmptyText</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName">OpenIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Search</span><span class="quot">&quot;</span> <span class="htmlAttributeName">AdornmentColor</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Secondary</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName">Validation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(new Func&lt;string, IEnumerable&lt;string&gt;&gt;(Validate))</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">ButtonType</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">ButtonType</span><span class="enumValue">.Button</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> 
+                       <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ml-auto mt-3 mb-3</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(()=&gt;success2=editContext2.Validate())</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Validate<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+                   <span class="atSign">&#64;</span>if (success2)
+                   {
+                       <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Success</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Success<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+                   }
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">EditForm</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span> <span class="htmlAttributeName">xs</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">12</span><span class="quot">&quot;</span> <span class="htmlAttributeName">sm</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">6</span><span class="quot">&quot;</span> <span class="htmlAttributeName">md</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudForm</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">form</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudAutocomplete</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">US States</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">choice3.State</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Required</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName">SearchFunc</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>SearchAsync</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Immediate</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">CoerceValue</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>coerceValue</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ResetValueOnEmptyText</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName">CloseIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Search</span><span class="quot">&quot;</span> <span class="htmlAttributeName">AdornmentColor</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Tertiary</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName">Validation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(new Func&lt;string, IEnumerable&lt;string&gt;&gt;(Validate))</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ml-auto mt-3 mb-3</span><span class="quot">&quot;</span> 
+             <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(()=&gt;form.ValidateAsync())</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Validate<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="atSign">&#64;</span>if (form.IsTouched &amp;&amp; form.IsValid)
+                    {
+                        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Success</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Success<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+                    }
+                    else
+                    {
+                        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>IsTouched: <span class="atSign">&#64;</span>form.IsTouched, IsValid: <span class="atSign">&#64;</span>form.IsValid<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+                    }
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudForm</span><span class="htmlTagDelimiter">&gt;</span>
+	<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span> <span class="htmlAttributeName">xs</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">12</span><span class="quot">&quot;</span> <span class="htmlAttributeName">md</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">12</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mb-n3</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.body2</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChip</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>(choice1.State ?? &quot;Not selected&quot;)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChip</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChip</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>(choice2.State ?? &quot;Not selected&quot;)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChip</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChip</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>(choice3.State ?? &quot;Not selected&quot;)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChip</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span> <span class="htmlAttributeName">xs</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">12</span><span class="quot">&quot;</span> <span class="htmlAttributeName">md</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">12</span><span class="quot">&quot;</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">flex-column</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">coerceValue</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Tertiary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Coerce Value to Text (if not found)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudGrid</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> MudForm form;
+    <span class="keyword">private</span> <span class="keyword">bool</span> coerceValue;
+    <span class="keyword">private</span> <span class="keyword">bool</span> success1;
+    <span class="keyword">private</span> <span class="keyword">bool</span> success2;
+    <span class="keyword">private</span> Choice choice1 = <span class="keyword">new</span>();
+    <span class="keyword">private</span> Choice choice2 = <span class="keyword">new</span>();
+    <span class="keyword">private</span> Choice choice3 = <span class="keyword">new</span>();
+    <span class="keyword">private</span> EditContext editContext1;
+    <span class="keyword">private</span> EditContext editContext2;
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> OnInitialized()
+    {
+        editContext1 = <span class="keyword">new</span> EditContext(choice1);
+        editContext2 = <span class="keyword">new</span> EditContext(choice2);
+    } 
+
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">string</span>[] states =
+    {
+        <span class="string">&quot;Alabama&quot;</span>, <span class="string">&quot;Alaska&quot;</span>, <span class="string">&quot;American Samoa&quot;</span>, <span class="string">&quot;Arizona&quot;</span>,
+        <span class="string">&quot;Arkansas&quot;</span>, <span class="string">&quot;California&quot;</span>, <span class="string">&quot;Colorado&quot;</span>, <span class="string">&quot;Connecticut&quot;</span>,
+        <span class="string">&quot;Delaware&quot;</span>, <span class="string">&quot;District of Columbia&quot;</span>, <span class="string">&quot;Federated States of Micronesia&quot;</span>,
+        <span class="string">&quot;Florida&quot;</span>, <span class="string">&quot;Georgia&quot;</span>, <span class="string">&quot;Guam&quot;</span>, <span class="string">&quot;Hawaii&quot;</span>, <span class="string">&quot;Idaho&quot;</span>,
+        <span class="string">&quot;Illinois&quot;</span>, <span class="string">&quot;Indiana&quot;</span>, <span class="string">&quot;Iowa&quot;</span>, <span class="string">&quot;Kansas&quot;</span>, <span class="string">&quot;Kentucky&quot;</span>,
+        <span class="string">&quot;Louisiana&quot;</span>, <span class="string">&quot;Maine&quot;</span>, <span class="string">&quot;Marshall Islands&quot;</span>, <span class="string">&quot;Maryland&quot;</span>,
+        <span class="string">&quot;Massachusetts&quot;</span>, <span class="string">&quot;Michigan&quot;</span>, <span class="string">&quot;Minnesota&quot;</span>, <span class="string">&quot;Mississippi&quot;</span>,
+        <span class="string">&quot;Missouri&quot;</span>, <span class="string">&quot;Montana&quot;</span>, <span class="string">&quot;Nebraska&quot;</span>, <span class="string">&quot;Nevada&quot;</span>,
+        <span class="string">&quot;New Hampshire&quot;</span>, <span class="string">&quot;New Jersey&quot;</span>, <span class="string">&quot;New Mexico&quot;</span>, <span class="string">&quot;New York&quot;</span>,
+        <span class="string">&quot;North Carolina&quot;</span>, <span class="string">&quot;North Dakota&quot;</span>, <span class="string">&quot;Northern Mariana Islands&quot;</span>, <span class="string">&quot;Ohio&quot;</span>,
+        <span class="string">&quot;Oklahoma&quot;</span>, <span class="string">&quot;Oregon&quot;</span>, <span class="string">&quot;Palau&quot;</span>, <span class="string">&quot;Pennsylvania&quot;</span>, <span class="string">&quot;Puerto Rico&quot;</span>,
+        <span class="string">&quot;Rhode Island&quot;</span>, <span class="string">&quot;South Carolina&quot;</span>, <span class="string">&quot;South Dakota&quot;</span>, <span class="string">&quot;Tennessee&quot;</span>,
+        <span class="string">&quot;Texas&quot;</span>, <span class="string">&quot;Utah&quot;</span>, <span class="string">&quot;Vermont&quot;</span>, <span class="string">&quot;Virgin Island&quot;</span>, <span class="string">&quot;Virginia&quot;</span>,
+        <span class="string">&quot;Washington&quot;</span>, <span class="string">&quot;West Virginia&quot;</span>, <span class="string">&quot;Wisconsin&quot;</span>, <span class="string">&quot;Wyoming&quot;</span>,
+    };
+
+    <span class="keyword">private</span> <span class="keyword">async</span> Task&lt;IEnumerable&lt;<span class="keyword">string</span>&gt;&gt; SearchAsync(<span class="keyword">string</span> value, CancellationToken token)
+    {
+        <span class="comment">// In real life use an asynchronous function for fetching data from an api.</span>
+        <span class="keyword">await</span> Task.Delay(<span class="number">5</span>, token);
+
+        <span class="comment">// if text is null or empty, show complete list</span>
+        <span class="keyword">if</span> (<span class="keyword">string</span>.IsNullOrEmpty(value))
+        {
+            <span class="keyword">return</span> states;
+        }
+
+        <span class="keyword">return</span> states.Where(x =&gt; x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    <span class="keyword">private</span> IEnumerable&lt;<span class="keyword">string</span>&gt; Validate(<span class="keyword">string</span> value)
+    {        
+        <span class="keyword">if</span> (<span class="keyword">string</span>.IsNullOrWhiteSpace(value))
+        {
+            <span class="keyword">yield</span> <span class="keyword">return</span> <span class="string">&quot;The State field is required&quot;</span>;
+            <span class="keyword">yield</span> <span class="keyword">break</span>;
+        }
+
+        <span class="keyword">if</span> (!states.Contains(value))
+        {
+            <span class="keyword">yield</span> <span class="keyword">return</span> <span class="string">&quot;This is an incorrect value&quot;</span>;
+        }
+    }
+
+    <span class="keyword">public</span> <span class="keyword">class</span> Choice
+    {
+        [Required]
+        [State]
+        <span class="keyword">public</span> <span class="keyword">string</span> State { <span class="keyword">get</span>; <span class="keyword">set</span>;}
+    }
+
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
+    <span class="keyword">public</span> <span class="keyword">sealed</span> <span class="keyword">class</span> StateAttribute : ValidationAttribute
+    {
+        <span class="keyword">protected</span> <span class="keyword">override</span> ValidationResult IsValid(<span class="keyword">object</span> value, ValidationContext validationContext)
+        {
+            <span class="keyword">if</span> (!states.Contains(value))
+            {
+                <span class="keyword">return</span> <span class="keyword">new</span> ValidationResult(<span class="string">&quot;This is an incorrect value&quot;</span>, <span class="keyword">new</span>[] { validationContext.MemberName });
+            }
+
+            <span class="keyword">return</span> <span class="keyword">null</span>;
+        }
+    }
+}
+</pre></div>
+</div>

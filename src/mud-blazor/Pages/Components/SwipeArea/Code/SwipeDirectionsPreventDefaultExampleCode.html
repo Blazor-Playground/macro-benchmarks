@@ -1,0 +1,24 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwipeArea</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_swipeArea</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnSwipeEnd</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">HandleSwipeEnd</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">width: 100%; height: 300px; background-color:var(--mud-palette-surface)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Sensitivity</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_sensitivity</span><span class="quot">&quot;</span> <span class="htmlAttributeName">PreventDefault</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_preventDefault</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">user-select: none;</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Typo.body1</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>($&quot;{_swipeDirection} - Swiped: {_swipeDelta}px&quot;)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwipeArea</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_preventDefault</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Prevent Default<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudNumericField</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_sensitivity</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Sensitivity</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Min</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> MudSwipeArea _swipeArea;
+    <span class="keyword">private</span> SwipeDirection _swipeDirection;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _preventDefault = <span class="keyword">true</span>;
+    <span class="keyword">private</span> <span class="keyword">int</span> _sensitivity = <span class="number">100</span>;
+    <span class="keyword">private</span> <span class="keyword">double</span>? _swipeDelta;
+
+    <span class="keyword">private</span> <span class="keyword">void</span> HandleSwipeEnd(SwipeEventArgs args)
+    {
+        _swipeDirection = args.SwipeDirection;
+        _swipeDelta = args.SwipeDelta;
+    }
+}
+</pre></div>
+</div>

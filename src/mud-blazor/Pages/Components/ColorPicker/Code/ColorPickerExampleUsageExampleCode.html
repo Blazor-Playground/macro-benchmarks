@@ -1,0 +1,66 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using MudBlazor.Utilities
+
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Elevation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mud-width-full mud-height-full d-flex justify-center align-end pb-8</span><span class="quot">&quot;</span> <span class="htmlAttributeName">MinHeight</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">600px</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>($&quot;background-image:linear-gradient({_degrees}deg, {_gradientPrimary.ToString(MudColorOutputFormats.RGBA)} 0%, {_gradientSecondary.ToString(MudColorOutputFormats.RGBA)} 100%);&quot;)</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudColorPicker</span> <span class="htmlAttributeName">Rounded</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">rounded-tr-0</span><span class="quot">&quot;</span> <span class="htmlAttributeName">PickerVariant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">PickerVariant</span><span class="enumValue">.Static</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ShowModeSwitch</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">false</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_pickerColor</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ValueChanged</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">UpdateSelectedColor</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-2</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.h6</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mx-1</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Gradient Colors<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudList</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span> <span class="htmlAttributeName">SelectedValueChanged</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ChangeSelectedColor</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudListItem</span> <span class="htmlAttributeName">Text</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">1</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mud-width-full rounded py-4</span><span class="quot">&quot;</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>($&quot;background-color:{_gradientPrimary};&quot;)</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudListItem</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudListItem</span> <span class="htmlAttributeName">Text</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">2</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mud-width-full rounded py-4</span><span class="quot">&quot;</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>($&quot;background-color:{_gradientSecondary};&quot;)</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudListItem</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudList</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSlider</span> <span class="htmlAttributeName">Min</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Max</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">360</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Step</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">1</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_degrees</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">px-2</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Degrees<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSlider</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> MudColor _gradientPrimary = <span class="string">&quot;#594AE2&quot;</span>;
+    <span class="keyword">private</span> MudColor _gradientSecondary = <span class="string">&quot;#FF4081&quot;</span>;
+    <span class="keyword">private</span> MudColor _pickerColor = <span class="string">&quot;#594AE2&quot;</span>;
+
+    <span class="keyword">private</span> <span class="keyword">int</span> _degrees = <span class="number">90</span>;
+
+    <span class="keyword">bool</span> _isFirstColor = <span class="keyword">true</span>;
+
+    <span class="keyword">public</span> <span class="keyword">void</span> ChangeSelectedColor(<span class="keyword">string</span> item)
+    {
+        <span class="keyword">if</span> (item == <span class="string">&quot;1&quot;</span>)
+        {
+            _isFirstColor = <span class="keyword">true</span>;
+            _pickerColor = _gradientPrimary;
+            UpdateSelectedColor(_gradientPrimary);
+        }
+        <span class="keyword">else</span> <span class="keyword">if</span> (item == <span class="string">&quot;2&quot;</span>)
+        {
+            _isFirstColor = <span class="keyword">false</span>;
+            _pickerColor = _gradientSecondary;
+            UpdateSelectedColor(_gradientSecondary);
+        }
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> UpdateSelectedColor(MudColor value)
+    {
+        _pickerColor = value;
+
+        <span class="keyword">if</span> (_isFirstColor)
+        {
+            _gradientPrimary = value;
+        }
+        <span class="keyword">else</span>
+        {
+            _gradientSecondary = value;
+        }
+    }
+}
+</pre></div>
+</div>

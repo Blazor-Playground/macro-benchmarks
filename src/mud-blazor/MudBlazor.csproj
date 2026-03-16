@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>$(BenchmarkTargetFramework)</TargetFramework>
+    <DashName>mud-blazor</DashName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>MudBlazor.Docs</RootNamespace>
+    <AssemblyName>MudBlazor.Docs</AssemblyName>
+    <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
+    <NoWarn>$(NoWarn);CS8669;CS8632;CS0618;CS8603;CS8625;CS8618;CS8601;BL0007;CS8714;CS8602;CS8604;CS8600;CS8769;CS8622;CS8605;CS8619;CS8621;CS8767;RZ10012;CS8765;CS8620;CS1998;CS0414;NU1605</NoWarn>
+  </PropertyGroup>
+
+  <!-- MudBlazor core -->
+  <ItemGroup>
+    <PackageReference Include="MudBlazor" Version="$(MudBlazorVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="$(MicrosoftAspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="$(MicrosoftAspNetCoreVersion)" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Docs dependencies (kept for download-size fidelity, analytics registration disabled) -->
+  <ItemGroup>
+    <PackageReference Include="Blazor-Analytics" Version="$(BlazorAnalyticsVersion)" />
+    <PackageReference Include="BytexDigital.Blazor.Components.CookieConsent" Version="$(BytexDigitalCookieConsentVersion)" />
+    <PackageReference Include="FluentValidation" Version="$(FluentValidationVersion)" />
+    <PackageReference Include="FuzzySharp" Version="$(FuzzySharpVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="$(MicrosoftAspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="$(MicrosoftAspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="$(MicrosoftAspNetCoreWebUtilitiesVersion)" />
+    <PackageReference Include="Markdig" Version="$(MarkdigVersion)" />
+    <PackageReference Include="Blazored.LocalStorage" Version="$(BlazoredLocalStorageVersion)" />
+    <PackageReference Include="NetEscapades.EnumGenerators.Generators" Version="$(NetEscapadesEnumGeneratorsVersion)" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Examples data embedded resource -->
+  <ItemGroup>
+    <EmbeddedResource Include="ExamplesData\Elements.json" LogicalName="MudBlazor.Examples.Data.Elements.json" />
+  </ItemGroup>
+
+  <!-- Pre-generated code (from MudBlazor.Docs.Compiler, kept in Generated/) -->
+  <ItemGroup>
+    <EmbeddedResource Include="Pages\**\*.html" />
+  </ItemGroup>
+
+</Project>

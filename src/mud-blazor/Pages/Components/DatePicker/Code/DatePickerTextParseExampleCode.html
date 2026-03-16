@@ -1,0 +1,43 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using System.Globalization
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDatePicker</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Flexible Date</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Editable</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Date</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_date</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ImmediateText</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Placeholder</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">day.month.year</span><span class="quot">&quot;</span> <span class="htmlAttributeName">DateFormat</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_dateFormat</span><span class="quot">&quot;</span> <span class="htmlAttributeName">TextChanged</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">DatePickerTextChanged</span><span class="quot">&quot;</span> <span class="htmlAttributeName">HelperText</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_bound</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Clearable</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> DateTime? _date = <span class="keyword">null</span>;
+    <span class="keyword">private</span> <span class="keyword">string</span> _dateFormat = <span class="string">&quot;dd.MM.yyyy&quot;</span>;
+    <span class="keyword">private</span> <span class="keyword">string</span> _bound = <span class="string">&quot;not set&quot;</span>;
+
+    <span class="keyword">private</span> <span class="keyword">void</span> DatePickerTextChanged(<span class="keyword">string</span> value)
+    {
+        <span class="keyword">if</span> (value == <span class="keyword">null</span> || value.Length &lt; <span class="number">6</span>)
+        {
+            _date = <span class="keyword">null</span>;
+        }
+        <span class="keyword">else</span>
+        {
+            <span class="keyword">string</span>[] formats = { <span class="string">&quot;ddMMyy&quot;</span>, <span class="string">&quot;dd.MM.yyyy&quot;</span>, <span class="string">&quot;dd.M.yyyy&quot;</span>, <span class="string">&quot;d.MM.yyyy&quot;</span>, <span class="string">&quot;d.M.yyyy&quot;</span>, <span class="string">&quot;dd.MM.yy&quot;</span>, <span class="string">&quot;dd.M.yy&quot;</span>, <span class="string">&quot;d.MM.yy&quot;</span>, <span class="string">&quot;d.M.yy&quot;</span> };
+            <span class="keyword">if</span> (DateTime.TryParseExact(value, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, <span class="keyword">out</span> DateTime validDate))
+            {
+                _date = validDate;
+            }
+            <span class="keyword">else</span>
+            {
+                _date = <span class="keyword">null</span>;
+            }
+        }
+
+        <span class="keyword">if</span> (_date.HasValue)
+        {
+            _bound = _date.Value.ToString(_dateFormat); 
+        }
+        <span class="keyword">else</span>
+        {
+            _bound = <span class="string">&quot;not set&quot;</span>;
+        }
+    }
+}
+</pre></div>
+</div>

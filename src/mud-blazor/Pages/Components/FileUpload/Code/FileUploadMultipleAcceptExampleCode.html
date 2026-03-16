@@ -1,0 +1,158 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudGrid</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span> <span class="htmlAttributeName">md</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">12</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span> <span class="htmlAttributeName">Row</span> <span class="htmlAttributeName">Wrap</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Wrap</span><span class="enumValue">.Wrap</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Spacing</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">8</span><span class="quot">&quot;</span> <span class="htmlAttributeName">AlignItems</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">AlignItems</span><span class="enumValue">.Center</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.h6</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Multiple files<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudFileUpload</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_fileUploadMultiple</span><span class="quot">&quot;</span> 
+                           <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Files</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_filesMultiple</span><span class="quot">&quot;</span> 
+                           <span class="htmlAttributeName">SelectedTemplate</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(files =&gt; builder =&gt; { })</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">AppendMultipleFiles</span> <span class="htmlTagDelimiter">/&gt;</span>
+
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.h6</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Single .pdf file<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudFileUpload</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_fileUploadPDF</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">IBrowserFile</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">Accept</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">.pdf</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Files</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_filesPDF</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">SelectedTemplate</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(files =&gt; builder =&gt; { })</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.h6</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Images only<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudFileUpload</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_fileUploadImages</span><span class="quot">&quot;</span> 
+                           <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Files</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_filesImages</span><span class="quot">&quot;</span> 
+                           <span class="htmlAttributeName">Accept</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">.png, .jpg, .tiff</span><span class="quot">&quot;</span> 
+                           <span class="htmlAttributeName">AppendMultipleFiles</span> 
+                           <span class="htmlAttributeName">MaximumFileCount</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">100</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">CustomContent</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span>
+                               <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span>
+                               <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>context.OpenFilePickerAsync</span><span class="quot">&quot;</span>
+                               <span class="htmlAttributeName">StartIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.CloudUpload</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                        Choose images
+                    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">CustomContent</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">SelectedTemplate</span> <span class="htmlTagDelimiter">/&gt;</span>
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudFileUpload</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span> <span class="htmlAttributeName">xs</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">12</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span> <span class="htmlAttributeName">Spacing</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">2</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudExpansionPanels</span> <span class="htmlAttributeName">Elevation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudExpansionPanel</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">bold</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Text</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>($&quot;({_files.Count}) files&quot;)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Expanded</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">false</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                        <span class="atSign">&#64;</span>if (_files.Any())
+                        {
+                            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudList</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">IBrowserFile</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Dense</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                                <span class="atSign">&#64;</span>foreach (var file in _files)
+                                {
+                                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudListItem</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">IBrowserFile</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">file</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>key</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>file</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                                        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span> <span class="htmlAttributeName">Row</span> <span class="htmlAttributeName">AlignItems</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">AlignItems</span><span class="enumValue">.Center</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Justify</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Justify</span><span class="enumValue">.SpaceBetween</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Spacing</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">1</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">w-100</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                                            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>file.Name (<span class="atSign">&#64;</span>($&quot;{file.Size / 1024d:N1} kB&quot;))<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+                                            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudIconButton</span> <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Close</span><span class="quot">&quot;</span>
+                                                           <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Default</span><span class="quot">&quot;</span>
+                                                           <span class="htmlAttributeName">Size</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Size</span><span class="enumValue">.Small</span><span class="quot">&quot;</span>
+                                                           <span class="htmlAttributeName">Disabled</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_uploading</span><span class="quot">&quot;</span>
+                                                           <span class="htmlAttributeName">aria-label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Remove file</span><span class="quot">&quot;</span>
+                                                           <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; RemoveFileFromUploadsAsync(file))</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+                                        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+                                    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudListItem</span><span class="htmlTagDelimiter">&gt;</span>
+                                }
+                            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudList</span><span class="htmlTagDelimiter">&gt;</span>
+                        }
+                        else
+                        {
+                            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.body2</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>No files selected.<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+                        }
+                    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudExpansionPanel</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudExpansionPanels</span><span class="htmlTagDelimiter">&gt;</span>
+
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">Disabled</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">!_files.Any() || _uploading</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">UploadFilesAsync</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">StartIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.CloudUpload</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                    Upload
+                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+
+                <span class="atSign">&#64;</span>if (_uploading || _progress &gt; 0)
+                {
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudProgressLinear</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span>
+                                       <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_progress</span><span class="quot">&quot;</span>
+                                       <span class="htmlAttributeName">Indeterminate</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_uploading &amp;&amp; _files.Count == 0</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.caption</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>_statusText<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+                }
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudGrid</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code
+{
+#nullable enable
+    <span class="keyword">private</span> IReadOnlyList&lt;IBrowserFile&gt; _filesMultiple = [];
+    <span class="keyword">private</span> IBrowserFile? _filesPDF; 
+    <span class="keyword">private</span> IReadOnlyList&lt;IBrowserFile&gt; _filesImages = [];
+    <span class="keyword">private</span> IList&lt;IBrowserFile&gt; _files =&gt; (_filesMultiple ?? Enumerable.Empty&lt;IBrowserFile&gt;())
+        .Concat(_filesPDF != <span class="keyword">null</span> ? <span class="keyword">new</span>[] { _filesPDF } : Enumerable.Empty&lt;IBrowserFile&gt;()) 
+        .Concat(_filesImages ?? Enumerable.Empty&lt;IBrowserFile&gt;())
+        .ToList();
+
+    <span class="keyword">private</span> MudFileUpload&lt;IReadOnlyList&lt;IBrowserFile&gt;&gt; _fileUploadMultiple = <span class="keyword">default</span>!;
+    <span class="keyword">private</span> MudFileUpload&lt;IBrowserFile&gt; _fileUploadPDF = <span class="keyword">default</span>!;
+    <span class="keyword">private</span> MudFileUpload&lt;IReadOnlyList&lt;IBrowserFile&gt;&gt; _fileUploadImages = <span class="keyword">default</span>!;
+
+    <span class="keyword">private</span> <span class="keyword">bool</span> _uploading;
+    <span class="keyword">private</span> <span class="keyword">int</span> _progress;
+    <span class="keyword">private</span> <span class="keyword">string</span> _statusText = <span class="string">&quot;Waiting for files.&quot;</span>;
+
+    <span class="keyword">private</span> <span class="keyword">async</span> Task UploadFilesAsync()
+    {
+        <span class="keyword">if</span> (!_files.Any())
+        {
+            _statusText = <span class="string">&quot;No files to upload.&quot;</span>;
+            <span class="keyword">return</span>;
+        }
+
+        <span class="comment">// Create a snapshot of the files to avoid altering the collection during iteration</span>
+        <span class="keyword">var</span> filesSnapshot = _files.ToList();
+
+        _uploading = <span class="keyword">true</span>;
+        _progress = <span class="number">0</span>;
+        _statusText = <span class="string">&quot;Uploading...&quot;</span>;
+
+        <span class="keyword">var</span> total = filesSnapshot.Count;
+        <span class="keyword">for</span> (<span class="keyword">var</span> index = <span class="number">0</span>; index &lt; total; index++)
+        {
+            <span class="keyword">var</span> file = filesSnapshot[index];
+            <span class="keyword">await</span> Task.Delay(<span class="number">1000</span>); <span class="comment">// Simulate file upload</span>
+            _progress = (<span class="keyword">int</span>)Math.Round((index + 1d) / total * <span class="number">100</span>);
+            _statusText = index + <span class="number">1</span> == total ? <span class="string">&quot;Upload complete.&quot;</span> : $<span class="string">&quot;Uploading {index + 1} of {total}...&quot;</span>;
+            <span class="keyword">await</span> RemoveFileFromUploadsAsync(file);
+            <span class="keyword">await</span> InvokeAsync(StateHasChanged);
+        }
+
+        _uploading = <span class="keyword">false</span>;
+        <span class="keyword">await</span> InvokeAsync(StateHasChanged);
+    }
+
+    <span class="keyword">private</span> <span class="keyword">async</span> Task RemoveFileFromUploadsAsync(IBrowserFile file)
+    {
+        <span class="keyword">var</span> fileUploads = <span class="keyword">new</span> <span class="keyword">object</span>[] { _fileUploadMultiple, _fileUploadPDF, _fileUploadImages };
+
+        <span class="keyword">foreach</span> (<span class="keyword">var</span> fileUpload <span class="keyword">in</span> fileUploads)
+        {
+            <span class="keyword">if</span> (fileUpload <span class="keyword">is</span> MudFileUpload&lt;IReadOnlyList&lt;IBrowserFile&gt;&gt; multipleUpload &amp;&amp; <span class="keyword">await</span> multipleUpload.RemoveFileAsync(file))
+            {
+                <span class="keyword">return</span>; <span class="comment">// File removed from multiple files upload</span>
+            }
+
+            <span class="keyword">if</span> (fileUpload <span class="keyword">is</span> MudFileUpload&lt;IBrowserFile&gt; singleUpload &amp;&amp; <span class="keyword">await</span> singleUpload.RemoveFileAsync(file))
+            {
+                <span class="keyword">return</span>; <span class="comment">// File removed from single file upload</span>
+            }
+        }
+    }
+}
+</pre></div>
+</div>

@@ -1,0 +1,83 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">style</span><span class="htmlTagDelimiter">&gt;</span>
+    .mud-table-small-cell {
+        padding: 4px !important;
+        background-color: lightsteelblue;
+    }
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">style</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTable</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Elements.Take(4)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Hover</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Breakpoint</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Breakpoint</span><span class="enumValue">.Sm</span><span class="quot">&quot;</span> <span class="htmlAttributeName">MultiSelection</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>multiSelection</span><span class="quot">&quot;</span> <span class="htmlAttributeName">CellClass</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(applyCellClass? &quot;mud-table-small-cell&quot; : &quot;&quot;)</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">HeaderContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Nr<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Sign<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Name<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Position<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Molar mass<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Action<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">HeaderContent</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">RowTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Nr</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Number<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Sign</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Sign<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Name</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Name<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Position</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Position<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Molar mass</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Molar<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Action</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>onclick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; ShowCell(context))</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>(context.ShowCell ? &quot;Hide Cell&quot; : &quot;Show Cell&quot;)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">RowTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ChildRowContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="atSign">&#64;</span>if (context.ShowCell)
+        {
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTr</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">td</span> <span class="htmlAttributeName">colspan</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">6</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex justify-center</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.body1</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">strong</span><span class="htmlTagDelimiter">&gt;</span>The cell is shown<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">strong</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">td</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTr</span><span class="htmlTagDelimiter">&gt;</span>
+        }
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ChildRowContent</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTable</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>multiSelection</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Show checkboxes cells<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>applyCellClass</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Apply Cell Class<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">bool</span> multiSelection;
+    <span class="keyword">private</span> <span class="keyword">bool</span> applyCellClass;
+
+    <span class="keyword">private</span> <span class="keyword">void</span> ShowCell(Element element)
+    {
+        element.ShowCell = !element.ShowCell;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">class</span> Element
+    {
+        <span class="keyword">public</span> <span class="keyword">string</span> Number { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> <span class="keyword">string</span> Sign { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> <span class="keyword">string</span> Name { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> <span class="keyword">string</span> Position { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> <span class="keyword">decimal</span> Molar { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> <span class="keyword">bool</span> ShowCell { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+        <span class="keyword">public</span> Element(<span class="keyword">string</span> number, <span class="keyword">string</span> sign, <span class="keyword">string</span> name, <span class="keyword">string</span> position, <span class="keyword">decimal</span> molar)
+        {
+            Number = number;
+            Sign = sign;
+            Name = name;
+            Position = position;
+            Molar = molar;
+        }
+    }
+
+    <span class="keyword">private</span> List&lt;Element&gt; Elements = <span class="keyword">new</span> List&lt;Element&gt;()
+    {
+        <span class="keyword">new</span> Element(<span class="string">&quot;1&quot;</span>, <span class="string">&quot;H&quot;</span>, <span class="string">&quot;Hydrogen&quot;</span>, <span class="string">&quot;0&quot;</span>, <span class="number">1</span>.00794M),
+        <span class="keyword">new</span> Element(<span class="string">&quot;1&quot;</span>, <span class="string">&quot;He&quot;</span>, <span class="string">&quot;Helium&quot;</span>, <span class="string">&quot;17&quot;</span>, <span class="number">4</span>.002602M),
+        <span class="keyword">new</span> Element(<span class="string">&quot;1&quot;</span>, <span class="string">&quot;Li&quot;</span>, <span class="string">&quot;Lithium&quot;</span>, <span class="string">&quot;0&quot;</span>, <span class="number">6</span>.941M),
+        <span class="keyword">new</span> Element(<span class="string">&quot;1&quot;</span>, <span class="string">&quot;Be&quot;</span>, <span class="string">&quot;Beryllium&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="number">9</span>.012182M)
+    };
+}
+</pre></div>
+</div>

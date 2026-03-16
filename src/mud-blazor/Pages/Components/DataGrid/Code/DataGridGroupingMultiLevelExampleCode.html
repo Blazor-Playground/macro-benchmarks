@@ -1,0 +1,407 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using System.Collections.Generic
+<span class="atSign">&#64;</span>using MudBlazor.Utilities
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDataGrid</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_dataGrid</span><span class="quot">&quot;</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">USState</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName">ServerData</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>ServerReload</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName">Hover</span> <span class="htmlAttributeName">FixedHeader</span> <span class="htmlAttributeName">Groupable</span>
+             <span class="htmlAttributeName">Height</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">500px</span><span class="quot">&quot;</span> 
+             <span class="htmlAttributeName">GroupClass</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(_customizeGroupStyle ? &quot;pa-4&quot; : null)</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName">GroupStyle</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(_customizeGroupStyle ? &quot;background-color: var(--mud-palette-info);&quot; : null)</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName">GroupClassFunc</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(_customizeGroupStyle ? GroupClassFunc : null)</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName">GroupStyleFunc</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(_customizeGroupStyle ? GroupStyleFunc : null)</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ToolBarContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.h6</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>US States Information<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">span</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ml-2</span><span class="quot">&quot;</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">color: var(--mud-palette-warning);font-size: smaller;</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>2025<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">span</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSpacer</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTextField</span> <span class="htmlAttributeName">AdornmentIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Outlined.Search</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Adornment</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Adornment</span><span class="enumValue">.End</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Placeholder</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Filter Results</span><span class="quot">&quot;</span>
+                      <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_searchString&quot; <span class="atSign">&#64;</span>bind-Value:after=&quot;<span class="atSign">&#64;</span>(() =&gt; _dataGrid.ReloadServerData())</span><span class="quot">&quot;</span> 
+                      <span class="htmlAttributeName">DebounceInterval</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">100</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Outlined</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Clearable</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ToolBarContent</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">GroupTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">span</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">font-weight:bold</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="atSign">&#64;</span>context.Title: <span class="atSign">&#64;</span>context.Grouping.Key Count: <span class="atSign">&#64;</span>context.Grouping.Count()
+            <span class="atSign">&#64;</span>if (context.DataGrid.FilteredItems.Count() != 0)
+            {
+                <span class="atSign">&#64;</span>string.Format(&quot; Percentage: {0:P1}&quot;, context.Grouping.Count() / ((double)context.DataGrid.FilteredItems.Count()))
+            }
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">span</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">GroupTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.State</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">State</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Groupable</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">false</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Counties</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Groupable</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Population</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Groupable</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">false</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Format</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">N0</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.PrimaryIndustry</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Primary Industry</span><span class="quot">&quot;</span>
+                        <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Grouping</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_primaryIndustryGrouping</span><span class="quot">&quot;</span> <span class="htmlAttributeName">GroupBy</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_groupBy1</span><span class="quot">&quot;</span>
+                        <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-GroupByOrder</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_primaryIndustryOrder</span><span class="quot">&quot;</span>
+                        <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-GroupExpanded</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_primaryIndustryExpanded</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">GroupTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="atSign">&#64;</span>if (_customizeGroupTemplate)
+                {
+                    var color = context.Grouping.Key?.ToString() switch
+                    {
+                        &quot;Healthcare&quot; =&gt; Color.Primary,
+                        &quot;Tech&quot; =&gt; Color.Secondary,
+                        &quot;Tourism&quot; =&gt; Color.Info,
+                        _ =&gt; Color.Dark
+                    };
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex align-center</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudIcon</span> <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Business</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>color</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Size</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Size</span><span class="enumValue">.Small</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mr-2</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+                        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">span</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">font-weight:bold</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Grouping.Key<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">span</span><span class="htmlTagDelimiter">&gt;</span>
+                        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChip</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Outlined</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>color</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Size</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Size</span><span class="enumValue">.Small</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ml-2</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                            <span class="atSign">&#64;</span>context.Grouping.Count() states
+                        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChip</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+                }
+                else
+                {
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">span</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">font-weight:bold</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Title: <span class="atSign">&#64;</span>(context.Grouping.Key)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">span</span><span class="htmlTagDelimiter">&gt;</span>
+                }
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">GroupTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">PropertyColumn</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Region</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Region</span><span class="quot">&quot;</span>
+                        <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Grouping</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_regionGrouping</span><span class="quot">&quot;</span> 
+                        <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-GroupByOrder</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_regionOrder</span><span class="quot">&quot;</span>
+                        <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-GroupExpanded</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_regionExpanded</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">GroupTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="atSign">&#64;</span>if (_customizeGroupTemplate)
+                {
+                    var (icon, color) = context.Grouping.Key?.ToString() switch
+                    {
+                        &quot;Northeast&quot; or &quot;Southeast&quot; =&gt; (Icons.Material.Filled.East, Color.Warning),
+                        &quot;West&quot; or &quot;Pacific&quot; =&gt; (Icons.Material.Filled.West, Color.Success),
+                        &quot;Midwest&quot; =&gt; (Icons.Material.Filled.LocationOn, Color.Info),
+                        &quot;Southwest&quot; =&gt; (Icons.Material.Filled.South, Color.Error),
+                        _ =&gt; (Icons.Material.Filled.Public, Color.Default)
+                    };
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex align-center</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudIcon</span> <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>icon</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>color</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Size</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Size</span><span class="enumValue">.Small</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mr-2</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+                        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">span</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">font-weight:bold</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Grouping.Key<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">span</span><span class="htmlTagDelimiter">&gt;</span>
+                        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChip</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Outlined</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>color</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Size</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Size</span><span class="enumValue">.Small</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ml-2</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                            <span class="atSign">&#64;</span>context.Grouping.Count() states
+                        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChip</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+                }
+                else
+                {
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">span</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">font-weight:bold</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Title: <span class="atSign">&#64;</span>(context.Grouping.Key)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">span</span><span class="htmlTagDelimiter">&gt;</span>
+                }
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">GroupTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">PropertyColumn</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Climate</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Climate</span><span class="quot">&quot;</span>
+                        <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Grouping</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_climateGrouping</span><span class="quot">&quot;</span> 
+                        <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-GroupByOrder</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_climateOrder</span><span class="quot">&quot;</span>
+                        <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-GroupExpanded</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_climateExpanded</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">GroupTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="atSign">&#64;</span>if (_customizeGroupTemplate)
+                {
+                    var (icon, color) = context.Grouping.Key?.ToString() switch
+                    {
+                        &quot;Continental&quot; =&gt; (Icons.Material.Filled.AcUnit, Color.Primary),
+                        &quot;Humid Subtropical&quot; =&gt; (Icons.Material.Filled.WbSunny, Color.Warning),
+                        &quot;Mediterranean&quot; or &quot;Tropical&quot; =&gt; (Icons.Material.Filled.WaterDrop, Color.Info),
+                        &quot;Desert&quot; or &quot;Semi-arid&quot; or &quot;Arid&quot; =&gt; (Icons.Material.Filled.Landscape, Color.Error),
+                        _ =&gt; (Icons.Material.Filled.Cloud, Color.Default)
+                    };
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex align-center</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudIcon</span> <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>icon</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>color</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Size</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Size</span><span class="enumValue">.Small</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mr-2</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+                        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">span</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">font-weight:bold</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Grouping.Key<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">span</span><span class="htmlTagDelimiter">&gt;</span>
+                        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChip</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Outlined</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>color</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Size</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Size</span><span class="enumValue">.Small</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ml-2</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                            <span class="atSign">&#64;</span>context.Grouping.Count() states
+                        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChip</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+                }
+                else
+                {
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">span</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">font-weight:bold</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Title: <span class="atSign">&#64;</span>(context.Grouping.Key)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">span</span><span class="htmlTagDelimiter">&gt;</span>
+                }
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">GroupTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">PropertyColumn</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.YearInducted</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Year Inducted</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">GroupTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="atSign">&#64;</span>if (_customizeGroupTemplate)
+                {
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">span</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">font-weight:bold</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Year Inducted: <span class="atSign">&#64;</span>context.Grouping.Key <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChip</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Outlined</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Size</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Size</span><span class="enumValue">.Small</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>total <span class="atSign">&#64;</span>context.Grouping.Count()<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChip</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">span</span><span class="htmlTagDelimiter">&gt;</span>
+                }
+                else
+                {
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">span</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">font-weight:bold</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Title: <span class="atSign">&#64;</span>(context.Grouping.Key)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">span</span><span class="htmlTagDelimiter">&gt;</span>
+                }
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">GroupTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">PropertyColumn</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDataGrid</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex flex-wrap mt-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">bool</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_customizeGroupTemplate</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Color.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Customize Group Template<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">bool</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_customizeGroupBy</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Color.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ValueChanged</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>CustomizeByGroupChanged</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Customize Group By Industry<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">bool</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_customizeGroupStyle</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Color.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Customize Group Style<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>ExpandAllGroupsAsync</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Color.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Disabled</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(!(_dataGrid?.IsGrouped ?? false))</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Expand all<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>CollapseAllGroupsAsync</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Color.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Disabled</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(!(_dataGrid?.IsGrouped ?? false))</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Collapse all<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+#nullable enable
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">string</span> __description__ = <span class="string">&quot;Multi Level Grouping within DataGrid&quot;</span>;
+    <span class="comment">// For the Grid</span>
+    <span class="keyword">private</span> MudDataGrid&lt;USState&gt; _dataGrid = <span class="keyword">null</span>!;
+    <span class="keyword">private</span> <span class="keyword">string</span>? _searchString = <span class="keyword">string</span>.Empty;
+    <span class="comment">// Bound Properties <span class="atSign">&#64;</span>bind-</span>
+    <span class="keyword">private</span> <span class="keyword">bool</span> _customizeGroupTemplate;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _customizeGroupBy;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _customizeGroupStyle;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _primaryIndustryGrouping = <span class="keyword">true</span>;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _regionGrouping;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _climateGrouping = <span class="keyword">true</span>;
+    <span class="keyword">private</span> <span class="keyword">int</span> _primaryIndustryOrder ;
+    <span class="keyword">private</span> <span class="keyword">int</span> _climateOrder = <span class="number">1</span>;
+    <span class="keyword">private</span> <span class="keyword">int</span> _regionOrder = <span class="number">2</span>;
+    <span class="comment">// Display Options</span>
+    <span class="keyword">private</span> <span class="keyword">bool</span> _primaryIndustryExpanded = <span class="keyword">true</span>;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _regionExpanded = <span class="keyword">true</span>;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _climateExpanded = <span class="keyword">true</span>;
+
+    <span class="comment">// Primary grouping by industry type</span>
+    <span class="keyword">private</span> Func&lt;USState, <span class="keyword">object</span>&gt;? _groupBy1;
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> OnInitialized()
+    {
+        _groupBy1 = x =&gt;
+        {
+            <span class="keyword">if</span> (_customizeGroupBy)
+            {
+                <span class="keyword">return</span> x.PrimaryIndustry <span class="keyword">switch</span>
+                {
+                    <span class="string">&quot;Healthcare&quot;</span> =&gt; <span class="string">&quot;Health&quot;</span>,
+                    <span class="string">&quot;Technology&quot;</span> =&gt; <span class="string">&quot;Tech&quot;</span>,
+                    <span class="string">&quot;Tourism&quot;</span> =&gt; <span class="string">&quot;Vacay&quot;</span>,
+                    _ =&gt; <span class="string">&quot;Other&quot;</span>
+                };
+            }
+
+            <span class="keyword">return</span> x.PrimaryIndustry;
+        };
+    }
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> OnAfterRender(<span class="keyword">bool</span> firstRender)
+    {
+        <span class="keyword">base</span>.OnAfterRender(firstRender);
+
+        <span class="keyword">if</span> (firstRender)
+        {
+            <span class="comment">// Check if the dataGrid is grouped and update the state accordingly (for IsGrouped)</span>
+            <span class="keyword">if</span> (_dataGrid?.IsGrouped == <span class="keyword">true</span>)
+            {
+                StateHasChanged();
+            }
+        }
+    }
+
+    <span class="keyword">private</span> <span class="keyword">async</span> Task&lt;GridData&lt;USState&gt;&gt; ServerReload(GridState&lt;USState&gt; state, CancellationToken token)
+    {
+        <span class="comment">// call API</span>
+        <span class="keyword">var</span> data = GetAllStates(_searchString, state.SortDefinitions);
+        <span class="comment">// simulate some wait time</span>
+        <span class="keyword">await</span> Task.Delay(<span class="number">150</span>);
+
+        <span class="keyword">var</span> totalItems = data.Count;        
+        <span class="keyword">var</span> pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        <span class="keyword">return</span> <span class="keyword">new</span>()
+        {
+            TotalItems = totalItems,
+            Items = pagedData
+        };
+    }
+
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">string</span> GroupClassFunc(GroupDefinition&lt;USState&gt; item)
+    {
+        <span class="keyword">var</span> key = item.Grouping.Key?.ToString();
+
+        <span class="keyword">return</span> item.Title <span class="keyword">switch</span>
+        {
+            <span class="string">&quot;Primary Industry&quot;</span> =&gt; key <span class="keyword">switch</span>
+            {
+                <span class="string">&quot;Healthcare&quot;</span> =&gt; <span class="string">&quot;mud-theme-primary&quot;</span>,
+                <span class="string">&quot;Tech&quot;</span> =&gt; <span class="string">&quot;mud-theme-secondary&quot;</span>,
+                <span class="string">&quot;Tourism&quot;</span> =&gt; <span class="string">&quot;mud-theme-info&quot;</span>,
+                _ =&gt; <span class="string">&quot;mud-theme-dark&quot;</span>
+            },
+            <span class="string">&quot;Region&quot;</span> =&gt; key <span class="keyword">switch</span>
+            {
+                <span class="string">&quot;Northeast&quot;</span> or <span class="string">&quot;Southeast&quot;</span> =&gt; <span class="string">&quot;mud-theme-warning&quot;</span>,
+                <span class="string">&quot;West&quot;</span> or <span class="string">&quot;Pacific&quot;</span> =&gt; <span class="string">&quot;mud-theme-success&quot;</span>,
+                <span class="string">&quot;Midwest&quot;</span> =&gt; <span class="string">&quot;mud-theme-info&quot;</span>,
+                <span class="string">&quot;Southwest&quot;</span> =&gt; <span class="string">&quot;mud-theme-error&quot;</span>,
+                _ =&gt; <span class="keyword">string</span>.Empty
+            },
+            _ =&gt; key <span class="keyword">switch</span>
+            {
+                <span class="string">&quot;Continental&quot;</span> =&gt; <span class="string">&quot;mud-theme-primary&quot;</span>,
+                <span class="string">&quot;Humid Subtropical&quot;</span> =&gt; <span class="string">&quot;mud-theme-warning&quot;</span>,
+                <span class="string">&quot;Mediterranean&quot;</span> or <span class="string">&quot;Tropical&quot;</span> =&gt; <span class="string">&quot;mud-theme-info&quot;</span>,
+                <span class="string">&quot;Desert&quot;</span> or <span class="string">&quot;Semi-arid&quot;</span> or <span class="string">&quot;Arid&quot;</span> =&gt; <span class="string">&quot;mud-theme-error&quot;</span>,
+                _ =&gt; <span class="keyword">string</span>.Empty
+            }
+        };
+    }
+
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">string</span> GroupStyleFunc(GroupDefinition&lt;USState&gt; item)
+    {
+        <span class="keyword">var</span> indent = item.Level * <span class="number">16</span>; <span class="comment">// 16px per level</span>
+        <span class="keyword">var</span> borderWidth = Math.Max(<span class="number">1</span>, <span class="number">4</span> - item.Level); <span class="comment">// Decrease border width with depth</span>
+
+        <span class="keyword">var</span> style = <span class="keyword">new</span> StyleBuilder()
+            .AddStyle(<span class="string">&quot;padding-left&quot;</span>, $<span class="string">&quot;{indent}px&quot;</span>)
+            .AddStyle(<span class="string">&quot;border-left&quot;</span>, $<span class="string">&quot;{borderWidth}px solid&quot;</span>)
+            .AddStyle(<span class="string">&quot;border-color&quot;</span>, GetBorderColor(item))
+            .AddStyle(<span class="string">&quot;opacity&quot;</span>, $<span class="string">&quot;{1 - (item.Level - 1) * 0.2}&quot;</span>) <span class="comment">// Fade out deeper levels slightly</span>
+            .Build();
+
+        <span class="keyword">return</span> style;
+    }
+
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">string</span> GetBorderColor(GroupDefinition&lt;USState&gt; item)
+    {
+        <span class="keyword">var</span> key = item.Grouping.Key?.ToString();
+
+        <span class="keyword">return</span> item.Title <span class="keyword">switch</span>
+        {
+            <span class="comment">// Primary level (Industry)</span>
+            <span class="string">&quot;Primary Industry&quot;</span> =&gt; key <span class="keyword">switch</span>
+            {
+                <span class="string">&quot;Healthcare&quot;</span> =&gt; <span class="string">&quot;var(--mud-palette-primary)&quot;</span>,
+                <span class="string">&quot;Tech&quot;</span> =&gt; <span class="string">&quot;var(--mud-palette-secondary)&quot;</span>,
+                <span class="string">&quot;Tourism&quot;</span> =&gt; <span class="string">&quot;var(--mud-palette-info)&quot;</span>,
+                _ =&gt; <span class="string">&quot;var(--mud-palette-dark)&quot;</span>
+            },
+            <span class="string">&quot;Region&quot;</span> =&gt; key <span class="keyword">switch</span>
+            {
+                <span class="string">&quot;Northeast&quot;</span> or <span class="string">&quot;Southeast&quot;</span> =&gt; <span class="string">&quot;var(--mud-palette-warning)&quot;</span>,
+                <span class="string">&quot;West&quot;</span> or <span class="string">&quot;Pacific&quot;</span> =&gt; <span class="string">&quot;var(--mud-palette-success)&quot;</span>,
+                <span class="string">&quot;Midwest&quot;</span> =&gt; <span class="string">&quot;var(--mud-palette-info)&quot;</span>,
+                <span class="string">&quot;Southwest&quot;</span> =&gt; <span class="string">&quot;var(--mud-palette-error)&quot;</span>,
+                _ =&gt; <span class="string">&quot;var(--mud-palette-dark)&quot;</span>
+            },
+            <span class="string">&quot;Climate&quot;</span> =&gt; key <span class="keyword">switch</span>
+            {
+                <span class="string">&quot;Continental&quot;</span> =&gt; <span class="string">&quot;var(--mud-palette-primary)&quot;</span>,
+                <span class="string">&quot;Humid Subtropical&quot;</span> =&gt; <span class="string">&quot;var(--mud-palette-warning)&quot;</span>,
+                <span class="string">&quot;Mediterranean&quot;</span> or <span class="string">&quot;Tropical&quot;</span> =&gt; <span class="string">&quot;var(--mud-palette-info)&quot;</span>,
+                <span class="string">&quot;Desert&quot;</span> or <span class="string">&quot;Semi-arid&quot;</span> or <span class="string">&quot;Arid&quot;</span> =&gt; <span class="string">&quot;var(--mud-palette-error)&quot;</span>,
+                _ =&gt; <span class="string">&quot;var(--mud-palette-dark)&quot;</span>
+            },
+            _ =&gt; <span class="string">&quot;var(--mud-palette-dark)&quot;</span>
+        };
+    }    
+
+    <span class="keyword">private</span> Task ExpandAllGroupsAsync()
+    {
+        <span class="keyword">return</span> _dataGrid.ExpandAllGroupsAsync();
+    }
+
+    <span class="keyword">private</span> Task CollapseAllGroupsAsync()
+    {
+        <span class="keyword">return</span> _dataGrid.CollapseAllGroupsAsync();
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> CustomizeByGroupChanged(<span class="keyword">bool</span> isChecked)
+    {
+        _customizeGroupBy = isChecked;
+        _dataGrid.GroupItems();
+    }
+
+    <span class="keyword">private</span> <span class="keyword">static</span> List&lt;USState&gt; GetAllStates(<span class="keyword">string</span>? searchString, ICollection&lt;SortDefinition&lt;USState&gt;&gt;? sortDefinitions)
+    {
+        List&lt;USState&gt; data =
+        [
+            <span class="keyword">new</span> USState(Id: <span class="number">1</span>, State: <span class="string">&quot;Alabama&quot;</span>, Counties: <span class="number">67</span>, Population: <span class="number">5024279</span>, PrimaryIndustry: <span class="string">&quot;Manufacturing&quot;</span>, Region: <span class="string">&quot;Southeast&quot;</span>, Climate: <span class="string">&quot;Humid Subtropical&quot;</span>, YearInducted: <span class="number">1819</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">2</span>, State: <span class="string">&quot;Alaska&quot;</span>, Counties: <span class="number">30</span>, Population: <span class="number">733406</span>, PrimaryIndustry: <span class="string">&quot;Oil and Gas&quot;</span>, Region: <span class="string">&quot;Pacific&quot;</span>, Climate: <span class="string">&quot;Subarctic&quot;</span>, YearInducted: <span class="number">1959</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">3</span>, State: <span class="string">&quot;Arizona&quot;</span>, Counties: <span class="number">15</span>, Population: <span class="number">7151502</span>, PrimaryIndustry: <span class="string">&quot;Healthcare&quot;</span>, Region: <span class="string">&quot;Southwest&quot;</span>, Climate: <span class="string">&quot;Desert&quot;</span>, YearInducted: <span class="number">1912</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">4</span>, State: <span class="string">&quot;Arkansas&quot;</span>, Counties: <span class="number">75</span>, Population: <span class="number">3011524</span>, PrimaryIndustry: <span class="string">&quot;Agriculture&quot;</span>, Region: <span class="string">&quot;Southeast&quot;</span>, Climate: <span class="string">&quot;Humid Subtropical&quot;</span>, YearInducted: <span class="number">1836</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">5</span>, State: <span class="string">&quot;California&quot;</span>, Counties: <span class="number">58</span>, Population: <span class="number">39538223</span>, PrimaryIndustry: <span class="string">&quot;Technology&quot;</span>, Region: <span class="string">&quot;West&quot;</span>, Climate: <span class="string">&quot;Mediterranean&quot;</span>, YearInducted: <span class="number">1850</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">6</span>, State: <span class="string">&quot;Colorado&quot;</span>, Counties: <span class="number">64</span>, Population: <span class="number">5773714</span>, PrimaryIndustry: <span class="string">&quot;Tourism&quot;</span>, Region: <span class="string">&quot;West&quot;</span>, Climate: <span class="string">&quot;Semi-arid&quot;</span>, YearInducted: <span class="number">1876</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">7</span>, State: <span class="string">&quot;Connecticut&quot;</span>, Counties: <span class="number">8</span>, Population: <span class="number">3605944</span>, PrimaryIndustry: <span class="string">&quot;Finance and Insurance&quot;</span>, Region: <span class="string">&quot;Northeast&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1788</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">8</span>, State: <span class="string">&quot;Delaware&quot;</span>, Counties: <span class="number">3</span>, Population: <span class="number">989948</span>, PrimaryIndustry: <span class="string">&quot;Finance and Insurance&quot;</span>, Region: <span class="string">&quot;Northeast&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1787</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">9</span>, State: <span class="string">&quot;Florida&quot;</span>, Counties: <span class="number">67</span>, Population: <span class="number">21538187</span>, PrimaryIndustry: <span class="string">&quot;Tourism&quot;</span>, Region: <span class="string">&quot;Southeast&quot;</span>, Climate: <span class="string">&quot;Tropical&quot;</span>, YearInducted: <span class="number">1845</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">10</span>, State: <span class="string">&quot;Georgia&quot;</span>, Counties: <span class="number">159</span>, Population: <span class="number">10711908</span>, PrimaryIndustry: <span class="string">&quot;Agriculture&quot;</span>, Region: <span class="string">&quot;Southeast&quot;</span>, Climate: <span class="string">&quot;Humid Subtropical&quot;</span>, YearInducted: <span class="number">1788</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">11</span>, State: <span class="string">&quot;Hawaii&quot;</span>, Counties: <span class="number">5</span>, Population: <span class="number">1455271</span>, PrimaryIndustry: <span class="string">&quot;Tourism&quot;</span>, Region: <span class="string">&quot;Pacific&quot;</span>, Climate: <span class="string">&quot;Tropical&quot;</span>, YearInducted: <span class="number">1959</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">12</span>, State: <span class="string">&quot;Idaho&quot;</span>, Counties: <span class="number">44</span>, Population: <span class="number">1839106</span>, PrimaryIndustry: <span class="string">&quot;Agriculture&quot;</span>, Region: <span class="string">&quot;West&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1890</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">13</span>, State: <span class="string">&quot;Illinois&quot;</span>, Counties: <span class="number">102</span>, Population: <span class="number">12812508</span>, PrimaryIndustry: <span class="string">&quot;Manufacturing&quot;</span>, Region: <span class="string">&quot;Midwest&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1818</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">14</span>, State: <span class="string">&quot;Indiana&quot;</span>, Counties: <span class="number">92</span>, Population: <span class="number">6785528</span>, PrimaryIndustry: <span class="string">&quot;Manufacturing&quot;</span>, Region: <span class="string">&quot;Midwest&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1816</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">15</span>, State: <span class="string">&quot;Iowa&quot;</span>, Counties: <span class="number">99</span>, Population: <span class="number">3190369</span>, PrimaryIndustry: <span class="string">&quot;Agriculture&quot;</span>, Region: <span class="string">&quot;Midwest&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1846</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">16</span>, State: <span class="string">&quot;Kansas&quot;</span>, Counties: <span class="number">105</span>, Population: <span class="number">2937880</span>, PrimaryIndustry: <span class="string">&quot;Agriculture&quot;</span>, Region: <span class="string">&quot;Midwest&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1861</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">17</span>, State: <span class="string">&quot;Kentucky&quot;</span>, Counties: <span class="number">120</span>, Population: <span class="number">4505836</span>, PrimaryIndustry: <span class="string">&quot;Manufacturing&quot;</span>, Region: <span class="string">&quot;Southeast&quot;</span>, Climate: <span class="string">&quot;Humid Continental&quot;</span>, YearInducted: <span class="number">1792</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">18</span>, State: <span class="string">&quot;Louisiana&quot;</span>, Counties: <span class="number">64</span>, Population: <span class="number">4657757</span>, PrimaryIndustry: <span class="string">&quot;Oil and Gas&quot;</span>, Region: <span class="string">&quot;Southeast&quot;</span>, Climate: <span class="string">&quot;Humid Subtropical&quot;</span>, YearInducted: <span class="number">1812</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">19</span>, State: <span class="string">&quot;Maine&quot;</span>, Counties: <span class="number">16</span>, Population: <span class="number">1362359</span>, PrimaryIndustry: <span class="string">&quot;Healthcare&quot;</span>, Region: <span class="string">&quot;Northeast&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1820</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">20</span>, State: <span class="string">&quot;Maryland&quot;</span>, Counties: <span class="number">24</span>, Population: <span class="number">6177224</span>, PrimaryIndustry: <span class="string">&quot;Healthcare&quot;</span>, Region: <span class="string">&quot;Northeast&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1788</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">21</span>, State: <span class="string">&quot;Massachusetts&quot;</span>, Counties: <span class="number">14</span>, Population: <span class="number">7029917</span>, PrimaryIndustry: <span class="string">&quot;Healthcare&quot;</span>, Region: <span class="string">&quot;Northeast&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1788</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">22</span>, State: <span class="string">&quot;Michigan&quot;</span>, Counties: <span class="number">83</span>, Population: <span class="number">10077331</span>, PrimaryIndustry: <span class="string">&quot;Manufacturing&quot;</span>, Region: <span class="string">&quot;Midwest&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1837</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">23</span>, State: <span class="string">&quot;Minnesota&quot;</span>, Counties: <span class="number">87</span>, Population: <span class="number">5706494</span>, PrimaryIndustry: <span class="string">&quot;Healthcare&quot;</span>, Region: <span class="string">&quot;Midwest&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1858</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">24</span>, State: <span class="string">&quot;Mississippi&quot;</span>, Counties: <span class="number">82</span>, Population: <span class="number">2961279</span>, PrimaryIndustry: <span class="string">&quot;Agriculture&quot;</span>, Region: <span class="string">&quot;Southeast&quot;</span>, Climate: <span class="string">&quot;Humid Subtropical&quot;</span>, YearInducted: <span class="number">1817</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">25</span>, State: <span class="string">&quot;Missouri&quot;</span>, Counties: <span class="number">115</span>, Population: <span class="number">6154913</span>, PrimaryIndustry: <span class="string">&quot;Healthcare&quot;</span>, Region: <span class="string">&quot;Midwest&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1821</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">26</span>, State: <span class="string">&quot;Montana&quot;</span>, Counties: <span class="number">56</span>, Population: <span class="number">1084225</span>, PrimaryIndustry: <span class="string">&quot;Agriculture&quot;</span>, Region: <span class="string">&quot;West&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1889</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">27</span>, State: <span class="string">&quot;Nebraska&quot;</span>, Counties: <span class="number">93</span>, Population: <span class="number">1961504</span>, PrimaryIndustry: <span class="string">&quot;Agriculture&quot;</span>, Region: <span class="string">&quot;Midwest&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1867</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">28</span>, State: <span class="string">&quot;Nevada&quot;</span>, Counties: <span class="number">17</span>, Population: <span class="number">3104614</span>, PrimaryIndustry: <span class="string">&quot;Tourism&quot;</span>, Region: <span class="string">&quot;West&quot;</span>, Climate: <span class="string">&quot;Desert&quot;</span>, YearInducted: <span class="number">1864</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">29</span>, State: <span class="string">&quot;New Hampshire&quot;</span>, Counties: <span class="number">10</span>, Population: <span class="number">1377529</span>, PrimaryIndustry: <span class="string">&quot;Healthcare&quot;</span>, Region: <span class="string">&quot;Northeast&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1788</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">30</span>, State: <span class="string">&quot;New Jersey&quot;</span>, Counties: <span class="number">21</span>, Population: <span class="number">9288994</span>, PrimaryIndustry: <span class="string">&quot;Finance and Insurance&quot;</span>, Region: <span class="string">&quot;Northeast&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1787</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">31</span>, State: <span class="string">&quot;New Mexico&quot;</span>, Counties: <span class="number">33</span>, Population: <span class="number">2117522</span>, PrimaryIndustry: <span class="string">&quot;Oil and Gas&quot;</span>, Region: <span class="string">&quot;Southwest&quot;</span>, Climate: <span class="string">&quot;Arid&quot;</span>, YearInducted: <span class="number">1912</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">32</span>, State: <span class="string">&quot;New York&quot;</span>, Counties: <span class="number">62</span>, Population: <span class="number">20201249</span>, PrimaryIndustry: <span class="string">&quot;Finance and Insurance&quot;</span>, Region: <span class="string">&quot;Northeast&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1788</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">33</span>, State: <span class="string">&quot;North Carolina&quot;</span>, Counties: <span class="number">100</span>, Population: <span class="number">10439388</span>, PrimaryIndustry: <span class="string">&quot;Manufacturing&quot;</span>, Region: <span class="string">&quot;Southeast&quot;</span>, Climate: <span class="string">&quot;Humid Subtropical&quot;</span>, YearInducted: <span class="number">1789</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">34</span>, State: <span class="string">&quot;North Dakota&quot;</span>, Counties: <span class="number">53</span>, Population: <span class="number">779094</span>, PrimaryIndustry: <span class="string">&quot;Agriculture&quot;</span>, Region: <span class="string">&quot;Midwest&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1889</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">35</span>, State: <span class="string">&quot;Ohio&quot;</span>, Counties: <span class="number">88</span>, Population: <span class="number">11799448</span>, PrimaryIndustry: <span class="string">&quot;Manufacturing&quot;</span>, Region: <span class="string">&quot;Midwest&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1803</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">36</span>, State: <span class="string">&quot;Oklahoma&quot;</span>, Counties: <span class="number">77</span>, Population: <span class="number">3959353</span>, PrimaryIndustry: <span class="string">&quot;Oil and Gas&quot;</span>, Region: <span class="string">&quot;Southwest&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1907</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">37</span>, State: <span class="string">&quot;Oregon&quot;</span>, Counties: <span class="number">36</span>, Population: <span class="number">4237256</span>, PrimaryIndustry: <span class="string">&quot;Technology&quot;</span>, Region: <span class="string">&quot;West&quot;</span>, Climate: <span class="string">&quot;Mediterranean&quot;</span>, YearInducted: <span class="number">1859</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">38</span>, State: <span class="string">&quot;Pennsylvania&quot;</span>, Counties: <span class="number">67</span>, Population: <span class="number">13002700</span>, PrimaryIndustry: <span class="string">&quot;Healthcare&quot;</span>, Region: <span class="string">&quot;Northeast&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1787</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">39</span>, State: <span class="string">&quot;Rhode Island&quot;</span>, Counties: <span class="number">5</span>, Population: <span class="number">1097379</span>, PrimaryIndustry: <span class="string">&quot;Healthcare&quot;</span>, Region: <span class="string">&quot;Northeast&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1790</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">40</span>, State: <span class="string">&quot;South Carolina&quot;</span>, Counties: <span class="number">46</span>, Population: <span class="number">5118425</span>, PrimaryIndustry: <span class="string">&quot;Manufacturing&quot;</span>, Region: <span class="string">&quot;Southeast&quot;</span>, Climate: <span class="string">&quot;Humid Subtropical&quot;</span>, YearInducted: <span class="number">1788</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">41</span>, State: <span class="string">&quot;South Dakota&quot;</span>, Counties: <span class="number">66</span>, Population: <span class="number">886667</span>, PrimaryIndustry: <span class="string">&quot;Agriculture&quot;</span>, Region: <span class="string">&quot;Midwest&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1889</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">42</span>, State: <span class="string">&quot;Tennessee&quot;</span>, Counties: <span class="number">95</span>, Population: <span class="number">6910840</span>, PrimaryIndustry: <span class="string">&quot;Healthcare&quot;</span>, Region: <span class="string">&quot;Southeast&quot;</span>, Climate: <span class="string">&quot;Humid Subtropical&quot;</span>, YearInducted: <span class="number">1796</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">43</span>, State: <span class="string">&quot;Texas&quot;</span>, Counties: <span class="number">254</span>, Population: <span class="number">29145505</span>, PrimaryIndustry: <span class="string">&quot;Oil and Gas&quot;</span>, Region: <span class="string">&quot;Southwest&quot;</span>, Climate: <span class="string">&quot;Subtropical&quot;</span>, YearInducted: <span class="number">1845</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">44</span>, State: <span class="string">&quot;Utah&quot;</span>, Counties: <span class="number">29</span>, Population: <span class="number">3271616</span>, PrimaryIndustry: <span class="string">&quot;Healthcare&quot;</span>, Region: <span class="string">&quot;West&quot;</span>, Climate: <span class="string">&quot;Semi-arid&quot;</span>, YearInducted: <span class="number">1896</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">45</span>, State: <span class="string">&quot;Vermont&quot;</span>, Counties: <span class="number">14</span>, Population: <span class="number">643077</span>, PrimaryIndustry: <span class="string">&quot;Tourism&quot;</span>, Region: <span class="string">&quot;Northeast&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1791</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">46</span>, State: <span class="string">&quot;Virginia&quot;</span>, Counties: <span class="number">133</span>, Population: <span class="number">8631393</span>, PrimaryIndustry: <span class="string">&quot;Technology&quot;</span>, Region: <span class="string">&quot;Southeast&quot;</span>, Climate: <span class="string">&quot;Humid Subtropical&quot;</span>, YearInducted: <span class="number">1788</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">47</span>, State: <span class="string">&quot;Washington&quot;</span>, Counties: <span class="number">39</span>, Population: <span class="number">7705281</span>, PrimaryIndustry: <span class="string">&quot;Technology&quot;</span>, Region: <span class="string">&quot;West&quot;</span>, Climate: <span class="string">&quot;Oceanic&quot;</span>, YearInducted: <span class="number">1889</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">48</span>, State: <span class="string">&quot;West Virginia&quot;</span>, Counties: <span class="number">55</span>, Population: <span class="number">1793716</span>, PrimaryIndustry: <span class="string">&quot;Healthcare&quot;</span>, Region: <span class="string">&quot;Southeast&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1863</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">49</span>, State: <span class="string">&quot;Wisconsin&quot;</span>, Counties: <span class="number">72</span>, Population: <span class="number">5893718</span>, PrimaryIndustry: <span class="string">&quot;Manufacturing&quot;</span>, Region: <span class="string">&quot;Midwest&quot;</span>, Climate: <span class="string">&quot;Continental&quot;</span>, YearInducted: <span class="number">1848</span>),
+            <span class="keyword">new</span> USState(Id: <span class="number">50</span>, State: <span class="string">&quot;Wyoming&quot;</span>, Counties: <span class="number">23</span>, Population: <span class="number">576851</span>, PrimaryIndustry: <span class="string">&quot;Mining&quot;</span>, Region: <span class="string">&quot;West&quot;</span>, Climate: <span class="string">&quot;Semi-arid&quot;</span>, YearInducted: <span class="number">1890</span>)
+        ];
+
+        <span class="keyword">if</span> (sortDefinitions != <span class="keyword">null</span> &amp;&amp; sortDefinitions.Any())
+        {
+            <span class="comment">// on server or actual API would be IQueryable likely</span>
+            IOrderedEnumerable&lt;USState&gt;? orderedQuery = <span class="keyword">null</span>;
+            <span class="keyword">foreach</span> (<span class="keyword">var</span> sort <span class="keyword">in</span> sortDefinitions)
+            {
+                orderedQuery = data.OrderByDirection(sort.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                                                     obj =&gt; GetPropertyValue(obj, sort.SortBy));
+            }
+            data = orderedQuery!.ToList();
+        }
+
+        <span class="keyword">return</span> data.Where(x =&gt; MatchesSearch(x, searchString)).ToList();
+    }
+
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">bool</span> MatchesSearch(USState obj, <span class="keyword">string</span>? searchString)
+    {
+        <span class="keyword">if</span> (<span class="keyword">string</span>.IsNullOrEmpty(searchString))
+        {
+            <span class="keyword">return</span> <span class="keyword">true</span>;
+        }
+
+        <span class="keyword">return</span> obj.State.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+               obj.PrimaryIndustry.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+               obj.YearInducted.ToString().Contains(searchString) ||
+               obj.Climate.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+               obj.Region.Contains(searchString, StringComparison.OrdinalIgnoreCase);
+    }
+
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">object</span>? GetPropertyValue&lt;TT&gt;(TT obj, <span class="keyword">string</span> propertyName)
+    {
+        <span class="keyword">return</span> <span class="keyword">typeof</span>(TT).GetProperty(propertyName)?.GetValue(obj);
+    }
+
+    <span class="keyword">private</span> record USState(<span class="keyword">int</span> Id, <span class="keyword">string</span> State, <span class="keyword">int</span> Counties, <span class="keyword">int</span> Population, <span class="keyword">string</span> PrimaryIndustry, <span class="keyword">string</span> Region, <span class="keyword">string</span> Climate, <span class="keyword">int</span> YearInducted);
+}
+</pre></div>
+</div>

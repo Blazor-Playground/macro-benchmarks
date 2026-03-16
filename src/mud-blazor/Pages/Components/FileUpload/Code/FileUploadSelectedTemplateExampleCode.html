@@ -1,0 +1,99 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span> <span class="htmlAttributeName">Row</span> <span class="htmlAttributeName">Justify</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Justify</span><span class="enumValue">.SpaceAround</span><span class="quot">&quot;</span> <span class="htmlAttributeName">AlignItems</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">AlignItems</span><span class="enumValue">.Start</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mud-width-full</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudFileUpload</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Files</span><span class="htmlOperator">=</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_file</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">CustomContent</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span>
+                       <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>context.OpenFilePickerAsync</span><span class="quot">&quot;</span>
+                       <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                Default template
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">CustomContent</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudFileUpload</span><span class="htmlTagDelimiter">&gt;</span>
+
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudFileUpload</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">IBrowserFile</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">CustomContent</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span>
+                       <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>context.OpenFilePickerAsync</span><span class="quot">&quot;</span>
+                       <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                Single file
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">CustomContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">SelectedTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="atSign">&#64;</span>if (context != null)
+            {
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Name<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+            }
+            else
+            {
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>No file selected<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+            }
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">SelectedTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudFileUpload</span><span class="htmlTagDelimiter">&gt;</span>
+
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudFileUpload</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Files</span><span class="htmlOperator">=</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_files</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">CustomContent</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span>
+                       <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>context.OpenFilePickerAsync</span><span class="quot">&quot;</span>
+                       <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Secondary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                Multiple files
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">CustomContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">SelectedTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="atSign">&#64;</span>if (context != null)
+            {
+                <span class="atSign">&#64;</span>foreach (var file in context)
+                {
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>file.Name<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+                }
+            }
+            else
+            {
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>No files selected<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+            }
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">SelectedTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudFileUpload</span><span class="htmlTagDelimiter">&gt;</span>
+
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudFileUpload</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Files</span><span class="htmlOperator">=</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_file</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">CustomContent</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudFab</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Warning</span><span class="quot">&quot;</span>
+                    <span class="htmlAttributeName">StartIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Image</span><span class="quot">&quot;</span>
+                    <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>context.OpenFilePickerAsync</span><span class="quot">&quot;</span>
+                    <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">No template</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">CustomContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">SelectedTemplate</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudFileUpload</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code
+{
+    <span class="keyword">private</span> IBrowserFile _file = <span class="keyword">new</span> DummyBrowserFile(<span class="string">&quot;test.jpg&quot;</span>, DateTimeOffset.Now, <span class="number">1024</span>, <span class="string">&quot;image/jpeg&quot;</span>, <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1024</span>]);
+    <span class="keyword">private</span> IReadOnlyList&lt;IBrowserFile&gt; _files =
+    [
+        <span class="keyword">new</span> DummyBrowserFile(<span class="string">&quot;test1.jpg&quot;</span>, DateTimeOffset.Now, <span class="number">1024</span>, <span class="string">&quot;image/jpeg&quot;</span>, []),
+        <span class="keyword">new</span> DummyBrowserFile(<span class="string">&quot;test2.jpg&quot;</span>, DateTimeOffset.Now, <span class="number">1024</span>, <span class="string">&quot;image/jpeg&quot;</span>, []),
+    ];
+
+    <span class="keyword">public</span> <span class="keyword">class</span> DummyBrowserFile : IBrowserFile
+    {
+        <span class="keyword">public</span> <span class="keyword">string</span> Name { <span class="keyword">get</span>; }
+        <span class="keyword">public</span> DateTimeOffset LastModified { <span class="keyword">get</span>; }
+        <span class="keyword">public</span> <span class="keyword">long</span> Size { <span class="keyword">get</span>; }
+        <span class="keyword">public</span> <span class="keyword">string</span> ContentType { <span class="keyword">get</span>; }
+        <span class="keyword">public</span> <span class="keyword">byte</span>[] Content { <span class="keyword">get</span>; }
+
+        <span class="keyword">public</span> DummyBrowserFile(<span class="keyword">string</span> name, DateTimeOffset lastModified, <span class="keyword">long</span> size, <span class="keyword">string</span> contentType, <span class="keyword">byte</span>[] content)
+        {
+            Name = name;
+            LastModified = lastModified;
+            Size = size;
+            ContentType = contentType;
+            Content = content;
+        }
+
+        <span class="keyword">public</span> Stream OpenReadStream(<span class="keyword">long</span> maxAllowedSize = <span class="number">512000</span>, CancellationToken cancellationToken = <span class="keyword">default</span>) =&gt; <span class="keyword">new</span> MemoryStream(Content);
+    }
+}
+</pre></div>
+</div>

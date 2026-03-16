@@ -1,0 +1,25 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Info</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">OnButtonClicked</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>I am Balrog<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChip</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>state<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChip</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code
+{
+    [Inject] <span class="keyword">private</span> IDialogService DialogService { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+    <span class="keyword">string</span> state = <span class="string">&quot;Message box hasn&#39;t been opened yet&quot;</span>;
+
+    <span class="keyword">private</span> <span class="keyword">async</span> <span class="keyword">void</span> OnButtonClicked()
+    {
+        <span class="keyword">bool</span>? result = <span class="keyword">await</span> DialogService.ShowMessageBoxAsync(
+            <span class="string">&quot;Secure The Ring&quot;</span>, 
+            (MarkupString) $<span class="string">&quot;You &lt;br /&gt; Shall &lt;br /&gt; not &lt;br /&gt; &lt;b&gt;Pass!&lt;b/&gt;&quot;</span>,
+            yesText:<span class="string">&quot;Fire Whip!&quot;</span>, cancelText:<span class="string">&quot;Smash Ground&quot;</span>);
+        state= result==<span class="keyword">null</span> ? <span class="string">&quot;Returned to Moria&quot;</span> : <span class="string">&quot;Fighting With Gandalf!&quot;</span>;
+        StateHasChanged();
+    }
+}
+</pre></div>
+</div>

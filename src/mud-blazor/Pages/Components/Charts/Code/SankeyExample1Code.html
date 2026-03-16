@@ -1,0 +1,50 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using MudBlazor.Charts
+
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">doc-section-component-container</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChart</span> <span class="htmlAttributeName">ChartType</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">ChartType</span><span class="enumValue">.Sankey</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Width</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">650px</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Height</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">350px</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartSeries</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_series</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">/&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+
+    <span class="keyword">private</span> List&lt;ChartSeries&lt;<span class="keyword">int</span>&gt;&gt; _series = <span class="keyword">new</span>()
+    {
+        <span class="keyword">new</span>()
+        { 
+            Name = <span class="string">&quot;Income Flow&quot;</span>, 
+            Data = <span class="keyword">new</span> List&lt;SankeyEdge&lt;<span class="keyword">int</span>&gt;&gt; 
+            {
+                <span class="comment">//Income</span>
+                <span class="keyword">new</span>(<span class="string">&quot;Income&quot;</span>, <span class="string">&quot;Expenses&quot;</span>, <span class="number">2800</span>),
+                <span class="keyword">new</span>(<span class="string">&quot;Income&quot;</span>, <span class="string">&quot;Savings&quot;</span>, <span class="number">400</span>),
+
+                <span class="comment">// Expenses</span>
+                <span class="keyword">new</span>(<span class="string">&quot;Expenses&quot;</span>, <span class="string">&quot;Housing&quot;</span>, <span class="number">1200</span>),
+                <span class="keyword">new</span>(<span class="string">&quot;Expenses&quot;</span>, <span class="string">&quot;Food&quot;</span>, <span class="number">500</span>),
+                <span class="keyword">new</span>(<span class="string">&quot;Expenses&quot;</span>, <span class="string">&quot;Insurance&quot;</span>, <span class="number">250</span>),
+                <span class="keyword">new</span>(<span class="string">&quot;Expenses&quot;</span>, <span class="string">&quot;Mobility&quot;</span>, <span class="number">125</span>),
+                <span class="keyword">new</span>(<span class="string">&quot;Expenses&quot;</span>, <span class="string">&quot;Travel&quot;</span>, <span class="number">425</span>),
+                <span class="keyword">new</span>(<span class="string">&quot;Expenses&quot;</span>, <span class="string">&quot;Leisure&quot;</span>, <span class="number">300</span>),
+                <span class="comment">// Savings</span>
+                <span class="keyword">new</span>(<span class="string">&quot;Savings&quot;</span>, <span class="string">&quot;Interest&quot;</span>, <span class="number">10</span>),
+                <span class="keyword">new</span>(<span class="string">&quot;Savings&quot;</span>, <span class="string">&quot;Stocks&quot;</span>, <span class="number">390</span>),
+
+                <span class="comment">// Housing</span>
+                <span class="keyword">new</span>(<span class="string">&quot;Housing&quot;</span>, <span class="string">&quot;Rent&quot;</span>, <span class="number">950</span>),
+                <span class="keyword">new</span>(<span class="string">&quot;Housing&quot;</span>, <span class="string">&quot;Other&quot;</span>, <span class="number">250</span>),
+                <span class="comment">// Insurance</span>
+                <span class="keyword">new</span>(<span class="string">&quot;Insurance&quot;</span>, <span class="string">&quot;Home insurance&quot;</span>, <span class="number">50</span>),
+                <span class="keyword">new</span>(<span class="string">&quot;Insurance&quot;</span>, <span class="string">&quot;Car insurance&quot;</span>, <span class="number">75</span>),
+                <span class="keyword">new</span>(<span class="string">&quot;Insurance&quot;</span>, <span class="string">&quot;Health insurance&quot;</span>, <span class="number">125</span>),
+                <span class="comment">// Travel</span>
+                <span class="keyword">new</span>(<span class="string">&quot;Travel&quot;</span>, <span class="string">&quot;Car&quot;</span>, <span class="number">300</span>),
+                <span class="keyword">new</span>(<span class="string">&quot;Travel&quot;</span>, <span class="string">&quot;Public transport&quot;</span>, <span class="number">125</span>),
+            },
+        }
+    };
+}
+</pre></div>
+</div>

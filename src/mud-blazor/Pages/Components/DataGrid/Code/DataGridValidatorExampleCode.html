@@ -1,0 +1,69 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudForm</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_form</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ValidationDelay</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDataGrid</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Item</span><span class="quot">&quot;</span>
+                 <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_items</span><span class="quot">&quot;</span>
+                 <span class="htmlAttributeName">Validator</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(_bindValidatorToForm ? _form : _defaultValidator)</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">TemplateColumn</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Name</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">CellTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTextField</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">context.Item.Name</span><span class="quot">&quot;</span>
+                                  <span class="htmlAttributeName">Immediate</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+                                  <span class="htmlAttributeName">Validation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">(string name) =&gt; ValidateName(name)</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">CellTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">TemplateColumn</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDataGrid</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudForm</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span> <span class="htmlAttributeName">Row</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_bindValidatorToForm</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Bind MudDataGrid.Validator to MudForm?<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName">ReadOnly</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_form?.IsTouched</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>MudForm.IsTouched<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName">ReadOnly</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_form?.IsValid</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>MudForm.IsValid<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code
+{
+    <span class="keyword">private</span> <span class="keyword">readonly</span> Interfaces.IForm _defaultValidator = <span class="keyword">new</span> DataGridRowValidator();
+    <span class="keyword">private</span> MudForm _form;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _bindValidatorToForm = <span class="keyword">true</span>;
+
+    <span class="keyword">private</span> Item[] _items =
+    [
+        <span class="keyword">new</span>() { Name = <span class="string">&quot;valid&quot;</span> },
+        <span class="keyword">new</span>() { Name = <span class="string">&quot;invalid&quot;</span> }
+    ];
+
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">string</span> ValidateName(<span class="keyword">string</span> name)
+    {
+        <span class="keyword">if</span> (<span class="keyword">string</span>.IsNullOrWhiteSpace(name))
+        {
+            <span class="keyword">return</span> <span class="string">&quot;Name is required&quot;</span>;
+        }
+
+        <span class="keyword">if</span> (name == <span class="string">&quot;invalid&quot;</span>)
+        {
+            <span class="keyword">return</span> <span class="string">&quot;Name must not be &#39;invalid&#39;&quot;</span>;
+        }
+
+        <span class="keyword">return</span> <span class="keyword">null</span>;
+    }
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">async</span> Task OnAfterRenderAsync(<span class="keyword">bool</span> firstRender)
+    {
+        <span class="keyword">await</span> <span class="keyword">base</span>.OnParametersSetAsync();
+        <span class="keyword">if</span> (firstRender)
+        {
+            <span class="keyword">await</span> _form.ValidateAsync();
+            _form.ResetTouched();
+        }
+    }
+
+    <span class="keyword">public</span> <span class="keyword">class</span> Item
+    {
+        <span class="keyword">public</span> <span class="keyword">string</span> Name { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+    }
+}
+</pre></div>
+</div>

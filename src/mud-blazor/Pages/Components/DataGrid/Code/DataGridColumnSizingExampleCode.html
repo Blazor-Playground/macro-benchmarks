@@ -1,0 +1,37 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDataGrid</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Employee</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_employees</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ColumnResizeMode</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">ResizeMode</span><span class="enumValue">.Column</span><span class="quot">&quot;</span> <span class="htmlAttributeName">HorizontalScrollbar</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ColGroup</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">col</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">width: 5%;</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">col</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">width: 30%;</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">col</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">width: 50%;</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">col</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">width: 15%;</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ColGroup</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Id</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ID</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Name</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Notes</span><span class="quot">&quot;</span> <span class="htmlAttributeName">CellStyle</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 0;</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Salary</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDataGrid</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">readonly</span> IEnumerable&lt;Employee&gt; _employees = <span class="keyword">new</span> List&lt;Employee&gt;
+    {
+        <span class="keyword">new</span> Employee { Id = <span class="number">1</span>, Name = <span class="string">&quot;Alice Johnson&quot;</span>, Notes = <span class="string">&quot;Joined in 2020, works remotely, leads the frontend team and mentors junior developers.&quot;</span>, Salary = 95_000 },
+        <span class="keyword">new</span> Employee { Id = <span class="number">2</span>, Name = <span class="string">&quot;Bob Smith&quot;</span>, Notes = <span class="string">&quot;10 years of experience in backend development, specialized in distributed systems.&quot;</span>, Salary = 105_000 },
+        <span class="keyword">new</span> Employee { Id = <span class="number">3</span>, Name = <span class="string">&quot;Carol White&quot;</span>, Notes = <span class="string">&quot;Project manager with a background in agile methodologies and cross-functional team coordination.&quot;</span>, Salary = 88_000 },
+        <span class="keyword">new</span> Employee { Id = <span class="number">4</span>, Name = <span class="string">&quot;David Brown&quot;</span>, Notes = <span class="string">&quot;Recently onboarded, still completing onboarding tasks and equipment setup.&quot;</span>, Salary = 72_000 },
+    };
+
+    <span class="keyword">public</span> <span class="keyword">class</span> Employee
+    {
+        <span class="keyword">public</span> <span class="keyword">int</span> Id { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> <span class="keyword">string</span> Name { <span class="keyword">get</span>; <span class="keyword">set</span>; } = <span class="keyword">string</span>.Empty;
+        <span class="keyword">public</span> <span class="keyword">string</span> Notes { <span class="keyword">get</span>; <span class="keyword">set</span>; } = <span class="keyword">string</span>.Empty;
+        <span class="keyword">public</span> <span class="keyword">int</span> Salary { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+    }
+}
+</pre></div>
+</div>

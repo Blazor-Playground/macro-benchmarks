@@ -1,0 +1,42 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>if (showLeaveAlert)
+{
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudAlert</span> <span class="htmlAttributeName">Severity</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Severity</span><span class="enumValue">.Info</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ContentAlignment</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">HorizontalAlignment</span><span class="enumValue">.Center</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ShowCloseIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">CloseIconClicked</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">(() =&gt; CloseMe(true))</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Time to leave. Please close me!<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudAlert</span><span class="htmlTagDelimiter">&gt;</span>
+}
+<span class="atSign">&#64;</span>if (showCallAlert)
+{
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudAlert</span> <span class="htmlAttributeName">Severity</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Severity</span><span class="enumValue">.Success</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ContentAlignment</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">HorizontalAlignment</span><span class="enumValue">.Center</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ShowCloseIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">CloseIconClicked</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">(() =&gt; CloseMe(false))</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Time to call. Please close me!<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudAlert</span><span class="htmlTagDelimiter">&gt;</span>
+}
+<span class="atSign">&#64;</span>if (!showLeaveAlert &amp;&amp; !showCallAlert)
+{
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">display: flex; justify-content: center;</span><span class="quot">&quot;</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mt-6</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>onclick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ShowAlerts</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Show alerts<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+}
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code { 
+    <span class="keyword">private</span> <span class="keyword">bool</span> showCallAlert = <span class="keyword">true</span>;
+    <span class="keyword">private</span> <span class="keyword">bool</span> showLeaveAlert = <span class="keyword">true</span>;
+
+    <span class="keyword">private</span> <span class="keyword">void</span> CloseMe(<span class="keyword">bool</span> value)
+    {
+        <span class="keyword">if</span> (value)
+        {
+            showLeaveAlert = <span class="keyword">false</span>;
+        }
+        <span class="keyword">else</span>
+        {
+            showCallAlert = <span class="keyword">false</span>;
+        }
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> ShowAlerts()
+    {
+        showCallAlert = <span class="keyword">true</span>;
+        showLeaveAlert = <span class="keyword">true</span>;
+    }
+}
+</pre></div>
+</div>

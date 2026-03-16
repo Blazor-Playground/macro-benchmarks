@@ -1,0 +1,33 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTextField</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_textField</span><span class="quot">&quot;</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Text insertion</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Lines</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">3</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Outlined</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Text</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>SampleText</span><span class="quot">&quot;</span> <span class="htmlAttributeName">HelperText</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>($&quot;Current caret position: {_currentCaretPosition}&quot;)</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">/&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span> <span class="htmlAttributeName">Row</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Justify</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Justify</span><span class="enumValue">.Center</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>GetCurrentCaretPositionAsync</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Get caret position<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>InsertAtCurrentCaretPositionAsync</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Insert at caret position<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>InsertAtPosition56Async</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Insert at position 56<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code
+{
+    <span class="keyword">private</span> <span class="keyword">const</span> <span class="keyword">string</span> SampleText = <span class="string">&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.&quot;</span>;
+    <span class="keyword">private</span> MudTextField&lt;<span class="keyword">string</span>&gt; _textField;
+    <span class="keyword">private</span> <span class="keyword">int</span> _currentCaretPosition = -<span class="number">1</span>;
+
+    <span class="keyword">private</span> <span class="keyword">async</span> Task GetCurrentCaretPositionAsync()
+    {
+        _currentCaretPosition = <span class="keyword">await</span> _textField.GetCurrentCaretPositionAsync();
+    }
+
+    <span class="keyword">private</span> <span class="keyword">async</span> Task InsertAtCurrentCaretPositionAsync()
+    {
+        <span class="keyword">await</span> _textField.InsertTextAtCurrentCaretPositionAsync(<span class="string">&quot; [this text was inserted at caret position] &quot;</span>);
+    }
+
+    <span class="keyword">private</span> <span class="keyword">async</span> Task InsertAtPosition56Async()
+    {
+        <span class="keyword">await</span> _textField.InsertTextAsync(<span class="string">&quot; [this text was inserted at position 56] &quot;</span>, <span class="number">56</span>);
+    }
+}
+</pre></div>
+</div>

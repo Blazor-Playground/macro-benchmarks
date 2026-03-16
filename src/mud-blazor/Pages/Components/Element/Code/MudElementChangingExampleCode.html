@@ -1,0 +1,31 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudElement</span> <span class="htmlAttributeName">HtmlTag</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>htmlTag</span><span class="quot">&quot;</span>
+            <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">reset-style</span><span class="quot">&quot;</span>
+            <span class="htmlAttributeName">href</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">https://mudblazor.com</span><span class="quot">&quot;</span>
+            <span class="htmlAttributeName">value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>($&quot;The underlying tag is &#39;{htmlTag}&#39;&quot;)</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    The underlying tag is &#39;<span class="atSign">&#64;</span>htmlTag&#39;
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudElement</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ChangeTag</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Secondary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Change tag<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code{
+    <span class="keyword">private</span> <span class="keyword">string</span> htmlTag = <span class="string">&quot;a&quot;</span>;
+    <span class="keyword">private</span> <span class="keyword">string</span>[] tags = <span class="keyword">new</span>[] { <span class="string">&quot;a&quot;</span>, <span class="string">&quot;button&quot;</span>, <span class="string">&quot;input&quot;</span> };
+    <span class="keyword">private</span> <span class="keyword">int</span> index = <span class="number">0</span>;
+
+    <span class="keyword">private</span> <span class="keyword">void</span> ChangeTag()
+    {
+        index = (index + <span class="number">1</span>) % tags.Length;
+        htmlTag = tags[index];
+    }
+}
+
+&lt;style&gt;
+    .reset-style, .reset-style * {
+        all: revert;
+    }
+&lt;/style&gt;
+</pre></div>
+</div>

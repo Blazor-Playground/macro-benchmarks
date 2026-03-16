@@ -1,0 +1,42 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using MudBlazor.Charts
+
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">doc-section-component-container</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChart</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_mudChart</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartType</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">ChartType</span><span class="enumValue">.Sankey</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartSeries</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Series.AsList()</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Width</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_width</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Height</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_height</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-SelectedIndex</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_selectedIndex</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">/&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudGrid</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span> <span class="htmlAttributeName">xs</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">12</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>Node selected: <span class="atSign">&#64;</span>(_selectedIndex &gt;= 0 ? Chart.Nodes.ElementAt(_selectedIndex).Name : &quot;&quot;)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudGrid</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> MudChart&lt;<span class="keyword">int</span>&gt; _mudChart = <span class="keyword">null</span>!;
+    <span class="keyword">private</span> <span class="keyword">string</span> _width = <span class="string">&quot;650px&quot;</span>;
+    <span class="keyword">private</span> <span class="keyword">string</span> _height = <span class="string">&quot;350px&quot;</span>;
+    <span class="keyword">private</span> <span class="keyword">int</span> _selectedIndex = -<span class="number">1</span>;
+
+    <span class="keyword">public</span> Sankey&lt;<span class="keyword">int</span>&gt; Chart =&gt; _mudChart.ChartReference <span class="keyword">as</span> Sankey&lt;<span class="keyword">int</span>&gt;;
+
+    <span class="keyword">private</span> <span class="keyword">readonly</span> List&lt;SankeyEdge&lt;<span class="keyword">int</span>&gt;&gt; _edges =
+    [
+        <span class="keyword">new</span>(<span class="string">&quot;Balls&quot;</span>, <span class="string">&quot;Soccer ball&quot;</span>, <span class="number">20</span>),
+        <span class="keyword">new</span>(<span class="string">&quot;Balls&quot;</span>, <span class="string">&quot;Football&quot;</span>, <span class="number">10</span>),
+        <span class="keyword">new</span>(<span class="string">&quot;Balls&quot;</span>, <span class="string">&quot;Tennis ball&quot;</span>, <span class="number">30</span>),
+        
+        <span class="keyword">new</span>(<span class="string">&quot;Soccer ball&quot;</span>, <span class="string">&quot;Good condition&quot;</span>, <span class="number">17</span>),
+        <span class="keyword">new</span>(<span class="string">&quot;Soccer ball&quot;</span>, <span class="string">&quot;Bad condition&quot;</span>, <span class="number">3</span>),
+        <span class="keyword">new</span>(<span class="string">&quot;Football&quot;</span>, <span class="string">&quot;Good condition&quot;</span>, <span class="number">5</span>),
+        <span class="keyword">new</span>(<span class="string">&quot;Football&quot;</span>, <span class="string">&quot;Bad condition&quot;</span>, <span class="number">5</span>),
+        <span class="keyword">new</span>(<span class="string">&quot;Tennis ball&quot;</span>, <span class="string">&quot;Good condition&quot;</span>, <span class="number">10</span>),
+        <span class="keyword">new</span>(<span class="string">&quot;Tennis ball&quot;</span>, <span class="string">&quot;Bad condition&quot;</span>, <span class="number">20</span>),
+    ];
+
+    <span class="keyword">private</span> ChartSeries&lt;<span class="keyword">int</span>&gt; Series =&gt; <span class="keyword">new</span>() { Name = <span class="string">&quot;Ball Catalog&quot;</span>, Data = _edges };
+}
+</pre></div>
+</div>

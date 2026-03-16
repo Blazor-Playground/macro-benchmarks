@@ -1,0 +1,26 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSelect</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span> <span class="htmlAttributeName">MultiSelection</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">SelectAll</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">SelectAllText</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Select all felines</span><span class="quot">&quot;</span> <span class="htmlAttributeName">HelperText</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_value</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_value</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-SelectedValues</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_options</span><span class="quot">&quot;</span> <span class="htmlAttributeName">MultiSelectionTextFunc</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(new Func&lt;IReadOnlyList&lt;string&gt;, string&gt;(GetMultiSelectionText))</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Felines</span><span class="quot">&quot;</span> <span class="htmlAttributeName">AdornmentIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Search</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="atSign">&#64;</span>foreach (var feline in _felines)
+    {
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSelectItem</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>feline</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>feline<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSelectItem</span><span class="htmlTagDelimiter">&gt;</span>
+    }
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSelect</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code { 
+    <span class="keyword">private</span> <span class="keyword">string</span> _value  = <span class="string">&quot;Nothing selected&quot;</span>;
+    <span class="keyword">private</span> IReadOnlyCollection&lt;<span class="keyword">string</span>&gt; _options = [<span class="string">&quot;Lion&quot;</span>];
+
+    <span class="keyword">private</span> <span class="keyword">readonly</span> <span class="keyword">string</span>[] _felines =
+    [
+        <span class="string">&quot;Jaguar&quot;</span>, <span class="string">&quot;Leopard&quot;</span>, <span class="string">&quot;Lion&quot;</span>, <span class="string">&quot;Lynx&quot;</span>, <span class="string">&quot;Panther&quot;</span>, <span class="string">&quot;Puma&quot;</span>, <span class="string">&quot;Tiger&quot;</span>
+    ];
+
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">string</span> GetMultiSelectionText(IReadOnlyList&lt;<span class="keyword">string</span>&gt; selectedValues)
+    {
+        <span class="keyword">return</span> $<span class="string">&quot;{selectedValues.Count} feline{(selectedValues.Count &gt; 1 ? &quot;</span>s have<span class="string">&quot; : &quot;</span> has<span class="string">&quot;)} been selected&quot;</span>;
+    }
+}
+</pre></div>
+</div>

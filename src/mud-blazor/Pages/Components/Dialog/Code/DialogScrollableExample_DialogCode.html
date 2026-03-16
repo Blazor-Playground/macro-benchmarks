@@ -1,0 +1,42 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDialog</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">height: 400px</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">DialogContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="atSign">&#64;</span>if (_loading)
+        {
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudProgressCircular</span> <span class="htmlAttributeName">Indeterminate</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudProgressCircular</span><span class="htmlTagDelimiter">&gt;</span>
+        }
+        else
+        {
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">white-space: pre-wrap;</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>_licenseText<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+        }
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">DialogContent</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">DialogActions</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Ok</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Accept<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">DialogActions</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDialog</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">string</span> _licenseText;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _loading;
+
+    [CascadingParameter]
+    <span class="keyword">private</span> IMudDialogInstance MudDialog { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+    [Inject]
+    <span class="keyword">private</span> HttpClient HttpClient { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">async</span> Task OnInitializedAsync()
+    {
+        <span class="keyword">await</span> <span class="keyword">base</span>.OnInitializedAsync();
+        _loading = <span class="keyword">true</span>;
+        <span class="keyword">var</span> response = <span class="keyword">await</span> HttpClient.GetAsync(<span class="string">&quot;https://raw.githubusercontent.com/MudBlazor/MudBlazor/master/LICENSE&quot;</span>);
+        _licenseText = <span class="keyword">await</span> response.Content.ReadAsStringAsync();
+        _loading = <span class="keyword">false</span>;
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> Ok() =&gt; MudDialog.Close(DialogResult.Ok(<span class="keyword">true</span>));
+}
+</pre></div>
+</div>

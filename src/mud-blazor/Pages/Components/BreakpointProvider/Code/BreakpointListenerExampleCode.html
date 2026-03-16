@@ -1,0 +1,65 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using MudBlazor.Services
+<span class="atSign">&#64;</span>implements IBrowserViewportObserver
+<span class="atSign">&#64;</span>implements IAsyncDisposable
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudCard</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-5</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>Size started with <span class="atSign">&#64;</span>_start<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="atSign">&#64;</span>if (_breakpointHistory.Count &gt; 0)
+    {
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>And continued with: <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudList</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Dense</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_breakpointHistory.Count &gt; 10</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="atSign">&#64;</span>foreach (var item in _breakpointHistory)
+            {
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudListItem</span> <span class="htmlAttributeName">Text</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>item.ToString()</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudListItem</span><span class="htmlTagDelimiter">&gt;</span>
+            }
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudList</span><span class="htmlTagDelimiter">&gt;</span>
+    }
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudCard</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code
+{
+    [Inject]
+    <span class="keyword">private</span> IBrowserViewportService BrowserViewportService { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+    <span class="keyword">private</span> List&lt;Breakpoint&gt; _breakpointHistory = <span class="keyword">new</span>();
+    <span class="keyword">private</span> Breakpoint _start;
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">async</span> Task OnAfterRenderAsync(<span class="keyword">bool</span> firstRender)
+    {
+        <span class="keyword">if</span> (firstRender)
+        {
+            <span class="keyword">await</span> BrowserViewportService.SubscribeAsync(<span class="keyword">this</span>, fireImmediately: <span class="keyword">true</span>);
+        }
+
+        <span class="keyword">await</span> <span class="keyword">base</span>.OnAfterRenderAsync(firstRender);
+    }
+
+    <span class="keyword">public</span> <span class="keyword">async</span> ValueTask DisposeAsync() =&gt; <span class="keyword">await</span> BrowserViewportService.UnsubscribeAsync(<span class="keyword">this</span>);
+
+    Guid IBrowserViewportObserver.Id { <span class="keyword">get</span>; } = Guid.NewGuid();
+
+    ResizeOptions IBrowserViewportObserver.ResizeOptions { <span class="keyword">get</span>; } = <span class="keyword">new</span>()
+    {
+        ReportRate = <span class="number">250</span>,
+        NotifyOnBreakpointOnly = <span class="keyword">true</span>
+    };
+
+    Task IBrowserViewportObserver.NotifyBrowserViewportChangeAsync(BrowserViewportEventArgs browserViewportEventArgs)
+    {
+        <span class="keyword">if</span> (browserViewportEventArgs.IsImmediate)
+        {
+            _start = browserViewportEventArgs.Breakpoint;
+        }
+        <span class="keyword">else</span>
+        {
+            _breakpointHistory.Add(browserViewportEventArgs.Breakpoint);
+        }
+
+        <span class="keyword">return</span> InvokeAsync(StateHasChanged);
+    }
+}
+</pre></div>
+</div>

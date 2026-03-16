@@ -1,0 +1,36 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using MudBlazor.Charts
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">doc-section-component-container mx-8</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChart</span> <span class="htmlAttributeName">ChartType</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">ChartType</span><span class="enumValue">.Radar</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartSeries</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_series</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartLabels</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_chartLabels</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartOptions</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_options</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Width</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">100%</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Height</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">500px</span><span class="quot">&quot;</span> <span class="htmlAttributeName">MatchBoundsToSize</span> <span class="htmlAttributeName">CanHideSeries</span> <span class="htmlTagDelimiter">/&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">string</span>[] _chartLabels = { <span class="string">&quot;Strength&quot;</span>, <span class="string">&quot;Agility&quot;</span>, <span class="string">&quot;Intelligence&quot;</span>, <span class="string">&quot;Charisma&quot;</span>, <span class="string">&quot;Stamina&quot;</span>, <span class="string">&quot;Luck&quot;</span> };
+    <span class="keyword">private</span> List&lt;ChartSeries&lt;<span class="keyword">double</span>&gt;&gt; _series = <span class="keyword">new</span> List&lt;ChartSeries&lt;<span class="keyword">double</span>&gt;&gt;()
+    {
+        <span class="keyword">new</span>() { Name = <span class="string">&quot;Warrior&quot;</span>, Data = <span class="keyword">new</span> <span class="keyword">double</span>[] { <span class="number">12</span>, <span class="number">5</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">9</span>, <span class="number">2</span> } },
+        <span class="keyword">new</span>() { Name = <span class="string">&quot;Mage&quot;</span>, Data = <span class="keyword">new</span> <span class="keyword">double</span>[] { <span class="number">3</span>, <span class="number">3</span>, <span class="number">12</span>, <span class="number">7</span>, <span class="number">4</span>, <span class="number">7</span> } },
+        <span class="keyword">new</span>() { Name = <span class="string">&quot;Rogue&quot;</span>, Data = <span class="keyword">new</span> <span class="keyword">double</span>[] { <span class="number">4</span>, <span class="number">12</span>, <span class="number">6</span>, <span class="number">3</span>, <span class="number">6</span>, <span class="number">5</span> } }
+    };
+
+    <span class="keyword">private</span> RadarChartOptions _options = <span class="keyword">new</span> RadarChartOptions
+    {
+        ShowGridLines = <span class="keyword">true</span>,
+        GridLevels = <span class="number">3</span>,
+        GridLineColor = <span class="string">&quot;rgba(128,128,128,0.3)&quot;</span>,
+        ShowAxisLabels = <span class="keyword">true</span>,
+        AxisLineColor = <span class="string">&quot;navy&quot;</span>,
+        AxisLineWidth = <span class="number">1</span>.<span class="number">5</span>,
+        FillOpacity = <span class="number">0</span>.<span class="number">3</span>,
+        StrokeWidth = <span class="number">2</span>.<span class="number">5</span>,
+        ShowDataMarkers = <span class="keyword">true</span>,
+        DataPointRadius = <span class="number">5</span>,
+        AngleOffset = <span class="number">30</span>,
+        TooltipTitleFormat = <span class="string">&quot;{{SERIES_NAME}}: {{X_VALUE}}&quot;</span>,
+    };
+}
+</pre></div>
+</div>

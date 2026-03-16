@@ -1,0 +1,50 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDatePicker</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_picker</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Date</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_date</span><span class="quot">&quot;</span> <span class="htmlAttributeName">PickerVariant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">PickerVariant</span><span class="enumValue">.Static</span><span class="quot">&quot;</span> <span class="htmlAttributeName">MaxDate</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_maxDate</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PickerActions</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mr-auto align-self-start</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">TodayAsync</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Today<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">PickerActions</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDatePicker</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex flex-column gap-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">CurrentDate</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Move To Current Date<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">MudReleaseAsync</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>When First Mud Released?<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">GoMaxDateWithoutSubmitAsync</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Go To Max Date Without Submit<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> MudDatePicker _picker;
+    <span class="keyword">private</span> DateTime? _date = DateTime.Today.AddDays(<span class="number">210</span>);
+    <span class="keyword">private</span> DateTime _maxDate = <span class="keyword">new</span> DateTime(<span class="number">2050</span>, <span class="number">12</span>, <span class="number">31</span>);
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> OnAfterRender(<span class="keyword">bool</span> firstRender)
+    {
+        <span class="keyword">if</span> (firstRender)
+        {
+            _picker.GoToDate();
+        }
+    }
+
+    <span class="keyword">private</span> Task TodayAsync()
+    {
+        <span class="keyword">return</span> _picker.GoToDate(DateTime.Today);
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> CurrentDate()
+    {
+        _picker.GoToDate();
+    }
+
+    <span class="keyword">private</span> Task MudReleaseAsync()
+    {
+        <span class="keyword">return</span> _picker.GoToDate(<span class="keyword">new</span> DateTime(<span class="number">2020</span>, <span class="number">10</span>, <span class="number">18</span>));
+    }
+
+    <span class="keyword">private</span> Task GoMaxDateWithoutSubmitAsync()
+    {
+        <span class="keyword">return</span> _picker.GoToDate(_maxDate, <span class="keyword">false</span>);
+    }
+}
+</pre></div>
+</div>

@@ -1,0 +1,22 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudElement</span> <span class="htmlAttributeName">HtmlTag</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">button</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>onclick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Focus</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">padding: 4px 12px 4px 12px; background-color: #0067b8; color: #fff;</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    Click to focus
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudElement</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="atSign">&#64;</span>*this element is going to be focused through JS via its reference*<span class="atSign">&#64;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudElement</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">myRef</span><span class="quot">&quot;</span> <span class="htmlAttributeName">HtmlTag</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">input</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">border: solid 1px #869E9E; padding: 0px 8px; height:28px;</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">/&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code{
+    ElementReference myRef = <span class="keyword">new</span> ElementReference();
+
+    <span class="keyword">async</span> Task Focus()
+    {
+        <span class="comment">//this js snippet does `document.querySelector(myRef).focus();`</span>
+       <span class="keyword">await</span> myRef.FocusAsync();
+    }
+}
+</pre></div>
+</div>

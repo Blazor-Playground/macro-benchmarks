@@ -1,0 +1,15 @@
+@attribute [Route("/components/" + nameof(HxSelect))]
+@attribute [Route("/components/" + nameof(HxSelectBase<object, object>))]
+
+<ApiDoc Type="typeof(HxSelect<TValue, TItem>)">
+    <DocHeading Title="Basic usage" />
+    <Demo Type="typeof(HxSelect_Demo)" Tabs="false" />
+	<DocDemoDataServiceNote />
+
+    <DocHeading Title="Disabled options" />
+	<p>You can disable individual options by setting the <code>ItemDisabledSelector</code>.</p>
+    <Demo Type="typeof(HxSelect_Demo_ItemDisabledSelector)" />
+
+    <DocHeading Title="Input groups" />
+    <Demo Type="typeof(HxSelect_Demo_InputGroups)" />
+</ApiDoc>

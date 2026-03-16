@@ -1,0 +1,135 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTable</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>People</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Hover</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Breakpoint</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Breakpoint</span><span class="enumValue">.Sm</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ColGroup</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">col</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">width:300px;</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">col</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">width:100px;</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">col</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">col</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">width:100px;</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ColGroup</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">HeaderContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Nr<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Name<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Age<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">HeaderContent</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">RowTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Outlined</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Size</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Size</span><span class="enumValue">.Small</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; ShowBtnPress(context.Number))</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>((context.ShowDetails == true)? &quot;Hide&quot; : &quot;Show&quot;) Address Details<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Nr</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Number<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Name</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Name<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Age</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Age<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">RowTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ChildRowContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="atSign">&#64;</span>if (context.ShowDetails)
+        {
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTr</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">td</span> <span class="htmlAttributeName">colspan</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudCard</span> <span class="htmlAttributeName">Elevation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudCardHeader</span><span class="htmlTagDelimiter">&gt;</span>
+                            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">CardHeaderContent</span><span class="htmlTagDelimiter">&gt;</span>
+                                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.body1</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Address Details for <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">strong</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Name<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">strong</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+                            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">CardHeaderContent</span><span class="htmlTagDelimiter">&gt;</span>
+                        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudCardHeader</span><span class="htmlTagDelimiter">&gt;</span>
+                        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudCardContent</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-0</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTable</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>context.Addresses</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Context</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">AddressContext</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Hover</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Breakpoint</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Breakpoint</span><span class="enumValue">.Sm</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Elevation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ColGroup</span><span class="htmlTagDelimiter">&gt;</span>
+                                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">col</span> <span class="htmlTagDelimiter">/&gt;</span>
+                                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">col</span> <span class="htmlTagDelimiter">/&gt;</span>
+                                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">col</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">width:200px;</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+                                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ColGroup</span><span class="htmlTagDelimiter">&gt;</span>
+                                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">HeaderContent</span><span class="htmlTagDelimiter">&gt;</span>
+                                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Address Line 1<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+                                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Address Line 2<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+                                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>Postal Code<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTh</span><span class="htmlTagDelimiter">&gt;</span>
+                                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">HeaderContent</span><span class="htmlTagDelimiter">&gt;</span>
+                                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">RowTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+                                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Address Line 1</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>AddressContext.Address_Line_1<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+                                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Address Line 2</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>AddressContext.Address_Line_2<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+                                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTd</span> <span class="htmlAttributeName">DataLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Postal Code</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>AddressContext.Postal_Code<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTd</span><span class="htmlTagDelimiter">&gt;</span>
+                                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">RowTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+                            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTable</span><span class="htmlTagDelimiter">&gt;</span>
+                        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudCardContent</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudCard</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">td</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTr</span><span class="htmlTagDelimiter">&gt;</span>
+        }
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ChildRowContent</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTable</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code
+{
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> OnInitialized()
+    {
+        FillPeople();
+    }
+
+    <span class="keyword">public</span> <span class="keyword">class</span> Address
+    {
+        <span class="keyword">public</span> <span class="keyword">string</span> Address_Line_1 { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> <span class="keyword">string</span> Address_Line_2 { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> <span class="keyword">int</span> Postal_Code { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+    }
+
+    <span class="keyword">public</span> <span class="keyword">class</span> Person
+    {
+        <span class="keyword">public</span> <span class="keyword">bool</span> ShowDetails { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> <span class="keyword">int</span> Number { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> <span class="keyword">string</span> Name { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> <span class="keyword">int</span> Age { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> IList&lt;Address&gt; Addresses { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> FillPeople()
+    {
+        IList&lt;Person&gt; people = <span class="keyword">new</span> List&lt;Person&gt;();
+        IList&lt;Address&gt; addresses = <span class="keyword">new</span> List&lt;Address&gt;();
+        addresses.Add(<span class="keyword">new</span> Address { Address_Line_1 = <span class="string">&quot;4 Privet Drive&quot;</span>, Address_Line_2 = <span class="string">&quot;Little Whinging&quot;</span>, Postal_Code = <span class="number">111</span> });
+        addresses.Add(<span class="keyword">new</span> Address { Address_Line_1 = <span class="string">&quot;12 Grimmauld Place&quot;</span>, Address_Line_2 = <span class="string">&quot;The Burrow&quot;</span>, Postal_Code = <span class="number">333</span> });
+        people.Add(<span class="keyword">new</span> Person
+        {
+            ShowDetails = <span class="keyword">false</span>,
+            Number = <span class="number">1</span>,
+            Name = <span class="string">&quot;Harry Potter&quot;</span>,
+            Age = <span class="number">11</span>,
+            Addresses = addresses
+        });
+
+        addresses = <span class="keyword">new</span> List&lt;Address&gt;();
+        addresses.Add(<span class="keyword">new</span> Address { Address_Line_1 = <span class="string">&quot;123 Pikachu Lane&quot;</span>, Address_Line_2 = <span class="string">&quot;Pallet Town&quot;</span>, Postal_Code = <span class="number">777</span> });
+        addresses.Add(<span class="keyword">new</span> Address { Address_Line_1 = <span class="string">&quot;456 Mew Street&quot;</span>, Address_Line_2 = <span class="string">&quot;Pallet Town&quot;</span>, Postal_Code = <span class="number">999</span> });
+        people.Add(<span class="keyword">new</span> Person
+        {
+            ShowDetails = <span class="keyword">false</span>,
+            Number = <span class="number">2</span>,
+            Name = <span class="string">&quot;Ash Ketchum&quot;</span>,
+            Age = <span class="number">18</span>,
+            Addresses = addresses
+        });
+        People = people;
+
+        addresses = <span class="keyword">new</span> List&lt;Address&gt;();
+        addresses.Add(<span class="keyword">new</span> Address { Address_Line_1 = <span class="string">&quot;123 Shire Lane&quot;</span>, Address_Line_2 = <span class="string">&quot;Bag End&quot;</span>, Postal_Code = <span class="number">223</span> });
+        addresses.Add(<span class="keyword">new</span> Address { Address_Line_1 = <span class="string">&quot;456 Shire Street&quot;</span>, Address_Line_2 = <span class="string">&quot;Bag End&quot;</span>, Postal_Code = <span class="number">445</span> });
+        addresses.Add(<span class="keyword">new</span> Address { Address_Line_1 = <span class="string">&quot;789 Shire Avenue&quot;</span>, Address_Line_2 = <span class="string">&quot;Bag End&quot;</span>, Postal_Code = <span class="number">667</span> });
+        people.Add(<span class="keyword">new</span> Person
+        {
+            ShowDetails = <span class="keyword">true</span>,
+            Number = <span class="number">3</span>,
+            Name = <span class="string">&quot;Frodo Baggins&quot;</span>,
+            Age = <span class="number">24</span>,
+            Addresses = addresses
+        });
+        People = people;
+    }
+
+    <span class="keyword">private</span> <span class="keyword">static</span> IEnumerable&lt;Person&gt; People { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> ShowBtnPress(<span class="keyword">int</span> nr)
+    {
+        Person tmpPerson = People.First(f =&gt; f.Number == nr);
+        tmpPerson.ShowDetails = !tmpPerson.ShowDetails;
+    }
+}
+</pre></div>
+</div>

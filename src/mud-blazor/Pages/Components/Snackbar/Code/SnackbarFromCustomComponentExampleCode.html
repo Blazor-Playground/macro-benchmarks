@@ -1,0 +1,18 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>inject ISnackbar SnackbarService
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>OnClick</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Show a snackbar with a custom component<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">void</span> OnClick()
+    {
+        SnackbarService.Add&lt;MudChip&lt;T&gt;&gt;(<span class="keyword">new</span> Dictionary&lt;<span class="keyword">string</span>, <span class="keyword">object</span>&gt;() {
+            { <span class="string">&quot;Text&quot;</span>, <span class="string">&quot;This is a snackbar with a chip!&quot;</span> },
+            { <span class="string">&quot;Color&quot;</span>, Color.Primary }
+        });
+    }
+}
+</pre></div>
+</div>

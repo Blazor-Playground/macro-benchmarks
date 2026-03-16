@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+  <PropertyGroup>
+    <TargetFramework>$(BenchmarkTargetFramework)</TargetFramework>
+    <DashName>micro-benchmarks</DashName>
+  </PropertyGroup>
+</Project>

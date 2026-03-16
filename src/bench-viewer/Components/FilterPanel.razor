@@ -1,0 +1,163 @@
+@namespace BenchViewer.Components
+
+<div class="filter-panel px-3 py-2">
+    @foreach (var group in FilterGroups)
+    {
+        <div class="filter-group mb-2">
+            <div class="filter-group-header d-flex align-items-center justify-content-between"
+                 @onclick="() => ToggleGroup(group.Key)"
+                 role="button">
+                <strong class="small">@FormatGroupName(group.Key)</strong>
+                <span class="small text-muted">@(IsGroupCollapsed(group.Key) ? "+" : "−")</span>
+            </div>
+            @if (!IsGroupCollapsed(group.Key))
+            {
+                <div class="filter-group-items ms-1 mt-1">
+                    @foreach (var value in group.Value)
+                    {
+                        var isVisible = IsValueVisible(group.Key, value);
+                        @if (isVisible)
+                        {
+                            <div class="form-check form-check-sm">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       id="@($"filter-{group.Key}-{value}")"
+                                       checked="@IsChecked(group.Key, value)"
+                                       @onchange="e => OnCheckChanged(group.Key, value, (bool)e.Value!)" />
+                                <label class="form-check-label small"
+                                       for="@($"filter-{group.Key}-{value}")"
+                                       title="@GetTooltip(group.Key, value)">
+                                    @value
+                                </label>
+                            </div>
+                        }
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public Dictionary<string, List<string>> FilterGroups { get; set; } = new();
+    [Parameter] public Dictionary<string, HashSet<string>> CheckedValues { get; set; } = new();
+    [Parameter] public EventCallback<(string Group, string Value, bool Checked)> OnFilterChanged { get; set; }
+    [Parameter] public string CurrentApp { get; set; } = "";
+
+    private HashSet<string> collapsedGroups = new();
+
+    private void ToggleGroup(string group)
+    {
+        if (!collapsedGroups.Remove(group))
+            collapsedGroups.Add(group);
+    }
+
+    private bool IsGroupCollapsed(string group) => collapsedGroups.Contains(group);
+
+    private bool IsChecked(string group, string value)
+    {
+        return CheckedValues.TryGetValue(group, out var set) && set.Contains(value);
+    }
+
+    private bool IsValueVisible(string group, string value)
+    {
+        // Dynamic visibility rules from ui.md
+        if (group == "engines")
+        {
+            // v8 and node hidden for blazor apps
+            if (CurrentApp is "empty-blazor" or "blazing-pizza" or "havit-bootstrap" or "bench-viewer" or "mud-blazor")
+            {
+                if (value is "v8" or "node") return false;
+            }
+        }
+        return true;
+    }
+
+    private async Task OnCheckChanged(string group, string value, bool isChecked)
+    {
+        await OnFilterChanged.InvokeAsync((group, value, isChecked));
+    }
+
+    private static string FormatGroupName(string key) => key switch
+    {
+        "runtimes" => "Runtime",
+        "presets" => "Preset",
+        "profiles" => "Profile",
+        "engines" => "Engine",
+        _ => key
+    };
+
+    // keep in sync with src\presets.props
+    private static string GetTooltip(string group, string value)
+    {
+        if (group != "presets") return value;
+        return value switch
+        {
+            "dev-loop" => "Configuration=Debug\n"
+                + "WasmBuildNative=false\n"
+                + "PublishTrimmed=false\n"
+                + "CompressionEnabled=false\n"
+                + "WasmEnableWebcil=false\n"
+                + "WasmIncludeFullIcuData=true\n"
+                + "WasmEmitSymbolMap=true\n"
+                + "DebugSymbols=true\n"
+                + "MetricsSupport=true\n"
+                + "EventSourceSupport=true\n"
+                + "StackTraceSupport=true",
+            "no-workload" => "Configuration=Release\n"
+                + "WasmBuildNative=false\n"
+                + "PublishTrimmed=true",
+            "native-relink" => "Configuration=Release\n"
+                + "WasmBuildNative=true\n"
+                + "WasmNativeStrip=true\n"
+                + "PublishTrimmed=true",
+            "enable-fingerprinting" => "Configuration=Release\n"
+                + "WasmBuildNative=true\n"
+                + "WasmNativeStrip=true\n"
+                + "PublishTrimmed=true\n"
+                + "OverrideHtmlAssetPlaceholders=true\n"
+                + "FingerprintPattern: *.js, *.mjs",
+            "aot" => "Configuration=Release\n"
+                + "WasmBuildNative=true\n"
+                + "WasmNativeStrip=true\n"
+                + "RunAOTCompilation=true\n"
+                + "PublishTrimmed=true",
+            "no-jiterp" => "Configuration=Release\n"
+                + "WasmBuildNative=true\n"
+                + "WasmNativeStrip=true\n"
+                + "BlazorWebAssemblyJiterpreter=false\n"
+                + "PublishTrimmed=true",
+            "invariant" => "Configuration=Release\n"
+                + "WasmBuildNative=true\n"
+                + "WasmNativeStrip=true\n"
+                + "InvariantGlobalization=true\n"
+                + "InvariantTimeZone=true\n"
+                + "TrimMode=full\n"
+                + "PublishTrimmed=true\n"
+                + "EnableDiagnostics=false\n"
+                + "MetricsSupport=false\n"
+                + "EventSourceSupport=false\n"
+                + "StackTraceSupport=false\n"
+                + "DebugSymbols=false\n"
+                + "PredefinedCulturesOnly=true\n"
+                + "WasmEmitSymbolMap=false",
+            "no-reflection-emit" => "Configuration=Release\n"
+                + "WasmBuildNative=true\n"
+                + "WasmNativeStrip=true\n"
+                + "InvariantGlobalization=true\n"
+                + "InvariantTimeZone=true\n"
+                + "TrimMode=full\n"
+                + "PublishTrimmed=true\n"
+                + "EnableDiagnostics=false\n"
+                + "MetricsSupport=false\n"
+                + "EventSourceSupport=false\n"
+                + "StackTraceSupport=false\n"
+                + "DebugSymbols=false\n"
+                + "PredefinedCulturesOnly=true\n"
+                + "WasmEmitSymbolMap=false\n"
+                + "DynamicCodeSupport=false\n"
+                + "StackTraceSupport=false",
+            _ => value
+        };
+    }
+}

@@ -1,0 +1,70 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using System.Threading
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDataGrid</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">int</span><span class="quot">&quot;</span> <span class="htmlAttributeName">VirtualizeServerData</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ServerDataFunc</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Virtualize</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Filterable</span> <span class="htmlAttributeName">FixedHeader</span> <span class="htmlAttributeName">Height</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">400px</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ItemSize</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">52.68f</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Number</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">RowLoadingContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">tr</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mud-table-row</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">td</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mud-table-cell</span><span class="quot">&quot;</span> <span class="htmlAttributeName">colspan</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">1000</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                Loading...
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">td</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">tr</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">RowLoadingContent</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDataGrid</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">readonly</span> List&lt;<span class="keyword">int</span>&gt; _items = Enumerable.Range(<span class="number">0</span>, <span class="number">51</span>).ToList();
+    
+    <span class="keyword">private</span> <span class="keyword">async</span> Task&lt;GridData&lt;<span class="keyword">int</span>&gt;&gt; ServerDataFunc(GridStateVirtualize&lt;<span class="keyword">int</span>&gt; gridState, CancellationToken token)
+    {
+        <span class="keyword">try</span>
+        {
+            <span class="keyword">var</span> result = _items.ToList();
+
+            <span class="keyword">await</span> Task.Delay(<span class="number">1000</span>, token);
+
+            <span class="keyword">if</span> (gridState.SortDefinitions.Count &gt; <span class="number">0</span>) 
+            {
+                <span class="keyword">var</span> firstSort = gridState.SortDefinitions.First();
+                result = firstSort.Descending 
+                    ? result.OrderByDescending(firstSort.SortFunc).ToList() 
+                    : result.OrderBy(firstSort.SortFunc).ToList();
+            }
+
+            <span class="keyword">if</span> (gridState.FilterDefinitions.Any())
+            {
+                <span class="keyword">var</span> filterFunctions = gridState.FilterDefinitions.Select(x =&gt; x.GenerateFilterFunction());
+                result = result
+                    .Where(x =&gt; filterFunctions.All(f =&gt; f(x)))
+                    .ToList();
+            }
+
+            <span class="keyword">var</span> totalNumberOfFilteredItems = result.Count;
+            
+            result = result
+                .Skip(gridState.StartIndex)
+                .Take(gridState.Count)
+                .ToList();
+
+            <span class="keyword">return</span> <span class="keyword">new</span> GridData&lt;<span class="keyword">int</span>&gt;
+            {
+                Items = result,
+                TotalItems = totalNumberOfFilteredItems
+            };
+        }
+        <span class="keyword">catch</span> (TaskCanceledException)
+        {
+            <span class="keyword">return</span> <span class="keyword">new</span> GridData&lt;<span class="keyword">int</span>&gt;
+            {
+                Items = [],
+                TotalItems = <span class="number">0</span>
+            };
+        }
+    }
+}
+</pre></div>
+</div>

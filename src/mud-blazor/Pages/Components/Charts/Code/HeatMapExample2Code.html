@@ -1,0 +1,82 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChart</span> <span class="htmlAttributeName">ChartType</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">ChartType</span><span class="enumValue">.HeatMap</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartSeries</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_series</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartOptions</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_options</span><span class="quot">&quot;</span>
+              <span class="htmlAttributeName">ChartLabels</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_xLabels</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Width</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">100%</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Height</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">350px</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChart</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-4 mt-2 d-flex justify-center</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudGrid</span> <span class="htmlAttributeName">Spacing</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">2</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span> <span class="htmlAttributeName">xs</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span> <span class="htmlAttributeName">Row</span> <span class="htmlAttributeName">AlignItems</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">AlignItems</span><span class="enumValue">.Center</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Justify</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Justify</span><span class="enumValue">.Center</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pr-1</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>YAxis Labels<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSelect</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">YAxisLabelPosition</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_yAxisLabelPosition&quot; <span class="atSign">&#64;</span>bind-Value:after=&quot;BuildOptions</span><span class="quot">&quot;</span> <span class="htmlAttributeName">FullWidth</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSelectItem</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">YAxisLabelPosition</span><span class="enumValue">.Left</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Left<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSelectItem</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSelectItem</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">YAxisLabelPosition</span><span class="enumValue">.Right</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Right<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSelectItem</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSelectItem</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">YAxisLabelPosition</span><span class="enumValue">.None</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>None<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSelectItem</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSelect</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span> <span class="htmlAttributeName">xs</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">4</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex align-center justify-center</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>onclick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">RandomizeData</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mx-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Randomize<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span> <span class="htmlAttributeName">xs</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span> <span class="htmlAttributeName">Row</span> <span class="htmlAttributeName">AlignItems</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">AlignItems</span><span class="enumValue">.Center</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Justify</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Justify</span><span class="enumValue">.Center</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pr-1</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>XAxis Labels<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSelect</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">XAxisLabelPosition</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_xAxisLabelPosition&quot; <span class="atSign">&#64;</span>bind-Value:after=&quot;BuildOptions</span><span class="quot">&quot;</span> <span class="htmlAttributeName">FullWidth</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSelectItem</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">XAxisLabelPosition</span><span class="enumValue">.Top</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Top<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSelectItem</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSelectItem</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">XAxisLabelPosition</span><span class="enumValue">.Bottom</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Bottom<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSelectItem</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSelectItem</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">XAxisLabelPosition</span><span class="enumValue">.None</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>None<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSelectItem</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSelect</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudGrid</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">readonly</span> <span class="keyword">string</span>[] _colors = [<span class="string">&quot;#5AC8FA&quot;</span>, <span class="string">&quot;#34C759&quot;</span>, <span class="string">&quot;#007AFF&quot;</span>];
+    <span class="keyword">private</span> List&lt;ChartSeries&lt;<span class="keyword">double</span>&gt;&gt; _series = [];
+    <span class="keyword">private</span> HeatMapChartOptions _options = <span class="keyword">new</span>();
+    <span class="keyword">private</span> XAxisLabelPosition _xAxisLabelPosition = XAxisLabelPosition.Top;
+    <span class="keyword">private</span> YAxisLabelPosition _yAxisLabelPosition = YAxisLabelPosition.Left;
+    <span class="keyword">private</span> <span class="keyword">string</span>[] _xLabels = [];
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> OnInitialized()
+    {
+        <span class="keyword">base</span>.OnInitialized();
+        BuildOptions();
+        RandomizeData();
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> BuildOptions()
+    {
+        <span class="keyword">var</span> options = <span class="keyword">new</span> HeatMapChartOptions
+        {
+            ChartPalette = _colors,
+            XAxisLabelPosition = _xAxisLabelPosition,
+            YAxisLabelPosition = _yAxisLabelPosition
+        };
+        _options = options;
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> RandomizeData()
+    {
+        <span class="keyword">string</span>[] xaxis = [<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>,];
+        <span class="keyword">var</span> heatMapSeries = <span class="keyword">new</span> List&lt;ChartSeries&lt;<span class="keyword">double</span>&gt;&gt;();
+        <span class="keyword">var</span> dataPoints = xaxis.Length;
+        <span class="keyword">foreach</span> (<span class="keyword">var</span> x <span class="keyword">in</span> xaxis)
+        {
+            <span class="keyword">var</span> data = <span class="keyword">new</span> <span class="keyword">double</span>[dataPoints];
+            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; dataPoints; i++)
+            {
+                data[i] = Math.Round(Random.Shared.NextDouble() * <span class="number">100</span>, <span class="number">2</span>);
+            }
+            heatMapSeries.Add(<span class="keyword">new</span> ChartSeries&lt;<span class="keyword">double</span>&gt; { Name = x, Data = data });
+        }
+        _xLabels = xaxis;
+        _series = heatMapSeries;
+        BuildOptions();
+    }
+}
+</pre></div>
+</div>

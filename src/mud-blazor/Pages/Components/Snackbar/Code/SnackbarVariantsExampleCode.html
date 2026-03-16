@@ -1,0 +1,22 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>inject ISnackbar Snackbar
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>onclick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; ShowVariant(&quot;Text Snackbar&quot;, Variant.Text))</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Open text snackbar variants<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>onclick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; ShowVariant(&quot;Filled Snackbar&quot;, Variant.Filled))</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Secondary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Open filled snackbar variants<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>onclick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; ShowVariant(&quot;Outlined Snackbar&quot;, Variant.Outlined))</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Tertiary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Open outlined snackbar variants<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">void</span> ShowVariant(<span class="keyword">string</span> message, Variant variant)
+    {
+        Snackbar.Configuration.MaxDisplayedSnackbars = <span class="number">10</span>;
+        Snackbar.Add($<span class="string">&quot;Normal {message}&quot;</span>, Severity.Normal, c =&gt; c.SnackbarVariant = variant);
+        Snackbar.Add($<span class="string">&quot;Info {message}&quot;</span>, Severity.Info, c =&gt; c.SnackbarVariant = variant);
+        Snackbar.Add($<span class="string">&quot;Success {message}&quot;</span>, Severity.Success, c =&gt; c.SnackbarVariant = variant);
+        Snackbar.Add($<span class="string">&quot;Warning {message}&quot;</span>, Severity.Warning, c =&gt; c.SnackbarVariant = variant);
+        Snackbar.Add($<span class="string">&quot;Error {message}&quot;</span>, Severity.Error, c =&gt; c.SnackbarVariant = variant);
+    }
+}
+</pre></div>
+</div>

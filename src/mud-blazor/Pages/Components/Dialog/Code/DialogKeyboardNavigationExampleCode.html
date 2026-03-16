@@ -1,0 +1,34 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>inject IDialogService DialogService
+
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>onclick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">OpenDialogAsync</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    Select coffee
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChip</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>_returnValue<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChip</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+
+    <span class="keyword">string</span> _returnValue = <span class="string">&quot;Dialog return value (not yet set)&quot;</span>;
+
+    <span class="keyword">private</span> <span class="keyword">async</span> Task OpenDialogAsync()
+    {    
+        <span class="keyword">var</span> options = <span class="keyword">new</span> DialogOptions { CloseOnEscapeKey = <span class="keyword">true</span> };
+        <span class="keyword">var</span> dialogReference = <span class="keyword">await</span> DialogService.ShowAsync&lt;DialogKeyboardNavigationExample_Dialog&gt;(<span class="string">&quot;Dialog Keyboard Accessibility Demo&quot;</span>, options);
+        _returnValue = <span class="string">&quot;Waiting for dialog to conclude ...&quot;</span>;
+        StateHasChanged();
+        <span class="keyword">var</span> dialogResult = <span class="keyword">await</span> dialogReference.Result;
+        <span class="keyword">if</span> (dialogResult.Canceled) {
+            _returnValue = <span class="string">&quot;Dialog was canceled&quot;</span>;
+            StateHasChanged();
+        }
+        <span class="keyword">else</span> {
+            _returnValue = $<span class="string">&quot;Dialog returned &#39;{dialogResult.Data}&#39;&quot;</span>;
+            StateHasChanged();
+        }
+    }
+}
+</pre></div>
+</div>

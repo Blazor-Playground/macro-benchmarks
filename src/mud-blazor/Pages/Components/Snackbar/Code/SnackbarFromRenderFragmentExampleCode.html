@@ -1,0 +1,25 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>inject ISnackbar SnackbarService
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>OnClick</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Show a RenderFragment snackbar<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">void</span> OnClick()
+    {
+        SnackbarService.Add
+        (
+            <span class="atSign">&#64;</span>&lt;div&gt;
+                &lt;h3&gt;Hi <span class="keyword">from</span> a RenderFragment&lt;/h3&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;Here&#39;s a regular item&lt;/li&gt;
+                    &lt;li&gt;Here&#39;s a &lt;strong&gt;bold item&lt;/strong&gt;&lt;/li&gt;
+                    &lt;li&gt;Here&#39;s an &lt;em&gt;italicized item&lt;/em&gt;&lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+        );
+    }
+}
+</pre></div>
+</div>

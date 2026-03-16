@@ -1,0 +1,77 @@
+﻿@page "/"
+@inject IRepository PizzaStore
+@inject IJSRuntime JSRuntime
+@inject OrderState OrderState
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Blazing Pizzas</PageTitle>
+
+<div class="main" data-testid="home-main">
+	<ul class="pizza-cards" data-testid="pizza-cards">
+		@if (specials is not null)
+		{
+			@foreach (var special in specials)
+			{
+				<li @onclick="@(()=>OrderState.ShowConfigurePizzaDialog(special))" style="background-image: url('@special.ImageUrl')" data-testid="pizza-special-@special.Id">
+					<div class="pizza-info">
+						<span class="title">@special.Name</span>
+						@special.Description
+						<span class="price">@special.GetFormattedBasePrice()</span>
+					</div>
+				</li>
+			}
+		}
+	</ul>
+</div>
+
+<div class="sidebar" data-testid="sidebar">
+	@if (OrderState.Order.Pizzas.Any())
+	{
+		<div class="order-contents" data-testid="order-contents">
+			<h2>Your order</h2>
+
+			@foreach (var configuredPizza in OrderState.Order.Pizzas)
+			{
+				<ConfiguredPizzaItem Pizza="configuredPizza" OnRemoved="@(() => RemovePizza(configuredPizza))" />
+			}
+		</div>
+	}
+	else
+	{
+		<div class="empty-cart" data-testid="empty-cart">Choose a pizza<br>to get started</div>
+	}
+
+	<div class="order-total @(OrderState.Order.Pizzas.Any() ? "" : "hidden")" data-testid="order-total">
+		Total:
+		<span class="total-price" data-testid="total-price">@OrderState.Order.GetFormattedTotalPrice()</span>
+		<a href="checkout" class="@(OrderState.Order.Pizzas.Count == 0 ? "btn btn-warning disabled" : "btn btn-warning")" data-testid="order-button">
+			Order >
+		</a>
+	</div>
+</div>
+
+<TemplatedDialog Show="OrderState.ShowingConfigureDialog">
+	<ConfigurePizzaDialog Pizza="OrderState.ConfiguringPizza"
+										OnCancel="OrderState.CancelConfigurePizzaDialog"
+										OnConfirm="OrderState.ConfirmConfigurePizzaDialog" />
+</TemplatedDialog>
+
+@code {
+	List<PizzaSpecial>? specials;
+
+	protected override async Task OnInitializedAsync()
+	{
+		specials = await PizzaStore.GetSpecials();
+		OrderState.JSRuntime = JSRuntime;
+	}
+
+	async Task RemovePizza(Pizza configuredPizza)
+	{
+		if (await JSRuntime.Confirm($"Remove {configuredPizza.Special?.Name} pizza from the order?"))
+		{
+			OrderState.RemoveConfiguredPizza(configuredPizza);
+		}
+	}
+
+}

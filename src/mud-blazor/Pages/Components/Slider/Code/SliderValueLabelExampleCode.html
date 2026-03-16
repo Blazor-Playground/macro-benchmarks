@@ -1,0 +1,52 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using System.Globalization
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSlider</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">decimal</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_value</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ValueLabel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Step</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0.5m</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Culture</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_selectedCulture</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ValueLabelFormat</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_selectedFormat</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSelect</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">CultureInfo</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_selectedCulture</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="atSign">&#64;</span>foreach (var availableCulture in _availableCultures)
+    {
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSelectItem</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">CultureInfo</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>availableCulture</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>availableCulture.EnglishName<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSelectItem</span><span class="htmlTagDelimiter">&gt;</span>
+    }
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSelect</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSelect</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_selectedFormat</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSelectItem</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(&quot;C&quot;)</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSelectItem</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(&quot;00.00&quot;)</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSelectItem</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(&quot;P1&quot;)</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSelect</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">decimal</span> _value = <span class="number">50</span>.0m;
+    <span class="keyword">private</span> <span class="keyword">string</span> _selectedFormat = <span class="string">&quot;C&quot;</span>;
+    <span class="keyword">private</span> CultureInfo _selectedCulture = EnglishMoneyCulture;
+    <span class="keyword">private</span> List&lt;CultureInfo&gt; _availableCultures = <span class="keyword">new</span>()
+    {
+        EnglishMoneyCulture,
+        GermanMoneyCulture,
+    };
+
+    <span class="keyword">private</span> <span class="keyword">static</span> CultureInfo EnglishMoneyCulture
+    {
+        <span class="keyword">get</span>
+        {
+            <span class="keyword">var</span> culture = (CultureInfo)CultureInfo.GetCultureInfo(<span class="string">&quot;en&quot;</span>).Clone();
+            culture.NumberFormat.CurrencySymbol = <span class="string">&quot;$&quot;</span>;
+            <span class="keyword">return</span> culture;
+        }
+    }
+
+    <span class="keyword">private</span> <span class="keyword">static</span> CultureInfo GermanMoneyCulture
+    {
+        <span class="keyword">get</span>
+        {
+            <span class="keyword">var</span> culture = (CultureInfo)CultureInfo.GetCultureInfo(<span class="string">&quot;de&quot;</span>).Clone();
+            culture.NumberFormat.CurrencySymbol = <span class="string">&quot;€&quot;</span>;
+            <span class="keyword">return</span> culture;
+        }
+    }
+}
+</pre></div>
+</div>

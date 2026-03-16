@@ -1,0 +1,125 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using MudBlazor.Utilities
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex flex-column mud-width-full mud-height-full</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+	<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudToolBar</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">gap-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+		<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">LoadServerData</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Default</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Load Data<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+		<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">SaveData</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Save Data<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+		<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSpacer</span> <span class="htmlTagDelimiter">/&gt;</span>
+		<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Reset</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Text</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Error</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Reset Example<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+	<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudToolBar</span><span class="htmlTagDelimiter">&gt;</span>
+
+	<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDropContainer</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">DropItem</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_dropzoneItems</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_container</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ItemsSelector</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>((item,dropzone) =&gt; item.Selector == dropzone)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ItemDropped</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ItemUpdated</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex flex-wrap flex-grow-1</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+		<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ChildContent</span><span class="htmlTagDelimiter">&gt;</span>
+			<span class="atSign">&#64;</span>for (int i = 1; i &lt; 3; i++)
+			{
+				var dropzone = i.ToString();
+				<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ma-4 flex-grow-1</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudList</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex flex-column mud-height-full</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+						<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudListSubheader</span><span class="htmlTagDelimiter">&gt;</span>Drop Zone <span class="atSign">&#64;</span>dropzone<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudListSubheader</span><span class="htmlTagDelimiter">&gt;</span>
+						<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDropZone</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">DropItem</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Identifier</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>dropzone</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">flex-grow-1</span><span class="quot">&quot;</span> <span class="htmlAttributeName">AllowReorder</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+					<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudList</span><span class="htmlTagDelimiter">&gt;</span>
+				<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+			}
+		<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ChildContent</span><span class="htmlTagDelimiter">&gt;</span>
+		<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ItemRenderer</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudListItem</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Text</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>($&quot;{context.Name} ({context.Order})&quot;)</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+		<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ItemRenderer</span><span class="htmlTagDelimiter">&gt;</span>
+	<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDropContainer</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> MudDropContainer&lt;DropItem&gt; _container;
+
+	<span class="keyword">private</span> <span class="keyword">void</span> ItemUpdated(MudItemDropInfo&lt;DropItem&gt; dropItem)
+	{
+		dropItem.Item.Selector = dropItem.DropzoneIdentifier;
+
+		<span class="keyword">var</span> indexOffset = dropItem.DropzoneIdentifier <span class="keyword">switch</span>
+		{
+			<span class="string">&quot;2&quot;</span>  =&gt; _dropzoneItems.Count(x =&gt; x.Selector == <span class="string">&quot;1&quot;</span>),
+			_ =&gt; <span class="number">0</span>
+		};
+
+		_dropzoneItems.UpdateOrder(dropItem, item =&gt; item.Order, indexOffset);
+	}
+
+	<span class="keyword">private</span> List&lt;DropItem&gt; _dropzoneItems = <span class="keyword">new</span>();
+
+	<span class="keyword">private</span> List&lt;DropItem&gt; _serverData = <span class="keyword">new</span>()
+		{
+			<span class="keyword">new</span> DropItem() { Order = <span class="number">0</span>, Name = <span class="string">&quot;Item 1&quot;</span>, Selector = <span class="string">&quot;1&quot;</span> },
+			<span class="keyword">new</span> DropItem() { Order = <span class="number">1</span>, Name = <span class="string">&quot;Item 2&quot;</span>, Selector = <span class="string">&quot;1&quot;</span> },
+			<span class="keyword">new</span> DropItem() { Order = <span class="number">2</span>, Name = <span class="string">&quot;Item 3&quot;</span>, Selector = <span class="string">&quot;1&quot;</span> },
+			<span class="keyword">new</span> DropItem() { Order = <span class="number">3</span>, Name = <span class="string">&quot;Item 4&quot;</span>, Selector = <span class="string">&quot;1&quot;</span> },
+			<span class="keyword">new</span> DropItem() { Order = <span class="number">4</span>, Name = <span class="string">&quot;Item 5&quot;</span>, Selector = <span class="string">&quot;1&quot;</span> },
+			<span class="keyword">new</span> DropItem() { Order = <span class="number">5</span>, Name = <span class="string">&quot;Item 6&quot;</span>, Selector = <span class="string">&quot;1&quot;</span> },
+			<span class="keyword">new</span> DropItem() { Order = <span class="number">6</span>, Name = <span class="string">&quot;Item 7&quot;</span>, Selector = <span class="string">&quot;2&quot;</span> },
+			<span class="keyword">new</span> DropItem() { Order = <span class="number">7</span>, Name = <span class="string">&quot;Item 8&quot;</span>, Selector = <span class="string">&quot;2&quot;</span> },
+			<span class="keyword">new</span> DropItem() { Order = <span class="number">8</span>, Name = <span class="string">&quot;Item 9&quot;</span>, Selector = <span class="string">&quot;2&quot;</span> },
+			<span class="keyword">new</span> DropItem() { Order = <span class="number">9</span>, Name = <span class="string">&quot;Item 10&quot;</span>, Selector = <span class="string">&quot;2&quot;</span> },
+		};
+
+	<span class="keyword">private</span> <span class="keyword">void</span> RefreshContainer()
+	{
+		<span class="comment">//update the binding to the container</span>
+		StateHasChanged();
+
+		<span class="comment">//the container refreshes the internal state</span>
+		_container.Refresh();
+	}
+
+	<span class="keyword">private</span> <span class="keyword">void</span> LoadServerData()
+	{
+	    _dropzoneItems = _serverData
+	        .OrderBy(x =&gt; x.Order)
+	        .Select(item =&gt; <span class="keyword">new</span> DropItem
+	        {
+	            Order = item.Order,
+	            Name = item.Name,
+	            Selector = item.Selector
+	        })
+	        .ToList();
+		RefreshContainer();
+	}
+
+	<span class="keyword">private</span> <span class="keyword">void</span> SaveData()
+	    =&gt; _serverData = _dropzoneItems
+	        .OrderBy(x =&gt; x.Order)
+	        .Select(item =&gt; <span class="keyword">new</span> DropItem
+	        {
+	            Order = item.Order, Name = item.Name, Selector = item.Selector
+	        })
+	        .ToList();
+
+	<span class="keyword">private</span> <span class="keyword">void</span> Reset()
+	{
+		_dropzoneItems = <span class="keyword">new</span>();
+		_serverData = <span class="keyword">new</span>()
+			{
+				<span class="keyword">new</span> DropItem() { Order = <span class="number">0</span>, Name = <span class="string">&quot;Item 1&quot;</span>, Selector = <span class="string">&quot;1&quot;</span> },
+				<span class="keyword">new</span> DropItem() { Order = <span class="number">1</span>, Name = <span class="string">&quot;Item 2&quot;</span>, Selector = <span class="string">&quot;1&quot;</span> },
+				<span class="keyword">new</span> DropItem() { Order = <span class="number">2</span>, Name = <span class="string">&quot;Item 3&quot;</span>, Selector = <span class="string">&quot;1&quot;</span> },
+				<span class="keyword">new</span> DropItem() { Order = <span class="number">3</span>, Name = <span class="string">&quot;Item 4&quot;</span>, Selector = <span class="string">&quot;1&quot;</span> },
+				<span class="keyword">new</span> DropItem() { Order = <span class="number">4</span>, Name = <span class="string">&quot;Item 5&quot;</span>, Selector = <span class="string">&quot;1&quot;</span> },
+				<span class="keyword">new</span> DropItem() { Order = <span class="number">5</span>, Name = <span class="string">&quot;Item 6&quot;</span>, Selector = <span class="string">&quot;1&quot;</span> },
+				<span class="keyword">new</span> DropItem() { Order = <span class="number">6</span>, Name = <span class="string">&quot;Item 7&quot;</span>, Selector = <span class="string">&quot;2&quot;</span> },
+				<span class="keyword">new</span> DropItem() { Order = <span class="number">7</span>, Name = <span class="string">&quot;Item 8&quot;</span>, Selector = <span class="string">&quot;2&quot;</span> },
+				<span class="keyword">new</span> DropItem() { Order = <span class="number">8</span>, Name = <span class="string">&quot;Item 9&quot;</span>, Selector = <span class="string">&quot;2&quot;</span> },
+				<span class="keyword">new</span> DropItem() { Order = <span class="number">9</span>, Name = <span class="string">&quot;Item 10&quot;</span>, Selector = <span class="string">&quot;2&quot;</span> }
+			};
+
+		RefreshContainer();
+	}
+    
+    <span class="keyword">public</span> <span class="keyword">class</span> DropItem
+    {
+        <span class="keyword">public</span> <span class="keyword">string</span> Name { <span class="keyword">get</span>; init; }
+        <span class="keyword">public</span> <span class="keyword">string</span> Selector { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> <span class="keyword">int</span> Order { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+    }
+}
+</pre></div>
+</div>

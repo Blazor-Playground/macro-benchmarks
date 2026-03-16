@@ -1,0 +1,37 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChipSet</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-SelectedValues</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_selected</span><span class="quot">&quot;</span> <span class="htmlAttributeName">SelectionMode</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">SelectionMode</span><span class="enumValue">.MultiSelection</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="atSign">&#64;</span>for (int i = 0; i &lt; _included.Length; i++) 
+    {
+        var index = i;
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChip</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_ingredients[index]</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Selected</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_included[index]</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Variant.Text</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    }
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChipSet</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex flex-column align-center</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="atSign">&#64;</span>if (_selected is { Count: &gt; 0 }) 
+    {
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>Your special coctail recipe: <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">b</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>string.Join(&quot;, &quot;, _selected.OrderBy(x =&gt; x))<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">b</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+    }
+    else 
+    {
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>Add ingredients to your coctail.<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+    }
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="atSign">&#64;</span>for (int i = 0; i &lt; _included.Length; i++) 
+        {
+            var index = i;
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudCheckBox</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Secondary</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_included[index]</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>_ingredients[index]<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudCheckBox</span><span class="htmlTagDelimiter">&gt;</span>
+        }
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code
+{
+    <span class="keyword">private</span> <span class="keyword">string</span>[] _ingredients = [<span class="string">&quot;Vodka&quot;</span>, <span class="string">&quot;Tomato Juice&quot;</span>, <span class="string">&quot;Olive&quot;</span>, <span class="string">&quot;Peppermint&quot;</span>, <span class="string">&quot;Vermouth&quot;</span>, <span class="string">&quot;Coconut Milk&quot;</span>, <span class="string">&quot;Port Wine&quot;</span>];
+    <span class="keyword">private</span> <span class="keyword">bool</span>[] _included = <span class="keyword">new</span> <span class="keyword">bool</span>[<span class="number">7</span>];
+    <span class="keyword">private</span> IReadOnlyCollection&lt;<span class="keyword">string</span>&gt; _selected;
+}
+</pre></div>
+</div>

@@ -1,0 +1,58 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using System.Collections.ObjectModel
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Width</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">300px</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Elevation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTreeView</span> <span class="htmlAttributeName">ServerData</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>LoadServerData</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>InitialTreeItems</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ItemTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTreeViewItem</span> 
+                <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>context.Value</span><span class="quot">&quot;</span> 
+                <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">context.Children</span><span class="quot">&quot;</span> 
+                <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Expanded</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>context.Expanded</span><span class="quot">&quot;</span>
+                <span class="htmlAttributeName">CanExpand</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>context.Expandable</span><span class="quot">&quot;</span>
+                <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>context.Icon</span><span class="quot">&quot;</span> 
+                <span class="htmlAttributeName">LoadingIconColor</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Info</span><span class="quot">&quot;</span> 
+                <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ItemTemplate</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTreeView</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+
+    <span class="keyword">private</span> List&lt;TreeItemData&lt;<span class="keyword">string</span>&gt;&gt; InitialTreeItems { <span class="keyword">get</span>; <span class="keyword">set</span>; } = <span class="keyword">new</span>();
+    <span class="keyword">private</span> <span class="keyword">int</span> _idCounter=<span class="number">1</span>; <span class="comment">// &lt;- the counter makes sure the generated items are unique</span>
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> OnInitialized()
+    {
+        <span class="comment">// MudTreeView initially only gets these top-level items</span>
+        InitialTreeItems.Add(<span class="keyword">new</span> TreeItemData&lt;<span class="keyword">string</span>&gt; {
+            Value = <span class="string">&quot;All Mail&quot;</span>, Icon = Icons.Material.Filled.Label,
+            Expanded = <span class="keyword">true</span>,
+            Children = [
+                <span class="keyword">new</span> TreeItemData&lt;<span class="keyword">string</span>&gt; { Value = <span class="string">&quot;Promotions&quot;</span>, Icon = Icons.Material.Filled.Group, },
+                <span class="keyword">new</span> TreeItemData&lt;<span class="keyword">string</span>&gt; { Value = <span class="string">&quot;Updates&quot;</span>, Icon = Icons.Material.Filled.Info, },
+                <span class="keyword">new</span> TreeItemData&lt;<span class="keyword">string</span>&gt; { Value = <span class="string">&quot;Forums&quot;</span>, Icon = Icons.Material.Filled.QuestionAnswer, Expandable = <span class="keyword">false</span> },
+                <span class="keyword">new</span> TreeItemData&lt;<span class="keyword">string</span>&gt; { Value = <span class="string">&quot;Social&quot;</span>, Icon = Icons.Material.Filled.LocalOffer, Expandable = <span class="keyword">false</span> }
+            ] });
+        InitialTreeItems.Add(<span class="keyword">new</span> TreeItemData&lt;<span class="keyword">string</span>&gt; { Value = <span class="string">&quot;Trash&quot;</span>, Icon = Icons.Material.Filled.Delete });
+    }
+
+    <span class="keyword">public</span> <span class="keyword">async</span> Task&lt;IReadOnlyCollection&lt;TreeItemData&lt;<span class="keyword">string</span>&gt;&gt;&gt; LoadServerData(<span class="keyword">string</span> parentValue)
+    {
+        <span class="comment">// wait 500ms to simulate a server load</span>
+        <span class="keyword">await</span> Task.Delay(<span class="number">500</span>);
+        <span class="comment">// normally you would use the parentValue to query your server for the children of the given parent</span>
+        <span class="comment">// but for the sake of this example we will just return some hardcoded children</span>
+        <span class="keyword">return</span> [
+            <span class="keyword">new</span> TreeItemData&lt;<span class="keyword">string</span>&gt; { Value = $<span class="string">&quot;More Spam ({_idCounter++})&quot;</span>, Icon = Icons.Material.Filled.Group, },
+            <span class="keyword">new</span> TreeItemData&lt;<span class="keyword">string</span>&gt; { Value = $<span class="string">&quot;L.E.D Door Mats ({_idCounter++})&quot;</span>, Icon = Icons.Material.Outlined.Lightbulb, Expandable = <span class="keyword">false</span> },
+            <span class="keyword">new</span> TreeItemData&lt;<span class="keyword">string</span>&gt; { Value = $<span class="string">&quot;Car Beauty Salon ({_idCounter++})&quot;</span>, Icon = Icons.Material.Filled.CarRepair, Expandable = <span class="keyword">false</span> },
+            <span class="keyword">new</span> TreeItemData&lt;<span class="keyword">string</span>&gt; { Value = $<span class="string">&quot;Fakedoors.com ({_idCounter++})&quot;</span>, Icon = Icons.Material.Outlined.DoorFront, Expandable = <span class="keyword">false</span> },
+            <span class="keyword">new</span> TreeItemData&lt;<span class="keyword">string</span>&gt; { Value = $<span class="string">&quot;Bluetooth Toilet ({_idCounter++})&quot;</span>, Icon = Icons.Material.Filled.Wc, Expandable = <span class="keyword">false</span> }
+        ];        
+    }
+
+}
+</pre></div>
+</div>

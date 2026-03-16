@@ -1,0 +1,27 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudThemeProvider</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_mudThemeProvider</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-IsDarkMode</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_isDarkMode</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">bool</span> _isDarkMode;
+    <span class="keyword">private</span> MudThemeProvider _mudThemeProvider;
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">async</span> Task OnAfterRenderAsync(<span class="keyword">bool</span> firstRender)
+    {
+        <span class="keyword">if</span> (firstRender)
+        {
+            <span class="keyword">await</span> _mudThemeProvider.WatchSystemDarkModeAsync(OnSystemDarkModeChanged);
+            StateHasChanged();
+        }
+    }
+
+    <span class="keyword">private</span> Task OnSystemDarkModeChanged(<span class="keyword">bool</span> newValue)
+    {
+        _isDarkMode = newValue;
+        StateHasChanged();
+        <span class="keyword">return</span> Task.CompletedTask;
+    }
+}
+</pre></div>
+</div>

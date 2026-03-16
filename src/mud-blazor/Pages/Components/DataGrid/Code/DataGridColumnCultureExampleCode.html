@@ -1,0 +1,27 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using System.Globalization
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDataGrid</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_items</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Filterable</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Name</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Age</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Amount</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Amount (es-ES culture)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Culture</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(new CultureInfo(&quot;es-ES&quot;))</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Total</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Total (invariant culture)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Culture</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>CultureInfo.InvariantCulture</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDataGrid</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> IEnumerable&lt;Model&gt; _items = <span class="keyword">new</span> List&lt;Model&gt;()
+    {
+        <span class="keyword">new</span> Model(<span class="string">&quot;Sam&quot;</span>, <span class="number">56</span>, <span class="number">2</span>.<span class="number">3</span>, <span class="number">3</span>.<span class="number">2</span>), 
+        <span class="keyword">new</span> Model(<span class="string">&quot;Alicia&quot;</span>, <span class="number">54</span>, <span class="number">4</span>.<span class="number">5</span>, <span class="number">4</span>.<span class="number">9</span>), 
+        <span class="keyword">new</span> Model(<span class="string">&quot;Ira&quot;</span>, <span class="number">27</span>, <span class="number">2</span>.<span class="number">1</span>, <span class="number">2</span>.<span class="number">5</span>),
+        <span class="keyword">new</span> Model(<span class="string">&quot;John&quot;</span>, <span class="number">32</span>, <span class="number">5</span>.<span class="number">9</span>, <span class="number">6</span>.<span class="number">1</span>)
+    };
+
+    <span class="keyword">public</span> record Model(<span class="keyword">string</span> Name, <span class="keyword">int</span>? Age, <span class="keyword">double</span>? Amount, <span class="keyword">double</span>? Total);
+}
+</pre></div>
+</div>

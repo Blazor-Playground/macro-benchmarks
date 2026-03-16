@@ -1,0 +1,268 @@
+﻿@page "/"
+@using System.Text.Json
+@using System.Runtime.InteropServices.JavaScript
+@using BenchViewer.Interop
+@using BenchViewer.Components
+@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
+@inject IWebAssemblyHostEnvironment HostEnv
+@implements IAsyncDisposable
+
+<PageTitle>.NET WASM Benchmark Dashboard</PageTitle>
+
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h6 class="mb-0">.NET WASM Benchmarks</h6>
+        @if (viewIndex != null)
+        {
+            <small class="text-muted">Updated: @FormatDate(viewIndex.LastUpdated)</small>
+        }
+    </div>
+    <div class="sidebar-body">
+        @if (viewIndex != null)
+        {
+            <div class="px-3 py-2 border-bottom">
+                <div class="form-check form-check-sm">
+                    <input class="form-check-input" type="checkbox" id="show-releases"
+                           checked="@showReleases"
+                           @onchange="e => HandleShowReleasesChanged((bool)e.Value!)" />
+                    <label class="form-check-label small" for="show-releases">
+                        Show GA releases
+                    </label>
+                </div>
+                <div class="form-check form-check-sm mt-1">
+                    <input class="form-check-input" type="checkbox" id="show-daily-releases"
+                           checked="@showDailyReleases"
+                           @onchange="e => HandleShowDailyReleasesChanged((bool)e.Value!)" />
+                    <label class="form-check-label small" for="show-daily-releases">
+                        Show daily releases
+                    </label>
+                </div>
+            </div>
+            <FilterPanel FilterGroups="@filterGroups"
+                         CheckedValues="@checkedValues"
+                         CurrentApp="@currentApp"
+                         OnFilterChanged="@HandleFilterChanged" />
+        }
+    </div>
+</aside>
+
+<main class="main-content">
+    @if (loading)
+    {
+        <div class="d-flex justify-content-center align-items-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (error != null)
+    {
+        <div class="alert alert-warning m-3">@error</div>
+    }
+    else if (viewIndex != null)
+    {
+        <div class="tabs-header px-3 pt-3 d-flex justify-content-between align-items-end">
+            <AppTabs Apps="@viewIndex.Apps" ActiveApp="@currentApp" OnAppChanged="@HandleAppChanged" />
+            <div class="time-range-selector mb-1">
+                @foreach (var range in TimeRanges)
+                {
+                    <button class="btn btn-sm @(currentTimeRange == range.Key ? "btn-primary" : "btn-outline-secondary") me-1"
+                            @onclick="() => HandleTimeRangeChanged(range.Key)">
+                        @range.Value
+                    </button>
+                }
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(@currentApp))
+        {
+            <div class="app-link-panel">
+                <a href="./apps/@currentApp/" target="_blank" rel="noopener">
+                    The application published with no-workload preset with the latest daily SDK ↗
+                </a>
+            </div>
+        }
+        <div class="charts-area px-3 py-2">
+            @foreach (var metric in currentMetrics)
+            {
+                <div class="chart-container mb-3">
+                    <canvas id="chart-@currentApp-@metric"></canvas>
+                </div>
+            }
+
+            @if (currentMetrics.Count == 0)
+            {
+                <div class="text-muted p-3">No metrics available for this app.</div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-muted p-5 text-center">
+            No benchmark data yet. Run the CI pipeline to collect data.
+        </div>
+    }
+</main>
+
+@if (selectedPoint != null)
+{
+    <aside class="detail-panel">
+        <div class="detail-panel-header d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+            <strong class="small">Commit Detail</strong>
+            <button class="btn btn-sm btn-link p-0" @onclick="ClearSelection">✕</button>
+        </div>
+        <div class="detail-panel-body px-3 py-2 small">
+            @* ── Current (latest click) ── *@
+            <div class="commit-info-block mb-2">
+                @RenderCommitInfo(selectedPoint, expanded: true)
+            </div>
+
+            @if (previousPoint != null)
+            {
+                @* ── Diff link ── *@
+                @if (!string.IsNullOrEmpty(selectedPoint.RuntimeGitHash) && !string.IsNullOrEmpty(previousPoint.RuntimeGitHash)
+                    && selectedPoint.RuntimeGitHash != previousPoint.RuntimeGitHash)
+                {
+                    <div class="mb-2 text-center">
+                        <a href="https://github.com/dotnet/runtime/compare/@previousPoint.RuntimeGitHash...@selectedPoint.RuntimeGitHash"
+                           target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary w-100">
+                            ⇕ Compare runtime commits
+                        </a>
+                    </div>
+                }
+
+                <hr class="my-1" />
+
+                @* ── Previous click ── *@
+                <div class="commit-info-block mb-2">
+                    @RenderCommitInfo(previousPoint, expanded: false)
+                </div>
+            }
+        </div>
+    </aside>
+}
+
+@code {
+    private RenderFragment RenderCommitInfo(SelectedPointInfo point, bool expanded) => __builder =>
+    {
+        <div class="mb-1">
+            <div class="fw-bold text-muted mb-1" style="font-size: 0.75rem;">
+                @if (!string.IsNullOrEmpty(point.RuntimeCommitMessage))
+                {
+                    @TruncateMessage(point.RuntimeCommitMessage, 80)
+                }
+                else
+                {
+                    <span>@point.Date</span>
+                }
+            </div>
+        </div>
+
+        <table class="table table-sm table-borderless mb-1" style="font-size: 0.8rem;">
+            <tbody>
+                <tr>
+                    <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Date</td>
+                    <td class="py-0">@point.Date</td>
+                </tr>
+                @if (!string.IsNullOrEmpty(point.RuntimeCommitAuthor))
+                {
+                    <tr>
+                        <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Author</td>
+                        <td class="py-0">@point.RuntimeCommitAuthor</td>
+                    </tr>
+                }
+                <tr>
+                    <td class="text-muted py-0 pe-2" style="white-space:nowrap;">SDK</td>
+                    <td class="py-0" style="word-break:break-all;">
+                        @if (!string.IsNullOrEmpty(point.VmrGitHash))
+                        {
+                            <a href="https://github.com/dotnet/dotnet/commit/@point.VmrGitHash" target="_blank" rel="noopener">@point.SdkVersion</a>
+                        }
+                        else
+                        {
+                            @point.SdkVersion
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Row</td>
+                    <td class="py-0">@point.RowKey</td>
+                </tr>
+                @if (!string.IsNullOrEmpty(point.RuntimePackVersion))
+                {
+                    <tr>
+                        <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Runtime Pack</td>
+                        <td class="py-0" style="word-break:break-all;">
+                            @if (!string.IsNullOrEmpty(point.RuntimeGitHash))
+                            {
+                                <a href="https://github.com/dotnet/runtime/commit/@point.RuntimeGitHash" target="_blank" rel="noopener">@point.RuntimePackVersion</a>
+                            }
+                            else
+                            {
+                                @point.RuntimePackVersion
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!string.IsNullOrEmpty(point.AspnetCoreVersion))
+                {
+                    <tr>
+                        <td class="text-muted py-0 pe-2" style="white-space:nowrap;">ASP.NET Core</td>
+                        <td class="py-0" style="word-break:break-all;">
+                            @if (!string.IsNullOrEmpty(point.AspnetCoreGitHash))
+                            {
+                                <a href="https://github.com/dotnet/aspnetcore/commit/@point.AspnetCoreGitHash" target="_blank" rel="noopener">@point.AspnetCoreVersion</a>
+                            }
+                            else
+                            {
+                                @point.AspnetCoreVersion
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!string.IsNullOrEmpty(point.WorkloadVersion))
+                {
+                    <tr>
+                        <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Workload</td>
+                        <td class="py-0" style="word-break:break-all;">@point.WorkloadVersion</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (point.Metrics.Count > 0)
+        {
+            @if (expanded)
+            {
+                <hr class="my-1" />
+                <div class="mb-1"><strong>Metrics:</strong></div>
+                <div style="font-size: 0.75rem;">
+                    @foreach (var kv in point.Metrics)
+                    {
+                        <div>@GetMetricDisplay(kv.Key): @FormatMetricValue(kv.Key, kv.Value)</div>
+                    }
+                </div>
+            }
+            else
+            {
+                <details class="mt-1">
+                    <summary class="fw-bold" style="cursor:pointer; font-size:0.8rem;">Metrics</summary>
+                    <div class="mt-1" style="font-size: 0.75rem;">
+                        @foreach (var kv in point.Metrics)
+                        {
+                            <div>@GetMetricDisplay(kv.Key): @FormatMetricValue(kv.Key, kv.Value)</div>
+                        }
+                    </div>
+                </details>
+            }
+        }
+    };
+
+    private static string TruncateMessage(string msg, int max)
+    {
+        // Take first line only
+        var idx = msg.IndexOfAny(new[] { '\r', '\n' });
+        if (idx >= 0) msg = msg[..idx];
+        return msg.Length <= max ? msg : msg[..(max - 1)] + "…";
+    }
+}

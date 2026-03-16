@@ -1,0 +1,67 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">style</span><span class="htmlTagDelimiter">&gt;</span>
+    .mud-file-upload-dragarea {
+        height: 150px;
+        width: 100%;
+    }
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">style</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudCard</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">width: 25%;height: 300px;</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudCardHeader</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.h6</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Default Button<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudCardHeader</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudCardContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudFileUpload</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Files</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_file</span><span class="quot">&quot;</span>
+                       <span class="htmlAttributeName">Disabled</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_disabled</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudCardContent</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudCard</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudCard</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">width: 65%;height:300px;</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudCardHeader</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.h6</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Drag and Drop<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudCardHeader</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudCardContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudFileUpload</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Files</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_files</span><span class="quot">&quot;</span>
+                       <span class="htmlAttributeName">DragAndDrop</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+                       <span class="htmlAttributeName">Disabled</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_disabled</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudCardContent</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudCard</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span> <span class="htmlAttributeName">md</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">12</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex justify-center</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">bool</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_disabled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Disabled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">LabelPlacement</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Placement</span><span class="enumValue">.Right</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code
+{
+    <span class="keyword">private</span> <span class="keyword">bool</span> _disabled = <span class="keyword">false</span>;
+    <span class="keyword">private</span> IBrowserFile _file = <span class="keyword">new</span> DummyBrowserFile(<span class="string">&quot;test1.jpg&quot;</span>, DateTimeOffset.Now, <span class="number">0</span>, <span class="string">&quot;image/jpeg&quot;</span>, []);
+    <span class="keyword">private</span> IReadOnlyList&lt;IBrowserFile&gt; _files =
+    [
+        <span class="keyword">new</span> DummyBrowserFile(<span class="string">&quot;test1.jpg&quot;</span>, DateTimeOffset.Now, <span class="number">0</span>, <span class="string">&quot;image/jpeg&quot;</span>, []),
+        <span class="keyword">new</span> DummyBrowserFile(<span class="string">&quot;test2.jpg&quot;</span>, DateTimeOffset.Now, <span class="number">0</span>, <span class="string">&quot;image/jpeg&quot;</span>, []),
+    ];
+
+    <span class="keyword">public</span> <span class="keyword">class</span> DummyBrowserFile : IBrowserFile
+    {
+        <span class="keyword">public</span> <span class="keyword">string</span> Name { <span class="keyword">get</span>; }
+        <span class="keyword">public</span> DateTimeOffset LastModified { <span class="keyword">get</span>; }
+        <span class="keyword">public</span> <span class="keyword">long</span> Size { <span class="keyword">get</span>; }
+        <span class="keyword">public</span> <span class="keyword">string</span> ContentType { <span class="keyword">get</span>; }
+        <span class="keyword">public</span> <span class="keyword">byte</span>[] Content { <span class="keyword">get</span>; }
+
+        <span class="keyword">public</span> DummyBrowserFile(<span class="keyword">string</span> name, DateTimeOffset lastModified, <span class="keyword">long</span> size, <span class="keyword">string</span> contentType, <span class="keyword">byte</span>[] content)
+        {
+            Name = name;
+            LastModified = lastModified;
+            Size = size;
+            ContentType = contentType;
+            Content = content;
+        }
+
+        <span class="keyword">public</span> Stream OpenReadStream(<span class="keyword">long</span> maxAllowedSize = <span class="number">512000</span>, CancellationToken cancellationToken = <span class="keyword">default</span>) =&gt; <span class="keyword">new</span> MemoryStream(Content);
+    }
+}
+</pre></div>
+</div>

@@ -1,0 +1,35 @@
+﻿<HxInputText Label="Input groups (text)" @bind-Value="@value" InputGroupStartText="€" InputGroupEndText=".00" />
+<HxInputText Label="Input groups (icon)" @bind-Value="@value">
+	<InputGroupStartTemplate>
+		<HxIcon CssClass="input-group-text" Icon="BootstrapIcon.CurrencyEuro" />
+	</InputGroupStartTemplate>
+</HxInputText>
+
+<HxInputText Label="Input groups (template with button/dropdown)" @bind-Value="@value">
+	<InputGroupStartTemplate>
+		<HxButton Text="Button" Color="ThemeColor.Secondary" Outline="true" />
+		<HxButton Text="Button 2" Color="ThemeColor.Secondary" Outline="true" />
+	</InputGroupStartTemplate>
+	<InputGroupEndTemplate>
+		@* Bootstrap does not expect any <HxDropdown /> wrapper here. *@
+		<HxDropdownToggleButton Text="Dropdown" Color="ThemeColor.Secondary" Outline="true" />
+		<HxDropdownMenu>
+			<HxDropdownItem>Item 1</HxDropdownItem>
+			<HxDropdownItem>Item 2</HxDropdownItem>
+		</HxDropdownMenu>
+	</InputGroupEndTemplate>
+</HxInputText>
+
+<HxInputText Label="Input groups (template with checkbox/radio)" @bind-Value="@value">
+	<InputGroupStartTemplate>
+		<div class="input-group-text">
+			<HxCheckbox @bind-Value="@valueBool" CssClass="mt-0" />
+		</div>
+	</InputGroupStartTemplate>
+</HxInputText>
+
+@code
+{
+	private string value;
+	private bool valueBool;
+}

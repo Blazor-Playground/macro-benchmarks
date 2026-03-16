@@ -1,0 +1,15 @@
+@attribute [Route("/components/" + nameof(HxInputPercent<TValue>))]
+
+<ApiDoc Type="typeof(HxInputPercent<TValue>)">
+    <DocAlert Type="DocAlertType.Warning">HxInputPercent outputs a number divided by 100 representing the percentages</DocAlert>
+
+    <DocHeading Title="Basic usage" />
+    <Demo Type="typeof(HxInputPercent_Demo_Basic)" Tabs="false" />
+
+    <DocHeading Title="InputGroupEnd" />
+    <p><code>InputGroupEnd</code> is set to "%" by default.</p>
+    <Demo Type="typeof(HxInputPercent_Demo_CustomInputGroupEnd)" Tabs="false" />
+
+    <p>If you do not want any <code>InputGroupEnd</code> to appear, then set the parameter to <code>null</code> or <code>String.Empty</code>.</p>
+    <Demo Type="typeof(HxInputPercent_Demo_NoInputGroupEnd)" Tabs="false" />
+</ApiDoc>

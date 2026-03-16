@@ -1,0 +1,54 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDropContainer</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">DropZoneItem</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_items</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ItemsSelector</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>((item, dropzone) =&gt; item.Zone == dropzone)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ItemDropped</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ItemUpdated</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">4 flex-grow-1</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ChildContent</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDropContainer</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">DropZone</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_zones</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ItemDisabled</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(item =&gt; true)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ItemsSelector</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>((item, dropzone) =&gt; true)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">5</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ChildContent</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDropZone</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">DropZone</span><span class="quot">&quot;</span> <span class="htmlAttributeName">AllowReorder</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">6 rounded mud-background-gray px-4 py-1 ma-4</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+             <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ChildContent</span><span class="htmlTagDelimiter">&gt;</span>
+             <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ItemRenderer</span><span class="htmlTagDelimiter">&gt;</span>
+                 <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-4 my-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                     <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.h6</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Name<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+                     <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDropZone</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">DropZoneItem</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Identifier</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>context.Name</span><span class="quot">&quot;</span> <span class="htmlAttributeName">AllowReorder</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">rounded mud-background-gray px-4 py-1 ma-4</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+                 <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+             <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ItemRenderer</span><span class="htmlTagDelimiter">&gt;</span>
+         <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDropContainer</span><span class="htmlTagDelimiter">&gt;</span>
+     <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ChildContent</span><span class="htmlTagDelimiter">&gt;</span>
+     <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">ItemRenderer</span><span class="htmlTagDelimiter">&gt;</span>
+         <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-4 my-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+             <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>context.Name<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+         <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+     <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">ItemRenderer</span><span class="htmlTagDelimiter">&gt;</span>
+ <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDropContainer</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+
+    <span class="keyword">private</span> <span class="keyword">void</span> ItemUpdated(MudItemDropInfo&lt;DropZoneItem&gt; dropItem) =&gt; dropItem.Item.Zone = dropItem.DropzoneIdentifier;
+
+    <span class="keyword">private</span> List&lt;DropZone&gt; _zones = <span class="keyword">new</span>()
+    {
+        <span class="keyword">new</span>() { Name = <span class="string">&quot;Drop Zone 1&quot;</span> },
+        <span class="keyword">new</span>() { Name = <span class="string">&quot;Drop Zone 2&quot;</span> }
+    };
+
+    <span class="keyword">private</span> List&lt;DropZoneItem&gt; _items = <span class="keyword">new</span>()
+    {
+        <span class="keyword">new</span>() { Zone = <span class="string">&quot;Drop Zone 1&quot;</span>, Name = <span class="string">&quot;Item 1&quot;</span> },
+        <span class="keyword">new</span>() { Zone = <span class="string">&quot;Drop Zone 1&quot;</span>, Name = <span class="string">&quot;Item 2&quot;</span> },
+        <span class="keyword">new</span>() { Zone = <span class="string">&quot;Drop Zone 2&quot;</span>, Name = <span class="string">&quot;Item 3&quot;</span> },
+    };
+
+    <span class="keyword">private</span> <span class="keyword">class</span> DropZone
+    {
+        <span class="keyword">public</span> <span class="keyword">string</span> Name { <span class="keyword">get</span>; init; }
+    }
+
+    <span class="keyword">private</span> <span class="keyword">class</span> DropZoneItem
+    {
+        <span class="keyword">public</span> <span class="keyword">string</span> Zone { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+        <span class="keyword">public</span> <span class="keyword">string</span> Name { <span class="keyword">get</span>; init; }
+    }
+}
+</pre></div>
+</div>

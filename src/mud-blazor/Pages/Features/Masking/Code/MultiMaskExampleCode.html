@@ -1,0 +1,87 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using MudBlazor.Interfaces
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudGrid</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">justify-space-between mb-3 mx-n3</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">max-width: 800px;</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span> <span class="htmlAttributeName">xs</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">12</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTextField</span> <span class="htmlAttributeName">Mask</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>mask</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Credit Card Number</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">max-width: 400px;</span><span class="quot">&quot;</span>
+                  <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">cardNumber</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Variant.Text</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Clearable</span><span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span> <span class="htmlAttributeName">xs</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">12</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        Credit Card: <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">b</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>cardNumber<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">b</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudGrid</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">string</span> cardNumber, cardType;
+
+    MultiMask mask = <span class="keyword">new</span> MultiMask(<span class="string">&quot;0000 0000 0000 0000&quot;</span>,
+        <span class="keyword">new</span> MaskOption(<span class="string">&quot;American Express&quot;</span>, <span class="string">&quot;0000 000000 00000&quot;</span>, <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;^(34|37)&quot;</span>),
+        <span class="keyword">new</span> MaskOption(<span class="string">&quot;Diners Club&quot;</span>, <span class="string">&quot;0000 000000 0000&quot;</span>, <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;^(30[0-59])&quot;</span>),
+        <span class="keyword">new</span> MaskOption(<span class="string">&quot;JCB&quot;</span>, <span class="string">&quot;0000 0000 0000 0000&quot;</span>, <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;^(35|2131|1800)&quot;</span>),
+        <span class="keyword">new</span> MaskOption(<span class="string">&quot;VISA&quot;</span>, <span class="string">&quot;0000 0000 0000 0000&quot;</span>, <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;^4&quot;</span>),
+        <span class="keyword">new</span> MaskOption(<span class="string">&quot;MasterCard&quot;</span>, <span class="string">&quot;0000 0000 0000 0000&quot;</span>, <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;^(5[1-5]|2[2-7])&quot;</span>),
+        <span class="keyword">new</span> MaskOption(<span class="string">&quot;Discover&quot;</span>, <span class="string">&quot;0000 0000 0000 0000&quot;</span>, <span class="stringCSharpVerbatim"><span class="atSign">&#64;</span>&quot;^(6011|65|64[4-9])&quot;</span>)
+    );
+    MaskOption? option = <span class="keyword">null</span>;
+    Dictionary&lt;<span class="keyword">string</span>, Variant&gt; variants = <span class="keyword">new</span>();
+    MudElement element;
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> OnInitialized()
+    {
+        <span class="keyword">base</span>.OnInitialized();
+        mask.OptionDetected += (o, input) =&gt;
+        {
+            option = o;
+            cardType = o == <span class="keyword">null</span> ? <span class="string">&quot;Unknown&quot;</span> : o.Value.Id;
+            UpdateClasses();
+            <span class="comment">// re-render only MudElement&#39;s children</span>
+            (element <span class="keyword">as</span> IMudStateHasChanged)?.StateHasChanged();
+        };
+        UpdateClasses();
+    }
+
+    <span class="keyword">void</span> UpdateClasses()
+    {
+        <span class="keyword">foreach</span> (<span class="keyword">var</span> type <span class="keyword">in</span> <span class="keyword">new</span>[] { <span class="string">&quot;American Express&quot;</span>, <span class="string">&quot;Diners Club&quot;</span>, <span class="string">&quot;JCB&quot;</span>, <span class="string">&quot;VISA&quot;</span>, <span class="string">&quot;MasterCard&quot;</span>, <span class="string">&quot;Discover&quot;</span> })
+            variants[type] = type == cardType ? Variant.Filled : Variant.Outlined;
+    }
+}
+
+<span class="atSign">&#64;</span>* Note: MudElement <span class="keyword">is</span> used here to limit the render-update to <span class="keyword">this</span> html tree  *<span class="atSign">&#64;</span>
+&lt;MudElement HtmlTag=<span class="string">&quot;div&quot;</span> <span class="atSign">&#64;</span><span class="keyword">ref</span>=<span class="string">&quot;element&quot;</span> Style=<span class="string">&quot;max-width: 800px;&quot;</span> Class=<span class="string">&quot;mud-width-full&quot;</span>&gt;
+    &lt;MudGrid Class=<span class="string">&quot;justify-space-between&quot;</span>&gt;
+        &lt;MudItem xs=<span class="string">&quot;12&quot;</span> sm=<span class="string">&quot;6&quot;</span>&gt;
+            &lt;MudAlert Variant=<span class="string">&quot;<span class="atSign">&#64;</span>variants[&quot;</span>American Express<span class="string">&quot;]&quot;</span> NoIcon Dense Class=<span class="string">&quot;mb-2&quot;</span>&gt;
+                American Express: starts with <span class="number">34</span>/<span class="number">37</span>&lt;br/&gt;
+                &lt;pre&gt;<span class="number">34</span>&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>; &amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>; &amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&lt;/pre&gt;
+            &lt;/MudAlert&gt;
+            &lt;MudAlert Variant=<span class="string">&quot;<span class="atSign">&#64;</span>variants[&quot;</span>Diners Club<span class="string">&quot;]&quot;</span> NoIcon Dense Class=<span class="string">&quot;mb-2&quot;</span>&gt;
+                Diners Club: starts with <span class="number">300</span>-<span class="number">305</span>/<span class="number">309</span>&lt;br/&gt;
+                &lt;pre&gt;<span class="number">300</span>&amp;#<span class="number">183</span>; &amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>; &amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&lt;/pre&gt;
+            &lt;/MudAlert&gt;
+            &lt;MudAlert Variant=<span class="string">&quot;<span class="atSign">&#64;</span>variants[&quot;</span>JCB<span class="string">&quot;]&quot;</span> NoIcon Dense Class=<span class="string">&quot;mb-2&quot;</span>&gt;
+                JCB: starts with <span class="number">35</span>/<span class="number">2131</span>/<span class="number">1800</span>&lt;br/&gt;
+                &lt;pre&gt;<span class="number">35</span>&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>; &amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>; &amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>; &amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&lt;/pre&gt;
+            &lt;/MudAlert&gt;
+        &lt;/MudItem&gt;
+        &lt;MudItem xs=<span class="string">&quot;12&quot;</span> sm=<span class="string">&quot;6&quot;</span>&gt;
+            &lt;MudAlert Variant=<span class="string">&quot;<span class="atSign">&#64;</span>variants[&quot;</span>VISA<span class="string">&quot;]&quot;</span> NoIcon Dense Class=<span class="string">&quot;mb-2&quot;</span>&gt;
+                VISA: starts with <span class="number">4</span>&lt;br/&gt;
+                &lt;pre&gt;<span class="number">4</span>&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>; &amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>; &amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>; &amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&lt;/pre&gt;
+            &lt;/MudAlert&gt;
+            &lt;MudAlert Variant=<span class="string">&quot;<span class="atSign">&#64;</span>variants[&quot;</span>MasterCard<span class="string">&quot;]&quot;</span> NoIcon Dense Class=<span class="string">&quot;mb-2&quot;</span>&gt;
+                MasterCard: starts with <span class="number">51</span>-<span class="number">55</span>/<span class="number">22</span>-<span class="number">27</span>&lt;br/&gt;
+                &lt;pre&gt;<span class="number">51</span>&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>; &amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>; &amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>; &amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&lt;/pre&gt;
+            &lt;/MudAlert&gt;
+            &lt;MudAlert Variant=<span class="string">&quot;<span class="atSign">&#64;</span>variants[&quot;</span>Discover<span class="string">&quot;]&quot;</span> NoIcon Dense Class=<span class="string">&quot;mb-2&quot;</span>&gt;
+                Discover: starts with <span class="number">6011</span>/<span class="number">65</span>/<span class="number">644</span>-<span class="number">649</span>&lt;br/&gt;
+                &lt;pre&gt;<span class="number">6011</span> &amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>; &amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>; &amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&amp;#<span class="number">183</span>;&lt;/pre&gt;
+            &lt;/MudAlert&gt;
+        &lt;/MudItem&gt;
+    &lt;/MudGrid&gt;
+    &lt;MudText Class=<span class="string">&quot;mud-text-secondary&quot;</span> Typo=<span class="string">&quot;Typo.body2&quot;</span>&gt;Example inspired <span class="keyword">by</span> Cleave.js&lt;/MudText&gt;
+&lt;/MudElement&gt;
+</pre></div>
+</div>

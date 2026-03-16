@@ -1,0 +1,232 @@
+@attribute [Route("/components/" + nameof(HxGrid))]
+@attribute [Route("/components/" + nameof(HxGridColumn<object>))]
+@inject NavigationManager NavigationManager
+
+<ApiDoc Type="typeof(HxGrid<TItem>)">
+	<MainContent>
+
+		<DocHeading Title="Basic usage" />
+		<p>
+			To define <strong>columns</strong>, use the <code>HxGridColumn</code> components.
+			You can specify the <code>HeaderText</code> and <code>ItemTextSelector</code> parameters.
+		</p>
+		<p>
+			To connect the grid to your <strong>data</strong>, implement the <code>@nameof(HxGrid<object>.DataProvider)</code> method.
+			This method receives a "request" (for sorting and paging requirements) and yields a "result" (items for display along with the total item count).
+		</p>
+		<Demo Type="typeof(HxGrid_Demo)" Tabs="false" />
+		<DocAlert Type="DocAlertType.Warning">
+			The <code>@nameof(HxGrid).@nameof(HxGrid<object>.DataProvider)</code> should always return
+			an instance of <code>@nameof(GridDataProviderResult<object>)</code>, <code>null</code> is not allowed.
+			The method you provide should be <code>async</code> and should
+			<code>await</code> the data if needed (loading progress is indicated in the meantime).
+		</DocAlert>
+		<DocDemoDataServiceNote />
+
+		<DocHeading Title="Automatic sorting and paging" Id="ApplyTo" />
+		<p>
+			If you have your <code>IEnumerable</code> data-source ready (all items preloaded in memory),
+			you can use the <code>request.ApplyTo(data)</code> extension method to apply sorting and paging automatically.
+		</p>
+		<Demo Type="typeof(HxGrid_Demo_ApplyTo)" />
+
+		<DocHeading Title="Asynchronous data" Id="ApplyToAsync" Level="3" />
+		<p>
+			When loading data asynchronously, always ensure that the <code>DataProvider</code> waits for the data to be available;
+			otherwise, the skeleton UI (placeholders) will not display correctly.<br />
+			If you are preloading data and using the <code>request.ApplyTo(data)</code> extension method,
+			you can leverage <code>TaskCompletionSource</code> to handle waiting until the data is loaded.
+		</p>
+		<Demo Type="typeof(HxGrid_Demo_ApplyTo_Async)" />
+
+		<DocHeading Title="Using IQueryable" Id="IQueryable" Level="3" />
+		<p>
+			When utilizing <code>IQueryable</code> as your data source provider,
+			commonly seen in Blazor Server applications with Entity Framework Core,
+			you can employ the <code>data.ApplyGridDataProviderRequest(request)</code> method.
+		</p>
+		<p>
+			This method enables the application of sorting and paging to your data source.
+			Subsequently, you are required to "execute" the queries independently.
+			This necessity arises because our components lack access to cancellable asynchronous methods
+			such as <code>CountAsync</code> and <code>ToListAsync</code>.
+			Employing cancellable methods is particularly critical in scenarios like infinite scrolling.
+		</p>
+		<Demo Type="typeof(HxGrid_Demo_Queryable)" />
+
+
+		<DocHeading Title="Refreshing data" Id="RefreshData" />
+		<p>
+			To refresh the grid's data—such as after changing a filter—call <code>gridComponent.RefreshDataAsync()</code>.
+			This method instructs the grid to retrieve updated data from its <code>DataProvider</code>.
+			To reset the grid's position (page, scroll, etc.) when refreshing,
+			use <code>gridComponent.RefreshDataAsync(GridStateResetOptions.ResetPosition)</code> overload.
+		</p>
+		<Demo Type="typeof(HxGrid_Demo_RefreshData)" />
+
+		<DocHeading Title="Empty data" />
+		<p>
+			When the <code>DataProvider</code> returns no data, the <code>EmptyDataTemplate</code> is rendered.
+			If you do not set your own content, the <code>&lt;HxGridDefaultEmptyDataTemplateContent /&gt;</code> is used.
+		</p>
+		<Demo Type="typeof(HxGrid_Demo_EmptyData)" />
+
+		<DocHeading Title="Content navigation modes" />
+		<p>
+			<code>HxGrid</code> offers various navigation modes, configurable through the <code>ContentNavigationMode</code> parameter.
+			The default mode is set to <code>Pagination</code>.
+		</p>
+
+
+		<DocHeading Title="Infinite scroll (virtualized)" Id="InfiniteScroll" Level="3" />
+		<p>
+			Enable <strong>continuous scrolling</strong> in <code>HxGrid</code> by setting <code>ContentNavigationMode="GridContentNavigationMode.InfiniteScroll"</code>.
+			This feature leverages the capabilities, requirements, and limitations of Blazor's
+			<a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/virtualization?wt.mc_id=DT-MVP-36834">Virtualize</a> component.
+		</p>
+		<DocAlert Type="DocAlertType.Warning">
+			It's important to specify the <code>ItemRowHeight</code> for effective virtualization. By default, it is 41 pixels, aligning with the standard table row height in Bootstrap.
+		</DocAlert>
+		<Demo Type="typeof(HxGrid_Demo_InfiniteScroll)" />
+
+
+		<DocHeading Title="Load more button" Id="LoadMore" Level="3" />
+		<p>With <code>ContentNavigationMode.LoadMore</code> you can allow loading additional items with a <i>Load more</i> button.</p>
+		<Demo Type="typeof(HxGrid_Demo_LoadMore)" />
+		<p>
+			Customize the button text using <code>LoadMoreButtonText</code>, or design your own navigation interface with <code>LoadMoreTemplate</code>.
+			This customization can be achieved using the <code>context.LoadMoreAsync()</code> method.
+		</p>
+		<p>
+			It's also possible to combine the <i>Load More</i> button with pagination by opting for <code>GridContentNavigationMode.PaginationAndLoadMore</code>.
+		</p>
+
+		<DocHeading Title="Custom paging" Level="3" />
+		<p>
+			<code>HxGrid</code> uses the <code>HxPager</code> to display pagination, unless a value for the <code>PaginationTemplate</code> parameter is provided.
+			Context information is provided via <a href="@NavigationManager.ToAbsoluteUri($"./types/{nameof(GridPaginationTemplateContext)}")"><code>GridPaginationTemplateContext</code></a> to your pager.
+		</p>
+		<Demo Type="typeof(HxGrid_Demo_CustomPagination)" />
+
+		<DocHeading Title="Context menu" Id="context-menu" />
+		<p>
+			Add a context menu to the grid using <code>@(nameof(HxContextMenuGridColumn<TItem>))</code>.
+			For additional information, refer to <a href="components/@(nameof(HxContextMenu))">@(nameof(HxContextMenu))</a>.
+		</p>
+		<Demo Type="typeof(HxGrid_Demo_ContextMenu)" />
+
+
+		<DocHeading Title="Multiselect with checkboxes" Id="multiselect" />
+		<p>
+			Enable multi-row selection for users by setting <code>@nameof(HxGrid<object>.MultiSelectionEnabled)="true"</code>.
+			The selected items can be accessed via the <code>@nameof(HxGrid<object>.SelectedDataItems)</code> parameter, which is bindable.
+		</p>
+		<Demo Type="typeof(HxGrid_Demo_Multiselect)" />
+		<p>
+			Note that <code>@nameof(HxGrid<TItem>.SelectedDataItems)</code> only includes visible items.
+			By default, items are removed from the selection when they become unrendered (for example, after paging, sorting, etc.).
+			However, this behavior can be modified by setting the <code>@nameof(HxGrid<TItem>.PreserveSelection)="true"</code> parameter,
+			which ensures that selected items are preserved across data operations such as paging, sorting, or manual invocation of <code>RefreshDataAsync</code>.
+		</p>
+		<p>
+			The "select/deselect all" checkbox operates only on visible records and adds/removes them from the selection accordingly.
+			Non-visible items (e.g., from other pages) are not affected by this operation.
+		</p>
+		<DocAlert Type="DocAlertType.Warning">
+			If you encounter a situation where selected items are present in <code>@nameof(HxGrid<TItem>.SelectedDataItems)</code>,
+			but their corresponding checkboxes are not marked in the UI after paging or other navigation,
+			it is likely due to issues with data identity.
+		</DocAlert>
+		<p>
+			By default, equality in C# for <code>class</code> instances relies on reference equality,
+			meaning two instances with identical data are not considered equal unless they are the same reference.
+		</p>
+		To address this:
+		<ul>
+			<li>Override <code>Equals</code>: Implement a custom equality logic for your data items (e.g., compare by <code>Id</code> or other key properties).</li>
+			<li>Use a <code>record</code>: For data items defined as <code>record</code>, equality is automatically generated by the compiler based on all properties.</li>
+		</ul>
+		<p>
+			This issue typically arises when the grid's <code>DataProvider</code> returns new instances for the same rows during subsequent requests.
+			Since these new instances are not equal to the previously selected ones (based on reference equality),
+			their corresponding rows are not marked as selected in the UI.
+		</p>
+		<DocAlert>
+			When using <code>@nameof(GridContentNavigationMode.InfiniteScroll)</code>, <code>@nameof(HxGrid<TItem>.PreserveSelection)="true"</code> is required for multi-row selection to work.
+			Attempting to use <code>@nameof(HxGrid<TItem>.MultiSelectionEnabled)="true"</code> without enabling <code>PreserveSelection</code> will result in an exception. Additionally, the "select/deselect all" checkbox is intentionally hidden in this mode,
+			as the grid does not have access to all data to reliably perform this operation. For more details, see ticket <a href="https://github.com/havit/Havit.Blazor/issues/950">#950</a>.
+		</DocAlert>
+
+
+		<DocHeading Title="Inline-editing" />
+		<p>
+			To enable inline editing, utilize the <code>SelectedDataItem</code> and create an editing interface for such items.
+			This can be accomplished by defining the content of the <code>ItemTemplate</code> within <code>HxGridColumn</code>.
+			Use the <code>SelectedDataItemChanged</code> event to save modifications,
+			or alternatively, include a column with command buttons for this purpose.
+		</p>
+		<Demo Type="typeof(HxGrid_Demo_InlineEditing)" />
+
+
+		<DocHeading Title="Filtering from headers" Id="header-filtering" />
+		<p>
+			Set up filtering for individual columns by integrating your filtering interface
+			into the <code>HeaderTemplate</code> of each column.
+			Then, apply the filters to the data within the <code>DataProvider</code>
+			based on the input values.
+		</p>
+		<DocAlert Type="DocAlertType.Warning">
+			If this filtering approach is used together with sorting on individual columns, it may cause problems with some accessibility tools (e.g., screen reader and focus management).
+			To avoid this problem you may use <a href="/components/HxListLayout"><code>@nameof(HxListLayout)</code></a> as replacement or place the filter fields outside of the grid.
+			For more information reference the WCAG 2.1 4.1.2 and EN 301 549 9.4.1.2.
+		</DocAlert>
+
+		<Demo Type="typeof(HxGrid_Demo_HeaderFiltering)" />
+
+
+		<DocHeading Title="Hoverable rows" Id="hover" />
+		<p>
+			The <code>@nameof(HxGrid<TItem>.Hover)</code> parameter allows you to enable or disable the hover state on rows.
+			By default, the hover state is active when the grid's item selection feature is enabled, unless otherwise specified.
+		</p>
+		<Demo Type="typeof(HxGrid_Demo_Hover)" />
+
+
+		<DocHeading Title="Striped rows" Id="striped" />
+		<p>
+			Use the <code>@nameof(HxGrid<TItem>.Striped)</code> parameter to add zebra-striping, creating alternating row colors.
+		</p>
+		<Demo Type="typeof(HxGrid_Demo_Striped)" />
+
+
+		<DocHeading Title="Persisting the state" Id="persisting-state" />
+		<p>
+			Persist the grid state by loading or saving the <code>@nameof(HxGrid<TItem>.CurrentUserState)</code> parameter.
+			The <code>@nameof(GridUserState)</code> class is designed to be serializable.
+		</p>
+		<DocAlert Type="DocAlertType.Info">
+			To maintain sorting persistence, ensure to set the <code>@nameof(HxGridColumn<TItem>)&lt;TItem&gt;.@nameof(HxGridColumn<TItem>.Id)</code> properties.
+		</DocAlert>
+		<Demo Type="typeof(HxGrid_Demo_StatePersisting)" />
+
+	</MainContent>
+
+	<CssVariables>
+		<ApiDocCssVariable Name="--hx-grid-button-hover-background" Default="var(--bs-secondary-bg)">
+			Grid button background color on hover.
+		</ApiDocCssVariable>
+		<ApiDocCssVariable Name="--hx-grid-button-border-radius" Default=".25rem">
+			Grid button border radius.
+		</ApiDocCssVariable>
+		<ApiDocCssVariable Name="--hx-grid-sorted-icon-color" Default="var(--bs-primary)">
+			Color of the sorted icon.
+		</ApiDocCssVariable>
+		<ApiDocCssVariable Name="--hx-grid-progress-indicator-color" Default="var(--bs-primary)">
+			Color of the grid progress indicator line.
+		</ApiDocCssVariable>
+	</CssVariables>
+</ApiDoc>
+
+<ApiDoc Type="typeof(HxGridColumn<TItem>)" />
+<ApiDoc Type="typeof(HxContextMenuGridColumn<TItem>)" />
+<ApiDoc Type="typeof(HxGridEmptyDataTemplateDefaultContent)" />

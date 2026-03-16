@@ -1,0 +1,36 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">height: 400px; width: 300px; position: relative; background-color: var(--mud-palette-background)</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">height: 56px; width: 56px; border-radius: 50%; cursor: grab; z-index: 9999; position: absolute; left: <span class="atSign">&#64;</span>(_leftPadding)px; top: <span class="atSign">&#64;</span>(_topPadding)px;</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwipeArea</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">mud-height-full mud-width-full mud-theme-primary d-flex align-center justify-center rounded-circle</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnSwipeMove</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">HandleSwipeMove</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="atSign">&#64;</span>if (_showIcon)
+            {
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudIcon</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">width: 80%; height: 80%;</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Custom.Brands.MudBlazor</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+            }
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwipeArea</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">double</span> _leftPadding;
+    <span class="keyword">private</span> <span class="keyword">double</span> _topPadding;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _showIcon = <span class="keyword">false</span>;
+
+    <span class="keyword">private</span> <span class="keyword">void</span> HandleSwipeMove(MultiDimensionSwipeEventArgs e)
+    {
+        _leftPadding -= e.SwipeDeltas[<span class="number">0</span>] ?? <span class="number">0</span>;
+        _topPadding -= e.SwipeDeltas[<span class="number">1</span>] ?? <span class="number">0</span>;
+
+        <span class="keyword">if</span> (_leftPadding &lt; <span class="number">0</span> || _topPadding &lt; <span class="number">0</span> || _leftPadding &gt; <span class="number">244</span> || _topPadding &gt; <span class="number">344</span>)
+        {
+            _showIcon = <span class="keyword">true</span>;
+        }
+        <span class="keyword">else</span>
+        {
+            _showIcon = <span class="keyword">false</span>;
+        }
+    }
+}
+</pre></div>
+</div>

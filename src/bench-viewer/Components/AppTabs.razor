@@ -1,0 +1,41 @@
+@namespace BenchViewer.Components
+
+<ul class="nav nav-tabs">
+    @foreach (var app in Apps)
+    {
+        <li class="nav-item">
+            <a class="nav-link @(app == ActiveApp ? "active" : "")"
+               href=""
+               @onclick="() => OnTabClick(app)"
+               @onclick:preventDefault>
+                @FormatAppName(app)
+            </a>
+        </li>
+    }
+</ul>
+
+@code {
+    [Parameter] public List<string> Apps { get; set; } = new();
+    [Parameter] public string ActiveApp { get; set; } = "";
+    [Parameter] public EventCallback<string> OnAppChanged { get; set; }
+
+    private async Task OnTabClick(string app)
+    {
+        if (app != ActiveApp)
+        {
+            await OnAppChanged.InvokeAsync(app);
+        }
+    }
+
+    private static string FormatAppName(string app) => app switch
+    {
+        "empty-browser" => "Empty Template",
+        "empty-blazor" => "Empty Blazor",
+        "blazing-pizza" => "Blazing Pizza",
+        "micro-benchmarks" => "Micro Benchmarks",
+        "havit-bootstrap" => "Havit Bootstrap",
+        "mud-blazor" => "Mud Blazor",
+        "bench-viewer" => "Bench Viewer",
+        _ => app
+    };
+}

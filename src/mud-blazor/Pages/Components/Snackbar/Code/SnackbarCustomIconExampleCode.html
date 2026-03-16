@@ -1,0 +1,16 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>inject ISnackbar Snackbar
+
+&lt;MudButton Variant=&quot;Variant.Filled&quot; Color=&quot;Color.Primary&quot; <span class="atSign">&#64;</span>onclick=&quot;<span class="atSign">&#64;</span>(() =&gt;
+    Snackbar.Add(&quot;Snackbar with a custom icon, color and size.&quot;, Severity.Info, config =&gt;
+        {
+            config.Icon = Icons.Custom.Brands.GitHub;
+            config.IconColor = Color.Warning;
+            config.IconSize = Size.Large;
+        }))&quot;&gt;
+
+    Open snackbar
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+</div>

@@ -1,0 +1,218 @@
+﻿@using Havit.Blazor.Components.Web.ECharts
+@inject NavigationManager NavigationManager
+
+<HxSidebar @bind-Collapsed="_isDesktopCollapsed" CssClass="sticky-md-top doc-sidebar">
+    <HeaderTemplate>
+        <div class="d-flex flex-grow-1 d-lg-none">
+            <HxSidebarBrand BrandName="HAVIT Blazor">
+                <LogoTemplate>
+                    <img src="/logo.png" width="32" height="30" class="mx-1" />
+                </LogoTemplate>
+            </HxSidebarBrand>
+            <div class="@CssClassHelper.Combine("ms-auto d-flex gap-2", _isDesktopCollapsed ? "d-md-none" : null)">
+                <Havit.Blazor.Documentation.Shared.Components.DocColorMode.DocColorModeSwitcher />
+                <GitHubLink />
+            </div>
+        </div>
+    </HeaderTemplate>
+    <ItemsTemplate>
+		<HxSidebarItem Text="Getting started" Href="getting-started" Icon="BootstrapIcon.RocketTakeoff" TooltipText="Getting started" />
+		<HxSidebarItem Href="https://blocks.havit.blazor.eu" CssClass="w-100" Icon="BootstrapIcon.Boxes" TooltipText="Blocks" >
+            <ContentTemplate>
+				<div class="flex-grow-1">Blocks 🔥</div>
+                    <HxBadge CssClass="ms-auto fw-normal rounded-pill" style="background-image: linear-gradient(to right, transparent, rgba(17, 71, 136))" Color="ThemeColor.Primary">Premium</HxBadge>
+            </ContentTemplate>
+        </HxSidebarItem>
+
+        <HxSidebarItem Text="Forms" Icon="BootstrapIcon.InputCursorText">
+            <HxSidebarItem Href="/components/Inputs" Text="Inputs" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxAutosuggest)}").ToString()" Text="@nameof(HxAutosuggest)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxCalendar)}").ToString()" Text="@nameof(HxCalendar)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputDate)}").ToString()" Text="@(nameof(HxInputDate))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputDateRange)}").ToString()" Text="@(nameof(HxInputDateRange))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputFile)}").ToString()" Text="@(nameof(HxInputFile) + "[Core]")" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputFileDropZone)}").ToString()" Text="@(nameof(HxInputFileDropZone))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputNumber)}").ToString()" Text="@(nameof(HxInputNumber))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputPercent<object>)}").ToString()" Text="@(nameof(HxInputPercent<object>))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputRange)}").ToString()" Text="@(nameof(HxInputRange))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputTags)}").ToString()" Text="@(nameof(HxInputTags))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputText)}").ToString()" Text="@(nameof(HxInputText))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputTextArea)}").ToString()" Text="@(nameof(HxInputTextArea))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxCheckbox)}").ToString()" Text="@(nameof(HxCheckbox))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxCheckboxList<object, object>)}").ToString()" Text="@(nameof(HxCheckboxList<object, object>))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxSwitch)}").ToString()" Text="@(nameof(HxSwitch))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxFormState)}").ToString()" Text="@nameof(HxFormState)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxFormValue)}").ToString()" Text="@(nameof(HxFormValue))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxRadioButtonList<object, object>)}").ToString()" Text="@nameof(HxRadioButtonList<object, object>)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxSelect)}").ToString()" Text="@nameof(HxSelect)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxMultiSelect<object, object>)}").ToString()" Text="@nameof(HxMultiSelect<object, object>)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxSearchBox<object>)}").ToString()" Text="@nameof(HxSearchBox<object>)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxFilterForm<object>)}").ToString()" Text="@(nameof(HxFilterForm<object>))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxValidationMessage<object>)}").ToString()" Text="@(nameof(HxValidationMessage<object>))" />
+        </HxSidebarItem>
+
+        <HxSidebarItem Text="Buttons & Indicators" Icon="BootstrapIcon.PlayBtn">
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxButton)}").ToString()" Text="@(nameof(HxButton) + " & " + nameof(HxSubmit))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxButtonGroup)}").ToString()" Text="@nameof(HxButtonGroup)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxButtonToolbar)}#{nameof(HxButtonToolbar)}").ToString()" Text="@nameof(HxButtonToolbar)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxCloseButton)}").ToString()" Text="@nameof(HxCloseButton)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxSubmit)}#{nameof(HxSubmit)}").ToString()" Text="@nameof(HxSubmit)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxDropdownButtonGroup)}").ToString()" Text="@nameof(HxDropdownButtonGroup)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxBadge)}").ToString()" Text="@nameof(HxBadge)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxChipList)}").ToString()" Text="@(nameof(HxChipList))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxSpinner)}").ToString()" Text="@nameof(HxSpinner)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxProgress)}").ToString()" Text="@nameof(HxProgress)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxProgressIndicator)}").ToString()" Text="@nameof(HxProgressIndicator)" />
+        </HxSidebarItem>
+
+        <HxSidebarItem Text="Data & Grid" Icon="BootstrapIcon.Table">
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxGrid<object>)}").ToString()" Text="@nameof(HxGrid<object>)" />
+			<HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxEChart)}").ToString()" Text="@nameof(HxEChart)" />
+			<HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxContextMenu)}").ToString()" Text="@(nameof(HxContextMenu))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxPager)}").ToString()" Text="@(nameof(HxPager))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxRepeater<object>)}").ToString()" Text="@nameof(HxRepeater<object>)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxTreeView<object>)}").ToString()" Text="@(nameof(HxTreeView<object>))" />
+        </HxSidebarItem>
+
+        <HxSidebarItem Text="Layout & Typography" Icon="BootstrapIcon.LayoutWtf">
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxAccordion)}").ToString()" Text="@nameof(HxAccordion)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxAlert)}").ToString()" Text="@nameof(HxAlert)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxCard)}").ToString()" Text="@nameof(HxCard)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxCarousel)}").ToString()" Text="@nameof(HxCarousel)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxCollapse)}").ToString()" Text="@(nameof(HxCollapse))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxDropdown)}").ToString()" Text="@nameof(HxDropdown)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxIcon)}").ToString()" Text="@nameof(HxIcon)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxPlaceholder)}").ToString()" Text="@nameof(HxPlaceholder)" />
+			<HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxTooltip)}").ToString()" Text="@nameof(HxTooltip)" />
+			<HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxPopover)}").ToString()" Text="@nameof(HxPopover)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxTabPanel)}").ToString()" Text="@nameof(HxTabPanel)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxListGroup)}").ToString()" Text="@(nameof(HxListGroup))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxListLayout)}").ToString()" Text="@(nameof(HxListLayout))" />
+        </HxSidebarItem>
+
+        <HxSidebarItem Text="Navigation" Icon="BootstrapIcon.SignpostSplit">
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxNavbar)}").ToString()" Text="@nameof(HxNavbar)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxSidebar)}").ToString()" Text="@nameof(HxSidebar)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxNav)}").ToString()" Text="@nameof(HxNav)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxNavLink)}#{nameof(HxNavLink)}").ToString()" Text="@nameof(HxNavLink)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxScrollspy)}").ToString()" Text="@nameof(HxScrollspy)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxBreadcrumb)}").ToString()" Text="@nameof(HxBreadcrumb)" />
+			@{
+#pragma warning disable 0618 // Obsolete
+			}
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxAnchorFragmentNavigation)}").ToString()" Text="@nameof(HxAnchorFragmentNavigation)" />
+			@{
+#pragma warning restore 0618
+			}
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxRedirectTo)}").ToString()" Text="@nameof(HxRedirectTo)" />
+        </HxSidebarItem>
+
+        <HxSidebarItem Text="Modals & Interactions" Icon="BootstrapIcon.ChatText">
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxMessageBox)}").ToString()" Text="@nameof(HxMessageBox)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxModal)}").ToString()" Text="@nameof(HxModal)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxDialogBase<object>)}").ToString()" Text="@nameof(HxDialogBase<object>)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxOffcanvas)}").ToString()" Text="@nameof(HxOffcanvas)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxMessenger)}").ToString()" Text="@nameof(HxMessenger)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxToast)}").ToString()" Text="@nameof(HxToast)" />
+        </HxSidebarItem>
+
+		<HxSidebarItem Text="Smart (AI)" Icon="BootstrapIcon.Stars">
+			<HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxSmartPasteButton)}").ToString()" Text="@nameof(HxSmartPasteButton)" />
+			<HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxSmartTextArea)}").ToString()" Text="@nameof(HxSmartTextArea)" />
+			<HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxSmartComboBox)}").ToString()" Text="@nameof(HxSmartComboBox)" />
+		</HxSidebarItem>
+
+        <HxSidebarItem Text="Special" Icon="BootstrapIcon.BagHeart">
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxDynamicElement)}").ToString()" Text="@nameof(HxDynamicElement)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(GoogleTagManager.HxGoogleTagManager)}").ToString()" Text="@nameof(GoogleTagManager.HxGoogleTagManager)" />
+        </HxSidebarItem>
+
+        <HxSidebarItem Text="Concepts" Icon="BootstrapIcon.Lightbulb">
+            <HxSidebarItem Href="/concepts/defaults-and-settings" Text="Defaults & Settings" />
+            <HxSidebarItem Href="/concepts/Debouncer" Text="Debouncer" />
+            <HxSidebarItem Href="/concepts/dark-color-mode-theme" Text="Dark color mode" />
+        </HxSidebarItem>
+
+        <HxSidebarItem Text="All Components" Icon="BootstrapIcon.SortAlphaDown" ExpandOnMatch="false" HighlightOnActiveChild="false">
+			@{
+#pragma warning disable 0618  // Obsolete
+			}
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxAnchorFragmentNavigation)}").ToString()" Text="@nameof(HxAnchorFragmentNavigation)" />
+			@{
+#pragma warning restore 0618
+			}
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxAccordion)}").ToString()" Text="@nameof(HxAccordion)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxAlert)}").ToString()" Text="@nameof(HxAlert)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxAutosuggest)}").ToString()" Text="@nameof(HxAutosuggest)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxBadge)}").ToString()" Text="@nameof(HxBadge)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxBreadcrumb)}").ToString()" Text="@nameof(HxBreadcrumb)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxButton)}").ToString()" Text="@nameof(HxButton)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxButtonGroup)}").ToString()" Text="@nameof(HxButtonGroup)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxButtonToolbar)}#{nameof(HxButtonToolbar)}").ToString()" Text="@nameof(HxButtonToolbar)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxCalendar)}").ToString()" Text="@nameof(HxCalendar)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxCard)}").ToString()" Text="@nameof(HxCard)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxCarousel)}").ToString()" Text="@nameof(HxCarousel)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxCheckbox)}").ToString()" Text="@(nameof(HxCheckbox))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxCheckboxList<object, object>)}").ToString()" Text="@(nameof(HxCheckboxList<object, object>))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxChipList)}").ToString()" Text="@(nameof(HxChipList))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxCloseButton)}").ToString()" Text="@nameof(HxCloseButton)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxCollapse)}").ToString()" Text="@(nameof(HxCollapse))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxContextMenu)}").ToString()" Text="@(nameof(HxContextMenu))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxDialogBase<object>)}").ToString()" Text="@nameof(HxDialogBase<object>)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxDropdown)}").ToString()" Text="@nameof(HxDropdown)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxDropdownButtonGroup)}").ToString()" Text="@nameof(HxDropdownButtonGroup)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxDynamicElement)}").ToString()" Text="@nameof(HxDynamicElement)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxFilterForm<object>)}").ToString()" Text="@(nameof(HxFilterForm<object>))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxFormState)}").ToString()" Text="@nameof(HxFormState)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxFormValue)}").ToString()" Text="@(nameof(HxFormValue))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(GoogleTagManager.HxGoogleTagManager)}").ToString()" Text="@nameof(GoogleTagManager.HxGoogleTagManager)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxGrid<object>)}").ToString()" Text="@nameof(HxGrid<object>)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxIcon)}").ToString()" Text="@nameof(HxIcon)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputDate)}").ToString()" Text="@nameof(HxInputDate)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputDateRange)}").ToString()" Text="@nameof(HxInputDateRange)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputFile)}").ToString()" Text="@(nameof(HxInputFile) + "[Core]")" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputFileDropZone)}").ToString()" Text="@(nameof(HxInputFileDropZone))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputNumber)}").ToString()" Text="@(nameof(HxInputNumber))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputPercent<object>)}").ToString()" Text="@(nameof(HxInputPercent<object>))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputRange)}").ToString()" Text="@(nameof(HxInputRange))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputTags)}").ToString()" Text="@(nameof(HxInputTags))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputText)}").ToString()" Text="@(nameof(HxInputText))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxInputTextArea)}").ToString()" Text="@(nameof(HxInputTextArea))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxListGroup)}").ToString()" Text="@(nameof(HxListGroup))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxListLayout)}").ToString()" Text="@(nameof(HxListLayout))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxMessageBox)}").ToString()" Text="@nameof(HxMessageBox)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxMessenger)}").ToString()" Text="@nameof(HxMessenger)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxModal)}").ToString()" Text="@nameof(HxModal)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxMultiSelect<object, object>)}").ToString()" Text="@nameof(HxMultiSelect<object, object>)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxNav)}").ToString()" Text="@nameof(HxNav)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxNavbar)}").ToString()" Text="@nameof(HxNavbar)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxNavLink)}#{nameof(HxNavLink)}").ToString()" Text="@nameof(HxNavLink)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxOffcanvas)}").ToString()" Text="@nameof(HxOffcanvas)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxPager)}").ToString()" Text="@(nameof(HxPager))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxPlaceholder)}").ToString()" Text="@nameof(HxPlaceholder)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxPopover)}").ToString()" Text="@nameof(HxPopover)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxProgress)}").ToString()" Text="@nameof(HxProgress)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxProgressIndicator)}").ToString()" Text="@nameof(HxProgressIndicator)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxRadioButtonList<object, object>)}").ToString()" Text="@nameof(HxRadioButtonList<object, object>)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxRedirectTo)}").ToString()" Text="@nameof(HxRedirectTo)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxRepeater<object>)}").ToString()" Text="@nameof(HxRepeater<object>)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxScrollspy)}").ToString()" Text="@nameof(HxScrollspy)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxSearchBox<object>)}").ToString()" Text="@nameof(HxSearchBox<object>)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxSelect)}").ToString()" Text="@nameof(HxSelect)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxSidebar)}").ToString()" Text="@nameof(HxSidebar)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxSpinner)}").ToString()" Text="@nameof(HxSpinner)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxSubmit)}#{nameof(HxSubmit)}").ToString()" Text="@nameof(HxSubmit)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxSwitch)}").ToString()" Text="@(nameof(HxSwitch))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxTabPanel)}").ToString()" Text="@nameof(HxTabPanel)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxToast)}").ToString()" Text="@nameof(HxToast)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxTooltip)}").ToString()" Text="@nameof(HxTooltip)" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxTreeView<object>)}").ToString()" Text="@(nameof(HxTreeView<object>))" />
+            <HxSidebarItem Href="@NavigationManager.ToAbsoluteUri($"./components/{nameof(HxValidationMessage<object>)}").ToString()" Text="@(nameof(HxValidationMessage<object>))" />
+        </HxSidebarItem>
+    </ItemsTemplate>
+</HxSidebar>
+
+@code
+{
+    private bool _isDesktopCollapsed;
+}

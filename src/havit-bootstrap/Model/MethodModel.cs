@@ -1,0 +1,46 @@
+using System.Reflection;
+using System.Text;
+using Havit.Blazor.Documentation.Services;
+
+namespace Havit.Blazor.Documentation.Model;
+
+public class MethodModel : MemberModel
+{
+	public MethodInfo MethodInfo { get; set; }
+
+	public MethodComments Comments
+	{
+		set
+		{
+			MethodComments inputComments = value;
+			try { inputComments.Summary = TryFormatComment(inputComments.Summary); } catch { }
+			_comments = inputComments;
+		}
+		get
+		{
+			return _comments;
+		}
+	}
+	private MethodComments _comments;
+
+	public string GetParameters()
+	{
+		StringBuilder concatenatedParameters = new StringBuilder();
+		var parameters = MethodInfo.GetParameters();
+
+		if (parameters is null || parameters.Length == 0)
+		{
+			return "()";
+		}
+
+		concatenatedParameters.Append("(");
+		foreach (var parameter in parameters)
+		{
+			concatenatedParameters.Append($"{ApiRenderer.FormatType(parameter.ParameterType)} {parameter.Name}, ");
+		}
+		concatenatedParameters.Remove(concatenatedParameters.Length - 2, 2);
+		concatenatedParameters.Append(")");
+
+		return concatenatedParameters.ToString();
+	}
+}

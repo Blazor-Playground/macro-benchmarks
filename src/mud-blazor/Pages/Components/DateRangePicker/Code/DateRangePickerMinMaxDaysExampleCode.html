@@ -1,0 +1,17 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDateRangePicker</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-DateRange</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_dateRange</span><span class="quot">&quot;</span> <span class="htmlAttributeName">MinDays</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_minDays</span><span class="quot">&quot;</span> <span class="htmlAttributeName">MaxDays</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_maxDays</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Margin</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Margin</span><span class="enumValue">.Dense</span><span class="quot">&quot;</span> <span class="htmlAttributeName">HelperText</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>HelperText</span><span class="quot">&quot;</span>
+    <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Outlined</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Range</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> DateRange _dateRange { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+    <span class="keyword">private</span> <span class="keyword">int</span> _minDays = <span class="number">3</span>;
+    <span class="keyword">private</span> <span class="keyword">int</span> _maxDays = <span class="number">7</span>;
+
+    <span class="keyword">private</span> <span class="keyword">string</span> HelperText =&gt; $<span class="string">&quot;Range: {_minDays} to {_maxDays} days&quot;</span>;
+}
+</pre></div>
+</div>

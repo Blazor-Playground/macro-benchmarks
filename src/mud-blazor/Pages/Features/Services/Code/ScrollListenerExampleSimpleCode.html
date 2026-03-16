@@ -1,0 +1,68 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>inject IScrollListenerFactory ScrollListenerFactory
+<span class="atSign">&#64;</span>implements IAsyncDisposable
+
+<span class="htmlComment">&lt;!--suppress CssUnresolvedCustomProperty --&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">style</span><span class="htmlTagDelimiter">&gt;</span>
+    #scroll_simple {
+        height: 5rem;
+        width: 100%;
+        overflow-y: scroll;
+        scrollbar-width: auto;
+        border-radius: var(--mud-default-borderradius);
+    }
+
+    .scroll_stack {
+        color: var(--mud-palette-text-primary);
+        background-color: var(--mud-palette-background);
+    }
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">style</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>You can attach the scroll listener to any element:<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>Rectangle scroll position: <span class="atSign">&#64;</span>_scrollTopRectangle px<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">id</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">scroll_simple</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span> <span class="htmlAttributeName">Spacing</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">scroll_stack px-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="atSign">&#64;</span>for (var i = 0; i &lt; 100; i++)
+                {
+                    var iLocal = i;
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>Line <span class="atSign">&#64;</span>iLocal<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+                }
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">double</span> _scrollTopRectangle;
+    <span class="keyword">private</span> IScrollListener _scrollListener;
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">async</span> Task OnAfterRenderAsync(<span class="keyword">bool</span> firstRender)
+    {
+        <span class="keyword">await</span> <span class="keyword">base</span>.OnAfterRenderAsync(firstRender);
+        <span class="keyword">if</span> (firstRender)
+        {
+            _scrollListener = ScrollListenerFactory.Create(<span class="string">&quot;#scroll_simple&quot;</span>);
+            _scrollListener.OnScroll += ScrollListenerOnScroll;
+        }
+    }
+
+    <span class="keyword">public</span> <span class="keyword">async</span> ValueTask DisposeAsync()
+    {
+        <span class="keyword">if</span> (_scrollListener != <span class="keyword">null</span>)
+        {
+            <span class="keyword">await</span> _scrollListener.DisposeAsync();
+        }
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> ScrollListenerOnScroll(<span class="keyword">object</span> sender, ScrollEventArgs e)
+    {
+        _scrollTopRectangle = e.ScrollTop;
+        StateHasChanged();
+    }
+}
+</pre></div>
+</div>

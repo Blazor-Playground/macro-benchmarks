@@ -1,0 +1,40 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudProgressLinear</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>Value</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">my-7</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudProgressLinear</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Secondary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>Value</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">my-7</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">bool</span> _disposed;
+
+    <span class="keyword">public</span> <span class="keyword">int</span> Value { <span class="keyword">get</span>; <span class="keyword">set</span>; }
+
+    <span class="keyword">public</span> <span class="keyword">async</span> Task SimulateProgressAsync()
+    {
+        Value = <span class="number">0</span>;
+        <span class="keyword">do</span>
+        {
+            <span class="keyword">if</span> (_disposed)
+            {
+                <span class="keyword">return</span>;
+            }
+
+            Value += <span class="number">4</span>;
+            StateHasChanged();
+            <span class="keyword">await</span> Task.Delay(<span class="number">500</span>);
+
+        } <span class="keyword">while</span> (Value &lt; <span class="number">100</span>);
+
+        <span class="keyword">await</span> SimulateProgressAsync();
+    }
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">async</span> Task OnInitializedAsync()
+    {
+        <span class="keyword">await</span> <span class="keyword">base</span>.OnInitializedAsync();
+        <span class="keyword">await</span> SimulateProgressAsync();
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> Dispose() =&gt; _disposed = <span class="keyword">true</span>;
+}
+</pre></div>
+</div>

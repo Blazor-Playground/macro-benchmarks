@@ -1,0 +1,103 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudLayout</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudAppBar</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Fixed</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">false</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Contextual</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudIconButton</span> <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Menu</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Inherit</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Edge</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Edge</span><span class="enumValue">.Start</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSpacer</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudIconButton</span> <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(Deleted &gt; 0 ? <span class="atSign">&#64;</span>Icons.Material.Filled.FlipToBack : <span class="atSign">&#64;</span>Icons.Material.Filled.FlipToFront)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Inherit</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ResetItems</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudAppBar</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudMainContent</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pt-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex flex-wrap gap-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="atSign">&#64;</span>for (int i = 0; i &lt; _images.Length; i++)
+            {
+                var index = i;
+
+                if (_images[index].IsDeleted) continue;
+
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Width</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">200px</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Height</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">150px</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Elevation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">0</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex align-center justify-center</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">background-color:inherit</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudImage</span> <span class="htmlAttributeName">Src</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>($&quot;images/{_images[index].Title}.jpg&quot;)</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Width</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_images[index].Width</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Height</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_images[index].Height</span><span class="quot">&quot;</span>
+                              <span class="htmlAttributeName">Elevation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">25</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ObjectFit</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">ObjectFit</span><span class="enumValue">.Cover</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">rounded-lg</span><span class="quot">&quot;</span>
+                              <span class="htmlAttributeName"><span class="atSign">&#64;</span>onclick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; SelectImage(index))</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">/&gt;</span>
+                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+            }
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudMainContent</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudLayout</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudContextualActionBar</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Tertiary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Fixed</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">false</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Visible</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ShowContext</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudIconButton</span> <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Close</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Inherit</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Edge</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Edge</span><span class="enumValue">.Start</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">UnselectItems</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pl-8</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.h6</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>($&quot;{_selected.Count} Selected&quot;) <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSpacer</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudIconButton</span> <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Share</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Inherit</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudIconButton</span> <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Edit</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Inherit</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudIconButton</span> <span class="htmlAttributeName">Icon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Icons.Material.Filled.Delete</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Inherit</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">DeleteSelectedItems</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudContextualActionBar</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">bool</span> ShowContext =&gt; _selected.Count &gt; <span class="number">0</span>;
+
+    <span class="keyword">private</span> <span class="keyword">readonly</span> HashSet&lt;Image&gt; _selected = [];
+    <span class="keyword">private</span> <span class="keyword">int</span> Deleted =&gt; _images.Count(x =&gt; x.IsDeleted);
+    <span class="keyword">private</span> <span class="keyword">readonly</span> Image[] _images = [ <span class="keyword">new</span> Image(<span class="string">&quot;sweden&quot;</span>), <span class="keyword">new</span> Image(<span class="string">&quot;iceland&quot;</span>), <span class="keyword">new</span> Image(<span class="string">&quot;castle&quot;</span>), <span class="keyword">new</span> Image(<span class="string">&quot;tractor&quot;</span>), <span class="keyword">new</span> Image(<span class="string">&quot;door&quot;</span>), <span class="keyword">new</span> Image(<span class="string">&quot;pilars&quot;</span>) ];
+
+    <span class="keyword">private</span> <span class="keyword">void</span> SelectImage(<span class="keyword">int</span> index)
+    {
+        <span class="keyword">var</span> image = _images[index];
+        <span class="keyword">bool</span> isSelected = _selected.Contains(image);
+
+        _images[index] = image with { Width = isSelected ? <span class="number">200</span> : <span class="number">100</span>, Height = isSelected ? <span class="number">150</span> : <span class="number">75</span> };
+
+        <span class="keyword">if</span> (isSelected)
+            _selected.Remove(image);
+        <span class="keyword">else</span>
+            _selected.Add(_images[index]);
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> UnselectItems()
+    {
+        <span class="keyword">for</span> (<span class="keyword">int</span> index = <span class="number">0</span>; index &lt; _images.Length; index++)
+        {
+            <span class="keyword">var</span> image = _images[index];
+
+            <span class="keyword">if</span> (_selected.Contains(image))
+            {
+                _images[index] = image with { Width = <span class="number">200</span>, Height = <span class="number">150</span> };
+            }
+        }
+
+        _selected.Clear();
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> DeleteSelectedItems()
+    {
+        <span class="keyword">for</span> (<span class="keyword">int</span> index = <span class="number">0</span>; index &lt; _images.Length; index++)
+        {
+            <span class="keyword">var</span> image = _images[index];
+
+            <span class="keyword">if</span>(_selected.Contains(image))
+            {
+                _images[index] = image with { Width = <span class="number">200</span>, Height = <span class="number">150</span>, IsDeleted = <span class="keyword">true</span> };
+            }
+        }
+
+        _selected.Clear();
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> ResetItems()
+    {
+        <span class="keyword">for</span> (<span class="keyword">int</span> index = <span class="number">0</span>; index &lt; _images.Length; index++)
+        {
+            <span class="keyword">var</span> image = _images[index];
+
+            <span class="keyword">if</span> (image.IsDeleted)
+            {
+                _images[index] = image with { IsDeleted = <span class="keyword">false</span> };
+            }
+        }
+    }
+
+    <span class="keyword">private</span> record Image(<span class="keyword">string</span> Title, <span class="keyword">int</span> Width = <span class="number">200</span>, <span class="keyword">int</span> Height = <span class="number">150</span>, <span class="keyword">bool</span> IsDeleted = <span class="keyword">false</span>);
+}
+</pre></div>
+</div>

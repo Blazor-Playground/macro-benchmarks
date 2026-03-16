@@ -1,0 +1,106 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDynamicTabs</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_dynamicTabs</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-ActivePanelIndex</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_userIndex</span><span class="quot">&quot;</span>
+                <span class="htmlAttributeName">AddTab</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>OnAddTab</span><span class="quot">&quot;</span> <span class="htmlAttributeName">CloseTab</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>OnCloseTab</span><span class="quot">&quot;</span>
+                <span class="htmlAttributeName">AddIconToolTip</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Click to add a new tab</span><span class="quot">&quot;</span> <span class="htmlAttributeName">CloseIconToolTip</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Close tab. All data will be lost</span><span class="quot">&quot;</span>
+                <span class="htmlAttributeName">TabPanelsClass</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">px-4 py-6</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Elevation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">4</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Rounded</span> <span class="htmlAttributeName">ApplyEffectsToContainer</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="atSign">&#64;</span>foreach (var tab in _userTabs)
+    {
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudTabPanel</span> <span class="htmlAttributeName">ID</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>tab.Id</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Text</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>tab.Label</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ShowCloseIcon</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>tab.ShowCloseIcon</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>tab.Content<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudTabPanel</span><span class="htmlTagDelimiter">&gt;</span>
+    }
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDynamicTabs</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>RestoreUserTabs</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Restore<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">bool</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_showCloseIcon</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ValueChanged</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>ToggleShowCloseIcon</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>($&quot;Show {TabWithToggableCloseIcon}&#39;s close icon&quot;)<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSwitch</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>UserTabs index: <span class="atSign">&#64;</span>_userIndex / DynamicTabs ActivePanelIndex: <span class="atSign">&#64;</span>_userIndex<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>UserTabs.Count: <span class="atSign">&#64;</span>_userTabs.Count / DynamicTabs Panels.Count: <span class="atSign">&#64;</span>_dynamicTabs.Panels.Count<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">int</span> _userIndex;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _showCloseIcon;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _stateHasChanged;
+    <span class="keyword">private</span> List&lt;TabView&gt; _userTabs = [];
+    <span class="keyword">private</span> MudDynamicTabs _dynamicTabs = <span class="keyword">null</span>!;
+    <span class="keyword">private</span> <span class="keyword">const</span> <span class="keyword">string</span> TabWithToggableCloseIcon = <span class="string">&quot;Tab B&quot;</span>;
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> OnInitialized()
+    {
+        <span class="keyword">base</span>.OnInitialized();
+        RestoreUserTabs();
+    }
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> OnAfterRender(<span class="keyword">bool</span> firstRender)
+    {
+        <span class="keyword">base</span>.OnAfterRender(firstRender);
+        <span class="keyword">if</span> (_stateHasChanged)
+        {
+            _stateHasChanged = <span class="keyword">false</span>;
+            StateHasChanged();
+        }
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> RestoreUserTabs()
+    {
+        _userTabs =
+        [
+            <span class="keyword">new</span> TabView { Id = Guid.NewGuid(), Label = <span class="string">&quot;Tab A&quot;</span>, Content = <span class="string">&quot;Tab A content&quot;</span> },
+            <span class="keyword">new</span> TabView { Id = Guid.NewGuid(), Label = TabWithToggableCloseIcon, Content = $<span class="string">&quot;{TabWithToggableCloseIcon} content&quot;</span>, ShowCloseIcon = _showCloseIcon },
+            <span class="keyword">new</span> TabView { Id = Guid.NewGuid(), Label = <span class="string">&quot;Tab C&quot;</span>, Content = <span class="string">&quot;Tab C content&quot;</span> }
+        ];
+        <span class="comment">// Start on 2nd tab: &quot;Tab B&quot;</span>
+        _userIndex = <span class="number">1</span>;
+        _stateHasChanged = <span class="keyword">true</span>;
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> ToggleShowCloseIcon(<span class="keyword">bool</span> show)
+    {
+        <span class="keyword">var</span> tab = _userTabs.FirstOrDefault(t =&gt; t.Label == TabWithToggableCloseIcon);
+        <span class="keyword">if</span> (tab <span class="keyword">is</span> not <span class="keyword">null</span>)
+        {
+            tab.ShowCloseIcon = show;
+        }
+
+        _showCloseIcon = show;
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> AddTab(Guid id)
+    {
+        _userTabs.Add(<span class="keyword">new</span> TabView { Id = id, Label = <span class="string">&quot;dynamic tab&quot;</span>, Content = $<span class="string">&quot;Tab ID: {id}&quot;</span> });
+        <span class="comment">// Automatically switch to the new tab.</span>
+        _userIndex = _userTabs.Count - <span class="number">1</span>;
+        _stateHasChanged = <span class="keyword">true</span>;
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> OnAddTab() =&gt; AddTab(Guid.NewGuid());
+
+    <span class="keyword">private</span> <span class="keyword">void</span> RemoveTab(Guid id)
+    {
+        <span class="keyword">var</span> tabView = _userTabs.FirstOrDefault(t =&gt; t.Id == id);
+        <span class="keyword">if</span> (tabView <span class="keyword">is</span> not <span class="keyword">null</span>)
+        {
+            _userTabs.Remove(tabView);
+            _stateHasChanged = <span class="keyword">true</span>;
+        }
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> OnCloseTab(MudTabPanel panel)
+    {
+        <span class="keyword">if</span> (panel.ID <span class="keyword">is</span> Guid id)
+        {
+            RemoveTab(id);
+        }
+    }
+
+    <span class="keyword">public</span> <span class="keyword">class</span> TabView
+    {
+        <span class="keyword">public</span> required Guid Id { <span class="keyword">get</span>; init; }
+
+        <span class="keyword">public</span> required <span class="keyword">string</span> Label { <span class="keyword">get</span>; init; }
+
+        <span class="keyword">public</span> required <span class="keyword">string</span> Content { <span class="keyword">get</span>; init; }
+
+        <span class="keyword">public</span> <span class="keyword">bool</span> ShowCloseIcon { <span class="keyword">get</span>; <span class="keyword">set</span>; } = <span class="keyword">true</span>;
+    }
+}
+</pre></div>
+</div>

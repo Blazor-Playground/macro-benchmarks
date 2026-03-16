@@ -1,0 +1,28 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+	<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>ToggleOpen</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+		<span class="atSign">&#64;</span>(_open? &quot;Close&quot; : &quot;Open&quot;)
+	<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+	<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPopover</span> <span class="htmlAttributeName">Open</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_open</span><span class="quot">&quot;</span> <span class="htmlAttributeName">AnchorOrigin</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Origin</span><span class="enumValue">.BottomCenter</span><span class="quot">&quot;</span> <span class="htmlAttributeName">TransformOrigin</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Origin</span><span class="enumValue">.TopCenter</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+		<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName">class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">d-flex flex-column pa-1</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+			<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PopoverDynamicContentExample</span> <span class="htmlTagDelimiter">/&gt;</span>
+		<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+	<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPopover</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+
+	<span class="keyword">public</span> <span class="keyword">bool</span> _open;
+
+	<span class="keyword">public</span> <span class="keyword">void</span> ToggleOpen()
+	{
+		<span class="keyword">if</span> (_open)
+			_open = <span class="keyword">false</span>;
+		<span class="keyword">else</span>
+			_open = <span class="keyword">true</span>;
+	}
+}
+</pre></div>
+</div>

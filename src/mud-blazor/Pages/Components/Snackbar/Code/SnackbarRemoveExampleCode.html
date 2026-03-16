@@ -1,0 +1,30 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>inject ISnackbar Snackbar
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>Show</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    Open snackbar
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Error</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>Hide</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    Hide snackbar
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> Snackbar _snackbar;
+
+    <span class="keyword">void</span> Show()
+    {
+        _snackbar = Snackbar.Add(<span class="string">&quot;Now click hide snackbar&quot;</span>, Severity.Normal, config =&gt;
+        {
+            config.VisibleStateDuration = <span class="keyword">int</span>.MaxValue;
+        });
+    }
+
+	<span class="keyword">void</span> Hide() {
+        <span class="keyword">if</span> (_snackbar <span class="keyword">is</span> <span class="keyword">null</span>) <span class="keyword">return</span>;
+        Snackbar.Remove(_snackbar);
+	}
+}
+</pre></div>
+</div>

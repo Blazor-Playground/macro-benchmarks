@@ -1,0 +1,52 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using System.Net.Http.Json
+<span class="atSign">&#64;</span>using System.Collections.ObjectModel
+<span class="atSign">&#64;</span>inject HttpClient httpClient
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>AddItem</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Color.Success</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">add-item-btn</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Add Item<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>RemoveItem</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Color.Error</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">remove-item-btn</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Remove Item<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudDataGrid</span> <span class="htmlAttributeName">Items</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_items</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Name</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Age</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Status</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.Salary</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.HireDate</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Hired</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">PropertyColumn</span> <span class="htmlAttributeName">Property</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">x =&gt; x.IsManager</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Title</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Manager</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">Columns</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudDataGrid</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+
+    <span class="keyword">public</span> record Model (<span class="keyword">string</span> Name, <span class="keyword">int</span> Age, Severity Status, <span class="keyword">decimal</span> Salary, DateTime HireDate, <span class="keyword">bool</span> IsManager);
+
+    ObservableCollection&lt;Model&gt; _items = <span class="keyword">new</span> ObservableCollection&lt;Model&gt;()
+    {
+        <span class="keyword">new</span> Model(<span class="string">&quot;Sam&quot;</span>, <span class="number">56</span>, Severity.Normal, 50_000.00M, <span class="keyword">new</span> DateTime(<span class="number">2005</span>, <span class="number">3</span>, <span class="number">5</span>), <span class="keyword">false</span>), 
+        <span class="keyword">new</span> Model(<span class="string">&quot;Alicia&quot;</span>, <span class="number">54</span>, Severity.Info, 75_000.00M, <span class="keyword">new</span> DateTime(<span class="number">2010</span>, <span class="number">1</span>, <span class="number">17</span>), <span class="keyword">false</span>), 
+        <span class="keyword">new</span> Model(<span class="string">&quot;Ira&quot;</span>, <span class="number">27</span>, Severity.Success, 102_000.00M, <span class="keyword">new</span> DateTime(<span class="number">2017</span>, <span class="number">6</span>, <span class="number">15</span>), <span class="keyword">true</span>),
+        <span class="keyword">new</span> Model(<span class="string">&quot;John&quot;</span>, <span class="number">32</span>, Severity.Warning, 132_000.00M, <span class="keyword">new</span> DateTime(<span class="number">2021</span>, <span class="number">12</span>, <span class="number">23</span>), <span class="keyword">true</span>),
+        <span class="keyword">new</span> Model(<span class="string">&quot;Fred&quot;</span>, <span class="number">65</span>, Severity.Warning, 87_000.00M, <span class="keyword">new</span> DateTime(<span class="number">2003</span>, <span class="number">7</span>, <span class="number">3</span>), <span class="keyword">false</span>), 
+        <span class="keyword">new</span> Model(<span class="string">&quot;Tabitha&quot;</span>, <span class="number">33</span>, Severity.Info, 157_000.00M, <span class="keyword">new</span> DateTime(<span class="number">2015</span>, <span class="number">2</span>, <span class="number">12</span>), <span class="keyword">true</span>), 
+        <span class="keyword">new</span> Model(<span class="string">&quot;Hunter&quot;</span>, <span class="number">22</span>, Severity.Success, 43_000.00M, <span class="keyword">new</span> DateTime(<span class="number">2017</span>, <span class="number">9</span>, <span class="number">20</span>), <span class="keyword">false</span>),
+        <span class="keyword">new</span> Model(<span class="string">&quot;Esme&quot;</span>, <span class="number">55</span>, Severity.Warning, 149_000.00M, <span class="keyword">new</span> DateTime(<span class="number">2017</span>, <span class="number">8</span>, <span class="number">1</span>), <span class="keyword">true</span>)
+    };
+
+    <span class="keyword">void</span> AddItem()
+    {
+        _items.Add(<span class="keyword">new</span> Model(<span class="string">&quot;New Person&quot;</span>, <span class="number">44</span>, Severity.Warning, 85_000.00M, <span class="keyword">new</span> DateTime(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>), <span class="keyword">true</span>));
+    }
+
+    <span class="keyword">void</span> RemoveItem()
+    {
+        <span class="keyword">if</span> (_items.Any())
+        {
+            _items.RemoveAt(<span class="number">0</span>);
+        }
+    }
+}
+</pre></div>
+</div>

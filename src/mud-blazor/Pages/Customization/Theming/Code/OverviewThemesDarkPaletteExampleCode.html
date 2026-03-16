@@ -1,0 +1,34 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using MudBlazor.Utilities;
+
+<span class="atSign">&#64;</span>{var DarkModeClass = new CssBuilder()
+.AddClass(&quot;mud-dark-palette-example-dark-mode&quot;, _darkMode)
+.AddClass(&quot;mud-dark-palette-example-light-mode&quot;, !_darkMode)
+.Build();}
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Width</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">500px</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>DarkModeClass</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSwitch</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ma-4</span><span class="quot">&quot;</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">bool</span><span class="quot">&quot;</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_darkMode</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Label</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">Toggle Light/Dark Mode</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">/&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">ma-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>This is an example text!<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code{
+    <span class="keyword">private</span> <span class="keyword">bool</span> _darkMode;
+}
+&lt;style&gt;
+    .mud-dark-palette-example-dark-mode.mud-paper {
+        background-color: #32333d;
+    }
+    .mud-dark-palette-example-dark-mode .mud-typography {
+        color: #ffffffb2;
+    }
+    
+    .mud-dark-palette-example-light-mode.mud-paper {
+            background-color: #ffffffff;
+    }
+    .mud-dark-palette-example-light-mode .mud-typography {
+            color: #424242ff;
+    }
+&lt;/style&gt;
+</pre></div>
+</div>

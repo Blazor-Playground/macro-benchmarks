@@ -1,0 +1,21 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using MudBlazor.Utilities
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudColorPicker</span> <span class="htmlAttributeName">PickerVariant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">PickerVariant</span><span class="enumValue">.Static</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ColorPickerView</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">ColorPickerView</span><span class="enumValue">.Palette</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Palette</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_customPalette</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">readonly</span> IEnumerable&lt;MudColor&gt; _customPalette = <span class="keyword">new</span> List&lt;IEnumerable&lt;MudColor&gt;&gt;
+    {
+        MudColor.GenerateTintShadePalette(<span class="string">&quot;#DC143C&quot;</span>, shadeStep: <span class="number">0</span>),
+        MudColor.GenerateTintShadePalette(<span class="string">&quot;#1E90FF&quot;</span>, tintStep: <span class="number">0</span>),
+        <span class="comment">// Reverse for illustrative purposes</span>
+        MudColor.GenerateTintShadePalette(<span class="string">&quot;#8E24AA&quot;</span>).Reverse(),
+        MudColor.GenerateAnalogousPalette(<span class="string">&quot;#40E0D0&quot;</span>),
+        MudColor.GenerateGradientPalette(<span class="string">&quot;#1E90FF&quot;</span>, <span class="string">&quot;#32CD32&quot;</span>),
+        MudColor.GenerateMultiGradientPalette([<span class="string">&quot;#FF4500&quot;</span>, <span class="string">&quot;#32CD32&quot;</span>, <span class="string">&quot;#8A2BE2&quot;</span>])
+    }.SelectMany(palette =&gt; palette);
+}
+</pre></div>
+</div>

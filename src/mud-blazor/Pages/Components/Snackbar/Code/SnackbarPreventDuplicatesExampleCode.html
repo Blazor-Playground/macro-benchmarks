@@ -1,0 +1,27 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>inject ISnackbar SnackbarService
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>OnClick</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Prevent duplicate snackbars<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">void</span> OnClick()
+    {
+        <span class="comment">// We&#39;ll set all three of these snackbars to prevent duplicates and give them</span>
+        <span class="comment">// all the same key (&quot;mudblazor&quot;)</span>
+        <span class="keyword">var</span> config = (SnackbarOptions options) =&gt;
+        {
+            options.DuplicatesBehavior = SnackbarDuplicatesBehavior.Prevent;
+        };
+
+        <span class="comment">// Then we try to show all three in quick succession, but only the first pops!</span>
+        SnackbarService.Add(<span class="string">&quot;This is the only snackbar that will be shown&quot;</span>, configure: config, key: <span class="string">&quot;mudblazor&quot;</span>);
+        SnackbarService.Add(<span class="atSign">&#64;</span>&lt;span&gt;This one has the same key&lt;/span&gt;, configure: config, key: <span class="string">&quot;mudblazor&quot;</span>);
+        SnackbarService.Add&lt;MudChip&lt;T&gt;&gt;(<span class="keyword">new</span> Dictionary&lt;<span class="keyword">string</span>, <span class="keyword">object</span>&gt;() {
+            { <span class="string">&quot;Text&quot;</span>, <span class="string">&quot;This one also has the same key&quot;</span> }
+        }, configure: config, key: <span class="string">&quot;mudblazor&quot;</span>);
+    }
+}
+</pre></div>
+</div>

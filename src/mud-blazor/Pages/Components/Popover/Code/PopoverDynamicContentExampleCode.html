@@ -1,0 +1,20 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>AddMoreContent</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Error</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Add another line<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="atSign">&#64;</span>foreach (var item in _content)
+{
+	<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-2</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Align</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Align</span><span class="enumValue">.Center</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="atSign">&#64;</span>item<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+}
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+
+	<span class="keyword">private</span> List&lt;String&gt; _content = <span class="keyword">new</span>();
+
+	<span class="keyword">public</span> <span class="keyword">void</span> AddMoreContent()
+	{
+		_content.Add(<span class="string">&quot;line of text&quot;</span>);
+	}
+}
+</pre></div>
+</div>

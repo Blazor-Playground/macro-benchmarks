@@ -1,0 +1,32 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChart</span> <span class="htmlAttributeName">ChartType</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">ChartType</span><span class="enumValue">.Line</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartSeries</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_series</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartLabels</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_xAxisLabels</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartOptions</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_options</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Width</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">100%</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Height</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">350px</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span><span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChart</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudSlider</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Value</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_options.YAxisTicks</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Min</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">10</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Max</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">400</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Step</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">10</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Info</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>Y-Axis Ticks: <span class="atSign">&#64;</span>_options.YAxisTicks.ToString()<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudSlider</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">readonly</span> List&lt;ChartSeries&lt;<span class="keyword">double</span>&gt;&gt; _series = <span class="keyword">new</span>();
+    <span class="keyword">private</span> <span class="keyword">readonly</span> LineChartOptions _options = <span class="keyword">new</span>();
+    <span class="keyword">private</span> <span class="keyword">readonly</span> <span class="keyword">string</span>[] _xAxisLabels = { <span class="string">&quot;1986-04-20&quot;</span>, <span class="string">&quot;1986-04-21&quot;</span>, <span class="string">&quot;1986-04-22&quot;</span>, <span class="string">&quot;1986-04-23&quot;</span>, <span class="string">&quot;1986-04-24&quot;</span>, <span class="string">&quot;1986-04-25&quot;</span>, <span class="string">&quot;1986-04-26&quot;</span> };
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">void</span> OnInitialized()
+    {
+        <span class="keyword">double</span>[] data1 = { <span class="number">65</span>, <span class="number">68</span>, <span class="number">70</span>, <span class="number">74</span>, <span class="number">74</span>, <span class="number">72</span>, <span class="number">74</span> };
+        <span class="keyword">double</span>[] data2 = { <span class="number">88</span>, <span class="number">90</span>, <span class="number">91</span>, <span class="number">92</span>, <span class="number">91</span>, <span class="number">90</span>, <span class="number">90</span> };
+        <span class="keyword">double</span>[] data3 = { <span class="number">89</span>, <span class="number">91</span>, <span class="number">92</span>, <span class="number">92</span>, <span class="number">92</span>, <span class="number">92</span>, <span class="number">91</span> };
+        <span class="keyword">double</span>[] data4 = { <span class="number">85</span>, <span class="number">86</span>, <span class="number">90</span>, <span class="number">90</span>, <span class="number">92</span>, <span class="number">99</span>, <span class="number">0</span> };
+
+        _series.Add(<span class="keyword">new</span> ChartSeries&lt;<span class="keyword">double</span>&gt; { Name = <span class="string">&quot;Chernobyl-1&quot;</span>, Data = data1 });
+        _series.Add(<span class="keyword">new</span> ChartSeries&lt;<span class="keyword">double</span>&gt; { Name = <span class="string">&quot;Chernobyl-2&quot;</span>, Data = data2 });
+        _series.Add(<span class="keyword">new</span> ChartSeries&lt;<span class="keyword">double</span>&gt; { Name = <span class="string">&quot;Chernobyl-3&quot;</span>, Data = data3 });
+        _series.Add(<span class="keyword">new</span> ChartSeries&lt;<span class="keyword">double</span>&gt; { Name = <span class="string">&quot;Chernobyl-4&quot;</span>, Data = data4 });
+
+        _options.YAxisTicks = <span class="number">50</span>;
+
+        StateHasChanged();
+    }
+}
+</pre></div>
+</div>

@@ -1,0 +1,25 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>inject IDialogService DialogService
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">OpenDialogAsync</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    Scrollable Dialog
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> <span class="keyword">bool</span> _licenseAccepted = <span class="keyword">false</span>;
+
+    <span class="keyword">private</span> <span class="keyword">async</span> Task OpenDialogAsync()
+    {
+        <span class="keyword">var</span> dialog = <span class="keyword">await</span> DialogService.ShowAsync&lt;DialogScrollableExample_Dialog&gt;(<span class="string">&quot;MudBlazor License&quot;</span>);
+        <span class="keyword">var</span> result = <span class="keyword">await</span> dialog.Result;
+
+        <span class="keyword">if</span> (!result.Canceled)
+        {
+            _licenseAccepted = (<span class="keyword">bool</span>)(result.Data ?? <span class="keyword">false</span>);
+        }
+    }
+}
+</pre></div>
+</div>

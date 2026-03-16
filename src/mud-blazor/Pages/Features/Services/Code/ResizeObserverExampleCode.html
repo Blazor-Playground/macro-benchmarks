@@ -1,0 +1,44 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using MudBlazor.Interop
+<span class="atSign">&#64;</span>using MudBlazor.Services
+<span class="atSign">&#64;</span>inject IResizeObserverFactory ResizeObserverFactory
+<span class="atSign">&#64;</span>implements IAsyncDisposable
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">div</span> <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_divReference</span><span class="quot">&quot;</span> <span class="htmlAttributeName">style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">width: 100%; text-align: center;</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>This div is <span class="atSign">&#64;</span>_divWidth px wide<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">div</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code {
+    <span class="keyword">private</span> IResizeObserver _resizeObserver;
+    <span class="keyword">private</span> ElementReference _divReference;
+    <span class="keyword">private</span> <span class="keyword">double</span> _divWidth;
+
+    <span class="keyword">protected</span> <span class="keyword">override</span> <span class="keyword">async</span> Task OnAfterRenderAsync(<span class="keyword">bool</span> firstRender)
+    {
+        <span class="keyword">await</span> <span class="keyword">base</span>.OnAfterRenderAsync(firstRender);
+
+        <span class="keyword">if</span> (firstRender)
+        {
+            _resizeObserver = ResizeObserverFactory.Create();
+            _resizeObserver.OnResized += ResizeObserverOnResized;
+            <span class="keyword">await</span> _resizeObserver.Observe(_divReference);
+            _divWidth = _resizeObserver.GetWidth(_divReference);
+            StateHasChanged();
+        }
+    }
+
+    <span class="keyword">public</span> <span class="keyword">async</span> ValueTask DisposeAsync()
+    {
+        <span class="keyword">if</span> (_resizeObserver != <span class="keyword">null</span>) <span class="keyword">await</span> _resizeObserver.DisposeAsync();
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> ResizeObserverOnResized(IDictionary&lt;ElementReference, BoundingClientRect&gt; changes)
+    {
+        _divWidth = changes.Values.LastOrDefault()?.Width ?? <span class="number">0</span>;
+        StateHasChanged();
+    }
+}
+</pre></div>
+</div>

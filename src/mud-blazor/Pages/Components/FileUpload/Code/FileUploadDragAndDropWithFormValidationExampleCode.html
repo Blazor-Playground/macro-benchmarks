@@ -1,0 +1,141 @@
+<div class="mud-codeblock">
+<div class="html"><pre>
+<span class="atSign">&#64;</span>using FluentValidation
+
+<span class="atSign">&#64;</span>inject ISnackbar Snackbar
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">style</span><span class="htmlTagDelimiter">&gt;</span>
+    .file-upload-input {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 10;
+        opacity: 0;
+    }
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">style</span><span class="htmlTagDelimiter">&gt;</span>
+
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudStack</span> <span class="htmlAttributeName">Style</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">width: 100%</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudForm</span> <span class="htmlAttributeName">Model</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_model</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-IsValid</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_isValid</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-IsTouched</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_isTouched</span><span class="quot">&quot;</span>
+             <span class="htmlAttributeName">Validation</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_validationRules.ValidateValue</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span> <span class="htmlAttributeName">xs</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">12</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudFileUpload</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">IReadOnlyList&lt;IBrowserFile&gt;</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName"><span class="atSign">&#64;</span>ref</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_fileUpload</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName"><span class="atSign">&#64;</span>bind-Files</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">_model.Files</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">For</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(() =&gt; _model.Files)</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">AppendMultipleFiles</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">Hidden</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>false</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">InputClass</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">file-upload-input</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">ErrorText</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>string.Empty</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">tabindex</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">-1</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName"><span class="atSign">&#64;</span>ondrop</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>ClearDragClass</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName"><span class="atSign">&#64;</span>ondragenter</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>SetDragClass</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName"><span class="atSign">&#64;</span>ondragleave</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>ClearDragClass</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName"><span class="atSign">&#64;</span>ondragend</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>ClearDragClass</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">CustomContent</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Height</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">300px</span><span class="quot">&quot;</span>
+                              <span class="htmlAttributeName">Outlined</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="keyword">true</span><span class="quot">&quot;</span>
+                              <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_dragClass</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Typo</span><span class="enumValue">.h6</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                            Drag files here or click to browse
+                        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+                        <span class="atSign">&#64;</span>foreach (var file in _model.Files?.Select(file =&gt; file.Name) ?? Enumerable.Empty<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">string</span><span class="htmlTagDelimiter">&gt;</span>())
+                        {
+                            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChip</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">string</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Dark</span><span class="quot">&quot;</span> <span class="htmlAttributeName">Text</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>file</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+                        }
+                    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">CustomContent</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudFileUpload</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudToolBar</span> <span class="htmlAttributeName">Gutters</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>false</span><span class="quot">&quot;</span>
+                        <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">relative d-flex justify-end gap-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>OpenFilePickerAsync</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                    Browse files
+                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Primary</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">Disabled</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(!_isValid || !_isTouched || _model.Files is null || !_model.Files.Any())</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>Upload</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                    Upload
+                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudButton</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Error</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">Disabled</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>(_model.Files is null || !_model.Files.Any())</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">OnClick</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="sharpVariable"><span class="atSign">&#64;</span>ClearAsync</span><span class="quot">&quot;</span>
+                           <span class="htmlAttributeName">Variant</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Variant</span><span class="enumValue">.Filled</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                    Clear
+                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudButton</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudToolBar</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+            <span class="atSign">&#64;</span>if (_fileUpload?.ValidationErrors.Any() ?? false)
+            {
+                <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudText</span> <span class="htmlAttributeName">Color</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">Color</span><span class="enumValue">.Error</span><span class="quot">&quot;</span>
+                         <span class="htmlAttributeName">Typo</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>Typo.caption</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+                    <span class="atSign">&#64;</span>_fileUpload?.ValidationErrors[0]
+                <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudText</span><span class="htmlTagDelimiter">&gt;</span>
+            }
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+        <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudItem</span> <span class="htmlAttributeName">xs</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">12</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
+            IsValid: <span class="atSign">&#64;</span>_isValid - IsTouched: <span class="atSign">&#64;</span>_isTouched
+        <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudItem</span><span class="htmlTagDelimiter">&gt;</span>
+    <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudForm</span><span class="htmlTagDelimiter">&gt;</span>
+<span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudStack</span><span class="htmlTagDelimiter">&gt;</span>
+</pre></div>
+<div class="csharp"><pre>
+<span class="atSign">&#64;</span>code
+{
+#nullable enable
+    <span class="keyword">private</span> <span class="keyword">const</span> <span class="keyword">string</span> FileContent = <span class="string">&quot;this is content&quot;</span>;
+    <span class="keyword">private</span> <span class="keyword">const</span> <span class="keyword">string</span> DefaultDragClass = <span class="string">&quot;relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full&quot;</span>;
+    <span class="keyword">private</span> <span class="keyword">readonly</span> Model _model = <span class="keyword">new</span>();
+    <span class="keyword">private</span> <span class="keyword">readonly</span> ModelFluentValidator _validationRules = <span class="keyword">new</span>();
+    <span class="keyword">private</span> <span class="keyword">string</span> _dragClass = DefaultDragClass;
+    <span class="keyword">private</span> MudFileUpload&lt;IReadOnlyList&lt;IBrowserFile&gt;&gt;? _fileUpload;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _isValid;
+    <span class="keyword">private</span> <span class="keyword">bool</span> _isTouched;
+
+    <span class="keyword">private</span> <span class="keyword">void</span> Upload()
+    {
+        <span class="comment">// Upload the files here</span>
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+        Snackbar.Add(<span class="string">&quot;Upload started (demo).&quot;</span>);
+    }
+
+    <span class="keyword">private</span> <span class="keyword">void</span> SetDragClass()
+        =&gt; _dragClass = $<span class="string">&quot;{DefaultDragClass} mud-border-primary&quot;</span>;
+
+    <span class="keyword">private</span> <span class="keyword">void</span> ClearDragClass()
+        =&gt; _dragClass = DefaultDragClass;
+
+    <span class="keyword">private</span> Task OpenFilePickerAsync()
+        =&gt; _fileUpload?.OpenFilePickerAsync() ?? Task.CompletedTask;
+
+    <span class="keyword">private</span> Task ClearAsync()
+        =&gt; _fileUpload?.ClearAsync() ?? Task.CompletedTask;
+
+    <span class="keyword">public</span> <span class="keyword">class</span> Model
+    {
+        <span class="keyword">public</span> IReadOnlyList&lt;IBrowserFile&gt;? Files { <span class="keyword">get</span>; <span class="keyword">set</span>; } = <span class="keyword">new</span> List&lt;IBrowserFile&gt;();
+    }
+
+    <span class="keyword">public</span> <span class="keyword">class</span> ModelFluentValidator : AbstractValidator&lt;Model&gt;
+    {
+        <span class="keyword">public</span> ModelFluentValidator()
+        {
+            RuleFor(x =&gt; x.Files)
+                .NotEmpty()
+                .WithMessage(<span class="string">&quot;Please select at least one file.&quot;</span>);
+        }
+
+        <span class="keyword">public</span> Func&lt;<span class="keyword">object</span>, <span class="keyword">string</span>, Task&lt;IEnumerable&lt;<span class="keyword">string</span>&gt;&gt;&gt; ValidateValue =&gt; <span class="keyword">async</span> (model, propertyName) =&gt;
+        {
+            <span class="keyword">var</span> result = <span class="keyword">await</span> ValidateAsync(ValidationContext&lt;Model&gt;.CreateWithOptions((Model)model, x =&gt; x.IncludeProperties(propertyName)));
+            <span class="keyword">return</span> result.IsValid ? Array.Empty&lt;<span class="keyword">string</span>&gt;() : result.Errors.Select(e =&gt; e.ErrorMessage);
+        };
+    }
+}
+</pre></div>
+</div>

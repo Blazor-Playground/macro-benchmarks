@@ -6,6 +6,9 @@ on:
     paths: ['docker/**', 'bench/**']
   workflow_dispatch:
 
+env:
+  REGISTRY_IMAGE: ghcr.io/blazor-playground/macro-benchmarks
+
 jobs:
   build-image:
     runs-on: ubuntu-latest
@@ -29,9 +32,9 @@ jobs:
           file: docker/Dockerfile
           target: browser-bench-build
           push: true
-          tags: ghcr.io/${{ github.repository }}/browser-bench-build:latest
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/browser-bench-build:cache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/browser-bench-build:cache,mode=max
+          tags: ${{ env.REGISTRY_IMAGE }}/browser-bench-build:latest
+          cache-from: type=registry,ref=${{ env.REGISTRY_IMAGE }}/browser-bench-build:cache
+          cache-to: type=registry,ref=${{ env.REGISTRY_IMAGE }}/browser-bench-build:cache,mode=max
 
   measure-image:
     runs-on: ubuntu-latest
@@ -55,6 +58,6 @@ jobs:
           file: docker/Dockerfile
           target: browser-bench-measure
           push: true
-          tags: ghcr.io/${{ github.repository }}/browser-bench-measure:latest
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/browser-bench-measure:cache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/browser-bench-measure:cache,mode=max
+          tags: ${{ env.REGISTRY_IMAGE }}/browser-bench-measure:latest
+          cache-from: type=registry,ref=${{ env.REGISTRY_IMAGE }}/browser-bench-measure:cache
+          cache-to: type=registry,ref=${{ env.REGISTRY_IMAGE }}/browser-bench-measure:cache,mode=max

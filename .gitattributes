@@ -1,0 +1,9 @@
+apps/** binary
+_framework/** binary
+css/** binary
+lib/** binary
+data/** text
+*.mjs binary
+*.js binary
+*.png binary
+*.css binary

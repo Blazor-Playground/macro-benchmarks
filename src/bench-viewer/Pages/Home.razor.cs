@@ -25,23 +25,11 @@ public partial class Home : IAsyncDisposable
     private SelectedPointInfo? selectedPoint;
     private SelectedPointInfo? previousPoint;
 
-    // Time range state
-    private string currentTimeRange = "all";
-
     // Show GA release data
     private bool showReleases = true;
 
     // Show daily release data
     private bool showDailyReleases = true;
-
-    private static readonly Dictionary<string, string> TimeRanges = new()
-    {
-        ["7d"] = "7d",
-        ["30d"] = "30d",
-        ["90d"] = "90d",
-        ["1y"] = "1y",
-        ["all"] = "All",
-    };
 
     // Metrics to skip for micro-benchmarks (build/disk not meaningful)
     private static readonly HashSet<string> MicrobenchSkipMetrics = new()
@@ -173,20 +161,6 @@ public partial class Home : IAsyncDisposable
         var filtersJson = SerializeFilters();
         ChartInterop.ApplyFilters(filtersJson);
         await Task.CompletedTask;
-    }
-
-    private async Task HandleTimeRangeChanged(string range)
-    {
-        if (range == currentTimeRange) return;
-        currentTimeRange = range;
-        ChartInterop.SetTimeRange(range);
-        ChartInterop.DestroyAllCharts();
-        selectedPoint = null;
-        previousPoint = null;
-        StateHasChanged();
-
-        await Task.Yield();
-        await LoadChartsForCurrentApp();
     }
 
     private async Task HandleShowReleasesChanged(bool show)

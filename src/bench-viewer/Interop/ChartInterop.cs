@@ -28,14 +28,8 @@ public static partial class ChartInterop
     [JSImport("destroyChart", ModuleName)]
     internal static partial void DestroyChart(string canvasId);
 
-    [JSImport("setTimeRange", ModuleName)]
-    internal static partial void SetTimeRange(string range);
-
     [JSImport("registerPointClickCallback", ModuleName)]
     internal static partial void RegisterPointClickCallback([JSMarshalAs<JSType.Function<JSType.String>>] Action<string> callback);
-
-    [JSImport("getTimeRange", ModuleName)]
-    internal static partial string GetTimeRange();
 
     [JSImport("setShowReleases", ModuleName)]
     internal static partial void SetShowReleases(bool show);

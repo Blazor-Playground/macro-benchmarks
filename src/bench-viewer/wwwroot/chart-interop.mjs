@@ -8,7 +8,6 @@ const cache = {};          // { url: json }
 const charts = {};         // { canvasId: Chart instance }
 let viewIndex = null;
 let loadGeneration = 0;    // guards against concurrent loadAppCharts calls
-let currentTimeRange = 'all';   // '7d', '30d', '90d', '1y', 'all'
 let pointClickCallback = null;  // C# callback for chart point clicks
 let showReleases = true;         // Whether to show GA release data on charts
 let showDailyReleases = true;    // Whether to show daily week data on charts
@@ -189,14 +188,6 @@ function makeDatasetStyle(rowKey) {
     };
 }
 
-function getTimeRangeCutoff() {
-    if (currentTimeRange === 'all') return null;
-    const now = new Date();
-    const days = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 }[currentTimeRange];
-    if (!days) return null;
-    return new Date(now.getTime() - days * 86400000);
-}
-
 // ── Chart.js Plugin: Frozen release zone separator ───────────────────────────
 
 const frozenZonePlugin = {
@@ -283,18 +274,12 @@ export async function loadAppCharts(app, filtersJson) {
         return numA - numB;
     });
 
-    const cutoff = getTimeRangeCutoff();
     let weekBuckets = [];
     if (showDailyReleases) {
-        const filteredWeeks = viewIndex.weeks.filter(week => {
-            if (!cutoff) return true;
-            const weekDate = new Date(week);
-            return weekDate >= new Date(cutoff.getTime() - 7 * 86400000);
-        });
         const weekHeaders = await Promise.all(
-            filteredWeeks.map(week => fetchJson(`${dataBaseUrl}/${week}/header.json`))
+            viewIndex.weeks.map(week => fetchJson(`${dataBaseUrl}/${week}/header.json`))
         );
-        weekBuckets = filteredWeeks
+        weekBuckets = viewIndex.weeks
             .map((week, i) => ({ path: week, header: weekHeaders[i], type: 'week', label: week }))
             .filter(b => b.header != null);
     }
@@ -456,11 +441,6 @@ export async function loadAppCharts(app, filtersJson) {
                 const points = values.map((v, i) => {
                     const col = bucket.header.columns[i];
                     if (!col) return null;
-                    // Filter by time range cutoff
-                    if (cutoff && col.runtimeCommitDateTime) {
-                        const ptDate = new Date(col.runtimeCommitDateTime);
-                        if (ptDate < cutoff) return null;
-                    }
                     return {
                         x: col.runtimeCommitDateTime,
                         y: v,
@@ -827,14 +807,6 @@ export function destroyChart(canvasId) {
 }
 
 /**
- * Set the time range filter for week data.
- * @param {string} range - '7d', '30d', '90d', '1y', or 'all'
- */
-export function setTimeRange(range) {
-    currentTimeRange = range;
-}
-
-/**
  * Register a callback from C# to be invoked when a chart point is clicked.
  * @param {Function} callback - C# [JSExport] callback: (detailJson: string) => void
  */
@@ -846,10 +818,6 @@ export function registerPointClickCallback(callback) {
  * Get the currently active time range.
  * @returns {string}
  */
-export function getTimeRange() {
-    return currentTimeRange;
-}
-
 /**
  * Set whether to show GA release data on charts.
  * @param {boolean} show

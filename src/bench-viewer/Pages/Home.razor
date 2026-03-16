@@ -15,7 +15,9 @@
             <div class="sidebar-title">.NET WASM Macro Benchmarks</div>
             @if (viewIndex != null)
             {
-                <div class="text-muted" style="font-size: 0.65rem;">Updated @FormatDate(viewIndex.LastUpdated)</div>
+                <div class="text-muted" style="font-size: 0.65rem;">
+                    <a href="https://github.com/Blazor-Playground/macro-benchmarks/actions/workflows/benchmark.yml" target="_blank" rel="noopener">Updated @FormatDate(viewIndex.LastUpdated)</a>
+                </div>
             }
         </div>
         <a href="https://github.com/Blazor-Playground/macro-benchmarks" target="_blank" rel="noopener" title="GitHub Repository">

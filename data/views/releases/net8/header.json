@@ -263,6 +263,30 @@
       "benchmarkDateTime": "2026-03-16T23:01:31.210Z",
       "ciRunId": "23169159584",
       "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23169159584"
+    },
+    {
+      "sdkVersion": "8.0.405",
+      "runtimeGitHash": "89ef51c5d8f5239345127a1e282e11036e590c8b",
+      "aspnetCoreGitHash": "31d685b2d9a86ca1243014d175a3da813f78e428",
+      "sdkGitHash": "f6ad34c0ba03ad79257a09903033493414af4ffa",
+      "vmrGitHash": "f6ad34c0ba03ad79257a09903033493414af4ffa",
+      "runtimeCommitDateTime": "2024-12-03T17:02:00Z",
+      "runtimeCommitAuthor": "Tom McDonald",
+      "runtimeCommitMessage": "Merged PR 45620: Update DIA to 17.12.0-beta1.24603.5",
+      "aspnetCoreCommitDateTime": "2024-12-04T05:18:59Z",
+      "aspnetCoreVersion": "8.0.12",
+      "runtimePackVersion": "8.0.12",
+      "workloadVersion": "8.0.25",
+      "bootstrapSdkVersion": "8.0.110",
+      "releaseDate": "2025-01-14",
+      "major": 8,
+      "minor": 0,
+      "patch": 405,
+      "channel": "8.0",
+      "isPrerelease": false,
+      "benchmarkDateTime": "2026-03-16T23:32:19.583Z",
+      "ciRunId": "23170161221",
+      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23170161221"
     }
   ],
   "apps": {

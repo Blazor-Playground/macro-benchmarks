@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-import * as chartInterop from './chart-interop.mjs';
+import * as chartInterop from './chart/chart-interop.js';
 
 function setManagedReady() {
     globalThis.dotnet_managed_ready = performance.now();
@@ -34,7 +34,7 @@ async function outer() {
                 onDotnetReady: () => {
                     globalThis.dotnet_created = performance.now();
                     const { setModuleImports } = globalThis.getDotnetRuntime(0);
-                    setModuleImports('chart-interop.mjs', chartInterop);
+                    setModuleImports('chart-interop.js', chartInterop);
                     setModuleImports('main.mjs', {
                         bench: {
                             setManagedReady

@@ -317,7 +317,7 @@ export async function loadAppCharts(app, filtersJson) {
         for (let bi = 0; bi < releaseBuckets.length; bi++) {
             const cols = releaseBuckets[bi].header.columns || [];
             const ticks = cols.map(() => {
-                const t = new Date(cursor).toISOString();
+                const t = cursor;
                 cursor += RELEASE_TICK_MS;
                 return t;
             });
@@ -435,8 +435,20 @@ export async function loadAppCharts(app, filtersJson) {
                 const points = values.map((v, i) => {
                     const col = bucket.header.columns[i];
                     if (!col) return null;
+                    let x = new Date(col.runtimeCommitDateTime).valueOf();
+                    if (col.isPrerelease) {
+                        // parse 11.0.100-preview.3.26161.119
+                        const m = col.sdkVersion.match(/-(\w+\.\d+\.\d+\.\d+)/);
+                        if (m) {
+                            const verPart = m[1].split('.'); // e.g. "preview.3.26161.119"
+                            const numPart1 = parseInt(verPart[2], 10); // e.g. "26161"
+                            const numPart2 = parseInt(verPart[3], 10); // e.g. "119"
+                            const offsetMs = numPart1 + (numPart2 * 3600000); // 1 hour per build number
+                            x += offsetMs;
+                        }
+                    }
                     return {
-                        x: col.runtimeCommitDateTime,
+                        x: x,
                         y: v,
                         _colIndex: i,
                         _bucket: bucket.path,
@@ -473,11 +485,11 @@ export async function loadAppCharts(app, filtersJson) {
 
         for (const ds of datasets) {
             if (ds._zone !== 'active') continue;
-            ds.data.sort((a, b) => new Date(a.x) - new Date(b.x));
+            ds.data.sort((a, b) => a.x - b.x);
 
             const frozenPts = frozenPointsByRow[ds._rowKey];
             if (frozenPts && frozenPts.length > 0) {
-                frozenPts.sort((a, b) => new Date(a.x) - new Date(b.x));
+                frozenPts.sort((a, b) => a.x - b.x);
                 ds.data = [...frozenPts, ...ds.data];
                 consumedFrozenRows.add(ds._rowKey);
             }
@@ -488,7 +500,7 @@ export async function loadAppCharts(app, filtersJson) {
         for (const [rowKey, points] of Object.entries(frozenPointsByRow)) {
             if (consumedFrozenRows.has(rowKey)) continue;
             if (points.length === 0) continue;
-            points.sort((a, b) => new Date(a.x) - new Date(b.x));
+            points.sort((a, b) => a.x - b.x);
             mergedDatasets.push({
                 label: formatRowLabel(rowKey, metric),
                 data: points,
@@ -511,7 +523,7 @@ export async function loadAppCharts(app, filtersJson) {
             for (const pt of ds.data) {
                 if (pt.y == null) continue;
                 if (pt._bucketType === 'release' && pt._releaseLabel) {
-                    const d = new Date(pt.x).getTime();
+                    const d = pt.x;
                     const range = releaseLabelRanges.get(pt._releaseLabel);
                     if (!range) {
                         releaseLabelRanges.set(pt._releaseLabel, { min: d, max: d });
@@ -532,12 +544,12 @@ export async function loadAppCharts(app, filtersJson) {
         for (let i = 0; i < sortedLabels.length - 1; i++) {
             const prevMax = sortedLabels[i][1].max;
             const nextMin = sortedLabels[i + 1][1].min;
-            dividerDates.push(new Date((prevMax + nextMin) / 2).toISOString());
+            dividerDates.push((prevMax + nextMin) / 2);
         }
         // Divider between last release and first daily
         if (sortedLabels.length > 0 && firstActiveDate) {
             const lastMax = sortedLabels[sortedLabels.length - 1][1].max;
-            dividerDates.push(new Date((lastMax + firstActiveDate) / 2).toISOString());
+            dividerDates.push((lastMax + firstActiveDate) / 2);
         }
 
         const chartDatasets = mergedDatasets;
@@ -547,7 +559,8 @@ export async function loadAppCharts(app, filtersJson) {
         for (const ds of chartDatasets) {
             for (const pt of ds.data) {
                 if (!pt._sdkVersion || !pt.x) continue;
-                const ts = new Date(pt.x).getTime();
+                const ts = pt.x;
+                pt.x = new Date(pt.x);
                 const existing = tickToSdk.get(ts);
                 if (existing && existing !== pt._sdkVersion) {
                     const msg = `Duplicate tick at ${pt.x}: existing '${existing}', new '${pt._sdkVersion}'`;
@@ -636,7 +649,7 @@ export async function loadAppCharts(app, filtersJson) {
                                 const ver = tickToSdk.get(ts);
                                 if (!ver) return '';
                                 // Shorten: e.g. "11.0.100-preview.3.26153.117" → "preview.3.26153"
-                                const m = ver.match(/-(\w+\.\d+\.\d+)/);
+                                const m = ver.match(/-(\w+\.\d+\.\d+\.\d+)/);
                                 return m ? m[1] : ver;
                             },
                             maxRotation: 90,

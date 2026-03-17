@@ -140,7 +140,7 @@ export function createChart(canvas, canvasId, metric, mergedDatasets, filters, d
                 legend: {
                     display: true,
                     position: 'bottom',
-                    maxHeight: 120,
+                    maxHeight: 60,
                     labels: {
                         usePointStyle: true,
                         boxWidth: 8,
@@ -201,7 +201,9 @@ export function createChart(canvas, canvasId, metric, mergedDatasets, filters, d
                             if (!ver) return '';
                             // Shorten: e.g. "11.0.100-preview.3.26153.117" → "preview.3.26153"
                             const m = ver.match(/-(\w+\.\d+\.\d+\.\d+)/);
-                            return m ? m[1] : ver;
+                            return m
+                                ? m[1].replace(`preview.`, 'p').replace(`alpha.`, 'a').replace(`beta.`, 'b')
+                                : ver;
                         },
                         maxRotation: 90,
                         minRotation: 90,

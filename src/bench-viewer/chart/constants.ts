@@ -1,13 +1,13 @@
 // Visual encoding maps and metric configuration constants
 
-export const ENGINE_COLORS = {
+export const ENGINE_COLORS: Record<string, string> = {
     chrome: '#F4B400',
     firefox: '#EA4335',
     v8: '#4285F4',
     node: '#34A853',
 };
 
-export const PRESET_DASH = {
+export const PRESET_DASH: Record<string, number[]> = {
     'dev-loop': [5, 5],
     'no-workload': [],
     'aot': [10, 5],
@@ -17,18 +17,18 @@ export const PRESET_DASH = {
     'no-reflection-emit': [15, 5],
 };
 
-export const RUNTIME_MARKER = {
+export const RUNTIME_MARKER: Record<string, string> = {
     mono: 'triangle',
     coreclr: 'circle',
     naotllvm: 'rect',
 };
 
-export const PROFILE_LINE_WIDTH = {
+export const PROFILE_LINE_WIDTH: Record<string, number> = {
     desktop: 1,
     mobile: 2,
 };
 
-export const METRIC_UNITS = {
+export const METRIC_UNITS: Record<string, string> = {
     'compile-time': 's',
     'disk-size-native': 'bytes',
     'disk-size-assemblies': 'bytes',
@@ -49,7 +49,7 @@ export const METRIC_UNITS = {
     'exception-ops': 'ops/sec',
 };
 
-export const METRIC_DISPLAY = {
+export const METRIC_DISPLAY: Record<string, string> = {
     'compile-time': 'Compile Time (s)',
     'disk-size-native': 'Naive runtime binary size - brotli (bytes)',
     'disk-size-assemblies': 'Assemblies size - brotli (bytes)',

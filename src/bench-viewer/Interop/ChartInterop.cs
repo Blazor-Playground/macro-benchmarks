@@ -5,7 +5,7 @@ namespace BenchViewer.Interop;
 
 public static partial class ChartInterop
 {
-    private const string ModuleName = "chart-interop.mjs";
+    private const string ModuleName = "chart-interop.js";
 
     [JSImport("initDashboard", ModuleName)]
     internal static partial Task<string> InitDashboard(string baseUrl);

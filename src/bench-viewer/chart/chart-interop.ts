@@ -1,48 +1,50 @@
 // Chart.js interop module for Blazor dashboard — orchestration facade
 // Called from C# via [JSImport] to fetch data and render charts
 
-import { MICROBENCH_SKIP_METRICS } from './chart/constants.mjs';
-import { fetchJson, getCached, collectBuckets, prefetchMetricData } from './chart/data-fetcher.mjs';
-import { computeReleaseTickMap } from './chart/tick-layout.mjs';
-import { buildReleasePoints, buildWeekDatasets, mergeDatasets, isRowVisible } from './chart/dataset-builder.mjs';
-import { createChart } from './chart/chart-factory.mjs';
+import { MICROBENCH_SKIP_METRICS } from './constants.js';
+import { fetchJson, getCached, collectBuckets, prefetchMetricData } from './data-fetcher.js';
+import type { ViewIndex, BucketHeader } from './data-fetcher.js';
+import { computeReleaseTickMap } from './tick-layout.js';
+import { buildReleasePoints, buildWeekDatasets, mergeDatasets, isRowVisible } from './dataset-builder.js';
+import type { Filters } from './dataset-builder.js';
+import { createChart } from './chart-factory.js';
 
 // ── State ────────────────────────────────────────────────────────────────────
 
 let dataBaseUrl = '';
-const charts = {};         // { canvasId: Chart instance }
-let viewIndex = null;
-let loadGeneration = 0;    // guards against concurrent loadAppCharts calls
-let pointClickCallback = null;  // C# callback for chart point clicks
-let showReleases = true;         // Whether to show GA release data on charts
-let showDailyReleases = true;    // Whether to show daily week data on charts
+const charts: Record<string, ChartInstance> = {};
+let viewIndex: ViewIndex | null = null;
+let loadGeneration = 0;
+let pointClickCallback: ((json: string) => void) | null = null;
+let showReleases = true;
+let showDailyReleases = true;
 
 // ── Exported Functions ───────────────────────────────────────────────────────
 
-export async function initDashboard(baseUrl) {
+export async function initDashboard(baseUrl: string): Promise<string> {
     dataBaseUrl = baseUrl.replace(/\/$/, '');
     const url = `${dataBaseUrl}/index.json`;
-    viewIndex = await fetchJson(url);
+    viewIndex = await fetchJson<ViewIndex>(url);
 
     // Fetch all bucket headers and filter apps to only those with actual data
-    const appsWithData = new Set();
+    const appsWithData = new Set<string>();
     const allHeaderPromises = [
-        ...viewIndex.releases.map(rel => fetchJson(`${dataBaseUrl}/releases/${rel}/header.json`)),
-        ...viewIndex.weeks.map(week => fetchJson(`${dataBaseUrl}/${week}/header.json`)),
+        ...viewIndex!.releases.map(rel => fetchJson<BucketHeader>(`${dataBaseUrl}/releases/${rel}/header.json`)),
+        ...viewIndex!.weeks.map(week => fetchJson<BucketHeader>(`${dataBaseUrl}/${week}/header.json`)),
     ];
     const allHeaders = await Promise.all(allHeaderPromises);
     for (const header of allHeaders) {
         if (header?.apps) Object.keys(header.apps).forEach(a => appsWithData.add(a));
     }
-    viewIndex.apps = viewIndex.apps.filter(a => appsWithData.has(a));
+    viewIndex!.apps = viewIndex!.apps.filter(a => appsWithData.has(a));
 
     return JSON.stringify(viewIndex);
 }
 
-export async function loadAppCharts(app, filtersJson) {
+export async function loadAppCharts(app: string, filtersJson: string): Promise<string> {
     if (!viewIndex) return '[]';
 
-    const filters = JSON.parse(filtersJson);
+    const filters: Filters = JSON.parse(filtersJson);
     let metrics = viewIndex.metrics[app] || [];
     if (app === 'micro-benchmarks') {
         metrics = metrics.filter(m => !MICROBENCH_SKIP_METRICS.has(m));
@@ -55,13 +57,13 @@ export async function loadAppCharts(app, filtersJson) {
     const releaseTickMap = computeReleaseTickMap(releaseBuckets, weekBuckets);
     await prefetchMetricData(dataBaseUrl, app, metrics, releaseBuckets, weekBuckets, showReleases, showDailyReleases);
 
-    const rendered = [];
+    const rendered: string[] = [];
 
     for (const metric of metrics) {
         if (gen !== loadGeneration) return JSON.stringify(rendered);
 
         const canvasId = `chart-${app}-${metric}`;
-        const canvas = document.getElementById(canvasId);
+        const canvas = document.getElementById(canvasId) as HTMLCanvasElement | null;
         if (!canvas) continue;
 
         const frozenPointsByRow = showReleases
@@ -79,9 +81,9 @@ export async function loadAppCharts(app, filtersJson) {
     return JSON.stringify(rendered);
 }
 
-export function applyFilters(filtersJson) {
-    const filters = JSON.parse(filtersJson);
-    for (const [canvasId, chart] of Object.entries(charts)) {
+export function applyFilters(filtersJson: string): void {
+    const filters: Filters = JSON.parse(filtersJson);
+    for (const [, chart] of Object.entries(charts)) {
         const metric = chart._metric || '';
         for (let i = 0; i < chart.data.datasets.length; i++) {
             const ds = chart.data.datasets[i];
@@ -93,33 +95,33 @@ export function applyFilters(filtersJson) {
     }
 }
 
-export function getColumnMetadata(bucket, colIndex) {
-    const header = getCached(`${dataBaseUrl}/${bucket}/header.json`);
+export function getColumnMetadata(bucket: string, colIndex: number): string {
+    const header = getCached<BucketHeader>(`${dataBaseUrl}/${bucket}/header.json`);
     if (!header || !header.columns[colIndex]) return '{}';
     return JSON.stringify(header.columns[colIndex]);
 }
 
-export async function getPointMetrics(app, bucket, rowKey, colIndex) {
-    const header = getCached(`${dataBaseUrl}/${bucket}/header.json`);
+export async function getPointMetrics(app: string, bucket: string, rowKey: string, colIndex: number): Promise<string> {
+    const header = getCached<BucketHeader>(`${dataBaseUrl}/${bucket}/header.json`);
     if (!header) return '{}';
 
-    const appMetrics = header.apps[app] || [];
-    const result = {};
+    const appMetrics = header.apps?.[app] || [];
+    const result: Record<string, number> = {};
 
     const metricResults = await Promise.all(
-        appMetrics.map(metric => fetchJson(`${dataBaseUrl}/${bucket}/${app}_${metric}.json`))
+        appMetrics.map(metric => fetchJson<Record<string, (number | null)[]>>(`${dataBaseUrl}/${bucket}/${app}_${metric}.json`))
     );
     for (let i = 0; i < appMetrics.length; i++) {
         const metricData = metricResults[i];
         if (metricData && metricData[rowKey] && metricData[rowKey][colIndex] != null) {
-            result[appMetrics[i]] = metricData[rowKey][colIndex];
+            result[appMetrics[i]] = metricData[rowKey][colIndex]!;
         }
     }
 
     return JSON.stringify(result);
 }
 
-export function destroyAllCharts() {
+export function destroyAllCharts(): void {
     for (const id of Object.keys(charts)) {
         if (charts[id]) {
             charts[id].destroy();
@@ -128,25 +130,25 @@ export function destroyAllCharts() {
     }
 }
 
-export function destroyChart(canvasId) {
+export function destroyChart(canvasId: string): void {
     if (charts[canvasId]) {
         charts[canvasId].destroy();
         delete charts[canvasId];
     }
 }
 
-export function registerPointClickCallback(callback) {
+export function registerPointClickCallback(callback: (json: string) => void): void {
     pointClickCallback = callback;
 }
 
-export function setShowReleases(show) {
+export function setShowReleases(show: boolean): void {
     showReleases = !!show;
 }
 
-export function setShowDailyReleases(show) {
+export function setShowDailyReleases(show: boolean): void {
     showDailyReleases = !!show;
 }
 
-export function scrollChartsToTop() {
+export function scrollChartsToTop(): void {
     document.querySelector('.charts-area')?.scrollTo(0, 0);
 }

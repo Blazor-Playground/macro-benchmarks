@@ -1,10 +1,12 @@
 // Chart.js instance creation, configuration, and plugins
 
-import { METRIC_UNITS, METRIC_DISPLAY } from './constants.mjs';
-import { getCached } from './data-fetcher.mjs';
-import { isRowVisible } from './dataset-builder.mjs';
+import { METRIC_UNITS, METRIC_DISPLAY } from './constants.js';
+import { getCached } from './data-fetcher.js';
+import type { BucketHeader } from './data-fetcher.js';
+import { isRowVisible } from './dataset-builder.js';
+import type { Filters } from './dataset-builder.js';
 
-export function formatValue(value, unit) {
+export function formatValue(value: number | null, unit: string): string {
     if (value == null) return '—';
     if (unit === 'bytes') {
         if (value >= 1048576) return (value / 1048576).toFixed(2) + ' MB';
@@ -25,14 +27,14 @@ export function formatValue(value, unit) {
     return String(value);
 }
 
-function computeDividerDates(mergedDatasets) {
-    const releaseLabelRanges = new Map();
-    let firstActiveDate = null;
+function computeDividerDates(mergedDatasets: ChartDatasetBase[]): number[] {
+    const releaseLabelRanges = new Map<string, { min: number; max: number }>();
+    let firstActiveDate: number | null = null;
     for (const ds of mergedDatasets) {
         for (const pt of ds.data) {
             if (pt.y == null) continue;
             if (pt._bucketType === 'release' && pt._releaseLabel) {
-                const d = pt.x;
+                const d = pt.x as number;
                 const range = releaseLabelRanges.get(pt._releaseLabel);
                 if (!range) {
                     releaseLabelRanges.set(pt._releaseLabel, { min: d, max: d });
@@ -47,7 +49,7 @@ function computeDividerDates(mergedDatasets) {
         }
     }
 
-    const dividerDates = [];
+    const dividerDates: number[] = [];
     const sortedLabels = [...releaseLabelRanges.entries()]
         .sort((a, b) => a[1].min - b[1].min);
     // Dividers between adjacent major release buckets
@@ -65,12 +67,12 @@ function computeDividerDates(mergedDatasets) {
     return dividerDates;
 }
 
-function buildTickMap(chartDatasets) {
-    const tickToSdk = new Map();
+function buildTickMap(chartDatasets: ChartDatasetBase[]): Map<number, string> {
+    const tickToSdk = new Map<number, string>();
     for (const ds of chartDatasets) {
         for (const pt of ds.data) {
             if (!pt._sdkVersion || !pt.x) continue;
-            const ts = pt.x;
+            const ts = pt.x as number;
             pt.x = new Date(pt.x);
             const existing = tickToSdk.get(ts);
             if (existing && existing !== pt._sdkVersion) {
@@ -85,10 +87,10 @@ function buildTickMap(chartDatasets) {
 
 // ── Chart.js Plugin: Frozen release zone separator ───────────────────────────
 
-const frozenZonePlugin = {
+const frozenZonePlugin: ChartPlugin = {
     id: 'frozenZone',
-    beforeDraw(chart) {
-        const meta = chart.options.plugins.frozenZone;
+    beforeDraw(chart: ChartInstance) {
+        const meta = (chart.options as Record<string, Record<string, unknown>>).plugins?.frozenZone as { dividerDates?: number[] } | undefined;
         if (!meta || !meta.dividerDates || !meta.dividerDates.length) return;
         const xScale = chart.scales.x;
         if (!xScale) return;
@@ -114,13 +116,13 @@ Chart.register(frozenZonePlugin);
 
 // ── Chart Creation ───────────────────────────────────────────────────────────
 
-export function createChart(canvas, canvasId, metric, mergedDatasets, filters, dataBaseUrl, pointClickCallback) {
+export function createChart(canvas: HTMLCanvasElement, canvasId: string, metric: string, mergedDatasets: ChartDatasetBase[], filters: Filters, dataBaseUrl: string, pointClickCallback: ((json: string) => void) | null): ChartInstance {
     const unit = METRIC_UNITS[metric] || '';
     const displayName = METRIC_DISPLAY[metric] || metric;
     const dividerDates = computeDividerDates(mergedDatasets);
     const tickToSdk = buildTickMap(mergedDatasets);
 
-    const config = {
+    const config: Record<string, unknown> = {
         type: 'line',
         data: { datasets: mergedDatasets },
         options: {
@@ -150,7 +152,7 @@ export function createChart(canvas, canvasId, metric, mergedDatasets, filters, d
                 },
                 tooltip: {
                     callbacks: {
-                        title(items) {
+                        title(items: Array<{ raw: ChartDataPoint }>) {
                             if (!items.length) return '';
                             const pt = items[0].raw;
                             if (pt._bucketType === 'release') {
@@ -158,20 +160,20 @@ export function createChart(canvas, canvasId, metric, mergedDatasets, filters, d
                             }
                             return `Date: ${new Date(pt.x).toLocaleDateString()}`;
                         },
-                        afterTitle(items) {
+                        afterTitle(items: Array<{ raw: ChartDataPoint }>) {
                             if (!items.length) return '';
                             const pt = items[0].raw;
-                            const header = getCached(`${dataBaseUrl}/${pt._bucket}/header.json`);
+                            const header = getCached<BucketHeader>(`${dataBaseUrl}/${pt._bucket}/header.json`);
                             if (!header) return '';
-                            const col = header.columns[pt._colIndex];
+                            const col = header.columns[pt._colIndex!];
                             if (!col) return '';
-                            const lines = [];
+                            const lines: string[] = [];
                             lines.push(`SDK: ${col.sdkVersion}`);
-                            lines.push(`Runtime: ${col.runtimeGitHash.substring(0, 7)}`);
+                            lines.push(`Runtime: ${col.runtimeGitHash!.substring(0, 7)}`);
                             return lines.join('\n');
                         },
-                        label(ctx) {
-                            return `${ctx.dataset.label}: ${formatValue(ctx.raw.y, unit)}`;
+                        label(ctx: { dataset: ChartDatasetBase; raw: ChartDataPoint }) {
+                            return `${ctx.dataset.label}: ${formatValue(ctx.raw.y as number, unit)}`;
                         },
                     },
                 },
@@ -195,7 +197,7 @@ export function createChart(canvas, canvasId, metric, mergedDatasets, filters, d
                     title: { display: true, text: 'SDK Version' },
                     ticks: {
                         source: 'data',
-                        callback(value) {
+                        callback(value: number | string) {
                             const ts = typeof value === 'number' ? value : new Date(value).getTime();
                             const ver = tickToSdk.get(ts);
                             if (!ver) return '';
@@ -213,7 +215,7 @@ export function createChart(canvas, canvasId, metric, mergedDatasets, filters, d
                 y: {
                     title: { display: true, text: unit },
                     ticks: {
-                        callback(value) {
+                        callback(value: number) {
                             return formatValue(value, unit);
                         },
                     },
@@ -223,10 +225,10 @@ export function createChart(canvas, canvasId, metric, mergedDatasets, filters, d
                 xAxisKey: 'x',
                 yAxisKey: 'y',
             },
-            onClick(event, elements) {
+            onClick(_event: unknown, elements: Array<{ datasetIndex: number; index: number }>) {
                 if (!elements.length) return;
                 const el = elements[0];
-                const ds = config.data.datasets[el.datasetIndex];
+                const ds = (config as { data: { datasets: ChartDatasetBase[] } }).data.datasets[el.datasetIndex];
                 const pt = ds.data[el.index];
                 const detail = {
                     rowKey: ds._rowKey || ds.label,
@@ -252,7 +254,7 @@ export function createChart(canvas, canvasId, metric, mergedDatasets, filters, d
     const existing = Chart.getChart(canvas);
     if (existing) existing.destroy();
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d')!;
     const chart = new Chart(ctx, config);
     chart._metric = metric;
 

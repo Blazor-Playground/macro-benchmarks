@@ -1,17 +1,25 @@
 // Build Chart.js datasets from release and week bucket data
 
-import { fetchJson } from './data-fetcher.mjs';
+import { fetchJson } from './data-fetcher.js';
+import type { Bucket } from './data-fetcher.js';
 import {
     ENGINE_COLORS, PRESET_DASH, RUNTIME_MARKER, PROFILE_LINE_WIDTH,
     BUILD_METRICS, WALKTHROUGH_METRICS,
-} from './constants.mjs';
+} from './constants.js';
 
-export function parseRowKey(key) {
+export interface Filters {
+    runtimes: string[];
+    presets: string[];
+    profiles: string[];
+    engines: string[];
+}
+
+export function parseRowKey(key: string): { runtime: string; preset: string; profile: string; engine: string } {
     const [runtime, preset, profile, engine] = key.split('/');
     return { runtime, preset, profile, engine };
 }
 
-export function isRowVisible(rowKey, filters, metric) {
+export function isRowVisible(rowKey: string, filters: Filters, metric: string): boolean {
     const d = parseRowKey(rowKey);
     // Build-time and walkthrough metrics: only show chrome/desktop (values are identical or only collected there)
     if (BUILD_METRICS.has(metric) || WALKTHROUGH_METRICS.has(metric)) {
@@ -28,7 +36,7 @@ export function isRowVisible(rowKey, filters, metric) {
         && filters.engines.includes(d.engine);
 }
 
-export function formatRowLabel(rowKey, metric) {
+export function formatRowLabel(rowKey: string, metric: string): string {
     if (BUILD_METRICS.has(metric) || WALKTHROUGH_METRICS.has(metric)) {
         // Strip redundant /desktop/chrome for build-time, disk-size, and walkthrough metrics
         const d = parseRowKey(rowKey);
@@ -37,7 +45,7 @@ export function formatRowLabel(rowKey, metric) {
     return rowKey;
 }
 
-export function makeDatasetStyle(rowKey) {
+export function makeDatasetStyle(rowKey: string): Record<string, unknown> {
     const d = parseRowKey(rowKey);
     return {
         borderColor: ENGINE_COLORS[d.engine] || '#999',
@@ -52,8 +60,8 @@ export function makeDatasetStyle(rowKey) {
     };
 }
 
-export async function buildReleasePoints(dataBaseUrl, app, metric, releaseBuckets, releaseTickMap) {
-    const frozenPointsByRow = {};
+export async function buildReleasePoints(dataBaseUrl: string, app: string, metric: string, releaseBuckets: Bucket[], releaseTickMap: Map<string, number[]>): Promise<Record<string, ChartDataPoint[]>> {
+    const frozenPointsByRow: Record<string, ChartDataPoint[]> = {};
 
     const filteredBuckets = releaseBuckets.filter(bucket => {
         const bucketMetrics = bucket.header.apps?.[app];
@@ -61,7 +69,7 @@ export async function buildReleasePoints(dataBaseUrl, app, metric, releaseBucket
     });
     const metricResults = await Promise.all(
         filteredBuckets.map(bucket =>
-            fetchJson(`${dataBaseUrl}/${bucket.path}/${app}_${metric}.json`)
+            fetchJson<Record<string, (number | null)[]>>(`${dataBaseUrl}/${bucket.path}/${app}_${metric}.json`)
         )
     );
 
@@ -77,7 +85,7 @@ export async function buildReleasePoints(dataBaseUrl, app, metric, releaseBucket
             const points = values.map((v, i) => {
                 const col = cols[i];
                 const tickDate = tickDates[i];
-                if (!tickDate) return null;
+                if (!tickDate || v == null) return null;
                 return {
                     x: tickDate,
                     y: v,
@@ -86,8 +94,8 @@ export async function buildReleasePoints(dataBaseUrl, app, metric, releaseBucket
                     _bucketType: 'release',
                     _sdkVersion: col?.sdkVersion || bucket.label,
                     _releaseLabel: bucket.label,
-                };
-            }).filter(p => p != null && p.y != null);
+                } as ChartDataPoint;
+            }).filter(p => p != null) as ChartDataPoint[];
 
             if (points.length === 0) continue;
 
@@ -99,8 +107,8 @@ export async function buildReleasePoints(dataBaseUrl, app, metric, releaseBucket
     return frozenPointsByRow;
 }
 
-export async function buildWeekDatasets(dataBaseUrl, app, metric, weekBuckets) {
-    const datasets = [];
+export async function buildWeekDatasets(dataBaseUrl: string, app: string, metric: string, weekBuckets: Bucket[]): Promise<ChartDatasetBase[]> {
+    const datasets: ChartDatasetBase[] = [];
 
     const filteredBuckets = weekBuckets.filter(bucket => {
         const bucketMetrics = bucket.header.apps?.[app];
@@ -108,7 +116,7 @@ export async function buildWeekDatasets(dataBaseUrl, app, metric, weekBuckets) {
     });
     const metricResults = await Promise.all(
         filteredBuckets.map(bucket =>
-            fetchJson(`${dataBaseUrl}/${bucket.path}/${app}_${metric}.json`)
+            fetchJson<Record<string, (number | null)[]>>(`${dataBaseUrl}/${bucket.path}/${app}_${metric}.json`)
         )
     );
 
@@ -120,11 +128,11 @@ export async function buildWeekDatasets(dataBaseUrl, app, metric, weekBuckets) {
         for (const [rowKey, values] of Object.entries(metricData)) {
             const points = values.map((v, i) => {
                 const col = bucket.header.columns[i];
-                if (!col) return null;
-                let x = new Date(col.runtimeCommitDateTime).valueOf();
+                if (!col || v == null) return null;
+                let x: number = new Date(col.runtimeCommitDateTime!).valueOf();
                 if (col.isPrerelease) {
                     // parse 11.0.100-preview.3.26161.119
-                    const m = col.sdkVersion.match(/-(\w+\.\d+\.\d+\.\d+)/);
+                    const m = col.sdkVersion?.match(/-(\w+\.\d+\.\d+\.\d+)/);
                     if (m) {
                         const verPart = m[1].split('.'); // e.g. "preview.3.26161.119"
                         const numPart1 = parseInt(verPart[2], 10); // e.g. "26161"
@@ -140,8 +148,8 @@ export async function buildWeekDatasets(dataBaseUrl, app, metric, weekBuckets) {
                     _bucket: bucket.path,
                     _bucketType: 'week',
                     _sdkVersion: col.sdkVersion,
-                };
-            }).filter(p => p != null && p.x != null && p.y != null);
+                } as ChartDataPoint;
+            }).filter(p => p != null) as ChartDataPoint[];
 
             if (points.length === 0) continue;
 
@@ -166,19 +174,19 @@ export async function buildWeekDatasets(dataBaseUrl, app, metric, weekBuckets) {
     return datasets;
 }
 
-export function mergeDatasets(activeDatasets, frozenPointsByRow, metric) {
-    const mergedDatasets = [];
-    const consumedFrozenRows = new Set();
+export function mergeDatasets(activeDatasets: ChartDatasetBase[], frozenPointsByRow: Record<string, ChartDataPoint[]>, metric: string): ChartDatasetBase[] {
+    const mergedDatasets: ChartDatasetBase[] = [];
+    const consumedFrozenRows = new Set<string>();
 
     for (const ds of activeDatasets) {
         if (ds._zone !== 'active') continue;
-        ds.data.sort((a, b) => a.x - b.x);
+        ds.data.sort((a, b) => (a.x as number) - (b.x as number));
 
-        const frozenPts = frozenPointsByRow[ds._rowKey];
+        const frozenPts = frozenPointsByRow[ds._rowKey!];
         if (frozenPts && frozenPts.length > 0) {
-            frozenPts.sort((a, b) => a.x - b.x);
+            frozenPts.sort((a, b) => (a.x as number) - (b.x as number));
             ds.data = [...frozenPts, ...ds.data];
-            consumedFrozenRows.add(ds._rowKey);
+            consumedFrozenRows.add(ds._rowKey!);
         }
         mergedDatasets.push(ds);
     }
@@ -187,7 +195,7 @@ export function mergeDatasets(activeDatasets, frozenPointsByRow, metric) {
     for (const [rowKey, points] of Object.entries(frozenPointsByRow)) {
         if (consumedFrozenRows.has(rowKey)) continue;
         if (points.length === 0) continue;
-        points.sort((a, b) => a.x - b.x);
+        points.sort((a, b) => (a.x as number) - (b.x as number));
         mergedDatasets.push({
             label: formatRowLabel(rowKey, metric),
             data: points,

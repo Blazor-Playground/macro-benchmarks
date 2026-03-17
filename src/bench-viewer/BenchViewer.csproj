@@ -16,4 +16,24 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="$(MicrosoftAspNetCoreVersion)" PrivateAssets="all" />
   </ItemGroup>
 
+  <!-- TypeScript compilation -->
+  <PropertyGroup>
+    <TypeScriptOutputDir>wwwroot\chart</TypeScriptOutputDir>
+    <NpmInstallStamp>node_modules/.install-stamp</NpmInstallStamp>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <TypeScriptSource Include="chart\**\*.ts" />
+    <None Remove="chart\**" />
+  </ItemGroup>
+
+  <Target Name="NpmInstall" BeforeTargets="CompileTypeScript" Inputs="package.json" Outputs="$(NpmInstallStamp)">
+    <Exec Command="npm install" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Touch Files="$(NpmInstallStamp)" AlwaysCreate="true" />
+  </Target>
+
+  <Target Name="CompileTypeScript" BeforeTargets="Build" Inputs="@(TypeScriptSource)" Outputs="$(TypeScriptOutputDir)\main.js">
+    <Exec Command="npx tsc" WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+
 </Project>

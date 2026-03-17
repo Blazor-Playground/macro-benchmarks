@@ -1,7 +1,7 @@
 // Type declarations for Chart.js loaded as UMD global (chart.umd.min.js)
 
 interface ChartDatasetBase {
-    label?: string;
+    label: string;
     data: ChartDataPoint[];
     borderColor?: string;
     backgroundColor?: string;
@@ -13,20 +13,19 @@ interface ChartDatasetBase {
     tension?: number;
     fill?: boolean;
     hidden?: boolean;
-    _rowKey?: string;
-    _zone?: string;
-    _metric?: string;
+    rowKey: string;
+    zone: 'active' | 'frozen';
     [key: string]: unknown;
 }
 
 interface ChartDataPoint {
-    x: number | Date;
-    y: number | null;
-    _colIndex?: number;
-    _bucket?: string;
-    _bucketType?: string;
-    _sdkVersion?: string;
-    _releaseLabel?: string;
+    x: number;
+    y: number;
+    colIndex: number;
+    bucket: string;
+    bucketType: 'release' | 'week';
+    sdkVersion: string;
+    releaseLabel?: string;
     [key: string]: unknown;
 }
 
@@ -47,7 +46,7 @@ interface ChartInstance {
     options: Record<string, unknown>;
     chartArea: ChartArea;
     ctx: CanvasRenderingContext2D;
-    _metric?: string;
+    metric?: string;
     setDatasetVisibility(index: number, visible: boolean): void;
     update(mode?: string): void;
     destroy(): void;

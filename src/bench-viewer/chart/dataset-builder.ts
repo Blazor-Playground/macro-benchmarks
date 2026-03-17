@@ -2,9 +2,10 @@
 
 import { fetchJson } from './data-fetcher.js';
 import type { Bucket } from './data-fetcher.js';
+import type { TickLayout } from './tick-layout.js';
 import {
     ENGINE_COLORS, PRESET_DASH, RUNTIME_MARKER, PROFILE_LINE_WIDTH,
-    BUILD_METRICS, WALKTHROUGH_METRICS,
+    BUILD_METRICS, WALKTHROUGH_METRICS, assert,
 } from './constants.js';
 
 export interface Filters {
@@ -60,7 +61,7 @@ export function makeDatasetStyle(rowKey: string): Record<string, unknown> {
     };
 }
 
-export async function buildReleasePoints(dataBaseUrl: string, app: string, metric: string, releaseBuckets: Bucket[], releaseTickMap: Map<string, number[]>): Promise<Record<string, ChartDataPoint[]>> {
+export async function buildReleasePoints(dataBaseUrl: string, app: string, metric: string, releaseBuckets: Bucket[], tickLayout: TickLayout): Promise<Record<string, ChartDataPoint[]>> {
     const frozenPointsByRow: Record<string, ChartDataPoint[]> = {};
 
     const filteredBuckets = releaseBuckets.filter(bucket => {
@@ -78,36 +79,35 @@ export async function buildReleasePoints(dataBaseUrl: string, app: string, metri
         const metricData = metricResults[ri];
         if (!metricData) continue;
 
-        const cols = bucket.header.columns || [];
-        const tickDates = releaseTickMap.get(bucket.label) || [];
+        const cols = bucket.header.columns;
+        const positions = tickLayout.releasePositions.get(bucket.label);
+        assert(positions, `missing release positions for bucket '${bucket.label}'`);
 
         for (const [rowKey, values] of Object.entries(metricData)) {
-            const points = values.map((v, i) => {
+            for (let i = 0; i < values.length; i++) {
+                const v = values[i];
+                if (v == null) continue;
                 const col = cols[i];
-                const tickDate = tickDates[i];
-                if (!tickDate || v == null) return null;
-                return {
-                    x: tickDate,
+                assert(col, `missing column[${i}] in ${bucket.path}`);
+                assert(positions[i] != null, `missing position[${i}] for bucket '${bucket.label}'`);
+                if (!frozenPointsByRow[rowKey]) frozenPointsByRow[rowKey] = [];
+                frozenPointsByRow[rowKey].push({
+                    x: positions[i],
                     y: v,
-                    _colIndex: i,
-                    _bucket: bucket.path,
-                    _bucketType: 'release',
-                    _sdkVersion: col?.sdkVersion || bucket.label,
-                    _releaseLabel: bucket.label,
-                } as ChartDataPoint;
-            }).filter(p => p != null) as ChartDataPoint[];
-
-            if (points.length === 0) continue;
-
-            if (!frozenPointsByRow[rowKey]) frozenPointsByRow[rowKey] = [];
-            frozenPointsByRow[rowKey].push(...points);
+                    colIndex: i,
+                    bucket: bucket.path,
+                    bucketType: 'release',
+                    sdkVersion: col.sdkVersion,
+                    releaseLabel: bucket.label,
+                });
+            }
         }
     }
 
     return frozenPointsByRow;
 }
 
-export async function buildWeekDatasets(dataBaseUrl: string, app: string, metric: string, weekBuckets: Bucket[]): Promise<ChartDatasetBase[]> {
+export async function buildWeekDatasets(dataBaseUrl: string, app: string, metric: string, weekBuckets: Bucket[], tickLayout: TickLayout): Promise<ChartDatasetBase[]> {
     const datasets: ChartDatasetBase[] = [];
 
     const filteredBuckets = weekBuckets.filter(bucket => {
@@ -125,37 +125,31 @@ export async function buildWeekDatasets(dataBaseUrl: string, app: string, metric
         const metricData = metricResults[wi];
         if (!metricData) continue;
 
+        const positions = tickLayout.dailyPositions.get(bucket.path);
+        assert(positions, `missing daily positions for bucket '${bucket.path}'`);
+
         for (const [rowKey, values] of Object.entries(metricData)) {
-            const points = values.map((v, i) => {
+            const points: ChartDataPoint[] = [];
+            for (let i = 0; i < values.length; i++) {
+                const v = values[i];
+                if (v == null) continue;
                 const col = bucket.header.columns[i];
-                if (!col || v == null) return null;
-                let x: number = new Date(col.runtimeCommitDateTime!).valueOf();
-                if (col.isPrerelease) {
-                    // parse 11.0.100-preview.3.26161.119
-                    const m = col.sdkVersion?.match(/-(\w+\.\d+\.\d+\.\d+)/);
-                    if (m) {
-                        const verPart = m[1].split('.'); // e.g. "preview.3.26161.119"
-                        const numPart1 = parseInt(verPart[2], 10); // e.g. "26161"
-                        const numPart2 = parseInt(verPart[3], 10); // e.g. "119"
-                        const offsetMs = numPart1 + (numPart2 * 3600000); // 1 hour per build number
-                        x += offsetMs;
-                    }
-                }
-                return {
-                    x: x,
+                assert(col, `missing column[${i}] in ${bucket.path}`);
+                assert(positions[i] != null, `missing position[${i}] for bucket '${bucket.path}'`);
+                points.push({
+                    x: positions[i],
                     y: v,
-                    _colIndex: i,
-                    _bucket: bucket.path,
-                    _bucketType: 'week',
-                    _sdkVersion: col.sdkVersion,
-                } as ChartDataPoint;
-            }).filter(p => p != null) as ChartDataPoint[];
+                    colIndex: i,
+                    bucket: bucket.path,
+                    bucketType: 'week',
+                    sdkVersion: col.sdkVersion,
+                });
+            }
 
             if (points.length === 0) continue;
 
-            // Merge with existing dataset for same rowKey if present
             const existingIdx = datasets.findIndex(
-                d => d._rowKey === rowKey && d._zone === 'active'
+                d => d.rowKey === rowKey && d.zone === 'active'
             );
             if (existingIdx >= 0) {
                 datasets[existingIdx].data.push(...points);
@@ -164,8 +158,8 @@ export async function buildWeekDatasets(dataBaseUrl: string, app: string, metric
                     label: formatRowLabel(rowKey, metric),
                     data: points,
                     ...makeDatasetStyle(rowKey),
-                    _rowKey: rowKey,
-                    _zone: 'active',
+                    rowKey: rowKey,
+                    zone: 'active',
                 });
             }
         }
@@ -179,14 +173,14 @@ export function mergeDatasets(activeDatasets: ChartDatasetBase[], frozenPointsBy
     const consumedFrozenRows = new Set<string>();
 
     for (const ds of activeDatasets) {
-        if (ds._zone !== 'active') continue;
-        ds.data.sort((a, b) => (a.x as number) - (b.x as number));
+        if (ds.zone !== 'active') continue;
+        ds.data.sort((a, b) => a.x - b.x);
 
-        const frozenPts = frozenPointsByRow[ds._rowKey!];
+        const frozenPts = frozenPointsByRow[ds.rowKey];
         if (frozenPts && frozenPts.length > 0) {
-            frozenPts.sort((a, b) => (a.x as number) - (b.x as number));
+            frozenPts.sort((a, b) => a.x - b.x);
             ds.data = [...frozenPts, ...ds.data];
-            consumedFrozenRows.add(ds._rowKey!);
+            consumedFrozenRows.add(ds.rowKey);
         }
         mergedDatasets.push(ds);
     }
@@ -195,13 +189,13 @@ export function mergeDatasets(activeDatasets: ChartDatasetBase[], frozenPointsBy
     for (const [rowKey, points] of Object.entries(frozenPointsByRow)) {
         if (consumedFrozenRows.has(rowKey)) continue;
         if (points.length === 0) continue;
-        points.sort((a, b) => (a.x as number) - (b.x as number));
+        points.sort((a, b) => a.x - b.x);
         mergedDatasets.push({
             label: formatRowLabel(rowKey, metric),
             data: points,
             ...makeDatasetStyle(rowKey),
-            _rowKey: rowKey,
-            _zone: 'frozen',
+            rowKey: rowKey,
+            zone: 'frozen',
         });
     }
 

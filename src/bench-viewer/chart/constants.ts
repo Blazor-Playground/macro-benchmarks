@@ -85,7 +85,10 @@ export const MICROBENCH_SKIP_METRICS = new Set([
     'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-total',
 ]);
 
-// Release tick spacing: each release column gets a fixed slot, with gaps between majors
-export const RELEASE_TICK_MS = 3 * 86400000;              // 3 days per release column
-export const RELEASE_MAJOR_GAP_MS = 10 * 86400000;        // 10-day gap between major version groups
-export const RELEASE_DAILY_GAP_MS = 30 * 86400000;        // 30-day gap before daily builds
+// Release tick spacing
+export const RELEASE_TICK_MS = 3 * 86400000;              // 3 days per release column (used for release-only mode)
+
+// Assert helper — throws instead of silently propagating missing data
+export function assert(condition: unknown, msg: string): asserts condition {
+    if (!condition) throw new Error(`Assert: ${msg}`);
+}

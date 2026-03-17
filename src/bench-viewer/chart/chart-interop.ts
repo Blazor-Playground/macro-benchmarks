@@ -4,7 +4,7 @@
 import { MICROBENCH_SKIP_METRICS } from './constants.js';
 import { fetchJson, getCached, collectBuckets, prefetchMetricData } from './data-fetcher.js';
 import type { ViewIndex, BucketHeader } from './data-fetcher.js';
-import { computeReleaseTickMap } from './tick-layout.js';
+import { computeTickLayout } from './tick-layout.js';
 import { buildReleasePoints, buildWeekDatasets, mergeDatasets, isRowVisible } from './dataset-builder.js';
 import type { Filters } from './dataset-builder.js';
 import { createChart } from './chart-factory.js';
@@ -54,7 +54,7 @@ export async function loadAppCharts(app: string, filtersJson: string): Promise<s
     const gen = ++loadGeneration;
 
     const { releaseBuckets, weekBuckets } = await collectBuckets(dataBaseUrl, viewIndex, showDailyReleases);
-    const releaseTickMap = computeReleaseTickMap(releaseBuckets, weekBuckets);
+    const tickLayout = computeTickLayout(releaseBuckets, weekBuckets, showReleases, showDailyReleases);
     await prefetchMetricData(dataBaseUrl, app, metrics, releaseBuckets, weekBuckets, showReleases, showDailyReleases);
 
     const rendered: string[] = [];
@@ -67,14 +67,14 @@ export async function loadAppCharts(app: string, filtersJson: string): Promise<s
         if (!canvas) continue;
 
         const frozenPointsByRow = showReleases
-            ? await buildReleasePoints(dataBaseUrl, app, metric, releaseBuckets, releaseTickMap)
+            ? await buildReleasePoints(dataBaseUrl, app, metric, releaseBuckets, tickLayout)
             : {};
-        const activeDatasets = await buildWeekDatasets(dataBaseUrl, app, metric, weekBuckets);
+        const activeDatasets = await buildWeekDatasets(dataBaseUrl, app, metric, weekBuckets, tickLayout);
         const mergedDatasets = mergeDatasets(activeDatasets, frozenPointsByRow, metric);
 
         if (mergedDatasets.length === 0) continue;
 
-        charts[canvasId] = createChart(canvas, canvasId, metric, mergedDatasets, filters, dataBaseUrl, pointClickCallback);
+        charts[canvasId] = createChart(canvas, metric, mergedDatasets, filters, dataBaseUrl, pointClickCallback, tickLayout);
         rendered.push(metric);
     }
 
@@ -84,11 +84,11 @@ export async function loadAppCharts(app: string, filtersJson: string): Promise<s
 export function applyFilters(filtersJson: string): void {
     const filters: Filters = JSON.parse(filtersJson);
     for (const [, chart] of Object.entries(charts)) {
-        const metric = chart._metric || '';
+        const metric = chart.metric || '';
         for (let i = 0; i < chart.data.datasets.length; i++) {
             const ds = chart.data.datasets[i];
-            if (ds._rowKey) {
-                chart.setDatasetVisibility(i, isRowVisible(ds._rowKey, filters, metric));
+            if (ds.rowKey) {
+                chart.setDatasetVisibility(i, isRowVisible(ds.rowKey, filters, metric));
             }
         }
         chart.update('none');

@@ -1,54 +1,137 @@
-// Compute synthetic tick positions for release columns on the time axis
+// Single authority for all x-axis positioning, dividers, and tick labels
 
-import { RELEASE_TICK_MS, RELEASE_MAJOR_GAP_MS, RELEASE_DAILY_GAP_MS } from './constants.js';
-import type { Bucket } from './data-fetcher.js';
+import { RELEASE_TICK_MS, assert } from './constants.js';
+import type { Bucket, ColumnMetadata } from './data-fetcher.js';
 
-export function computeReleaseTickMap(releaseBuckets: Bucket[], weekBuckets: Bucket[]): Map<string, number[]> {
-    const releaseTickMap = new Map<string, number[]>();
+export interface TickLayout {
+    /** bucketLabel → x[] (one per column) for release buckets */
+    releasePositions: Map<string, number[]>;
+    /** bucketPath → x[] (one per column) for week/daily buckets */
+    dailyPositions: Map<string, number[]>;
+    /** x positions where vertical divider lines should be drawn */
+    dividerDates: number[];
+    /** x → sdkVersion string for tick label display */
+    tickMap: Map<number, string>;
+}
 
-    // Find earliest daily build date from week bucket headers
-    let earliestDailyMs: number | null = null;
-    for (const wb of weekBuckets) {
-        for (const col of (wb.header.columns || [])) {
-            if (col.runtimeCommitDateTime) {
-                const ms = new Date(col.runtimeCommitDateTime).getTime();
-                if (!earliestDailyMs || ms < earliestDailyMs) earliestDailyMs = ms;
+/** Extract the build revision from an SDK version string.
+ *  "11.0.100-preview.3.26161.119" → 119
+ *  "10.0.100" → 0  (GA, no prerelease suffix)
+ */
+function extractRevision(sdkVersion: string): number {
+    const m = sdkVersion.match(/-\w+\.\d+\.\d+\.(\d+)$/);
+    return m ? parseInt(m[1], 10) : 0;
+}
+
+export function computeTickLayout(
+    releaseBuckets: Bucket[],
+    weekBuckets: Bucket[],
+    showReleases: boolean,
+    showDaily: boolean,
+): TickLayout {
+    const releasePositions = new Map<string, number[]>();
+    const dailyPositions = new Map<string, number[]>();
+    const tickMap = new Map<number, string>();
+
+    // ── Phase 1: Compute daily x positions (real dates + revision offset) ────
+
+    let dailyMin = Infinity;
+    let dailyMax = -Infinity;
+
+    if (showDaily) {
+        for (const bucket of weekBuckets) {
+            const positions: number[] = [];
+            for (const col of bucket.header.columns) {
+                const base = Date.parse(col.releaseDate);
+                assert(!isNaN(base), `invalid releaseDate '${col.releaseDate}' in ${bucket.path}`);
+                const revision = extractRevision(col.sdkVersion);
+                const x = base + revision;
+                positions.push(x);
+                tickMap.set(x, col.sdkVersion);
+                if (x < dailyMin) dailyMin = x;
+                if (x > dailyMax) dailyMax = x;
+            }
+            dailyPositions.set(bucket.path, positions);
+        }
+    }
+
+    const hasDailyData = dailyMin < Infinity;
+    const dailySpan = hasDailyData ? Math.max(dailyMax - dailyMin, 1) : 0;
+
+    // ── Phase 2: Compute release x positions (synthetic, evenly spaced) ──────
+
+    const totalReleaseCols = showReleases
+        ? releaseBuckets.reduce((sum, b) => sum + b.header.columns.length, 0)
+        : 0;
+
+    if (showReleases && totalReleaseCols > 0) {
+        let releaseInterval: number;
+        let releaseStart: number;
+
+        if (hasDailyData) {
+            // 50/50 split: release zone gets same span as daily zone
+            releaseInterval = dailySpan / totalReleaseCols;
+            // Gap = 10% of zone span (visually readable without dominating the chart)
+            const zoneGap = dailySpan * 0.1;
+            releaseStart = dailyMin - zoneGap - dailySpan;
+        } else {
+            // Release-only: spread across a reasonable range
+            releaseInterval = RELEASE_TICK_MS;
+            const totalSpan = totalReleaseCols * releaseInterval;
+            releaseStart = Date.now() - totalSpan;
+        }
+
+        let cursor = Math.round(releaseStart);
+        for (const bucket of releaseBuckets) {
+            const positions: number[] = [];
+            for (const col of bucket.header.columns) {
+                const x = Math.round(cursor);
+                positions.push(x);
+                tickMap.set(x, col.sdkVersion);
+                cursor += releaseInterval;
+            }
+            releasePositions.set(bucket.label, positions);
+        }
+    }
+
+    // ── Phase 3: Compute divider positions ───────────────────────────────────
+
+    const dividerDates: number[] = [];
+
+    if (showReleases && releaseBuckets.length > 0) {
+        // Track per-major ranges to find boundaries
+        const majorRanges = new Map<number, { min: number; max: number }>();
+
+        for (const bucket of releaseBuckets) {
+            const positions = releasePositions.get(bucket.label);
+            if (!positions || positions.length === 0) continue;
+            const major = bucket.header.columns[0].major;
+            const bucketMin = positions[0];
+            const bucketMax = positions[positions.length - 1];
+            const range = majorRanges.get(major);
+            if (!range) {
+                majorRanges.set(major, { min: bucketMin, max: bucketMax });
+            } else {
+                if (bucketMin < range.min) range.min = bucketMin;
+                if (bucketMax > range.max) range.max = bucketMax;
             }
         }
-    }
 
-    // Count total release columns and compute sequential tick positions
-    const bucketColCounts = releaseBuckets.map(b => (b.header.columns || []).length);
-    const totalCols = bucketColCounts.reduce((a, b) => a + b, 0);
-    const totalGaps = Math.max(0, releaseBuckets.length - 1);
-    const totalSpanMs = totalCols * RELEASE_TICK_MS + totalGaps * RELEASE_MAJOR_GAP_MS;
+        const sortedMajors = [...majorRanges.entries()].sort((a, b) => a[0] - b[0]);
 
-    // Anchor: place last release tick at (earliestDaily - gap), or use first bucket's natural date
-    let startMs: number;
-    if (earliestDailyMs) {
-        startMs = earliestDailyMs - RELEASE_DAILY_GAP_MS - totalSpanMs;
-    } else if (releaseBuckets.length > 0) {
-        const firstCol = releaseBuckets[0].header.columns?.[0];
-        startMs = firstCol?.runtimeCommitDateTime
-            ? new Date(firstCol.runtimeCommitDateTime).getTime() : Date.now() - totalSpanMs;
-    } else {
-        startMs = Date.now();
-    }
+        // Dividers between major version groups
+        for (let i = 0; i < sortedMajors.length - 1; i++) {
+            const prevMax = sortedMajors[i][1].max;
+            const nextMin = sortedMajors[i + 1][1].min;
+            dividerDates.push((prevMax + nextMin) / 2);
+        }
 
-    let cursor = startMs;
-    for (let bi = 0; bi < releaseBuckets.length; bi++) {
-        const cols = releaseBuckets[bi].header.columns || [];
-        const ticks = cols.map(() => {
-            const t = cursor;
-            cursor += RELEASE_TICK_MS;
-            return t;
-        });
-        releaseTickMap.set(releaseBuckets[bi].label, ticks);
-        // Add gap before next major (but not after the last one)
-        if (bi < releaseBuckets.length - 1) {
-            cursor += RELEASE_MAJOR_GAP_MS;
+        // Divider between last release and first daily
+        if (hasDailyData && sortedMajors.length > 0) {
+            const lastReleaseMax = sortedMajors[sortedMajors.length - 1][1].max;
+            dividerDates.push((lastReleaseMax + dailyMin) / 2);
         }
     }
 
-    return releaseTickMap;
+    return { releasePositions, dailyPositions, dividerDates, tickMap };
 }

@@ -5,6 +5,7 @@ import { getCached } from './data-fetcher.js';
 import type { BucketHeader } from './data-fetcher.js';
 import { isRowVisible } from './dataset-builder.js';
 import type { Filters } from './dataset-builder.js';
+import type { TickLayout } from './tick-layout.js';
 
 export function formatValue(value: number | null, unit: string): string {
     if (value == null) return '—';
@@ -25,64 +26,6 @@ export function formatValue(value: number | null, unit: string): string {
         return Math.round(value).toLocaleString() + ' ops/sec';
     }
     return String(value);
-}
-
-function computeDividerDates(mergedDatasets: ChartDatasetBase[]): number[] {
-    const releaseLabelRanges = new Map<string, { min: number; max: number }>();
-    let firstActiveDate: number | null = null;
-    for (const ds of mergedDatasets) {
-        for (const pt of ds.data) {
-            if (pt.y == null) continue;
-            if (pt._bucketType === 'release' && pt._releaseLabel) {
-                const d = pt.x as number;
-                const range = releaseLabelRanges.get(pt._releaseLabel);
-                if (!range) {
-                    releaseLabelRanges.set(pt._releaseLabel, { min: d, max: d });
-                } else {
-                    if (d < range.min) range.min = d;
-                    if (d > range.max) range.max = d;
-                }
-            } else if (pt._bucketType === 'week') {
-                const d = new Date(pt.x).getTime();
-                if (!firstActiveDate || d < firstActiveDate) firstActiveDate = d;
-            }
-        }
-    }
-
-    const dividerDates: number[] = [];
-    const sortedLabels = [...releaseLabelRanges.entries()]
-        .sort((a, b) => a[1].min - b[1].min);
-    // Dividers between adjacent major release buckets
-    for (let i = 0; i < sortedLabels.length - 1; i++) {
-        const prevMax = sortedLabels[i][1].max;
-        const nextMin = sortedLabels[i + 1][1].min;
-        dividerDates.push((prevMax + nextMin) / 2);
-    }
-    // Divider between last release and first daily
-    if (sortedLabels.length > 0 && firstActiveDate) {
-        const lastMax = sortedLabels[sortedLabels.length - 1][1].max;
-        dividerDates.push((lastMax + firstActiveDate) / 2);
-    }
-
-    return dividerDates;
-}
-
-function buildTickMap(chartDatasets: ChartDatasetBase[]): Map<number, string> {
-    const tickToSdk = new Map<number, string>();
-    for (const ds of chartDatasets) {
-        for (const pt of ds.data) {
-            if (!pt._sdkVersion || !pt.x) continue;
-            const ts = pt.x as number;
-            pt.x = new Date(pt.x);
-            const existing = tickToSdk.get(ts);
-            if (existing && existing !== pt._sdkVersion) {
-                console.warn(`Duplicate tick at ${pt.x}: existing '${existing}', new '${pt._sdkVersion}'`);
-            } else {
-                tickToSdk.set(ts, pt._sdkVersion);
-            }
-        }
-    }
-    return tickToSdk;
 }
 
 // ── Chart.js Plugin: Frozen release zone separator ───────────────────────────
@@ -116,11 +59,17 @@ Chart.register(frozenZonePlugin);
 
 // ── Chart Creation ───────────────────────────────────────────────────────────
 
-export function createChart(canvas: HTMLCanvasElement, canvasId: string, metric: string, mergedDatasets: ChartDatasetBase[], filters: Filters, dataBaseUrl: string, pointClickCallback: ((json: string) => void) | null): ChartInstance {
+export function createChart(canvas: HTMLCanvasElement, metric: string, mergedDatasets: ChartDatasetBase[], filters: Filters, dataBaseUrl: string, pointClickCallback: ((json: string) => void) | null, tickLayout: TickLayout): ChartInstance {
     const unit = METRIC_UNITS[metric] || '';
     const displayName = METRIC_DISPLAY[metric] || metric;
-    const dividerDates = computeDividerDates(mergedDatasets);
-    const tickToSdk = buildTickMap(mergedDatasets);
+    const { dividerDates, tickMap: tickToSdk } = tickLayout;
+
+    // Convert x from number to Date for Chart.js time scale
+    for (const ds of mergedDatasets) {
+        for (const pt of ds.data) {
+            (pt as unknown as { x: Date }).x = new Date(pt.x);
+        }
+    }
 
     const config: Record<string, unknown> = {
         type: 'line',
@@ -155,25 +104,25 @@ export function createChart(canvas: HTMLCanvasElement, canvasId: string, metric:
                         title(items: Array<{ raw: ChartDataPoint }>) {
                             if (!items.length) return '';
                             const pt = items[0].raw;
-                            if (pt._bucketType === 'release') {
-                                return `Release: ${pt._sdkVersion || pt._releaseLabel}`;
+                            if (pt.bucketType === 'release') {
+                                return `Release: ${pt.sdkVersion}`;
                             }
                             return `Date: ${new Date(pt.x).toLocaleDateString()}`;
                         },
                         afterTitle(items: Array<{ raw: ChartDataPoint }>) {
                             if (!items.length) return '';
                             const pt = items[0].raw;
-                            const header = getCached<BucketHeader>(`${dataBaseUrl}/${pt._bucket}/header.json`);
+                            const header = getCached<BucketHeader>(`${dataBaseUrl}/${pt.bucket}/header.json`);
                             if (!header) return '';
-                            const col = header.columns[pt._colIndex!];
+                            const col = header.columns[pt.colIndex];
                             if (!col) return '';
                             const lines: string[] = [];
                             lines.push(`SDK: ${col.sdkVersion}`);
-                            lines.push(`Runtime: ${col.runtimeGitHash!.substring(0, 7)}`);
+                            lines.push(`Runtime: ${col.runtimeGitHash.substring(0, 7)}`);
                             return lines.join('\n');
                         },
                         label(ctx: { dataset: ChartDatasetBase; raw: ChartDataPoint }) {
-                            return `${ctx.dataset.label}: ${formatValue(ctx.raw.y as number, unit)}`;
+                            return `${ctx.dataset.label}: ${formatValue(ctx.raw.y, unit)}`;
                         },
                     },
                 },
@@ -231,10 +180,10 @@ export function createChart(canvas: HTMLCanvasElement, canvasId: string, metric:
                 const ds = (config as { data: { datasets: ChartDatasetBase[] } }).data.datasets[el.datasetIndex];
                 const pt = ds.data[el.index];
                 const detail = {
-                    rowKey: ds._rowKey || ds.label,
-                    colIndex: pt._colIndex,
-                    bucket: pt._bucket,
-                    bucketType: pt._bucketType,
+                    rowKey: ds.rowKey,
+                    colIndex: pt.colIndex,
+                    bucket: pt.bucket,
+                    bucketType: pt.bucketType,
                     value: pt.y,
                     metric: metric,
                 };
@@ -256,13 +205,13 @@ export function createChart(canvas: HTMLCanvasElement, canvasId: string, metric:
 
     const ctx = canvas.getContext('2d')!;
     const chart = new Chart(ctx, config);
-    chart._metric = metric;
+    chart.metric = metric;
 
     // Apply initial filter visibility
     for (let i = 0; i < chart.data.datasets.length; i++) {
         const ds = chart.data.datasets[i];
-        if (ds._rowKey) {
-            chart.setDatasetVisibility(i, isRowVisible(ds._rowKey, filters, metric));
+        if (ds.rowKey) {
+            chart.setDatasetVisibility(i, isRowVisible(ds.rowKey, filters, metric));
         }
     }
     chart.update('none');

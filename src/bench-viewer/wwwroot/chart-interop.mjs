@@ -146,3 +146,7 @@ export function setShowReleases(show) {
 export function setShowDailyReleases(show) {
     showDailyReleases = !!show;
 }
+
+export function scrollChartsToTop() {
+    document.querySelector('.charts-area')?.scrollTo(0, 0);
+}

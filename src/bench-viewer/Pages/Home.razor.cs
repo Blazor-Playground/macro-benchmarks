@@ -119,6 +119,7 @@ public partial class Home : IAsyncDisposable
         StateHasChanged();
 
         await Task.Yield();
+        ChartInterop.ScrollChartsToTop();
         await LoadChartsForCurrentApp();
     }
 

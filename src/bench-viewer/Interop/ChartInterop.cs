@@ -36,4 +36,7 @@ public static partial class ChartInterop
 
     [JSImport("setShowDailyReleases", ModuleName)]
     internal static partial void SetShowDailyReleases(bool show);
+
+    [JSImport("scrollChartsToTop", ModuleName)]
+    internal static partial void ScrollChartsToTop();
 }

@@ -19,28 +19,22 @@
         <Message Text="Overriding runtime pack with: $(RuntimePackDir)" Importance="High" />
     </Target>
 
-    <Target Name="RenameFingerprinting" AfterTargets="ComputeAndCopyFilesToPublishDirectory"
-             Condition="'$(BenchmarkPreset)' == 'EnableFingerprinting'">
-
-        <PropertyGroup>
-            <_PublishedIndexHtml>$(PublishDir)\wwwroot\index.html</_PublishedIndexHtml>
-            <_PublishedIndexFpHtml>$(PublishDir)\wwwroot\index-fp.html</_PublishedIndexFpHtml>
-        </PropertyGroup>
-
-        <Message Text="Overriding index.html with index-fp.html to enable fingerprinting for JS and MJS files." Importance="High" />
-
-        <Copy SourceFiles="$(_PublishedIndexFpHtml)"
-              DestinationFiles="$(_PublishedIndexHtml)"
-              OverwriteReadOnlyFiles="true"
-              Condition="Exists('$(_PublishedIndexFpHtml)') and Exists('$(_PublishedIndexHtml)')" />
-        <Copy SourceFiles="$(_PublishedIndexFpHtml)"
-              DestinationFiles="$(_PublishedIndexHtml)"
-              OverwriteReadOnlyFiles="true"
-              Condition="Exists('$(_PublishedIndexFpHtml).br') and Exists('$(_PublishedIndexHtml).br')" />
-        <Copy SourceFiles="$(_PublishedIndexFpHtml)"
-              DestinationFiles="$(_PublishedIndexHtml)"
-              OverwriteReadOnlyFiles="true"
-              Condition="Exists('$(_PublishedIndexFpHtml).gz') and Exists('$(_PublishedIndexHtml).gz')" />
+    <Target Name="RenameFingerprinting" AfterTargets="ComputeAndCopyFilesToPublishDirectory">
+        <ItemGroup>
+            <_FingerprintedMainMjs Include="$(PublishDir)wwwroot/main.*.mjs" />
+            <_FingerprintedDotnetJs Include="$(PublishDir)wwwroot/_framework/dotnet.*.js"
+                                       Exclude="
+                                       $(PublishDir)wwwroot/_framework/dotnet.native.*.js;
+                                       $(PublishDir)wwwroot/_framework/dotnet.runtime.*.js;
+                                       $(PublishDir)wwwroot/_framework/dotnet.diagnostics.*.js
+                                       " />
+        </ItemGroup>
+        <Copy SourceFiles="@(_FingerprintedMainMjs)"
+              DestinationFiles="$(PublishDir)wwwroot/main.mjs"
+              Condition="'@(_FingerprintedMainMjs)' != ''" />
+        <Copy SourceFiles="@(_FingerprintedDotnetJs)"
+              DestinationFiles="$(PublishDir)wwwroot/_framework/dotnet.js"
+              Condition="'@(_FingerprintedDotnetJs)' != ''" />
     </Target>
 
 </Project>

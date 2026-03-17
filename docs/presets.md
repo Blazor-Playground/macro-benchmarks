@@ -13,11 +13,9 @@ Build presets control how `dotnet publish` compiles each sample app. They are de
 | `no-jiterp` | Release | ✓ | ✓ | Disables Jiterpreter (interpreter fallback) |
 | `invariant` | Release | ✓ | ✓ | Invariant globalization, no diagnostics, full trimming |
 | `no-reflection-emit` | Release | — | ✓ | No dynamic code generation (extends invariant) |
-| `enable-fingerprinting` | Release | ✓ | ✓ | Asset fingerprinting for cache-busting (deployment only) |
 
 ## Constraints
 
 - **Mono-only**: `aot`, `no-jiterp` — incompatible with CoreCLR runtime
 - **Blazor-incompatible**: `no-reflection-emit` — requires dynamic code for component rendering
-- **Deployment-only**: `enable-fingerprinting` — used for gh-pages app snapshots, skipped from measurement
 - **No workload required**: `dev-loop`, `no-workload` — do not need `wasm-tools` workload

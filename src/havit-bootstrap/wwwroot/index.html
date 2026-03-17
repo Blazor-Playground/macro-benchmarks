@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="./prism.min.css">
     <link rel="stylesheet" href="./prism-vs.css">
     <link rel="stylesheet" href="css/site.css" />
+    <script type="importmap"></script>
 </head>
 
 <body>
@@ -35,7 +36,7 @@
         <a href="." class="reload">Reload</a>
         <span class="dismiss">🗙</span>
     </div>
-    <script src="bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="bootstrap.bundle.min#[.{fingerprint}].js" crossorigin="anonymous"></script>
     <script>
         // Guard Bootstrap components against null _element during Blazor SPA transitions.
         // When navigating away, Blazor removes DOM elements while Bootstrap transition
@@ -52,18 +53,18 @@
             };
         })();
     </script>
-    <script src="echarts.min.js" crossorigin="anonymous"></script>
-    <script src="prism.min.js" crossorigin="anonymous"></script>
-    <script src="prism-autoloader.min.js" crossorigin="anonymous"></script>
-    <script src="components/prism-cshtml.min.js" crossorigin="anonymous"></script>
-    <script src="components/prism-csharp.min.js" crossorigin="anonymous"></script>
+    <script src="echarts.min#[.{fingerprint}].js" crossorigin="anonymous"></script>
+    <script src="prism.min#[.{fingerprint}].js" crossorigin="anonymous"></script>
+    <script src="prism-autoloader.min#[.{fingerprint}].js" crossorigin="anonymous"></script>
+    <script src="components/prism-cshtml.min#[.{fingerprint}].js" crossorigin="anonymous"></script>
+    <script src="components/prism-csharp.min#[.{fingerprint}].js" crossorigin="anonymous"></script>
     <script>
         window.highlightCode = function () {
             Prism.highlightAll();
         };
     </script>
-    <script src="_framework/blazor.webassembly.js" autostart="false"></script>
-    <script src="main.mjs" type="module"></script>
+    <script src="_framework/blazor.webassembly#[.{fingerprint}].js" autostart="false"></script>
+    <script src="main#[.{fingerprint}].mjs" type="module"></script>
 </body>
 
 </html>

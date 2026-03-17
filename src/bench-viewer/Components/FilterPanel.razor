@@ -1,4 +1,5 @@
 @namespace BenchViewer.Components
+@using BenchViewer.Models
 
 <div class="filter-panel px-3 py-2">
     @foreach (var group in FilterGroups)
@@ -64,8 +65,8 @@
         // Dynamic visibility rules from ui.md
         if (group == "engines")
         {
-            // v8 and node hidden for blazor apps
-            if (CurrentApp is "empty-blazor" or "blazing-pizza" or "havit-bootstrap" or "bench-viewer" or "mud-blazor")
+            // v8 and node are only for non-Blazor apps (they can't run in CLI engines)
+            if (DashboardConfig.BlazorApps.Contains(CurrentApp))
             {
                 if (value is "v8" or "node") return false;
             }

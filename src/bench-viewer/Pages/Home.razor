@@ -16,7 +16,7 @@
             @if (viewIndex != null)
             {
                 <div class="text-muted" style="font-size: 0.65rem;">
-                    <a href="https://github.com/Blazor-Playground/macro-benchmarks/actions/workflows/benchmark.yml" target="_blank" rel="noopener">Updated @FormatDate(viewIndex.LastUpdated)</a>
+                    <a href="https://github.com/Blazor-Playground/macro-benchmarks/actions/workflows/benchmark.yml" target="_blank" rel="noopener">Updated @SelectedPointInfo.FormatDate(viewIndex.LastUpdated)</a>
                 </div>
             }
         </div>
@@ -121,11 +121,11 @@
             @if (previousPoint != null)
             {
                 @* ── Diff link ── *@
-                @if (!string.IsNullOrEmpty(selectedPoint.RuntimeGitHash) && !string.IsNullOrEmpty(previousPoint.RuntimeGitHash)
-                    && selectedPoint.RuntimeGitHash != previousPoint.RuntimeGitHash)
+                @if (!string.IsNullOrEmpty(selectedPoint.Column.RuntimeGitHash) && !string.IsNullOrEmpty(previousPoint.Column.RuntimeGitHash)
+                    && selectedPoint.Column.RuntimeGitHash != previousPoint.Column.RuntimeGitHash)
                 {
                     <div class="mb-2 text-center">
-                        <a href="https://github.com/dotnet/runtime/compare/@previousPoint.RuntimeGitHash...@selectedPoint.RuntimeGitHash"
+                        <a href="https://github.com/dotnet/runtime/compare/@previousPoint.Column.RuntimeGitHash...@selectedPoint.Column.RuntimeGitHash"
                            target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary w-100">
                             ⇕ Compare runtime commits
                         </a>
@@ -148,13 +148,13 @@
     {
         <div class="mb-1">
             <div class="fw-bold text-muted mb-1" style="font-size: 0.75rem;">
-                @if (!string.IsNullOrEmpty(point.RuntimeCommitMessage))
+                @if (!string.IsNullOrEmpty(point.Column.RuntimeCommitMessage))
                 {
-                    @TruncateMessage(point.RuntimeCommitMessage, 80)
+                    @TruncateMessage(point.Column.RuntimeCommitMessage, 80)
                 }
                 else
                 {
-                    <span>@point.Date</span>
+                    <span>@point.FormattedDate</span>
                 }
             </div>
         </div>
@@ -163,25 +163,25 @@
             <tbody>
                 <tr>
                     <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Date</td>
-                    <td class="py-0">@point.Date</td>
+                    <td class="py-0">@point.FormattedDate</td>
                 </tr>
-                @if (!string.IsNullOrEmpty(point.RuntimeCommitAuthor))
+                @if (!string.IsNullOrEmpty(point.Column.RuntimeCommitAuthor))
                 {
                     <tr>
                         <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Author</td>
-                        <td class="py-0">@point.RuntimeCommitAuthor</td>
+                        <td class="py-0">@point.Column.RuntimeCommitAuthor</td>
                     </tr>
                 }
                 <tr>
                     <td class="text-muted py-0 pe-2" style="white-space:nowrap;">SDK</td>
                     <td class="py-0" style="word-break:break-all;">
-                        @if (!string.IsNullOrEmpty(point.VmrGitHash))
+                        @if (!string.IsNullOrEmpty(point.Column.VmrGitHash))
                         {
-                            <a href="https://github.com/dotnet/dotnet/commit/@point.VmrGitHash" target="_blank" rel="noopener">@point.SdkVersion</a>
+                            <a href="https://github.com/dotnet/dotnet/commit/@point.Column.VmrGitHash" target="_blank" rel="noopener">@point.Column.SdkVersion</a>
                         }
                         else
                         {
-                            @point.SdkVersion
+                            @point.Column.SdkVersion
                         }
                     </td>
                 </tr>
@@ -189,43 +189,43 @@
                     <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Row</td>
                     <td class="py-0">@point.RowKey</td>
                 </tr>
-                @if (!string.IsNullOrEmpty(point.RuntimePackVersion))
+                @if (!string.IsNullOrEmpty(point.Column.RuntimePackVersion))
                 {
                     <tr>
                         <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Runtime Pack</td>
                         <td class="py-0" style="word-break:break-all;">
-                            @if (!string.IsNullOrEmpty(point.RuntimeGitHash))
+                            @if (!string.IsNullOrEmpty(point.Column.RuntimeGitHash))
                             {
-                                <a href="https://github.com/dotnet/runtime/commit/@point.RuntimeGitHash" target="_blank" rel="noopener">@point.RuntimePackVersion</a>
+                                <a href="https://github.com/dotnet/runtime/commit/@point.Column.RuntimeGitHash" target="_blank" rel="noopener">@point.Column.RuntimePackVersion</a>
                             }
                             else
                             {
-                                @point.RuntimePackVersion
+                                @point.Column.RuntimePackVersion
                             }
                         </td>
                     </tr>
                 }
-                @if (!string.IsNullOrEmpty(point.AspnetCoreVersion))
+                @if (!string.IsNullOrEmpty(point.Column.AspnetCoreVersion))
                 {
                     <tr>
                         <td class="text-muted py-0 pe-2" style="white-space:nowrap;">ASP.NET Core</td>
                         <td class="py-0" style="word-break:break-all;">
-                            @if (!string.IsNullOrEmpty(point.AspnetCoreGitHash))
+                            @if (!string.IsNullOrEmpty(point.Column.AspnetCoreGitHash))
                             {
-                                <a href="https://github.com/dotnet/aspnetcore/commit/@point.AspnetCoreGitHash" target="_blank" rel="noopener">@point.AspnetCoreVersion</a>
+                                <a href="https://github.com/dotnet/aspnetcore/commit/@point.Column.AspnetCoreGitHash" target="_blank" rel="noopener">@point.Column.AspnetCoreVersion</a>
                             }
                             else
                             {
-                                @point.AspnetCoreVersion
+                                @point.Column.AspnetCoreVersion
                             }
                         </td>
                     </tr>
                 }
-                @if (!string.IsNullOrEmpty(point.WorkloadVersion))
+                @if (!string.IsNullOrEmpty(point.Column.WorkloadVersion))
                 {
                     <tr>
                         <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Workload</td>
-                        <td class="py-0" style="word-break:break-all;">@point.WorkloadVersion</td>
+                        <td class="py-0" style="word-break:break-all;">@point.Column.WorkloadVersion</td>
                     </tr>
                 }
             </tbody>

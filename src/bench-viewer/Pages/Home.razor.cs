@@ -31,31 +31,6 @@ public partial class Home : IAsyncDisposable
     // Show daily release data
     private bool showDailyReleases = true;
 
-    // Metrics to skip for micro-benchmarks (build/disk not meaningful)
-    private static readonly HashSet<string> MicrobenchSkipMetrics = new()
-    {
-        "compile-time", "disk-size-native", "disk-size-assemblies","download-size-total"
-    };
-
-    // Preferred app display order
-    private static readonly List<string> AppOrder = new()
-    {
-        "blazing-pizza", "havit-bootstrap", "mud-blazor", "bench-viewer", "empty-blazor",
-        "empty-browser", "micro-benchmarks"
-    };
-
-    // Preferred metric display order
-    private static readonly List<string> MetricOrder = new()
-    {
-        "pizza-walkthrough", "havit-walkthrough", "mud-walkthrough",
-        "json-parse-ops", "js-interop-ops", "exception-ops",
-        "time-to-reach-managed-cold", "time-to-reach-managed-warm",
-        "time-to-create-dotnet-cold", "time-to-create-dotnet-warm",
-        "time-to-exit-cold", "time-to-exit-warm",
-        "download-size-total", "disk-size-native", "disk-size-assemblies",
-        "wasm-memory-size", "memory-peak", "compile-time"
-    };
-
     private bool initialized;
 
     [System.Runtime.Versioning.SupportedOSPlatform("browser")]
@@ -101,8 +76,8 @@ public partial class Home : IAsyncDisposable
             // Sort apps by preferred order
             viewIndex.Apps.Sort((a, b) =>
             {
-                var ia = AppOrder.IndexOf(a);
-                var ib = AppOrder.IndexOf(b);
+                var ia = DashboardConfig.AppOrder.IndexOf(a);
+                var ib = DashboardConfig.AppOrder.IndexOf(b);
                 if (ia < 0) ia = int.MaxValue;
                 if (ib < 0) ib = int.MaxValue;
                 return ia.CompareTo(ib);
@@ -199,47 +174,21 @@ public partial class Home : IAsyncDisposable
                 var bucket = detail.GetProperty("bucket").GetString() ?? "";
                 var colIndex = detail.GetProperty("colIndex").GetInt32();
                 var rowKey = detail.GetProperty("rowKey").GetString() ?? "";
-                var metric = detail.GetProperty("metric").GetString() ?? "";
 
-                // Get column metadata for commit info
                 var colJson = ChartInterop.GetColumnMetadata(bucket, colIndex);
-                var col = JsonSerializer.Deserialize<JsonElement>(colJson);
+                var column = JsonSerializer.Deserialize<ColumnInfo>(colJson) ?? new();
+
+                var metricsJson = await ChartInterop.GetPointMetrics(currentApp, bucket, rowKey, colIndex);
+                var metricsDict = JsonSerializer.Deserialize<Dictionary<string, double>>(metricsJson);
 
                 var point = new SelectedPointInfo
                 {
                     Bucket = bucket,
                     ColIndex = colIndex,
-                    Date = col.TryGetProperty("runtimeCommitDateTime", out var dt)
-                        ? FormatDate(dt.GetString() ?? "") : "",
-                    SdkVersion = col.TryGetProperty("sdkVersion", out var sdk)
-                        ? sdk.GetString() ?? "" : "",
-                    RuntimeGitHash = col.TryGetProperty("runtimeGitHash", out var rh)
-                        ? rh.GetString() ?? "" : "",
-                    SdkGitHash = col.TryGetProperty("sdkGitHash", out var sh)
-                        ? sh.GetString() ?? "" : "",
-                    VmrGitHash = col.TryGetProperty("vmrGitHash", out var vh)
-                        ? vh.GetString() ?? "" : "",
-                    AspnetCoreGitHash = col.TryGetProperty("aspnetCoreGitHash", out var ah)
-                        ? ah.GetString() ?? "" : "",
-                    RuntimeCommitAuthor = col.TryGetProperty("runtimeCommitAuthor", out var ra)
-                        ? ra.GetString() ?? "" : "",
-                    RuntimeCommitMessage = col.TryGetProperty("runtimeCommitMessage", out var rm)
-                        ? rm.GetString() ?? "" : "",
-                    AspnetCoreCommitDateTime = col.TryGetProperty("aspnetCoreCommitDateTime", out var acd)
-                        ? FormatDate(acd.GetString() ?? "") : "",
-                    AspnetCoreVersion = col.TryGetProperty("aspnetCoreVersion", out var av)
-                        ? av.GetString() ?? "" : "",
-                    RuntimePackVersion = col.TryGetProperty("runtimePackVersion", out var rpv)
-                        ? rpv.GetString() ?? "" : "",
-                    WorkloadVersion = col.TryGetProperty("workloadVersion", out var wv)
-                        ? wv.GetString() ?? "" : "",
                     RowKey = rowKey,
+                    Column = column,
+                    Metrics = metricsDict ?? new(),
                 };
-
-                // Fetch all metrics for this point
-                var metricsJson = await ChartInterop.GetPointMetrics(currentApp, bucket, rowKey, colIndex);
-                var metricsDict = JsonSerializer.Deserialize<Dictionary<string, double>>(metricsJson);
-                point.Metrics = metricsDict ?? new();
 
                 // FIFO: push current to previous, set new as current
                 // Also override previous point's rowKey to match the new one
@@ -289,12 +238,12 @@ public partial class Home : IAsyncDisposable
     {
         var metrics = viewIndex?.Metrics.TryGetValue(app, out var m) == true ? m : new();
         if (app == "micro-benchmarks")
-            metrics = metrics.Where(k => !MicrobenchSkipMetrics.Contains(k)).ToList();
+            metrics = metrics.Where(k => !DashboardConfig.MicrobenchSkipMetrics.Contains(k)).ToList();
         // Sort by preferred order
         metrics.Sort((a, b) =>
         {
-            var ia = MetricOrder.IndexOf(a);
-            var ib = MetricOrder.IndexOf(b);
+            var ia = DashboardConfig.MetricOrder.IndexOf(a);
+            var ib = DashboardConfig.MetricOrder.IndexOf(b);
             if (ia < 0) ia = int.MaxValue;
             if (ib < 0) ib = int.MaxValue;
             return ia.CompareTo(ib);
@@ -306,13 +255,6 @@ public partial class Home : IAsyncDisposable
     {
         selectedPoint = null;
         previousPoint = null;
-    }
-
-    private string FormatDate(string isoDate)
-    {
-        if (DateTime.TryParse(isoDate, out var dt))
-            return dt.ToString("yyyy-MM-dd HH:mm");
-        return isoDate;
     }
 
     private static string Short(string? hash) =>
@@ -349,26 +291,5 @@ public partial class Home : IAsyncDisposable
         {
             // Ignore during dispose
         }
-    }
-
-    // Model for selected point display
-    private class SelectedPointInfo
-    {
-        public string Bucket { get; set; } = "";
-        public int ColIndex { get; set; }
-        public string Date { get; set; } = "";
-        public string SdkVersion { get; set; } = "";
-        public string RuntimeGitHash { get; set; } = "";
-        public string SdkGitHash { get; set; } = "";
-        public string VmrGitHash { get; set; } = "";
-        public string AspnetCoreGitHash { get; set; } = "";
-        public string RuntimeCommitAuthor { get; set; } = "";
-        public string RuntimeCommitMessage { get; set; } = "";
-        public string AspnetCoreCommitDateTime { get; set; } = "";
-        public string AspnetCoreVersion { get; set; } = "";
-        public string RuntimePackVersion { get; set; } = "";
-        public string WorkloadVersion { get; set; } = "";
-        public string RowKey { get; set; } = "";
-        public Dictionary<string, double> Metrics { get; set; } = new();
     }
 }

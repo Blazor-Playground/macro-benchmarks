@@ -1,6 +1,30 @@
 {
   "columns": [
     {
+      "sdkVersion": "11.0.100-preview.3.26162.121",
+      "runtimeGitHash": "b7973489277b74bc5da9d36a0a2883eaa987328f",
+      "aspnetCoreGitHash": "69f35330cfd13d62c9d0157134632a23d3c0c3f4",
+      "sdkGitHash": "5bb7e315bf797af120abf7ed17b7cbd6145b48f6",
+      "vmrGitHash": "c05989046d48050aeff8498c51f5e14754855411",
+      "runtimeCommitDateTime": "2026-03-12T01:31:59Z",
+      "runtimeCommitAuthor": "Egor Bogatov",
+      "runtimeCommitMessage": "fix #125301 (NOL bug for partial loads/stores) (#125425)",
+      "aspnetCoreCommitDateTime": "2026-03-04T00:32:51Z",
+      "aspnetCoreVersion": "11.0.0-preview.3.26162.121",
+      "runtimePackVersion": "11.0.0-preview.3.26162.121",
+      "workloadVersion": "11.0.100-preview.3.26162.121",
+      "bootstrapSdkVersion": "11.0.100-preview.3.26161.119",
+      "releaseDate": "2026-03-12",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-03-17T00:46:17.268Z",
+      "ciRunId": "23171678348",
+      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23171678348"
+    },
+    {
       "sdkVersion": "11.0.100-preview.3.26163.101",
       "runtimeGitHash": "281d01cfd353f1ce15208c80b2f148b0d6ce106f",
       "aspnetCoreGitHash": "69f35330cfd13d62c9d0157134632a23d3c0c3f4",

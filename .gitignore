@@ -1,0 +1,6 @@
+artifacts
+gh-pages
+bin
+obj
+*.log
+tracking

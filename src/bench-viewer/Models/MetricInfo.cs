@@ -22,6 +22,8 @@ public class MetricInfo
         ["disk-size-assemblies"] = new("disk-size-assemblies", "Disk Size (*.dll.br)", "bytes", "size"),
         ["download-size-cold"] = new("download-size-cold", "Download Size Cold", "bytes", "size"),
         ["download-size-warm"] = new("download-size-warm", "Download Size Warm", "bytes", "size"),
+        ["server-requests-cold"] = new("server-requests-cold", "Server Requests Cold", "count", "count"),
+        ["server-requests-warm"] = new("server-requests-warm", "Server Requests Warm", "count", "count"),
         ["time-to-reach-managed-warm"] = new("time-to-reach-managed-warm", "Time to Managed (Warm)", "ms", "time"),
         ["time-to-reach-managed-cold"] = new("time-to-reach-managed-cold", "Time to Managed (Cold)", "ms", "time"),
         ["time-to-create-dotnet-warm"] = new("time-to-create-dotnet-warm", "Time to Create Dotnet (Warm)", "ms", "time"),

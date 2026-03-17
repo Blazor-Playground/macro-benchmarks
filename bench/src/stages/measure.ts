@@ -15,6 +15,7 @@ import {
 import { isWindows } from '../exec.js';
 import { banner, info, err, debug } from '../log.js';
 import {
+    type StaticServer,
     startStaticServer, measureFileSizes, verifyIntegrity,
     buildResultJson, buildResultFilename,
     findEntryFile,
@@ -268,6 +269,8 @@ function buildExternalMetrics(
     wasmMemorySize: number | null,
     downloadSizeCold: number | null,
     downloadSizeWarm: number | null,
+    serverRequestsCold: number | null,
+    serverRequestsWarm: number | null,
     memoryPeak: number | null,
     walkthroughMetrics: Partial<Record<MetricKey, number | null>>,
 ): Partial<Record<MetricKey, number | null>> {
@@ -277,6 +280,8 @@ function buildExternalMetrics(
         [MetricKey.DiskSizeAssemblies]: fileSizes.diskSizeAssemblies,
         [MetricKey.DownloadSizeCold]: downloadSizeCold,
         [MetricKey.DownloadSizeWarm]: downloadSizeWarm,
+        [MetricKey.ServerRequestsCold]: serverRequestsCold,
+        [MetricKey.ServerRequestsWarm]: serverRequestsWarm,
         [MetricKey.TimeToReachManagedWarm]: sortedMedian(warmArrays.reachManaged),
         [MetricKey.TimeToReachManagedCold]: sortedMedian(coldArrays.reachManaged),
         [MetricKey.TimeToCreateDotnetWarm]: sortedMedian(warmArrays.createDotnet),
@@ -442,11 +447,14 @@ async function runWarmLoads(
     timeout: number,
     verbose: boolean,
     cdp?: CDPState | null,
-): Promise<{ timings: TimingArrays; downloadSizes: number[] }> {
+    srv?: StaticServer,
+): Promise<{ timings: TimingArrays; downloadSizes: number[]; requestCounts: number[] }> {
     const arrays = emptyTimingArrays();
     const downloadSizes: number[] = [];
+    const requestCounts: number[] = [];
     for (let i = 0; i < warmRuns; i++) {
         if (cdp) cdp.resetDownloadSize();
+        if (srv) srv.resetRequestCount();
         if (verbose) debug(`Warm load ${i + 1}/${warmRuns}: reloading...`);
         await page.reload({ timeout, waitUntil: 'load' });
         if (verbose) debug(`Warm load ${i + 1}/${warmRuns}: waiting for bench_complete...`);
@@ -455,8 +463,9 @@ async function runWarmLoads(
         if (verbose) debug(`Warm load ${i + 1}/${warmRuns}: time-to-reach-managed=${t.reachManaged}`);
         pushTiming(arrays, t);
         if (cdp) downloadSizes.push(cdp.downloadSizeTotal);
+        if (srv) requestCounts.push(srv.requestCount);
     }
-    return { timings: arrays, downloadSizes };
+    return { timings: arrays, downloadSizes, requestCounts };
 }
 
 // (#5) Simplified walkthrough filter — early return instead of loop-with-continue
@@ -506,6 +515,7 @@ async function runBrowserSession(
     warmRuns: number,
     timeout: number,
     verbose: boolean,
+    srv: StaticServer,
 ): Promise<Partial<Record<MetricKey, number | null>>> {
     const context = await browser.newContext();
     const page = await context.newPage();
@@ -524,6 +534,7 @@ async function runBrowserSession(
     }
 
     // Cold load (first one uses the main context)
+    srv.resetRequestCount();
     if (verbose) debug(`Cold load: navigating to ${pageUrl}`);
     await page.goto(pageUrl, { timeout, waitUntil: 'load' });
     if (verbose) debug(`Cold load: page loaded, waiting for bench_complete...`);
@@ -531,9 +542,13 @@ async function runBrowserSession(
     const firstCold = extractTimings(coldResults);
     if (verbose) debug(`Cold results: ${JSON.stringify(coldResults)}`);
 
-    // Snapshot cold download size (single load, not accumulated)
+    // Snapshot cold download size and request count (single load, not accumulated)
     const coldDownloadSize = cdp ? cdp.resetDownloadSize() : null;
-    if (verbose && coldDownloadSize != null) debug(`Cold download size: ${coldDownloadSize} bytes`);
+    const coldRequestCount = srv.resetRequestCount();
+    if (verbose) {
+        if (coldDownloadSize != null) debug(`Cold download size: ${coldDownloadSize} bytes`);
+        debug(`Cold server requests: ${coldRequestCount}`);
+    }
 
     const coldArrays = emptyTimingArrays();
     pushTiming(coldArrays, firstCold);
@@ -552,8 +567,8 @@ async function runBrowserSession(
     }
 
     const warmResult = !isInternal
-        ? await runWarmLoads(page, warmRuns, timeout, verbose, cdp)
-        : { timings: emptyTimingArrays(), downloadSizes: [] as number[] };
+        ? await runWarmLoads(page, warmRuns, timeout, verbose, cdp, srv)
+        : { timings: emptyTimingArrays(), downloadSizes: [] as number[], requestCounts: [] as number[] };
     const warmArrays = warmResult.timings;
 
     if (verbose && warmArrays.reachManaged.length > 1) {
@@ -563,6 +578,10 @@ async function runBrowserSession(
         ? sortedMedian(warmResult.downloadSizes)
         : null;
     if (verbose && warmDownloadSize != null) debug(`Warm download size (median): ${warmDownloadSize} bytes`);
+    const warmRequestCount = warmResult.requestCounts.length > 0
+        ? sortedMedian(warmResult.requestCounts)
+        : null;
+    if (verbose && warmRequestCount != null) debug(`Warm server requests (median): ${warmRequestCount}`);
 
     // (#8) Simplified wasmMemorySize computation
     const allWasmMem = coldArrays.wasmMemory.concat(warmArrays.wasmMemory);
@@ -612,6 +631,8 @@ async function runBrowserSession(
         coldArrays, warmArrays, wasmMemorySize,
         useCDP ? (coldDownloadSize || null) : null,
         useCDP ? (warmDownloadSize || null) : null,
+        coldRequestCount || null,
+        warmRequestCount,
         useCDP ? (cdp!.memoryPeak || null) : null,
         walkthroughMetrics,
     );
@@ -656,7 +677,7 @@ async function measureBrowser(
                 const result = await runBrowserSession(
                     browser, pageUrl, entry, engine, profile,
                     compileTime, fileSizes, isInternal, useCDP,
-                    warmRuns, timeout, ctx.verbose,
+                    warmRuns, timeout, ctx.verbose, srv,
                 );
                 await browser.close();
                 return result;
@@ -736,6 +757,6 @@ async function measureCli(
     return buildExternalMetrics(
         compileTime, fileSizes!,
         cliArrays, cliArrays, t.wasmMemory,
-        null, null, null, {},
+        null, null, null, null, null, {},
     );
 }

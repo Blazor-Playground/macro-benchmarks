@@ -5,7 +5,9 @@ public static class DashboardConfig
     // Metrics to skip for micro-benchmarks (build/disk not meaningful)
     public static readonly HashSet<string> MicrobenchSkipMetrics = new()
     {
-        "compile-time", "disk-size-native", "disk-size-assemblies", "download-size-cold", "download-size-warm"
+        "compile-time", "disk-size-native", "disk-size-assemblies",
+        "download-size-cold", "download-size-warm",
+        "server-requests-cold", "server-requests-warm"
     };
 
     // Preferred app display order
@@ -24,6 +26,7 @@ public static class DashboardConfig
         "time-to-create-dotnet-cold", "time-to-create-dotnet-warm",
         "time-to-exit-cold", "time-to-exit-warm",
         "download-size-cold", "download-size-warm",
+        "server-requests-cold", "server-requests-warm",
         "disk-size-native", "disk-size-assemblies",
         "wasm-memory-size", "memory-peak", "compile-time"
     };

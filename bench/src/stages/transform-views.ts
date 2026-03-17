@@ -282,6 +282,7 @@ async function writeBucketView(
         'compile-time', 'disk-size-native',
         'disk-size-assemblies',
         'download-size-cold', 'download-size-warm',
+        'server-requests-cold', 'server-requests-warm',
     ]);
     const grid = new Map<string, Map<string, Map<string, (number | null)[]>>>();
 

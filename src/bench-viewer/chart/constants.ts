@@ -34,6 +34,8 @@ export const METRIC_UNITS: Record<string, string> = {
     'disk-size-assemblies': 'bytes',
     'download-size-cold': 'bytes',
     'download-size-warm': 'bytes',
+    'server-requests-cold': 'count',
+    'server-requests-warm': 'count',
     'time-to-reach-managed-warm': 'ms',
     'time-to-reach-managed-cold': 'ms',
     'time-to-create-dotnet-warm': 'ms',
@@ -74,7 +76,7 @@ export const METRIC_DISPLAY: Record<string, string> = {
 
 // Build-time metrics are identical across engines/profiles — only show chrome/desktop
 export const BUILD_METRICS = new Set([
-    'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-cold', 'download-size-warm',
+    'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-cold', 'download-size-warm', 'server-requests-cold', 'server-requests-warm',
 ]);
 
 // Walkthrough metrics are only collected for chrome/desktop
@@ -84,7 +86,7 @@ export const WALKTHROUGH_METRICS = new Set([
 
 // Metrics to skip for micro-benchmarks (not meaningful for internal throughput tests)
 export const MICROBENCH_SKIP_METRICS = new Set([
-    'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-cold', 'download-size-warm',
+    'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-cold', 'download-size-warm', 'server-requests-cold', 'server-requests-warm',
 ]);
 
 // Release tick spacing

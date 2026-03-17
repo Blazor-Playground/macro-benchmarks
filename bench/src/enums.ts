@@ -65,6 +65,8 @@ export enum MetricKey {
     DiskSizeAssemblies = 'disk-size-assemblies',
     DownloadSizeCold = 'download-size-cold',
     DownloadSizeWarm = 'download-size-warm',
+    ServerRequestsCold = 'server-requests-cold',
+    ServerRequestsWarm = 'server-requests-warm',
     TimeToReachManagedWarm = 'time-to-reach-managed-warm',
     TimeToReachManagedCold = 'time-to-reach-managed-cold',
     TimeToCreateDotnetWarm = 'time-to-create-dotnet-warm',

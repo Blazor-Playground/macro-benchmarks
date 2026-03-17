@@ -1,0 +1,35 @@
+@namespace BenchViewer.Components
+
+<div class="tabs-header px-3 pt-3 d-flex justify-content-between align-items-end">
+    <AppTabs Apps="@Apps" ActiveApp="@CurrentApp" OnAppChanged="@OnAppChanged" />
+</div>
+
+@if (!string.IsNullOrEmpty(CurrentApp))
+{
+    <div class="app-link-panel">
+        <a href="./apps/@CurrentApp/" target="_blank" rel="noopener">
+            The application published with no-workload preset with the latest daily SDK ↗
+        </a>
+    </div>
+}
+
+<div class="charts-area px-3 py-2">
+    @foreach (var metric in Metrics)
+    {
+        <div class="chart-container mb-3">
+            <canvas id="chart-@CurrentApp-@metric"></canvas>
+        </div>
+    }
+
+    @if (Metrics.Count == 0)
+    {
+        <div class="text-muted p-3">No metrics available for this app.</div>
+    }
+</div>
+
+@code {
+    [Parameter] public List<string> Apps { get; set; } = new();
+    [Parameter] public string CurrentApp { get; set; } = "";
+    [Parameter] public List<string> Metrics { get; set; } = new();
+    [Parameter] public EventCallback<string> OnAppChanged { get; set; }
+}

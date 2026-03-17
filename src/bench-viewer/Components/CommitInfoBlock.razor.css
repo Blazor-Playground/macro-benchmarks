@@ -1,0 +1,37 @@
+.commit-heading {
+    font-weight: bold;
+    color: var(--bs-secondary-color);
+    margin-bottom: 0.25rem;
+    font-size: 0.75rem;
+}
+
+.commit-table {
+    font-size: 0.8rem;
+    width: 100%;
+    margin-bottom: 0.25rem;
+}
+
+.commit-table td {
+    padding: 0;
+}
+
+.commit-label {
+    color: var(--bs-secondary-color);
+    padding-right: 0.5rem;
+    white-space: nowrap;
+}
+
+.commit-value-break {
+    padding: 0;
+    word-break: break-all;
+}
+
+.metrics-list {
+    font-size: 0.75rem;
+}
+
+.metrics-summary {
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.8rem;
+}

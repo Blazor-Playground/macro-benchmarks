@@ -1,0 +1,128 @@
+@namespace BenchViewer.Components
+@using BenchViewer.Models
+
+<div class="commit-info-block mb-2">
+    <div class="mb-1">
+        <div class="commit-heading">
+            @if (!string.IsNullOrEmpty(Point.Column.RuntimeCommitMessage))
+            {
+                @TruncateMessage(Point.Column.RuntimeCommitMessage, 80)
+            }
+            else
+            {
+                <span>@Point.FormattedDate</span>
+            }
+        </div>
+    </div>
+
+    <table class="commit-table">
+        <tbody>
+            <tr>
+                <td class="commit-label">Date</td>
+                <td class="py-0">@Point.FormattedDate</td>
+            </tr>
+            @if (!string.IsNullOrEmpty(Point.Column.RuntimeCommitAuthor))
+            {
+                <tr>
+                    <td class="commit-label">Author</td>
+                    <td class="py-0">@Point.Column.RuntimeCommitAuthor</td>
+                </tr>
+            }
+            <tr>
+                <td class="commit-label">SDK</td>
+                <td class="commit-value-break">
+                    @if (!string.IsNullOrEmpty(Point.Column.VmrGitHash))
+                    {
+                        <a href="https://github.com/dotnet/dotnet/commit/@Point.Column.VmrGitHash" target="_blank" rel="noopener">@Point.Column.SdkVersion</a>
+                    }
+                    else
+                    {
+                        @Point.Column.SdkVersion
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td class="commit-label">Row</td>
+                <td class="py-0">@Point.RowKey</td>
+            </tr>
+            @if (!string.IsNullOrEmpty(Point.Column.RuntimePackVersion))
+            {
+                <tr>
+                    <td class="commit-label">Runtime Pack</td>
+                    <td class="commit-value-break">
+                        @if (!string.IsNullOrEmpty(Point.Column.RuntimeGitHash))
+                        {
+                            <a href="https://github.com/dotnet/runtime/commit/@Point.Column.RuntimeGitHash" target="_blank" rel="noopener">@Point.Column.RuntimePackVersion</a>
+                        }
+                        else
+                        {
+                            @Point.Column.RuntimePackVersion
+                        }
+                    </td>
+                </tr>
+            }
+            @if (!string.IsNullOrEmpty(Point.Column.AspnetCoreVersion))
+            {
+                <tr>
+                    <td class="commit-label">ASP.NET Core</td>
+                    <td class="commit-value-break">
+                        @if (!string.IsNullOrEmpty(Point.Column.AspnetCoreGitHash))
+                        {
+                            <a href="https://github.com/dotnet/aspnetcore/commit/@Point.Column.AspnetCoreGitHash" target="_blank" rel="noopener">@Point.Column.AspnetCoreVersion</a>
+                        }
+                        else
+                        {
+                            @Point.Column.AspnetCoreVersion
+                        }
+                    </td>
+                </tr>
+            }
+            @if (!string.IsNullOrEmpty(Point.Column.WorkloadVersion))
+            {
+                <tr>
+                    <td class="commit-label">Workload</td>
+                    <td class="commit-value-break">@Point.Column.WorkloadVersion</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (Point.Metrics.Count > 0)
+    {
+        @if (Expanded)
+        {
+            <hr class="my-1" />
+            <div class="mb-1"><strong>Metrics:</strong></div>
+            <div class="metrics-list">
+                @foreach (var kv in Point.Metrics)
+                {
+                    <div>@MetricInfo.GetDisplay(kv.Key): @MetricInfo.FormatValue(kv.Key, kv.Value)</div>
+                }
+            </div>
+        }
+        else
+        {
+            <details class="mt-1">
+                <summary class="metrics-summary">Metrics</summary>
+                <div class="mt-1 metrics-list">
+                    @foreach (var kv in Point.Metrics)
+                    {
+                        <div>@MetricInfo.GetDisplay(kv.Key): @MetricInfo.FormatValue(kv.Key, kv.Value)</div>
+                    }
+                </div>
+            </details>
+        }
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public SelectedPointInfo Point { get; set; } = default!;
+    [Parameter] public bool Expanded { get; set; }
+
+    private static string TruncateMessage(string msg, int max)
+    {
+        var idx = msg.IndexOfAny(new[] { '\r', '\n' });
+        if (idx >= 0) msg = msg[..idx];
+        return msg.Length <= max ? msg : msg[..(max - 1)] + "…";
+    }
+}

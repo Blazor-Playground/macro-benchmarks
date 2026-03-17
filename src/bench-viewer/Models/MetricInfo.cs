@@ -36,4 +36,25 @@ public class MetricInfo
         ["json-parse-ops"] = new("json-parse-ops", "JSON Parse", "ops/sec", "throughput"),
         ["exception-ops"] = new("exception-ops", "Exception Handling", "ops/sec", "throughput"),
     };
+
+    public static string GetDisplay(string key)
+    {
+        return All.TryGetValue(key, out var info) ? info.DisplayName : key;
+    }
+
+    public static string FormatValue(string key, double value)
+    {
+        if (!All.TryGetValue(key, out var info))
+            return value.ToString("N2");
+
+        return info.Unit switch
+        {
+            "bytes" when value >= 1_000_000 => $"{value / 1_048_576:N2} MB",
+            "bytes" => $"{value / 1024:N1} KB",
+            "ms" when info.Key == "compile-time" => $"{Math.Round(value / 1000)} s",
+            "ms" => $"{value:N1} ms",
+            "ops/sec" => $"{value:N0} ops/s",
+            _ => value.ToString("N2"),
+        };
+    }
 }

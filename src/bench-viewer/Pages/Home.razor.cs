@@ -257,30 +257,6 @@ public partial class Home : IAsyncDisposable
         previousPoint = null;
     }
 
-    private static string Short(string? hash) =>
-        string.IsNullOrEmpty(hash) ? "" : hash[..Math.Min(7, hash.Length)];
-
-    private string GetMetricDisplay(string key)
-    {
-        return MetricInfo.All.TryGetValue(key, out var info) ? info.DisplayName : key;
-    }
-
-    private string FormatMetricValue(string key, double value)
-    {
-        if (!MetricInfo.All.TryGetValue(key, out var info))
-            return value.ToString("N2");
-
-        return info.Unit switch
-        {
-            "bytes" when value >= 1_000_000 => $"{value / 1_048_576:N2} MB",
-            "bytes" => $"{value / 1024:N1} KB",
-            "ms" when info.Key == "compile-time" => $"{Math.Round(value / 1000)} s",
-            "ms" => $"{value:N1} ms",
-            "ops/sec" => $"{value:N0} ops/s",
-            _ => value.ToString("N2"),
-        };
-    }
-
     public async ValueTask DisposeAsync()
     {
         try

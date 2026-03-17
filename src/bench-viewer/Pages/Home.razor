@@ -1,59 +1,22 @@
 ﻿@page "/"
-@using System.Text.Json
-@using System.Runtime.InteropServices.JavaScript
-@using BenchViewer.Interop
 @using BenchViewer.Components
-@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
-@inject IWebAssemblyHostEnvironment HostEnv
+@using BenchViewer.Models
 @implements IAsyncDisposable
 
 <PageTitle>.NET WASM Benchmark Dashboard</PageTitle>
 
-<aside class="sidebar">
-    <div class="sidebar-header">
-        <div>
-            <div class="sidebar-title">.NET WASM Macro Benchmarks</div>
-            @if (viewIndex != null)
-            {
-                <div class="text-muted" style="font-size: 0.65rem;">
-                    <a href="https://github.com/Blazor-Playground/macro-benchmarks/actions/workflows/benchmark.yml" target="_blank" rel="noopener">Updated @SelectedPointInfo.FormatDate(viewIndex.LastUpdated)</a>
-                </div>
-            }
-        </div>
-        <a href="https://github.com/Blazor-Playground/macro-benchmarks" target="_blank" rel="noopener" title="GitHub Repository">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
-            </svg>
-        </a>
-    </div>
-    <div class="sidebar-body">
-        @if (viewIndex != null)
-        {
-            <div class="px-3 py-2 border-bottom">
-                <div class="form-check form-check-sm">
-                    <input class="form-check-input" type="checkbox" id="show-releases"
-                           checked="@showReleases"
-                           @onchange="e => HandleShowReleasesChanged((bool)e.Value!)" />
-                    <label class="form-check-label small" for="show-releases">
-                        Show GA releases
-                    </label>
-                </div>
-                <div class="form-check form-check-sm mt-1">
-                    <input class="form-check-input" type="checkbox" id="show-daily-releases"
-                           checked="@showDailyReleases"
-                           @onchange="e => HandleShowDailyReleasesChanged((bool)e.Value!)" />
-                    <label class="form-check-label small" for="show-daily-releases">
-                        Show daily releases
-                    </label>
-                </div>
-            </div>
-            <FilterPanel FilterGroups="@filterGroups"
-                         CheckedValues="@checkedValues"
-                         CurrentApp="@currentApp"
-                         OnFilterChanged="@HandleFilterChanged" />
-        }
-    </div>
-</aside>
+@if (viewIndex != null)
+{
+    <Sidebar LastUpdated="@viewIndex.LastUpdated"
+             ShowReleases="@showReleases"
+             ShowDailyReleases="@showDailyReleases"
+             FilterGroups="@filterGroups"
+             CheckedValues="@checkedValues"
+             CurrentApp="@currentApp"
+             OnShowReleasesChanged="@HandleShowReleasesChanged"
+             OnShowDailyReleasesChanged="@HandleShowDailyReleasesChanged"
+             OnFilterChanged="@HandleFilterChanged" />
+}
 
 <main class="main-content">
     @if (loading)
@@ -70,32 +33,10 @@
     }
     else if (viewIndex != null)
     {
-        <div class="tabs-header px-3 pt-3 d-flex justify-content-between align-items-end">
-            <AppTabs Apps="@viewIndex.Apps" ActiveApp="@currentApp" OnAppChanged="@HandleAppChanged" />
-
-        </div>
-
-        @if (!string.IsNullOrEmpty(@currentApp))
-        {
-            <div class="app-link-panel">
-                <a href="./apps/@currentApp/" target="_blank" rel="noopener">
-                    The application published with no-workload preset with the latest daily SDK ↗
-                </a>
-            </div>
-        }
-        <div class="charts-area px-3 py-2">
-            @foreach (var metric in currentMetrics)
-            {
-                <div class="chart-container mb-3">
-                    <canvas id="chart-@currentApp-@metric"></canvas>
-                </div>
-            }
-
-            @if (currentMetrics.Count == 0)
-            {
-                <div class="text-muted p-3">No metrics available for this app.</div>
-            }
-        </div>
+        <ChartArea Apps="@viewIndex.Apps"
+                   CurrentApp="@currentApp"
+                   Metrics="@currentMetrics"
+                   OnAppChanged="@HandleAppChanged" />
     }
     else
     {
@@ -107,163 +48,7 @@
 
 @if (selectedPoint != null)
 {
-    <aside class="detail-panel">
-        <div class="detail-panel-header d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
-            <strong class="small">Commit Detail</strong>
-            <button class="btn btn-sm btn-link p-0" @onclick="ClearSelection">✕</button>
-        </div>
-        <div class="detail-panel-body px-3 py-2 small">
-            @* ── Current (latest click) ── *@
-            <div class="commit-info-block mb-2">
-                @RenderCommitInfo(selectedPoint, expanded: true)
-            </div>
-
-            @if (previousPoint != null)
-            {
-                @* ── Diff link ── *@
-                @if (!string.IsNullOrEmpty(selectedPoint.Column.RuntimeGitHash) && !string.IsNullOrEmpty(previousPoint.Column.RuntimeGitHash)
-                    && selectedPoint.Column.RuntimeGitHash != previousPoint.Column.RuntimeGitHash)
-                {
-                    <div class="mb-2 text-center">
-                        <a href="https://github.com/dotnet/runtime/compare/@previousPoint.Column.RuntimeGitHash...@selectedPoint.Column.RuntimeGitHash"
-                           target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary w-100">
-                            ⇕ Compare runtime commits
-                        </a>
-                    </div>
-                }
-
-                <hr class="my-1" />
-
-                @* ── Previous click ── *@
-                <div class="commit-info-block mb-2">
-                    @RenderCommitInfo(previousPoint, expanded: false)
-                </div>
-            }
-        </div>
-    </aside>
-}
-
-@code {
-    private RenderFragment RenderCommitInfo(SelectedPointInfo point, bool expanded) => __builder =>
-    {
-        <div class="mb-1">
-            <div class="fw-bold text-muted mb-1" style="font-size: 0.75rem;">
-                @if (!string.IsNullOrEmpty(point.Column.RuntimeCommitMessage))
-                {
-                    @TruncateMessage(point.Column.RuntimeCommitMessage, 80)
-                }
-                else
-                {
-                    <span>@point.FormattedDate</span>
-                }
-            </div>
-        </div>
-
-        <table class="table table-sm table-borderless mb-1" style="font-size: 0.8rem;">
-            <tbody>
-                <tr>
-                    <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Date</td>
-                    <td class="py-0">@point.FormattedDate</td>
-                </tr>
-                @if (!string.IsNullOrEmpty(point.Column.RuntimeCommitAuthor))
-                {
-                    <tr>
-                        <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Author</td>
-                        <td class="py-0">@point.Column.RuntimeCommitAuthor</td>
-                    </tr>
-                }
-                <tr>
-                    <td class="text-muted py-0 pe-2" style="white-space:nowrap;">SDK</td>
-                    <td class="py-0" style="word-break:break-all;">
-                        @if (!string.IsNullOrEmpty(point.Column.VmrGitHash))
-                        {
-                            <a href="https://github.com/dotnet/dotnet/commit/@point.Column.VmrGitHash" target="_blank" rel="noopener">@point.Column.SdkVersion</a>
-                        }
-                        else
-                        {
-                            @point.Column.SdkVersion
-                        }
-                    </td>
-                </tr>
-                <tr>
-                    <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Row</td>
-                    <td class="py-0">@point.RowKey</td>
-                </tr>
-                @if (!string.IsNullOrEmpty(point.Column.RuntimePackVersion))
-                {
-                    <tr>
-                        <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Runtime Pack</td>
-                        <td class="py-0" style="word-break:break-all;">
-                            @if (!string.IsNullOrEmpty(point.Column.RuntimeGitHash))
-                            {
-                                <a href="https://github.com/dotnet/runtime/commit/@point.Column.RuntimeGitHash" target="_blank" rel="noopener">@point.Column.RuntimePackVersion</a>
-                            }
-                            else
-                            {
-                                @point.Column.RuntimePackVersion
-                            }
-                        </td>
-                    </tr>
-                }
-                @if (!string.IsNullOrEmpty(point.Column.AspnetCoreVersion))
-                {
-                    <tr>
-                        <td class="text-muted py-0 pe-2" style="white-space:nowrap;">ASP.NET Core</td>
-                        <td class="py-0" style="word-break:break-all;">
-                            @if (!string.IsNullOrEmpty(point.Column.AspnetCoreGitHash))
-                            {
-                                <a href="https://github.com/dotnet/aspnetcore/commit/@point.Column.AspnetCoreGitHash" target="_blank" rel="noopener">@point.Column.AspnetCoreVersion</a>
-                            }
-                            else
-                            {
-                                @point.Column.AspnetCoreVersion
-                            }
-                        </td>
-                    </tr>
-                }
-                @if (!string.IsNullOrEmpty(point.Column.WorkloadVersion))
-                {
-                    <tr>
-                        <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Workload</td>
-                        <td class="py-0" style="word-break:break-all;">@point.Column.WorkloadVersion</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-
-        @if (point.Metrics.Count > 0)
-        {
-            @if (expanded)
-            {
-                <hr class="my-1" />
-                <div class="mb-1"><strong>Metrics:</strong></div>
-                <div style="font-size: 0.75rem;">
-                    @foreach (var kv in point.Metrics)
-                    {
-                        <div>@GetMetricDisplay(kv.Key): @FormatMetricValue(kv.Key, kv.Value)</div>
-                    }
-                </div>
-            }
-            else
-            {
-                <details class="mt-1">
-                    <summary class="fw-bold" style="cursor:pointer; font-size:0.8rem;">Metrics</summary>
-                    <div class="mt-1" style="font-size: 0.75rem;">
-                        @foreach (var kv in point.Metrics)
-                        {
-                            <div>@GetMetricDisplay(kv.Key): @FormatMetricValue(kv.Key, kv.Value)</div>
-                        }
-                    </div>
-                </details>
-            }
-        }
-    };
-
-    private static string TruncateMessage(string msg, int max)
-    {
-        // Take first line only
-        var idx = msg.IndexOfAny(new[] { '\r', '\n' });
-        if (idx >= 0) msg = msg[..idx];
-        return msg.Length <= max ? msg : msg[..(max - 1)] + "…";
-    }
+    <DetailPanel CurrentPoint="@selectedPoint"
+                 PreviousPoint="@previousPoint"
+                 OnClose="@ClearSelection" />
 }

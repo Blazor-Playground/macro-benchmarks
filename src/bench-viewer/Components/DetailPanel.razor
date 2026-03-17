@@ -1,0 +1,36 @@
+@namespace BenchViewer.Components
+@using BenchViewer.Models
+
+<aside class="detail-panel">
+    <div class="detail-panel-header d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+        <strong class="small">Commit Detail</strong>
+        <button class="btn btn-sm btn-link p-0" @onclick="OnClose">✕</button>
+    </div>
+    <div class="detail-panel-body px-3 py-2 small">
+        <CommitInfoBlock Point="@CurrentPoint" Expanded="true" />
+
+        @if (PreviousPoint != null)
+        {
+            @if (!string.IsNullOrEmpty(CurrentPoint.Column.RuntimeGitHash) && !string.IsNullOrEmpty(PreviousPoint.Column.RuntimeGitHash)
+                && CurrentPoint.Column.RuntimeGitHash != PreviousPoint.Column.RuntimeGitHash)
+            {
+                <div class="mb-2 text-center">
+                    <a href="https://github.com/dotnet/runtime/compare/@PreviousPoint.Column.RuntimeGitHash...@CurrentPoint.Column.RuntimeGitHash"
+                       target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary w-100">
+                        ⇕ Compare runtime commits
+                    </a>
+                </div>
+            }
+
+            <hr class="my-1" />
+
+            <CommitInfoBlock Point="@PreviousPoint" Expanded="false" />
+        }
+    </div>
+</aside>
+
+@code {
+    [Parameter, EditorRequired] public SelectedPointInfo CurrentPoint { get; set; } = default!;
+    [Parameter] public SelectedPointInfo? PreviousPoint { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+}

@@ -93,7 +93,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     info(`Will dispatch ${toDispatch.length} of ${candidates.length} untested packs`);
 
     // 7. Dispatch via GitHub REST API
-    const repo = ctx.repo || 'blazor-playground/macro-benchmarks';
+    const repo = ctx.repo || 'pavelsavara/macro-benchmarks';
     const token = await resolveGitHubToken();
     if (!token && !ctx.dryRun) {
         throw new Error('No GitHub token available — set GITHUB_TOKEN or GH_TOKEN');

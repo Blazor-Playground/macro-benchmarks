@@ -9,8 +9,6 @@ namespace BenchViewer.Pages;
 
 public partial class Home : IAsyncDisposable
 {
-    [Inject] private IJSRuntime JS { get; set; } = default!;
-
     private ViewIndex? viewIndex;
     private string currentApp = "";
     private List<string> currentMetrics = new();

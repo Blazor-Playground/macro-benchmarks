@@ -5,7 +5,7 @@
     <DashName>blazing-pizza</DashName>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <NoWarn>$(NoWarn);CS8669;CS8632</NoWarn>
+    <NoWarn>$(NoWarn);CS8669;CS8632;CS0649</NoWarn>
     <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
     <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
   </PropertyGroup>

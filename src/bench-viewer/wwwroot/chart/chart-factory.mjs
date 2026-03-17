@@ -140,10 +140,12 @@ export function createChart(canvas, canvasId, metric, mergedDatasets, filters, d
                 legend: {
                     display: true,
                     position: 'bottom',
+                    maxHeight: 120,
                     labels: {
                         usePointStyle: true,
                         boxWidth: 8,
                         font: { size: 10 },
+                        padding: 6,
                     },
                 },
                 tooltip: {

@@ -335,6 +335,30 @@
       "benchmarkDateTime": "2026-03-17T05:27:02.969Z",
       "ciRunId": "23178864442",
       "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23178864442"
+    },
+    {
+      "sdkVersion": "9.0.312",
+      "runtimeGitHash": "19c07820cb72aafc554c3bc8fe3c54010f5123f0",
+      "aspnetCoreGitHash": "baa6b294e728e6171378b4e8c52e42e7c4d4ed63",
+      "sdkGitHash": "c45411d3fd7049c50a8bd4391ecb9ff7080fc519",
+      "vmrGitHash": "c45411d3fd7049c50a8bd4391ecb9ff7080fc519",
+      "runtimeCommitDateTime": "2026-02-19T17:58:18Z",
+      "runtimeCommitAuthor": "Tanner Gooding",
+      "runtimeCommitMessage": "#124513 - Guard Base64Url.DecodeFromChars against non-ASCII input (#124540)",
+      "aspnetCoreCommitDateTime": "2026-02-20T05:57:52Z",
+      "aspnetCoreVersion": "9.0.14",
+      "runtimePackVersion": "9.0.14",
+      "workloadVersion": "9.0.14",
+      "bootstrapSdkVersion": "9.0.113",
+      "releaseDate": "2026-03-10",
+      "major": 9,
+      "minor": 0,
+      "patch": 312,
+      "channel": "9.0",
+      "isPrerelease": false,
+      "benchmarkDateTime": "2026-03-17T06:13:05.634Z",
+      "ciRunId": "23180062969",
+      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23180062969"
     }
   ],
   "apps": {

@@ -32,7 +32,8 @@ export const METRIC_UNITS: Record<string, string> = {
     'compile-time': 's',
     'disk-size-native': 'bytes',
     'disk-size-assemblies': 'bytes',
-    'download-size-total': 'bytes',
+    'download-size-cold': 'bytes',
+    'download-size-warm': 'bytes',
     'time-to-reach-managed-warm': 'ms',
     'time-to-reach-managed-cold': 'ms',
     'time-to-create-dotnet-warm': 'ms',
@@ -51,9 +52,10 @@ export const METRIC_UNITS: Record<string, string> = {
 
 export const METRIC_DISPLAY: Record<string, string> = {
     'compile-time': 'Compile Time (s)',
-    'disk-size-native': 'Naive runtime binary size - brotli (bytes)',
-    'disk-size-assemblies': 'Assemblies size - brotli (bytes)',
-    'download-size-total': 'Download Size (Total)',
+    'disk-size-native': 'Naive runtime binary size - brotli',
+    'disk-size-assemblies': 'Assemblies size - brotli',
+    'download-size-cold': 'Download Size (Cold)',
+    'download-size-warm': 'Download Size (Warm)',
     'time-to-reach-managed-warm': 'Time to Managed (Warm)',
     'time-to-reach-managed-cold': 'Time to Managed (Cold)',
     'time-to-create-dotnet-warm': 'Time to Create Dotnet (Warm)',
@@ -72,7 +74,7 @@ export const METRIC_DISPLAY: Record<string, string> = {
 
 // Build-time metrics are identical across engines/profiles — only show chrome/desktop
 export const BUILD_METRICS = new Set([
-    'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-total',
+    'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-cold', 'download-size-warm',
 ]);
 
 // Walkthrough metrics are only collected for chrome/desktop
@@ -82,7 +84,7 @@ export const WALKTHROUGH_METRICS = new Set([
 
 // Metrics to skip for micro-benchmarks (not meaningful for internal throughput tests)
 export const MICROBENCH_SKIP_METRICS = new Set([
-    'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-total',
+    'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-cold', 'download-size-warm',
 ]);
 
 // Release tick spacing

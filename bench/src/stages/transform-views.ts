@@ -280,7 +280,8 @@ async function writeBucketView(
     // For build-time and size metrics, only keep chrome/desktop to avoid redundant rows
     const BUILD_SIZE_METRICS = new Set([
         'compile-time', 'disk-size-native',
-        'disk-size-assemblies', 'download-size-total',
+        'disk-size-assemblies',
+        'download-size-cold', 'download-size-warm',
     ]);
     const grid = new Map<string, Map<string, Map<string, (number | null)[]>>>();
 

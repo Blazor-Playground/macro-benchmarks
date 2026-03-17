@@ -2,5 +2,9 @@ artifacts
 gh-pages
 bin
 obj
+dist
 *.log
 tracking
+bench
+node_modules
+src/bench-viewer/wwwroot/chart

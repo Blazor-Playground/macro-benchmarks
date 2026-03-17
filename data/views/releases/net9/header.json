@@ -311,6 +311,30 @@
       "benchmarkDateTime": "2026-03-17T04:37:10.281Z",
       "ciRunId": "23177710514",
       "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23177710514"
+    },
+    {
+      "sdkVersion": "9.0.311",
+      "runtimeGitHash": "9ecbfd4f3f330dc9649bce49cb12570b19d48c87",
+      "aspnetCoreGitHash": "087328de5f1e0067be48d87295ae8d92064a1535",
+      "sdkGitHash": "354186e528a59602c3f93ce4a3bc0cd51ba63754",
+      "vmrGitHash": "354186e528a59602c3f93ce4a3bc0cd51ba63754",
+      "runtimeCommitDateTime": "2026-01-13T20:36:38Z",
+      "runtimeCommitAuthor": "Mirroring",
+      "runtimeCommitMessage": "Merge commit '7dd1559a0aacd866cb36c37e9e9346a34fb36a5b'",
+      "aspnetCoreCommitDateTime": "2026-01-14T18:36:57Z",
+      "aspnetCoreVersion": "9.0.13",
+      "runtimePackVersion": "9.0.13",
+      "workloadVersion": "9.0.14",
+      "bootstrapSdkVersion": "9.0.112",
+      "releaseDate": "2026-02-10",
+      "major": 9,
+      "minor": 0,
+      "patch": 311,
+      "channel": "9.0",
+      "isPrerelease": false,
+      "benchmarkDateTime": "2026-03-17T05:27:02.969Z",
+      "ciRunId": "23178864442",
+      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23178864442"
     }
   ],
   "apps": {

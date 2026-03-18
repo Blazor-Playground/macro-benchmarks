@@ -1,0 +1,286 @@
+<UserControl
+    x:Class="Semi.Avalonia.Demo.Views.MainView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:pages="using:Semi.Avalonia.Demo.Pages"
+    xmlns:views="clr-namespace:Semi.Avalonia.Demo.Views"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="views:MainViewModel"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <ControlTheme x:Key="CategoryTabItem" TargetType="TabItem">
+            <Setter Property="IsEnabled" Value="False" />
+            <Setter Property="Template">
+                <ControlTemplate TargetType="TabItem">
+                    <TextBlock
+                        FontWeight="Bold"
+                        FontSize="12"
+                        Margin="4"
+                        Text="{TemplateBinding Header}" />
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:disabled /template/ TextBlock">
+                <Setter Property="Foreground" Value="{DynamicResource SemiColorText1}" />
+            </Style>
+        </ControlTheme>
+    </UserControl.Resources>
+    <Grid RowDefinitions="Auto, *">
+        <Border
+            Grid.Row="0"
+            Margin="8"
+            Padding="12,4"
+            Theme="{DynamicResource CardBorder}">
+            <Panel>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <ToggleSwitch
+                        Name="ExpandButton"
+                        Theme="{DynamicResource IconBorderlessToggleSwitch}"
+                        Content="{StaticResource SemiIconSidebar}" />
+                    <SelectableTextBlock
+                        VerticalAlignment="Center"
+                        Classes="H6"
+                        Text="Semi Avalonia"
+                        Theme="{DynamicResource TitleSelectableTextBlock}" />
+                    <SelectableTextBlock
+                        VerticalAlignment="Center"
+                        Text="/" />
+                    <SelectableTextBlock
+                        VerticalAlignment="Center"
+                        Classes="Secondary"
+                        Text="{ReflectionBinding #tab.SelectedItem.Header}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button
+                        Theme="{DynamicResource IconBorderlessButton}"
+                        Command="{Binding OpenUrlCommand}"
+                        CommandParameter="{Binding DocumentationUrl}"
+                        Content="{StaticResource SemiIconGlobe}" />
+
+                    <Button
+                        Theme="{DynamicResource IconBorderlessButton}"
+                        Command="{Binding OpenUrlCommand}"
+                        CommandParameter="{Binding RepoUrl}"
+                        Content="{StaticResource SemiIconGithubLogo}" />
+
+                    <ToggleSwitch
+                        Theme="{DynamicResource IconBorderlessToggleSwitch}"
+                        Command="{Binding ToggleThemeCommand}"
+                        OnContent="{StaticResource SemiIconMoon}"
+                        OffContent="{StaticResource SemiIconSun}" />
+
+                    <Button
+                        Theme="{DynamicResource IconBorderlessButton}"
+                        Content="{StaticResource SemiIconMenu}">
+                        <Button.Flyout>
+                            <MenuFlyout Placement="Bottom" ItemsSource="{Binding MenuItems}" />
+                        </Button.Flyout>
+                        <Button.Styles>
+                            <Style Selector="MenuItem" x:DataType="views:MenuItemViewModel">
+                                <Setter Property="Header" Value="{Binding Header}" />
+                                <Setter Property="ItemsSource" Value="{Binding Items}" />
+                                <Setter Property="Command" Value="{Binding Command}" />
+                                <Setter Property="CommandParameter" Value="{Binding CommandParameter}" />
+                            </Style>
+                        </Button.Styles>
+                    </Button>
+                </StackPanel>
+            </Panel>
+        </Border>
+        <TabControl
+            Name="tab"
+            Grid.Row="1"
+            Margin="8"
+            Padding="20,0,0,0"
+            TabStripPlacement="Left"
+            Classes.Dismiss="{Binding #ExpandButton.IsChecked}"
+            Theme="{DynamicResource ScrollLineTabControl}">
+            <TabControl.Styles>
+                <Style Selector=".Dismiss /template/ ScrollViewer#PART_ScrollViewer">
+                    <Setter Property="IsVisible" Value="False" />
+                </Style>
+            </TabControl.Styles>
+            <TabControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel />
+                </ItemsPanelTemplate>
+            </TabControl.ItemsPanel>
+            <TabItem Header="Overview">
+                <pages:Overview />
+            </TabItem>
+            <TabItem Header="About Us">
+                <pages:AboutUs />
+            </TabItem>
+            <TabItem
+                Theme="{DynamicResource CategoryTabItem}"
+                Header="Resource Browser" />
+            <TabItem Header="Palette">
+                <pages:PaletteDemo />
+            </TabItem>
+            <TabItem Header="HighContrastTheme">
+                <pages:HighContrastDemo />
+            </TabItem>
+            <TabItem Header="Variables">
+                <pages:VariablesDemo />
+            </TabItem>
+            <TabItem Header="Icon">
+                <pages:IconDemo />
+            </TabItem>
+            <TabItem
+                Theme="{DynamicResource CategoryTabItem}"
+                Header="Separate Pack" />
+            <TabItem Header="ColorPicker">
+                <pages:ColorPickerDemo />
+            </TabItem>
+            <TabItem Header="DataGrid">
+                <pages:DataGridDemo />
+            </TabItem>
+            <TabItem Header="TreeDataGrid">
+                <pages:TreeDataGridDemo />
+            </TabItem>
+            <TabItem
+                Theme="{DynamicResource CategoryTabItem}"
+                Header="Basic" />
+            <TabItem Header="TextBlock">
+                <pages:TextBlockDemo />
+            </TabItem>
+            <TabItem Header="SelectableTextBlock">
+                <pages:SelectableTextBlockDemo />
+            </TabItem>
+            <TabItem Header="Border">
+                <pages:BorderDemo />
+            </TabItem>
+            <TabItem Header="PathIcon">
+                <pages:PathIconDemo />
+            </TabItem>
+            <TabItem
+                Theme="{DynamicResource CategoryTabItem}"
+                Header="Button" />
+            <TabItem Header="Button">
+                <pages:ButtonDemo />
+            </TabItem>
+            <TabItem Header="HyperlinkButton">
+                <pages:HyperlinkButtonDemo />
+            </TabItem>
+            <TabItem Header="CheckBox">
+                <pages:CheckBoxDemo />
+            </TabItem>
+            <TabItem Header="RadioButton">
+                <pages:RadioButtonDemo />
+            </TabItem>
+            <TabItem Header="ToggleSwitch">
+                <pages:ToggleSwitchDemo />
+            </TabItem>
+            <TabItem
+                Theme="{DynamicResource CategoryTabItem}"
+                Header="Input" />
+            <TabItem Header="TextBox">
+                <pages:TextBoxDemo />
+            </TabItem>
+            <TabItem Header="AutoCompleteBox">
+                <pages:AutoCompleteBoxDemo />
+            </TabItem>
+            <TabItem Header="ComboBox">
+                <pages:ComboBoxDemo />
+            </TabItem>
+            <TabItem Header="ButtonSpinner">
+                <pages:ButtonSpinnerDemo />
+            </TabItem>
+            <TabItem Header="NumericUpDown">
+                <pages:NumericUpDownDemo />
+            </TabItem>
+            <TabItem Header="Slider">
+                <pages:SliderDemo />
+            </TabItem>
+            <TabItem Header="ManagedFileChooser">
+                <pages:ManagedFileChooserDemo />
+            </TabItem>
+            <TabItem
+                Theme="{DynamicResource CategoryTabItem}"
+                Header="Date/Time" />
+            <TabItem Header="Calendar">
+                <pages:CalendarDemo />
+            </TabItem>
+            <TabItem Header="CalendarDatePicker">
+                <pages:CalendarDatePickerDemo />
+            </TabItem>
+            <TabItem Header="DatePicker">
+                <pages:DatePickerDemo />
+            </TabItem>
+            <TabItem Header="TimePicker">
+                <pages:TimePickerDemo />
+            </TabItem>
+            <TabItem
+                Theme="{DynamicResource CategoryTabItem}"
+                Header="Navigation" />
+            <TabItem Header="TabControl">
+                <pages:TabControlDemo />
+            </TabItem>
+            <TabItem Header="TabStrip">
+                <pages:TabStripDemo />
+            </TabItem>
+            <TabItem Header="TreeView">
+                <pages:TreeViewDemo />
+            </TabItem>
+            <TabItem
+                Theme="{DynamicResource CategoryTabItem}"
+                Header="Show" />
+            <TabItem Header="Carousel">
+                <pages:CarouselDemo />
+            </TabItem>
+            <TabItem Header="Expander">
+                <pages:ExpanderDemo />
+            </TabItem>
+            <TabItem Header="Flyout">
+                <pages:FlyoutDemo />
+            </TabItem>
+            <TabItem Header="HeaderedContentControl">
+                <pages:HeaderedContentControlDemo />
+            </TabItem>
+            <TabItem Header="Label">
+                <pages:LabelDemo />
+            </TabItem>
+            <TabItem Header="ListBox">
+                <pages:ListBoxDemo />
+            </TabItem>
+            <TabItem Header="SplitView">
+                <pages:SplitViewDemo />
+            </TabItem>
+            <TabItem Header="ToolTip">
+                <pages:ToolTipDemo />
+            </TabItem>
+            <TabItem
+                Theme="{DynamicResource CategoryTabItem}"
+                Header="Feedback" />
+            <TabItem Header="DataValidationErrors">
+                <pages:DataValidationErrorsDemo />
+            </TabItem>
+            <TabItem Header="Notification">
+                <pages:NotificationDemo />
+            </TabItem>
+            <TabItem Header="ProgressBar">
+                <pages:ProgressBarDemo />
+            </TabItem>
+            <TabItem Header="RefreshContainer">
+                <pages:RefreshContainerDemo />
+            </TabItem>
+            <TabItem
+                Theme="{DynamicResource CategoryTabItem}"
+                Header="Other" />
+            <TabItem Header="GridSplitter">
+                <pages:GridSplitterDemo />
+            </TabItem>
+            <TabItem Header="Menu">
+                <pages:MenuDemo />
+            </TabItem>
+            <TabItem Header="ScrollViewer">
+                <pages:ScrollViewerDemo />
+            </TabItem>
+            <TabItem Header="ThemeVariantScope">
+                <pages:ThemeVariantDemo />
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

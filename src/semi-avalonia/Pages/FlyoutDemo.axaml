@@ -1,0 +1,157 @@
+<UserControl
+    x:Class="Semi.Avalonia.Demo.Pages.FlyoutDemo"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <UserControl.Styles>
+        <Style Selector="Button">
+            <Setter Property="Margin" Value="8" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+        </Style>
+    </UserControl.Styles>
+    <Grid
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center"
+        ColumnDefinitions="*, *, *, *, *"
+        RowDefinitions="*, *, *, *, *, *">
+        <Button
+            Grid.Row="0"
+            Grid.Column="1"
+            Content="Top Left">
+            <Button.Flyout>
+                <Flyout Content="TopEdgeAlignedLeft" Placement="TopEdgeAlignedLeft" />
+            </Button.Flyout>
+        </Button>
+        <Button
+            Grid.Row="0"
+            Grid.Column="2"
+            Content="Top">
+            <Button.Flyout>
+                <Flyout Content="Top" Placement="Top" />
+            </Button.Flyout>
+        </Button>
+        <Button
+            Grid.Row="0"
+            Grid.Column="3"
+            Content="Top Right">
+            <Button.Flyout>
+                <Flyout Content="TopEdgeAlignedRight" Placement="TopEdgeAlignedRight" />
+            </Button.Flyout>
+        </Button>
+        <Button
+            Grid.Row="1"
+            Grid.Column="0"
+            Content="Left Top">
+            <Button.Flyout>
+                <Flyout Content="LeftEdgeAlignedTop" Placement="LeftEdgeAlignedTop" />
+            </Button.Flyout>
+        </Button>
+        <Button
+            Grid.Row="1"
+            Grid.Column="4"
+            Content="Right Top">
+            <Button.Flyout>
+                <Flyout Content="RightEdgeAlignedTop" Placement="RightEdgeAlignedTop" />
+            </Button.Flyout>
+        </Button>
+        <Button
+            Grid.Row="2"
+            Grid.Column="0"
+            Content="Left">
+            <Button.Flyout>
+                <Flyout Content="Left" Placement="Left" />
+            </Button.Flyout>
+        </Button>
+        <Button
+            Grid.Row="2"
+            Grid.Column="4"
+            Content="Right">
+            <Button.Flyout>
+                <Flyout Content="Right" Placement="Right" />
+            </Button.Flyout>
+        </Button>
+        <Button
+            Grid.Row="3"
+            Grid.Column="0"
+            Content="Left Bottom">
+            <Button.Flyout>
+                <Flyout Content="LeftEdgeAlignedBottom" Placement="LeftEdgeAlignedBottom" />
+            </Button.Flyout>
+        </Button>
+        <Button
+            Grid.Row="3"
+            Grid.Column="4"
+            Content="Right Bottom">
+            <Button.Flyout>
+                <Flyout Content="RightEdgeAlignedBottom" Placement="RightEdgeAlignedBottom" />
+            </Button.Flyout>
+        </Button>
+        <Button
+            Grid.Row="4"
+            Grid.Column="1"
+            Content="Bottom Left">
+            <Button.Flyout>
+                <Flyout Content="BottomEdgeAlignedLeft" Placement="BottomEdgeAlignedLeft" />
+            </Button.Flyout>
+        </Button>
+        <Button
+            Grid.Row="4"
+            Grid.Column="2"
+            Content="Bottom">
+            <Button.Flyout>
+                <Flyout Content="Bottom" Placement="Bottom" />
+            </Button.Flyout>
+        </Button>
+        <Button
+            Grid.Row="4"
+            Grid.Column="3"
+            Content="Bottom Right">
+            <Button.Flyout>
+                <Flyout Content="BottomEdgeAlignedRight" Placement="BottomEdgeAlignedRight" />
+            </Button.Flyout>
+        </Button>
+
+        <Button
+            Grid.Row="2"
+            Grid.Column="2"
+            Content="Center">
+            <Button.Flyout>
+                <Flyout Content="Center" Placement="Center" />
+            </Button.Flyout>
+        </Button>
+
+        <Button
+            Grid.Row="5"
+            Grid.Column="2" Content="LightFlyout">
+            <Button.Flyout>
+                <Flyout FlyoutPresenterTheme="{StaticResource LightFlyout}" Placement="Top">
+                    <StackPanel>
+                        <Label Classes="Red" Theme="{StaticResource TagLabel}">Red</Label>
+                        <Label Classes="Pink" Theme="{StaticResource TagLabel}">Pink</Label>
+                        <Label Classes="Purple" Theme="{StaticResource TagLabel}">Purple</Label>
+                        <Label Classes="Violet" Theme="{StaticResource TagLabel}">Violet</Label>
+                        <Label Classes="Indigo" Theme="{StaticResource TagLabel}">Indigo</Label>
+                        <Label Classes="Blue" Theme="{StaticResource TagLabel}">Blue</Label>
+                        <Label Classes="LightBlue" Theme="{StaticResource TagLabel}">LightBlue</Label>
+                        <Label Classes="Cyan" Theme="{StaticResource TagLabel}">Cyan</Label>
+                        <Label Classes="Teal" Theme="{StaticResource TagLabel}">Teal</Label>
+                        <Label Classes="Green" Theme="{StaticResource TagLabel}">Green</Label>
+                        <Label Classes="LightGreen" Theme="{StaticResource TagLabel}">LightGreen</Label>
+                        <Label Classes="Lime" Theme="{StaticResource TagLabel}">Lime</Label>
+                        <Label Classes="Yellow" Theme="{StaticResource TagLabel}">Yellow</Label>
+                        <Label Classes="Amber" Theme="{StaticResource TagLabel}">Amber</Label>
+                        <Label Classes="Orange" Theme="{StaticResource TagLabel}">Orange</Label>
+                        <Label Classes="Grey" Theme="{StaticResource TagLabel}">Grey</Label>
+                        <Label Classes="White" Theme="{StaticResource TagLabel}">White</Label>
+                    </StackPanel>
+                </Flyout>
+            </Button.Flyout>
+        </Button>
+    </Grid>
+
+
+</UserControl>

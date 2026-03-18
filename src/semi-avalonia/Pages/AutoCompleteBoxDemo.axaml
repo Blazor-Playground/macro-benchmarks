@@ -1,0 +1,87 @@
+<UserControl
+    x:Class="Semi.Avalonia.Demo.Pages.AutoCompleteBoxDemo"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Semi.Avalonia.Demo.ViewModels"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:AutoCompleteBoxDemoViewModel"
+    mc:Ignorable="d">
+    <Design.DataContext>
+        <vm:AutoCompleteBoxDemoViewModel />
+    </Design.DataContext>
+    <StackPanel HorizontalAlignment="Left" Spacing="20">
+        <StackPanel.Styles>
+            <Style Selector="AutoCompleteBox">
+                <Setter Property="Width" Value="300" />
+                <Setter Property="ItemsSource">
+                    <Binding Path="States" />
+                </Setter>
+                <Setter Property="ItemTemplate">
+                    <DataTemplate DataType="vm:StateData">
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </Setter>
+            </Style>
+        </StackPanel.Styles>
+
+        <AutoCompleteBox
+            Watermark="Please select a State"
+            ValueMemberBinding="{Binding Name,DataType=vm:StateData}" />
+        <AutoCompleteBox
+            Classes="Large"
+            ValueMemberBinding="{Binding Name,DataType=vm:StateData}" />
+        <AutoCompleteBox
+            Classes="Small"
+            ValueMemberBinding="{Binding Name,DataType=vm:StateData}" />
+        <AutoCompleteBox
+            Classes="Bordered"
+            ValueMemberBinding="{Binding Name,DataType=vm:StateData}" />
+        <AutoCompleteBox
+            IsEnabled="False"
+            Watermark="Disabled"
+            ValueMemberBinding="{Binding Name,DataType=vm:StateData}" />
+        <AutoCompleteBox
+            InnerLeftContent="https://"
+            InnerRightContent=".com"
+            ValueMemberBinding="{Binding Name,DataType=vm:StateData}" />
+
+        <StackPanel Orientation="Horizontal">
+            <AutoCompleteBox
+                Width="100"
+                Classes="Large"
+                Watermark="Large"
+                ValueMemberBinding="{Binding Name,DataType=vm:StateData}" />
+            <AutoCompleteBox
+                Width="100"
+                Watermark="Default"
+                ValueMemberBinding="{Binding Name,DataType=vm:StateData}" />
+            <AutoCompleteBox
+                Width="100"
+                Classes="Small"
+                Watermark="Small"
+                ValueMemberBinding="{Binding Name,DataType=vm:StateData}" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal">
+            <AutoCompleteBox
+                Width="100"
+                IsEnabled="False"
+                Watermark="Disabled"
+                ValueMemberBinding="{Binding Name,DataType=vm:StateData}" />
+            <AutoCompleteBox
+                Width="100"
+                Classes="Bordered"
+                Watermark="Bordered"
+                ValueMemberBinding="{Binding Name,DataType=vm:StateData}" />
+            <AutoCompleteBox
+                Width="100"
+                Classes="Bordered"
+                IsEnabled="False"
+                ValueMemberBinding="{Binding Name,DataType=vm:StateData}" />
+        </StackPanel>
+
+    </StackPanel>
+</UserControl>

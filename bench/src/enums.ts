@@ -16,7 +16,6 @@ export enum Preset {
     NoJiterp = 'no-jiterp',
     Invariant = 'invariant',
     NoReflectionEmit = 'no-reflection-emit',
-    EnableFingerprinting = 'enable-fingerprinting',
 }
 
 export enum Engine {
@@ -63,7 +62,10 @@ export enum MetricKey {
     CompileTime = 'compile-time',
     DiskSizeNative = 'disk-size-native',
     DiskSizeAssemblies = 'disk-size-assemblies',
-    DownloadSizeTotal = 'download-size-total',
+    DownloadSizeCold = 'download-size-cold',
+    DownloadSizeWarm = 'download-size-warm',
+    ServerRequestsCold = 'server-requests-cold',
+    ServerRequestsWarm = 'server-requests-warm',
     TimeToReachManagedWarm = 'time-to-reach-managed-warm',
     TimeToReachManagedCold = 'time-to-reach-managed-cold',
     TimeToCreateDotnetWarm = 'time-to-create-dotnet-warm',
@@ -129,9 +131,6 @@ export function shouldSkipMeasurement(app: App, preset: Preset, ctx: BenchContex
     if (build) {
         return build;
     }
-    if (preset === Preset.EnableFingerprinting) {
-        return `Preset '${preset}' is only for deployment`;
-    }
 
     return null;
 }
@@ -159,9 +158,6 @@ export function shouldSkipBuild(app: App, preset: Preset, ctx: BenchContext): st
     if (app === App.UnoGallery && preset !== Preset.NativeRelink) {
         return `UnoGallery app '${app}' is not supported with preset '${preset}'`;
     }
-    if (preset === Preset.EnableFingerprinting && !ctx.isLatestDaily) {
-        return `Preset '${preset}' is only for deployment of latest daily builds`;
-    }
     return null;
 }
 
@@ -176,7 +172,6 @@ export const PRESET_MAP: Record<Preset, string> = {
     [Preset.NoJiterp]: 'NoJiterp',
     [Preset.Invariant]: 'Invariant',
     [Preset.NoReflectionEmit]: 'NoReflectionEmit',
-    [Preset.EnableFingerprinting]: 'EnableFingerprinting',
 };
 
 /** Maps CLI preset to MSBuild Configuration value */
@@ -188,7 +183,6 @@ export const PRESET_CONFIG: Record<Preset, string> = {
     [Preset.NoJiterp]: 'Release',
     [Preset.Invariant]: 'Release',
     [Preset.NoReflectionEmit]: 'Release',
-    [Preset.EnableFingerprinting]: 'Release',
 };
 
 // ── Engine / Profile Constraints ─────────────────────────────────────────────

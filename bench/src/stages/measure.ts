@@ -15,6 +15,7 @@ import {
 import { isWindows } from '../exec.js';
 import { banner, info, err, debug } from '../log.js';
 import {
+    type StaticServer,
     startStaticServer, measureFileSizes, verifyIntegrity,
     buildResultJson, buildResultFilename,
     findEntryFile,
@@ -157,7 +158,7 @@ function buildMeta(
     };
     if (ctx.ciRunId) {
         meta.ciRunId = ctx.ciRunId;
-        meta.ciRunUrl = `https://github.com/${ctx.repo ?? 'dotnet/macro-benchmarks'}/actions/runs/${ctx.ciRunId}`;
+        meta.ciRunUrl = `https://github.com/${ctx.repo ?? 'pavelsavara/macro-benchmarks'}/actions/runs/${ctx.ciRunId}`;
     }
     return meta;
 }
@@ -266,7 +267,10 @@ function buildExternalMetrics(
     coldArrays: TimingArrays,
     warmArrays: TimingArrays,
     wasmMemorySize: number | null,
-    downloadSizeTotal: number | null,
+    downloadSizeCold: number | null,
+    downloadSizeWarm: number | null,
+    serverRequestsCold: number | null,
+    serverRequestsWarm: number | null,
     memoryPeak: number | null,
     walkthroughMetrics: Partial<Record<MetricKey, number | null>>,
 ): Partial<Record<MetricKey, number | null>> {
@@ -274,7 +278,10 @@ function buildExternalMetrics(
         [MetricKey.CompileTime]: compileTime,
         [MetricKey.DiskSizeNative]: fileSizes.diskSizeNative,
         [MetricKey.DiskSizeAssemblies]: fileSizes.diskSizeAssemblies,
-        [MetricKey.DownloadSizeTotal]: downloadSizeTotal,
+        [MetricKey.DownloadSizeCold]: downloadSizeCold,
+        [MetricKey.DownloadSizeWarm]: downloadSizeWarm,
+        [MetricKey.ServerRequestsCold]: serverRequestsCold,
+        [MetricKey.ServerRequestsWarm]: serverRequestsWarm,
         [MetricKey.TimeToReachManagedWarm]: sortedMedian(warmArrays.reachManaged),
         [MetricKey.TimeToReachManagedCold]: sortedMedian(coldArrays.reachManaged),
         [MetricKey.TimeToCreateDotnetWarm]: sortedMedian(warmArrays.createDotnet),
@@ -293,6 +300,8 @@ interface CDPState {
     client: CDPSession;
     downloadSizeTotal: number;
     memoryPeak: number;
+    /** Returns the current accumulated download size and resets the counter to 0. */
+    resetDownloadSize: () => number;
     stopMemorySampling: () => Promise<void>;
 }
 
@@ -343,6 +352,11 @@ async function setupCDP(
     return {
         get downloadSizeTotal() { return downloadSizeTotal; },
         get memoryPeak() { return memoryPeak; },
+        resetDownloadSize: () => {
+            const v = downloadSizeTotal;
+            downloadSizeTotal = 0;
+            return v;
+        },
         client,
         stopMemorySampling: async () => {
             await sleep(2000);
@@ -368,20 +382,33 @@ async function waitForBenchComplete(page: Page, timeout: number): Promise<Record
 }
 
 // (#1, #2) Removed unused `browser` parameter; CDP session is cleaned up when context closes
-async function applyColdThrottle(
+async function prepareColdContext(
     coldPage: Page,
     coldCtx: BrowserContext,
+    pageUrl: string,
     profile: Profile,
     useCDP: boolean,
 ): Promise<void> {
-    const throttle = PROFILES[profile];
-    if (!useCDP || !throttle) return;
+    if (!useCDP) return;
     const coldClient = await coldCtx.newCDPSession(coldPage);
-    if (throttle.network) {
-        await coldClient.send('Network.emulateNetworkConditions', { ...throttle.network });
-    }
-    if (throttle.cpu) {
-        await coldClient.send('Emulation.setCPUThrottlingRate', { ...throttle.cpu });
+
+    // Clear browser-level HTTP cache and all origin storage (service workers,
+    // indexedDB, localStorage, etc.) so each cold load starts fresh.
+    await coldClient.send('Network.clearBrowserCache');
+    const origin = new URL(pageUrl).origin;
+    await coldClient.send('Storage.clearDataForOrigin', {
+        origin,
+        storageTypes: 'all',
+    });
+
+    const throttle = PROFILES[profile];
+    if (throttle) {
+        if (throttle.network) {
+            await coldClient.send('Network.emulateNetworkConditions', { ...throttle.network });
+        }
+        if (throttle.cpu) {
+            await coldClient.send('Emulation.setCPUThrottlingRate', { ...throttle.cpu });
+        }
     }
 }
 
@@ -400,7 +427,7 @@ async function runColdLoads(
         const coldCtx = await browser.newContext();
         const coldPage = await coldCtx.newPage();
         try {
-            await applyColdThrottle(coldPage, coldCtx, profile, useCDP);
+            await prepareColdContext(coldPage, coldCtx, pageUrl, profile, useCDP);
             await coldPage.goto(pageUrl, { timeout, waitUntil: 'load' });
             const results = await waitForBenchComplete(coldPage, timeout);
             const t = extractTimings(results);
@@ -419,9 +446,15 @@ async function runWarmLoads(
     warmRuns: number,
     timeout: number,
     verbose: boolean,
-): Promise<TimingArrays> {
+    cdp?: CDPState | null,
+    srv?: StaticServer,
+): Promise<{ timings: TimingArrays; downloadSizes: number[]; requestCounts: number[] }> {
     const arrays = emptyTimingArrays();
+    const downloadSizes: number[] = [];
+    const requestCounts: number[] = [];
     for (let i = 0; i < warmRuns; i++) {
+        if (cdp) cdp.resetDownloadSize();
+        if (srv) srv.resetRequestCount();
         if (verbose) debug(`Warm load ${i + 1}/${warmRuns}: reloading...`);
         await page.reload({ timeout, waitUntil: 'load' });
         if (verbose) debug(`Warm load ${i + 1}/${warmRuns}: waiting for bench_complete...`);
@@ -429,8 +462,10 @@ async function runWarmLoads(
         const t = extractTimings(results);
         if (verbose) debug(`Warm load ${i + 1}/${warmRuns}: time-to-reach-managed=${t.reachManaged}`);
         pushTiming(arrays, t);
+        if (cdp) downloadSizes.push(cdp.downloadSizeTotal);
+        if (srv) requestCounts.push(srv.requestCount);
     }
-    return arrays;
+    return { timings: arrays, downloadSizes, requestCounts };
 }
 
 // (#5) Simplified walkthrough filter — early return instead of loop-with-continue
@@ -480,6 +515,7 @@ async function runBrowserSession(
     warmRuns: number,
     timeout: number,
     verbose: boolean,
+    srv: StaticServer,
 ): Promise<Partial<Record<MetricKey, number | null>>> {
     const context = await browser.newContext();
     const page = await context.newPage();
@@ -498,12 +534,21 @@ async function runBrowserSession(
     }
 
     // Cold load (first one uses the main context)
+    srv.resetRequestCount();
     if (verbose) debug(`Cold load: navigating to ${pageUrl}`);
     await page.goto(pageUrl, { timeout, waitUntil: 'load' });
     if (verbose) debug(`Cold load: page loaded, waiting for bench_complete...`);
     const coldResults = await waitForBenchComplete(page, timeout);
     const firstCold = extractTimings(coldResults);
     if (verbose) debug(`Cold results: ${JSON.stringify(coldResults)}`);
+
+    // Snapshot cold download size and request count (single load, not accumulated)
+    const coldDownloadSize = cdp ? cdp.resetDownloadSize() : null;
+    const coldRequestCount = srv.resetRequestCount();
+    if (verbose) {
+        if (coldDownloadSize != null) debug(`Cold download size: ${coldDownloadSize} bytes`);
+        debug(`Cold server requests: ${coldRequestCount}`);
+    }
 
     const coldArrays = emptyTimingArrays();
     pushTiming(coldArrays, firstCold);
@@ -521,13 +566,22 @@ async function runBrowserSession(
         }
     }
 
-    const warmArrays = !isInternal
-        ? await runWarmLoads(page, warmRuns, timeout, verbose)
-        : emptyTimingArrays();
+    const warmResult = !isInternal
+        ? await runWarmLoads(page, warmRuns, timeout, verbose, cdp, srv)
+        : { timings: emptyTimingArrays(), downloadSizes: [] as number[], requestCounts: [] as number[] };
+    const warmArrays = warmResult.timings;
 
     if (verbose && warmArrays.reachManaged.length > 1) {
         debug(`Warm times: [${warmArrays.reachManaged.join(', ')}] → median=${sortedMedian(warmArrays.reachManaged)}`);
     }
+    const warmDownloadSize = warmResult.downloadSizes.length > 0
+        ? sortedMedian(warmResult.downloadSizes)
+        : null;
+    if (verbose && warmDownloadSize != null) debug(`Warm download size (median): ${warmDownloadSize} bytes`);
+    const warmRequestCount = warmResult.requestCounts.length > 0
+        ? sortedMedian(warmResult.requestCounts)
+        : null;
+    if (verbose && warmRequestCount != null) debug(`Warm server requests (median): ${warmRequestCount}`);
 
     // (#8) Simplified wasmMemorySize computation
     const allWasmMem = coldArrays.wasmMemory.concat(warmArrays.wasmMemory);
@@ -537,6 +591,9 @@ async function runBrowserSession(
     const walkthroughMetrics = !isInternal
         ? await runWalkthroughs(page, pageUrl, entry, engine, profile, warmRuns, timeout, verbose)
         : {};
+
+    // Discard any download accumulation from walkthroughs
+    if (cdp) cdp.resetDownloadSize();
 
     // Collect internal benchmark samples before closing the page
     let benchSamples: Record<string, number[]> | null = null;
@@ -572,7 +629,10 @@ async function runBrowserSession(
     return buildExternalMetrics(
         compileTime, fileSizes!,
         coldArrays, warmArrays, wasmMemorySize,
-        useCDP ? (cdp!.downloadSizeTotal || null) : null,
+        useCDP ? (coldDownloadSize || null) : null,
+        useCDP ? (warmDownloadSize || null) : null,
+        coldRequestCount || null,
+        warmRequestCount,
         useCDP ? (cdp!.memoryPeak || null) : null,
         walkthroughMetrics,
     );
@@ -617,7 +677,7 @@ async function measureBrowser(
                 const result = await runBrowserSession(
                     browser, pageUrl, entry, engine, profile,
                     compileTime, fileSizes, isInternal, useCDP,
-                    warmRuns, timeout, ctx.verbose,
+                    warmRuns, timeout, ctx.verbose, srv,
                 );
                 await browser.close();
                 return result;
@@ -697,6 +757,6 @@ async function measureCli(
     return buildExternalMetrics(
         compileTime, fileSizes!,
         cliArrays, cliArrays, t.wasmMemory,
-        null, null, {},
+        null, null, null, null, null, {},
     );
 }

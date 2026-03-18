@@ -9,7 +9,10 @@
 | `compile-time` | ms | Wall-clock duration of `dotnet publish` |
 | `disk-size-native` | bytes | Uncompressed `.wasm` files in `_framework/` |
 | `disk-size-assemblies` | bytes | Managed `.dll` assemblies in `_framework/` |
-| `download-size-total` | bytes | Compressed bytes transferred over the wire (Chrome CDP `encodedDataLength`) |
+| `download-size-cold` | bytes | Compressed bytes transferred over the wire (Chrome CDP `encodedDataLength`) |
+| `download-size-warm` | bytes | Compressed bytes transferred over the wire (Chrome CDP `encodedDataLength`) |
+| `server-requests-cold` | count | Number of HTTP requests which a hit the server |
+| `server-requests-warm` | count | Number of HTTP requests which a hit the server |
 
 ### Timing metrics
 

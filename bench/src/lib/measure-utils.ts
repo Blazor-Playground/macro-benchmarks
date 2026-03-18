@@ -8,6 +8,10 @@ import type { MetricKey } from '../enums.js';
 
 export interface StaticServer {
     port: number;
+    /** Number of HTTP requests served since last reset. */
+    readonly requestCount: number;
+    /** Returns the current request count and resets the counter to 0. */
+    resetRequestCount: () => number;
     close: () => Promise<void>;
 }
 
@@ -45,9 +49,12 @@ const MIME_TYPES: Record<string, string> = {
  */
 export function startStaticServer(webRoot: string, port = 0): Promise<StaticServer> {
     const root = resolve(webRoot);
+    const etag = '"' + Date.now().toString(36) + '"';
+    let requestCount = 0;
 
     return new Promise((resolveP, reject) => {
         const server: Server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
+            requestCount++;
             let filePath: string | undefined;
             try {
                 let urlPath = new URL(req.url || '/', `http://localhost`).pathname;
@@ -78,9 +85,25 @@ export function startStaticServer(webRoot: string, port = 0): Promise<StaticServ
                 }
 
                 const content = await readFile(servePath);
+
+                // ETag-based caching: return 304 if content unchanged
+                const ifNoneMatch = req.headers['if-none-match'];
+                if (ifNoneMatch === etag) {
+                    res.writeHead(304, {
+                        'ETag': etag,
+                        'Cache-Control': 'max-age=600',
+                        'Cross-Origin-Opener-Policy': 'same-origin',
+                        'Cross-Origin-Embedder-Policy': 'require-corp',
+                    });
+                    res.end();
+                    return;
+                }
+
                 const headers: Record<string, string | number> = {
                     'Content-Type': mime,
                     'Content-Length': content.length,
+                    'ETag': etag,
+                    'Cache-Control': 'max-age=600',
                     'Cross-Origin-Opener-Policy': 'same-origin',
                     'Cross-Origin-Embedder-Policy': 'require-corp',
                     'Timing-Allow-Origin': '*',
@@ -123,6 +146,8 @@ export function startStaticServer(webRoot: string, port = 0): Promise<StaticServ
             const assignedPort = typeof addr === 'object' && addr ? addr.port : port;
             resolveP({
                 port: assignedPort,
+                get requestCount() { return requestCount; },
+                resetRequestCount: () => { const v = requestCount; requestCount = 0; return v; },
                 close: () => new Promise<void>((r) => server.close(() => r())),
             });
         });

@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>$(BenchmarkTargetFramework)-browserwasm</TargetFramework>
     <DashName>uno-gallery</DashName>
+    <UnoSingleProject>true</UnoSingleProject>
     <ImplicitUsings>enable</ImplicitUsings>
     <NoWarn>$(NoWarn);Uno0001;CS8622;CS8618;CS8601;CS8602;CS8625;CS8604;CS8605;CS8603;CS8612;CS8767;CS8600;CS8619;CS0169;CS8632;IL2111;IL2067;IL2072;IL2104;IL2122</NoWarn>
     <OutputType>Exe</OutputType>

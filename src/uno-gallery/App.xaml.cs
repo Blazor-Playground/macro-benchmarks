@@ -51,16 +51,10 @@ namespace Uno.Gallery
 			global::Uno.UI.FeatureConfiguration.Font.DefaultTextFontFamily = "ms-appx:///Uno.Fonts.OpenSans/Fonts/OpenSans.ttf";
 #endif
 
-#if !IS_WASM_SKIA
 			this.InitializeComponent();
-#endif
 
 #if !WINDOWS
 			this.Suspending += OnSuspending;
-#endif
-
-#if __WASM__
-			_ = DispatcherQueue.GetForCurrentThread().TryEnqueue(DispatcherQueuePriority.Low, () => AnalyticsService.Initialize());
 #endif
 		}
 
@@ -189,10 +183,6 @@ namespace Uno.Gallery
 				var page = (Page)Activator.CreateInstance(sample.ViewType);
 				page.DataContext = sample;
 
-#if __WASM__
-				_ = DispatcherQueue.GetForCurrentThread()?.TryEnqueue(DispatcherQueuePriority.Low, () => AnalyticsService.TrackView(sample?.Title ?? page.GetType().Name));
-#endif
-
 				shell.NavigationView.Content = page;
 			}
 		}
@@ -235,10 +225,6 @@ namespace Uno.Gallery
 			var page = (Page)Activator.CreateInstance(sample.ViewType);
 			page.DataContext = sample;
 
-#if __WASM__
-			_ = DispatcherQueue.GetForCurrentThread()?.TryEnqueue(DispatcherQueuePriority.Low, () => AnalyticsService.TrackView(sample?.Title ?? page.GetType().Name));
-#endif
-
 			shell.NavigationView.Content = page;
 		}
 
@@ -249,7 +235,7 @@ namespace Uno.Gallery
 			shell.RegisterPropertyChangedCallback(Shell.CurrentSampleBackdoorProperty, OnCurrentSampleBackdoorChanged);
 			var nv = shell.NavigationView;
 			AddNavigationItems(nv);
-#if __WASM__
+#if __WASM__ && !IS_WASM_SKIA
 			if (!IsThereSampleFilteredByArgs(shell, nv))
 #endif
 			{
@@ -504,6 +490,9 @@ namespace Uno.Gallery
 #if !WINDOWS
 			FeatureConfiguration.ApiInformation.NotImplementedLogLevel = Foundation.Logging.LogLevel.Debug; // Raise not implemented usages as Debug messages
 			FeatureConfiguration.ToolTip.UseToolTips = true;
+#endif
+#if HAS_UNO
+			FeatureConfiguration.AutomationPeer.UseSimpleAccessibility = true;
 #endif
 		}
 

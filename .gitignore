@@ -65,3 +65,4 @@ gh-pages/
 tracking/
 dist/
 src/bench-viewer/wwwroot/chart/*.js
+.playwright-mcp

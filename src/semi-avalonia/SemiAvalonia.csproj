@@ -15,16 +15,6 @@
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 
-  <!-- Semi.Avalonia.TreeDataGrid 11.2.0 is incompatible with Avalonia 11.3.x -->
-  <ItemGroup>
-    <Compile Remove="Pages\TreeDataGridDemo.axaml.cs" />
-    <Compile Remove="ViewModels\TreeDataGridDemo\**" />
-    <Content Remove="Pages\TreeDataGridDemo.axaml" />
-    <None Remove="Pages\TreeDataGridDemo.axaml" />
-    <AvaloniaXaml Remove="Pages\TreeDataGridDemo.axaml" />
-    <AdditionalFiles Remove="Pages\TreeDataGridDemo.axaml" />
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.Browser" Version="$(AvaloniaVersion)" />

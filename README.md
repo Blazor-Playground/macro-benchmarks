@@ -65,7 +65,7 @@ Use `--help` for all options.
 
 ## CI/CD
 
-- **benchmark.yml** — Daily + manual: resolve → build → measure → deploy results ([recent runs](https://github.com/Blazor-Playground/macro-benchmarks/actions/workflows/benchmark.yml))
+- **benchmark.yml** — Daily + manual: resolve → build → measure → deploy results ([recent runs](https://github.com/blazor-playground/macro-benchmarks/actions/workflows/benchmark.yml))
 - **docker-build.yml** — Weekly: builds `browser-bench-build` and `browser-bench-measure` container images
 - **schedule.yml** — Dispatches benchmarks for SDK channels
 

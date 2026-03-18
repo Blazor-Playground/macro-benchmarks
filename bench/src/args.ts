@@ -194,7 +194,7 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
         : dryRun
             ? [App.MicroBenchmarks]
             // TODO App.UnoGallery
-            : [App.MicroBenchmarks, App.EmptyBlazor, App.BlazingPizza, App.HavitBootstrap, App.MudBlazor];
+            : [App.MicroBenchmarks, App.EmptyBlazor, App.BlazingPizza, App.HavitBootstrap, App.MudBlazor, App.SemiAvalonia];
     const effectivePresets = presets.length > 0 ? presets
         : dryRun
             ? [Preset.DevLoop]

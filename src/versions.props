@@ -39,5 +39,11 @@
     <HavitBlazorVersion>4.23.0</HavitBlazorVersion>
     <HavitBlazorSmartVersion>4.23.0-preview04</HavitBlazorSmartVersion>
     <NetEscapadesEnumGeneratorsVersion>1.0.0-beta20</NetEscapadesEnumGeneratorsVersion>
+    <AvaloniaVersion>11.3.8</AvaloniaVersion>
+    <SkiaSharpVersion>3.119.1</SkiaSharpVersion>
+    <SemiAvaloniaVersion>11.3.7.3</SemiAvaloniaVersion>
+    <SemiAvaloniaTreeDataGridVersion>11.2.0</SemiAvaloniaTreeDataGridVersion>
+    <CommunityToolkitMvvmVersion>8.4.0</CommunityToolkitMvvmVersion>
+    <IrihiAvaloniaSharedVersion>0.3.1</IrihiAvaloniaSharedVersion>
   </PropertyGroup>
 </Project>

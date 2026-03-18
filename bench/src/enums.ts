@@ -39,6 +39,7 @@ export enum App {
     BenchViewer = 'bench-viewer',
     UnoGallery = 'uno-gallery',
     MudBlazor = 'mud-blazor',
+    SemiAvalonia = 'semi-avalonia',
 }
 
 export enum Stage {
@@ -78,6 +79,7 @@ export enum MetricKey {
     HavitWalkthrough = 'havit-walkthrough',
     MudWalkthrough = 'mud-walkthrough',
     UnoWalkthrough = 'uno-walkthrough',
+    SemiWalkthrough = 'semi-walkthrough',
     JsInteropOps = 'js-interop-ops',
     JsonParseOps = 'json-parse-ops',
     ExceptionOps = 'exception-ops',
@@ -101,6 +103,7 @@ export const APP_CONFIG: Record<App, AppConfig> = {
     [App.BenchViewer]: { browserOnly: true, internal: false },
     [App.MudBlazor]: { browserOnly: true, internal: false },
     [App.UnoGallery]: { browserOnly: true, internal: false },
+    [App.SemiAvalonia]: { browserOnly: true, internal: false },
 };
 
 // ── Preset Constraints ───────────────────────────────────────────────────────
@@ -118,7 +121,7 @@ export const MONO_ONLY_PRESETS = new Set<Preset>([
 ]);
 
 /** Apps that use Blazor (DOM-dependent, no CLI engine support). */
-export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazingPizza, App.HavitBootstrap, App.BenchViewer, App.MudBlazor, App.UnoGallery]);
+export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazingPizza, App.HavitBootstrap, App.BenchViewer, App.MudBlazor, App.UnoGallery, App.SemiAvalonia]);
 export const REDUCE_APPS = new Set<App>([App.EmptyBlazor, App.EmptyBrowser, App.BlazingPizza, App.BenchViewer, App.MudBlazor]);
 export const REDUCE_PRESETS = new Set<Preset>([Preset.NativeRelink, Preset.NoJiterp, Preset.Invariant, Preset.NoReflectionEmit]);
 
@@ -157,6 +160,9 @@ export function shouldSkipBuild(app: App, preset: Preset, ctx: BenchContext): st
     }
     if (app === App.UnoGallery && preset !== Preset.NativeRelink) {
         return `UnoGallery app '${app}' is not supported with preset '${preset}'`;
+    }
+    if (app === App.SemiAvalonia && preset !== Preset.NativeRelink) {
+        return `SemiAvalonia app '${app}' is not supported with preset '${preset}'`;
     }
     return null;
 }

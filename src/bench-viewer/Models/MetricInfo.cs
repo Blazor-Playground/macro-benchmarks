@@ -35,6 +35,7 @@ public class MetricInfo
         ["pizza-walkthrough"] = new("pizza-walkthrough", "Blazing Pizza Walkthrough", "ms", "time"),
         ["havit-walkthrough"] = new("havit-walkthrough", "Havit Bootstrap Walkthrough", "ms", "time"),
         ["mud-walkthrough"] = new("mud-walkthrough", "MudBlazor Walkthrough", "ms", "time"),
+        ["semi-walkthrough"] = new("semi-walkthrough", "Semi Avalonia Walkthrough", "ms", "time"),
         ["js-interop-ops"] = new("js-interop-ops", "JS Interop", "ops/sec", "throughput"),
         ["json-parse-ops"] = new("json-parse-ops", "JSON Parse", "ops/sec", "throughput"),
         ["exception-ops"] = new("exception-ops", "Exception Handling", "ops/sec", "throughput"),

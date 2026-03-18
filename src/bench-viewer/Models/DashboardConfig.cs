@@ -13,14 +13,14 @@ public static class DashboardConfig
     // Preferred app display order
     public static readonly List<string> AppOrder = new()
     {
-        "blazing-pizza", "havit-bootstrap", "mud-blazor", "bench-viewer", "empty-blazor",
+        "blazing-pizza", "havit-bootstrap", "mud-blazor", "semi-avalonia", "bench-viewer", "empty-blazor",
         "empty-browser", "micro-benchmarks"
     };
 
     // Preferred metric display order
     public static readonly List<string> MetricOrder = new()
     {
-        "pizza-walkthrough", "havit-walkthrough", "mud-walkthrough",
+        "pizza-walkthrough", "havit-walkthrough", "mud-walkthrough", "semi-walkthrough",
         "json-parse-ops", "js-interop-ops", "exception-ops",
         "time-to-reach-managed-cold", "time-to-reach-managed-warm",
         "time-to-create-dotnet-cold", "time-to-create-dotnet-warm",

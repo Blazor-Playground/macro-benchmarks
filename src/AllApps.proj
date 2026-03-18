@@ -25,6 +25,7 @@
     <ProjectReference Include="mud-blazor\MudBlazor.csproj" />
     <ProjectReference Include="micro-benchmarks\MicroBenchmarks.csproj" />
     <ProjectReference Include="uno-gallery\Uno.Gallery.csproj" />
+    <ProjectReference Include="semi-avalonia\SemiAvalonia.csproj" />
   </ItemGroup>
 
 </Project>

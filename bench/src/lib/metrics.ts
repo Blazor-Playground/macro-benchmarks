@@ -28,6 +28,7 @@ export const METRICS: Record<MetricKey, MetricInfo> = {
     [MetricKey.HavitWalkthrough]: { displayName: 'Havit Walkthrough', unit: 'ms', category: 'time' },
     [MetricKey.MudWalkthrough]: { displayName: 'Mud Walkthrough', unit: 'ms', category: 'time' },
     [MetricKey.UnoWalkthrough]: { displayName: 'Uno Walkthrough', unit: 'ms', category: 'time' },
+    [MetricKey.SemiWalkthrough]: { displayName: 'Semi Avalonia Walkthrough', unit: 'ms', category: 'time' },
     [MetricKey.JsInteropOps]: { displayName: 'JS Interop', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.JsonParseOps]: { displayName: 'JSON Parse', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.ExceptionOps]: { displayName: 'Exception Handling', unit: 'ops/sec', category: 'throughput' },
@@ -53,6 +54,7 @@ export const EXTERNAL_METRICS: MetricKey[] = [
     MetricKey.HavitWalkthrough,
     MetricKey.MudWalkthrough,
     MetricKey.UnoWalkthrough,
+    MetricKey.SemiWalkthrough,
 ];
 
 export const INTERNAL_METRICS: MetricKey[] = [

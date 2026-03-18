@@ -22,6 +22,14 @@ public partial class MainView : UserControl
         WeakReferenceMessenger.Default.Register<string, string>(this, "JumpTo", MessageHandler);
     }
 
+    private void OnTabSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (sender is TabControl tc && tc.SelectedItem is TabItem tabItem && tabItem.Header is string header)
+        {
+            Console.WriteLine($"[semi-nav] {header}");
+        }
+    }
+
     private void MessageHandler(object _, string message)
     {
         foreach (var item in tab.ItemsView)

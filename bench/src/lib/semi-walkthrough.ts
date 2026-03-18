@@ -15,12 +15,15 @@
 import { debug } from '../log.js';
 
 // Minimal Playwright Page type surface used by the walkthrough
+type ConsoleMessage = { text(): string };
 type PlaywrightPage = {
     goto(url: string, options?: { timeout?: number; waitUntil?: string }): Promise<unknown>;
     waitForFunction(fn: (() => boolean) | string, arg: unknown, options?: { timeout?: number }): Promise<unknown>;
     evaluate<T>(fn: (() => T) | ((arg: string) => T), arg?: string): Promise<T>;
     mouse: { click(x: number, y: number): Promise<void> };
     keyboard: { press(key: string): Promise<void> };
+    on(event: string, handler: (...args: unknown[]) => void): void;
+    off(event: string, handler: (...args: unknown[]) => void): void;
 };
 
 /**
@@ -130,71 +133,107 @@ export async function runSemiWalkthrough(
 ): Promise<number> {
     const log = verbose ? (msg: string) => debug(`Semi: ${msg}`) : () => { };
 
-    // ── Step 0: Load home ────────────────────────────────────────────────
-    log('navigating to home...');
-    await page.goto(url, { timeout, waitUntil: 'load' });
-    await page.waitForFunction(
-        () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
-        null, { timeout },
-    );
-    log('home loaded');
+    // ── Capture [semi-nav] console messages from C# SelectionChanged handler ─
+    const NAV_PREFIX = '[semi-nav] ';
+    let lastNavTab: string | null = null;
+    let navResolve: (() => void) | null = null;
 
-    // Wait for Avalonia canvas to be created and the splash screen to disappear
-    await page.waitForFunction(
-        () => {
-            const canvas = document.querySelector('canvas.avalonia-canvas');
-            const splash = document.querySelector('.avalonia-splash');
-            const ready = canvas !== null && (splash === null || (splash as HTMLElement).style.display === 'none'
-                || getComputedStyle(splash).display === 'none' || getComputedStyle(splash).opacity === '0');
-            console.log(`[semi-walkthrough] canvas=${!!canvas} splash-gone=${ready}`);
-            return ready;
-        },
-        null, { timeout },
-    );
-    log('canvas ready');
+    const consoleHandler = (...args: unknown[]) => {
+        const msg = args[0] as ConsoleMessage;
+        const text = msg.text();
+        if (text.startsWith(NAV_PREFIX)) {
+            lastNavTab = text.slice(NAV_PREFIX.length);
+            if (navResolve) {
+                navResolve();
+                navResolve = null;
+            }
+        }
+    };
+    page.on('console', consoleHandler);
 
-    // Give Avalonia a few frames to finish rendering the initial UI
-    await waitForRepaint(page);
-    await waitForRepaint(page);
-    await waitForRepaint(page);
-
-    // ── Step 1: Focus the sidebar TabControl ─────────────────────────────
-    // Click on the Overview tab area to give keyboard focus to the TabControl.
-    // Avalonia renders to canvas inside a .avalonia-container div — we click
-    // within the sidebar region and then explicitly focus the container.
-    await page.mouse.click(95, 82);
-    await page.evaluate(() => {
-        const container = document.querySelector('.avalonia-container') as HTMLElement | null;
-        if (container) container.focus();
-    });
-    await waitForRepaint(page);
-    log('focused TabControl on Overview');
-
-    // Skip past non-component tabs (Overview, About Us)
-    for (let i = 0; i < SKIP_TABS; i++) {
-        await pressArrowDown(page);
-        await waitForRepaint(page);
-    }
-    log(`skipped to ${TAB_NAMES[SKIP_TABS]}`);
-
-    // Capture start time AFTER load and positioning on first component tab
-    const startTime: number = await page.evaluate(() => performance.now());
-
-    // ── Step 2: Navigate through every component demo tab ────────────────
-    const componentTabs = TAB_NAMES.length - SKIP_TABS;
-    for (let i = 1; i < componentTabs; i++) {
-        const tabName = TAB_NAMES[SKIP_TABS + i];
-        log(`navigating to ${tabName}`);
-        await pressArrowDown(page);
-        await waitForRepaint(page);
-        await waitForRepaint(page);
-        await waitForRepaint(page);
-        log(`loaded: ${tabName}`);
+    /** Wait until a [semi-nav] message arrives, with timeout. */
+    function waitForNav(expected: string, ms: number): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            // If the message already arrived (race), resolve immediately
+            if (lastNavTab === expected) { resolve(); return; }
+            const timer = setTimeout(() => {
+                navResolve = null;
+                reject(new Error(`Timed out waiting for [semi-nav] ${expected} (last seen: ${lastNavTab})`));
+            }, ms);
+            navResolve = () => { clearTimeout(timer); resolve(); };
+        });
     }
 
-    // Capture end time after visiting all component tabs
-    const endTime: number = await page.evaluate(() => performance.now());
+    try {
+        // ── Step 0: Load home ────────────────────────────────────────────────
+        log('navigating to home...');
+        await page.goto(url, { timeout, waitUntil: 'load' });
+        await page.waitForFunction(
+            () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
+            null, { timeout },
+        );
+        log('home loaded');
 
-    log(`walkthrough complete: ${Math.round(endTime - startTime)}ms`);
-    return endTime - startTime;
+        // Wait for Avalonia canvas to be created and the splash screen to disappear
+        await page.waitForFunction(
+            () => {
+                const canvas = document.querySelector('canvas.avalonia-canvas');
+                const splash = document.querySelector('.avalonia-splash');
+                const ready = canvas !== null && (splash === null || (splash as HTMLElement).style.display === 'none'
+                    || getComputedStyle(splash).display === 'none' || getComputedStyle(splash).opacity === '0');
+                console.log(`[semi-walkthrough] canvas=${!!canvas} splash-gone=${ready}`);
+                return ready;
+            },
+            null, { timeout },
+        );
+        log('canvas ready');
+
+        // Give Avalonia a few frames to finish rendering the initial UI
+        await waitForRepaint(page);
+        await waitForRepaint(page);
+        await waitForRepaint(page);
+
+        // ── Step 1: Focus the sidebar TabControl ─────────────────────────────
+        await page.mouse.click(95, 82);
+        await page.evaluate(() => {
+            const container = document.querySelector('.avalonia-container') as HTMLElement | null;
+            if (container) container.focus();
+        });
+        await waitForRepaint(page);
+        log('focused TabControl on Overview');
+
+        // Skip past non-component tabs (Overview, About Us)
+        for (let i = 0; i < SKIP_TABS; i++) {
+            const expected = TAB_NAMES[i + 1]; // next tab after current
+            lastNavTab = null;
+            await pressArrowDown(page);
+            await waitForNav(expected, timeout);
+            log(`skipped: ${expected}`);
+        }
+        log(`positioned on ${TAB_NAMES[SKIP_TABS]}`);
+
+        // Capture start time AFTER load and positioning on first component tab
+        const startTime: number = await page.evaluate(() => performance.now());
+
+        // ── Step 2: Navigate through every component demo tab ────────────────
+        const componentTabs = TAB_NAMES.length - SKIP_TABS;
+        for (let i = 1; i < componentTabs; i++) {
+            const tabName = TAB_NAMES[SKIP_TABS + i];
+            lastNavTab = null;
+            await pressArrowDown(page);
+            await waitForRepaint(page);
+            await waitForNav(tabName, timeout);
+            // One extra repaint to let the content render after selection
+            await waitForRepaint(page);
+            log(`loaded: ${tabName}`);
+        }
+
+        // Capture end time after visiting all component tabs
+        const endTime: number = await page.evaluate(() => performance.now());
+
+        log(`walkthrough complete: ${Math.round(endTime - startTime)}ms`);
+        return endTime - startTime;
+    } finally {
+        page.off('console', consoleHandler);
+    }
 }

@@ -96,6 +96,7 @@
             Padding="20,0,0,0"
             TabStripPlacement="Left"
             Classes.Dismiss="{Binding #ExpandButton.IsChecked}"
+            SelectionChanged="OnTabSelectionChanged"
             Theme="{DynamicResource ScrollLineTabControl}">
             <TabControl.Styles>
                 <Style Selector=".Dismiss /template/ ScrollViewer#PART_ScrollViewer">

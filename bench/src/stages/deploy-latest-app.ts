@@ -2,7 +2,7 @@ import { join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile, rm, mkdir, cp, readdir, unlink } from 'node:fs/promises';
 import { type BenchContext } from '../context.js';
-import { App, Preset } from '../enums.js';
+import { App, Preset, shouldSkipDeployment } from '../enums.js';
 import { ensureBranchCheckout } from '../lib/branch-checkout.js';
 import { commitAndPush } from '../lib/git-push.js';
 import { banner, info } from '../log.js';
@@ -30,10 +30,15 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const deployedApps: string[] = [];
 
     for (const app of ctx.apps) {
-        const publishDir = join(ctx.artifactsDir, 'publish', app, ctx.buildLabel, Preset.NoWorkload);
+        const validPreset = ctx.presets.find(preset => shouldSkipDeployment(app, preset, ctx) === null);
+        if (!validPreset) {
+            info(`Skipping ${app} — no valid preset found for deployment`);
+            continue;
+        }
+
+        const publishDir = join(ctx.artifactsDir, 'publish', app, ctx.buildLabel, validPreset);
         const wwwrootSrc = join(publishDir, 'wwwroot');
 
-        // filtering to no-workload
         if (!existsSync(wwwrootSrc)) {
             info(`Skipping ${app} — no published wwwroot at ${wwwrootSrc}`);
             continue;

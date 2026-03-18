@@ -126,6 +126,22 @@ export const NON_BLAZOR_APPS = new Set<App>([App.UnoGallery, App.SemiAvalonia]);
 export const BLAZOR_REDUCED_PRESETS = new Set<Preset>([Preset.DevLoop, Preset.NoWorkload, Preset.Aot]);
 export const NON_BLAZOR_REDUCED_PRESETS = new Set<Preset>([Preset.NativeRelink, Preset.Aot]);
 
+
+export function shouldSkipDeployment(app: App, preset: Preset, ctx: BenchContext): string | null {
+    const build = shouldSkipBuild(app, preset, ctx);
+    if (build) {
+        return build;
+    }
+    if (BLAZOR_APPS.has(app) && preset !== Preset.NoWorkload) {
+        return `Blazor app '${app}' deploy with no-workload preset only`;
+    }
+    if (NON_BLAZOR_APPS.has(app) && preset !== Preset.NativeRelink) {
+        return `Non-Blazor app '${app}' deploy with native-relink preset only`;
+    }
+
+    return null;
+}
+
 /**
  * Returns a reason string if the app+preset combination should be skipped,
  * or null if the combination is valid.

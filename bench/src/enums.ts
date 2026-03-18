@@ -121,9 +121,10 @@ export const MONO_ONLY_PRESETS = new Set<Preset>([
 ]);
 
 /** Apps that use Blazor (DOM-dependent, no CLI engine support). */
-export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazingPizza, App.HavitBootstrap, App.BenchViewer, App.MudBlazor, App.UnoGallery, App.SemiAvalonia]);
-export const REDUCE_APPS = new Set<App>([App.EmptyBlazor, App.EmptyBrowser, App.BlazingPizza, App.BenchViewer, App.MudBlazor]);
-export const REDUCE_PRESETS = new Set<Preset>([Preset.NativeRelink, Preset.NoJiterp, Preset.Invariant, Preset.NoReflectionEmit]);
+export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazingPizza, App.HavitBootstrap, App.BenchViewer, App.MudBlazor]);
+export const NON_BLAZOR_APPS = new Set<App>([App.UnoGallery, App.SemiAvalonia]);
+export const BLAZOR_REDUCED_PRESETS = new Set<Preset>([Preset.DevLoop, Preset.NoWorkload, Preset.Aot]);
+export const NON_BLAZOR_REDUCED_PRESETS = new Set<Preset>([Preset.NativeRelink, Preset.Aot]);
 
 /**
  * Returns a reason string if the app+preset combination should be skipped,
@@ -152,17 +153,17 @@ export function shouldSkipBuild(app: App, preset: Preset, ctx: BenchContext): st
     if (BLAZOR_APPS.has(app) && preset === Preset.Invariant) {
         return `Blazor app '${app}' is not supported with preset '${preset}'`;
     }
-    if (REDUCE_APPS.has(app) && REDUCE_PRESETS.has(preset)) {
+    if (BLAZOR_APPS.has(app) && !BLAZOR_REDUCED_PRESETS.has(preset)) {
         return `Blazor app '${app}' with '${preset}' is in reduced matrix `;
+    }
+    if (NON_BLAZOR_APPS.has(app) && !NON_BLAZOR_REDUCED_PRESETS.has(preset)) {
+        return `Non-Blazor app '${app}' with '${preset}' is in reduced matrix `;
     }
     if (app === App.MudBlazor && ctx.sdkInfo.major < 9) {
         return `MudBlazor app '${app}' does not build with SDK versions below 9.0.0`;
     }
-    if (app === App.UnoGallery && preset !== Preset.NativeRelink) {
-        return `UnoGallery app '${app}' is not supported with preset '${preset}'`;
-    }
-    if (app === App.SemiAvalonia && preset !== Preset.NativeRelink) {
-        return `SemiAvalonia app '${app}' is not supported with preset '${preset}'`;
+    if (app === App.SemiAvalonia && ctx.sdkInfo.major < 10) {
+        return `SemiAvalonia app '${app}' does not build with SDK versions below 10.0.0`;
     }
     return null;
 }

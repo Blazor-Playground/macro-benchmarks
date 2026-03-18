@@ -674,7 +674,19 @@ async function measureBrowser(
             if (attempt > 0) info(`    Retry ${attempt}/${maxRetries}...`);
 
             if (ctx.verbose) debug(`Launching browser (headless=${ctx.headless})...`);
-            const browser = await browserType.launch({ headless: ctx.headless });
+            const isChromium = engine !== E.Firefox;
+            const browser = await browserType.launch({
+                headless: ctx.headless,
+                args: isChromium ? [
+                    '--enable-unsafe-swiftshader',
+                    '--use-gl=angle',
+                    '--use-angle=swiftshader',
+                    '--enable-webgl',
+                    '--ignore-gpu-blocklist',
+                    '--no-sandbox',
+                    '--disable-dev-shm-usage',
+                ] : undefined,
+            });
             try {
                 const result = await runBrowserSession(
                     browser, pageUrl, entry, engine, profile,

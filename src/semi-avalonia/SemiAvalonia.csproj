@@ -9,7 +9,6 @@
     <RootNamespace>Semi.Avalonia.Demo</RootNamespace>
     <AssemblyName>Semi.Avalonia.Demo</AssemblyName>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    <AvaloniaUILicenseDisableTask>true</AvaloniaUILicenseDisableTask>
   </PropertyGroup>
 
   <ItemGroup>

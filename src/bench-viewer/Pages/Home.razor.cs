@@ -115,6 +115,10 @@ public partial class Home : IAsyncDisposable
         {
             profiles.Add("desktop");
         }
+        if (app == "semi-avalonia" && checkedValues.TryGetValue("presets", out var presets))
+        {
+            presets.Add("native-relink");
+        }
 
         StateHasChanged();
 

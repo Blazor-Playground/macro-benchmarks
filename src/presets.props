@@ -3,12 +3,7 @@
   <PropertyGroup>
     <BenchmarkPreset Condition="'$(BenchmarkPreset)' == ''">DevLoop</BenchmarkPreset>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
   </PropertyGroup>
-  <ItemGroup>
-    <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />
-    <StaticWebAssetFingerprintPattern Include="MJS" Pattern="*.mjs" Expression="#[.{fingerprint}]!" />
-  </ItemGroup>
 
   <!-- 
   Keep in sync with src\bench-viewer\Components\FilterPanel.razor 

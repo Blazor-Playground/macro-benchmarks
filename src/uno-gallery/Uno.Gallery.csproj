@@ -24,7 +24,10 @@
     <DefineConstants>$(DefineConstants);IS_WASM_SKIA</DefineConstants>
     <DefineConstants>$(DefineConstants);HAS_SKIA_RENDERER</DefineConstants>
     <DefineConstants>$(DefineConstants);__WASM__</DefineConstants>
+    <!--
     <WasmShellWebAppBasePath>/</WasmShellWebAppBasePath>
+    -->
+    <WasmShellIndexHtmlPath>wwwroot/index.html</WasmShellIndexHtmlPath>
   </PropertyGroup>
   <ItemGroup>
     <IncludeXamlNamespaces Include="not_mobile" Visible="False" />
@@ -61,6 +64,7 @@
 
   <ItemGroup>
     <!-- Pre-compiled TypeScript output (see Phase 4 of uno-plan.md) -->
+    <EmbeddedResource Include="Platforms\WebAssembly\WasmScripts\main.js" />
     <EmbeddedResource Include="Platforms\WebAssembly\WasmScripts\UnoGallery.js" />
     <WasmShellMonoEnvironment Include="MONO_GC_PARAMS" Value="soft-heap-limit=512m,nursery-size=64m,evacuation-threshold=66,major=marksweep" />
   </ItemGroup>

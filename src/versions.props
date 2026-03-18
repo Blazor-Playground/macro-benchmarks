@@ -23,7 +23,7 @@
   <PropertyGroup>
     <UnoShowMeTheXAMLVersion>2.0.0-dev0015</UnoShowMeTheXAMLVersion>
     <UnoCommunityToolkitVersion>7.1.200</UnoCommunityToolkitVersion>
-    <UnoCoreExtensionsVersion>4.0.1</UnoCoreExtensionsVersion>
+    <UnoCoreExtensionsVersion>4.1.1</UnoCoreExtensionsVersion>
     <MicrosoftExtensionsLoggingVersion>9.0.0</MicrosoftExtensionsLoggingVersion>
     <MudBlazorVersion>9.1.0</MudBlazorVersion>
     <MudBlazorAspNetCoreVersion>9.0.3</MudBlazorAspNetCoreVersion>

@@ -20,6 +20,7 @@ using LaunchActivatedEventArgs = Microsoft.UI.Xaml.LaunchActivatedEventArgs;
 using MUXC = Microsoft.UI.Xaml.Controls;
 using MUXCP = Microsoft.UI.Xaml.Controls.Primitives;
 using Window = Microsoft.UI.Xaml.Window;
+using System.Runtime.InteropServices.JavaScript;
 
 namespace Uno.Gallery
 {
@@ -38,6 +39,8 @@ namespace Uno.Gallery
 		/// </summary>
 		public App()
 		{
+			Console.WriteLine("Hello, Browser!");
+
 			Instance = this;
 
 			ConfigureFeatureFlags();
@@ -73,6 +76,8 @@ namespace Uno.Gallery
 
 			this.Log().Debug("Launched app.");
 			OnLaunchedOrActivated();
+
+			SetManagedReady();
 		}
 
 		private void OnLaunchedOrActivated()
@@ -468,6 +473,9 @@ namespace Uno.Gallery
 				// builder.AddFilter("Microsoft.UI.Xaml.Data", LogLevel.Debug );
 				// builder.AddFilter("Microsoft.UI.Xaml.Data", LogLevel.Debug );
 
+				// Suppress non-fatal CornerRadius→double binding failures from Uno internals
+				builder.AddFilter("Microsoft.UI.Xaml.Data.BindingExpression", LogLevel.Critical);
+
 				// Binder memory references tracking
 				// builder.AddFilter("Uno.UI.DataBinding.BinderReferenceHolder", LogLevel.Debug );
 
@@ -498,5 +506,8 @@ namespace Uno.Gallery
 			FeatureConfiguration.ToolTip.UseToolTips = true;
 #endif
 		}
+
+		[JSImport("bench.setManagedReady", "main.mjs")]
+		internal static partial void SetManagedReady();
 	}
 }

@@ -251,6 +251,7 @@ namespace Uno.Gallery
 
 			// navigation + setting handler
 			nv.ItemInvoked += OnNavigationItemInvoked;
+			nv.SelectionChanged += OnNavigationSelectionChanged;
 
 			return shell;
 		}
@@ -315,6 +316,17 @@ namespace Uno.Gallery
 		{
 			if (e.InvokedItemContainer.DataContext is Sample sample)
 			{
+				var shell = VisualTreeHelperEx.FindAncestor<Shell>(sender)
+					?? throw new InvalidOperationException("NavigationView is not inside a Shell.");
+				ShellNavigateTo(shell, sample, trySynchronizeCurrentItem: false);
+			}
+		}
+
+		private void OnNavigationSelectionChanged(MUXC.NavigationView sender, MUXC.NavigationViewSelectionChangedEventArgs e)
+		{
+			if (e.SelectedItem is MUXC.NavigationViewItem nvi && nvi.DataContext is Sample sample)
+			{
+				Console.WriteLine($"[uno-nav] {sample.Title}");
 				var shell = VisualTreeHelperEx.FindAncestor<Shell>(sender)
 					?? throw new InvalidOperationException("NavigationView is not inside a Shell.");
 				ShellNavigateTo(shell, sample, trySynchronizeCurrentItem: false);

@@ -10,17 +10,23 @@
  * so DOM selectors are not available for content.  We use keyboard navigation
  * (Space to expand categories, ArrowDown to move, Enter to select) on the
  * NavigationView sidebar, similar to the Semi Avalonia walkthrough approach.
+ *
+ * Navigation is confirmed by listening for `[uno-nav] <title>` console
+ * messages emitted by the C# SelectionChanged handler in App.xaml.cs.
  */
 
 import { debug } from '../log.js';
 
 // Minimal Playwright Page type surface used by the walkthrough
+type ConsoleMessage = { text(): string };
 type PlaywrightPage = {
     goto(url: string, options?: { timeout?: number; waitUntil?: string }): Promise<unknown>;
     waitForFunction(fn: (() => boolean) | string, arg: unknown, options?: { timeout?: number }): Promise<unknown>;
     evaluate<T>(fn: (() => T) | ((arg: string) => T), arg?: string): Promise<T>;
     mouse: { click(x: number, y: number): Promise<void> };
     keyboard: { press(key: string): Promise<void> };
+    on(event: string, handler: (...args: unknown[]) => void): void;
+    off(event: string, handler: (...args: unknown[]) => void): void;
 };
 
 /**
@@ -173,91 +179,121 @@ export async function runUnoWalkthrough(
 ): Promise<number> {
     const log = verbose ? (msg: string) => debug(`Uno: ${msg}`) : () => { };
 
-    // ── Step 0: Load home ────────────────────────────────────────────────
-    log('navigating to home...');
-    await page.goto(url, { timeout, waitUntil: 'load' });
-    await page.waitForFunction(
-        () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
-        null, { timeout },
-    );
-    log('home loaded');
+    // ── Capture [uno-nav] console messages from C# SelectionChanged handler ─
+    const NAV_PREFIX = '[uno-nav] ';
+    let lastNavSample: string | null = null;
+    let navResolve: (() => void) | null = null;
 
-    // Wait for Uno canvas to be created
-    await page.waitForFunction(
-        () => document.getElementById('uno-canvas') !== null,
-        null, { timeout },
-    );
-    log('canvas ready');
-
-    // Give Uno a few frames to finish rendering the initial UI
-    await waitForRepaint(page);
-    await waitForRepaint(page);
-    await waitForRepaint(page);
-
-    // ── Step 1: Focus the sidebar NavigationView ─────────────────────────
-    // First, ensure the canvas has keyboard focus (Uno WASM Skia canvas
-    // does not have tabindex by default).
-    await focusCanvas(page);
-    await waitForRepaint(page);
-
-    // Click chevron area of first category (Theming) to expand it and
-    // give Uno's internal focus to the NavigationView.  The chevron is
-    // at the right side of the 260px sidebar, around y=200 on initial load.
-    await page.mouse.click(223, 200);
-    await waitForRepaint(page);
-    await waitForRepaint(page);
-
-    // Re-focus canvas for keyboard events (mouse click may shift DOM focus)
-    await focusCanvas(page);
-    await waitForRepaint(page);
-    log('focused NavigationView, first category expanded');
-
-    // Capture start time AFTER load and focus setup
-    const startTime: number = await page.evaluate(() => performance.now());
-
-    // ── Step 2: Navigate through every sample page ───────────────────────
-    // The first category (Theming) is already expanded from the chevron click.
-    // For each item we either expand (category) or navigate (sample).
-    let firstCategory = true;
-    for (let i = 0; i < NAV_ITEMS.length; i++) {
-        const item = NAV_ITEMS[i];
-
-        if (item.type === 'category') {
-            if (firstCategory) {
-                // Already expanded — just move focus into first child
-                firstCategory = false;
-                log(`${item.name} (already expanded)`);
-            } else {
-                // Expand the category with Space
-                log(`expanding: ${item.name}`);
-                await page.keyboard.press('Space');
-                await waitForRepaint(page);
-                await waitForRepaint(page);
-            }
-            // Move focus into the first child
-            await page.keyboard.press('ArrowDown');
-            await waitForRepaint(page);
-        } else {
-            // Select the sample (navigate to its page)
-            log(`visiting: ${item.name}`);
-            await page.keyboard.press('Enter');
-            await waitForRepaint(page);
-            await waitForRepaint(page);
-            await waitForRepaint(page);
-
-            // Move to next item if there is one
-            const next = i + 1 < NAV_ITEMS.length ? NAV_ITEMS[i + 1] : null;
-            if (next) {
-                await page.keyboard.press('ArrowDown');
-                await waitForRepaint(page);
+    const consoleHandler = (...args: unknown[]) => {
+        const msg = args[0] as ConsoleMessage;
+        const text = msg.text();
+        if (text.startsWith(NAV_PREFIX)) {
+            lastNavSample = text.slice(NAV_PREFIX.length);
+            if (navResolve) {
+                navResolve();
+                navResolve = null;
             }
         }
+    };
+    page.on('console', consoleHandler);
+
+    /** Wait until a [uno-nav] message arrives, with timeout. */
+    function waitForNav(expected: string, ms: number): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            if (lastNavSample === expected) { resolve(); return; }
+            const timer = setTimeout(() => {
+                navResolve = null;
+                reject(new Error(`Timed out waiting for [uno-nav] ${expected} (last seen: ${lastNavSample})`));
+            }, ms);
+            navResolve = () => { clearTimeout(timer); resolve(); };
+        });
     }
 
-    // ── Step 3: Measure elapsed time ─────────────────────────────────────
-    const endTime: number = await page.evaluate(() => performance.now());
-    const duration = Math.round(endTime - startTime);
-    log(`walkthrough complete: ${duration}ms (${NAV_ITEMS.filter(i => i.type === 'sample').length} samples visited)`);
+    try {
+        // ── Step 0: Load home ────────────────────────────────────────────────
+        log('navigating to home...');
+        await page.goto(url, { timeout, waitUntil: 'load' });
+        await page.waitForFunction(
+            () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
+            null, { timeout },
+        );
+        log('home loaded');
 
-    return endTime - startTime;
+        // Wait for Uno canvas to be created
+        await page.waitForFunction(
+            () => document.getElementById('uno-canvas') !== null,
+            null, { timeout },
+        );
+        log('canvas ready');
+
+        // Give Uno a few frames to finish rendering the initial UI
+        await waitForRepaint(page);
+        await waitForRepaint(page);
+        await waitForRepaint(page);
+
+        // ── Step 1: Focus the sidebar NavigationView ─────────────────────────
+        await focusCanvas(page);
+        await waitForRepaint(page);
+
+        // Click chevron area of first category (Theming) to expand it and
+        // give Uno's internal focus to the NavigationView.  The chevron is
+        // at the right side of the 260px sidebar, around y=200 on initial load.
+        await page.mouse.click(223, 200);
+        await waitForRepaint(page);
+        await waitForRepaint(page);
+
+        // Re-focus canvas for keyboard events (mouse click may shift DOM focus)
+        await focusCanvas(page);
+        await waitForRepaint(page);
+        log('focused NavigationView, first category expanded');
+
+        // Capture start time AFTER load and focus setup
+        const startTime: number = await page.evaluate(() => performance.now());
+
+        // ── Step 2: Navigate through every sample page ───────────────────────
+        let firstCategory = true;
+        for (let i = 0; i < NAV_ITEMS.length; i++) {
+            const item = NAV_ITEMS[i];
+
+            if (item.type === 'category') {
+                if (firstCategory) {
+                    firstCategory = false;
+                    log(`${item.name} (already expanded)`);
+                } else {
+                    log(`expanding: ${item.name}`);
+                    await page.keyboard.press('Space');
+                    await waitForRepaint(page);
+                    await waitForRepaint(page);
+                }
+                // Move focus into the first child
+                await page.keyboard.press('ArrowDown');
+                await waitForRepaint(page);
+            } else {
+                // Select the sample and wait for the C# confirmation
+                lastNavSample = null;
+                await page.keyboard.press('Enter');
+                await waitForRepaint(page);
+                await waitForNav(item.name, timeout);
+                // One extra repaint to let the content render after selection
+                await waitForRepaint(page);
+                log(`loaded: ${item.name}`);
+
+                // Move to next item if there is one
+                const next = i + 1 < NAV_ITEMS.length ? NAV_ITEMS[i + 1] : null;
+                if (next) {
+                    await page.keyboard.press('ArrowDown');
+                    await waitForRepaint(page);
+                }
+            }
+        }
+
+        // ── Step 3: Measure elapsed time ─────────────────────────────────────
+        const endTime: number = await page.evaluate(() => performance.now());
+        const duration = Math.round(endTime - startTime);
+        log(`walkthrough complete: ${duration}ms (${NAV_ITEMS.filter(i => i.type === 'sample').length} samples visited)`);
+
+        return endTime - startTime;
+    } finally {
+        page.off('console', consoleHandler);
+    }
 }

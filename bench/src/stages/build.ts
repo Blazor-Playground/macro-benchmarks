@@ -60,6 +60,7 @@ function getRestoreArgs(
         `/p:RuntimeFlavor=${mapRuntimeFlavor(ctx.runtime)}`,
         `/p:BuildLabel=${ctx.buildLabel}`,
         '/p:MSBuildDisableTaskHost=true',
+        '-m:1',
     ];
     if (ctx.runtimePackDir) {
         args.push(`/p:RuntimePackDir=${ctx.runtimePackDir}`);
@@ -92,6 +93,7 @@ function getPublishArgs(
         '/p:MSBuildDisableTaskHost=true',
         '/p:DisableParallelEmccCompile=true',
         '/p:DisableParallelAot=true',
+        '-m:1',
         `-bl:${publishDir}/publish.binlog`,
         '-o', publishDir,
     );

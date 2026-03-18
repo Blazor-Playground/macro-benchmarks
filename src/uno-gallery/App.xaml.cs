@@ -473,6 +473,7 @@ namespace Uno.Gallery
 
 				// Suppress non-fatal CornerRadius→double binding failures from Uno internals
 				builder.AddFilter("Microsoft.UI.Xaml.Data.BindingExpression", LogLevel.Critical);
+				builder.AddFilter("Uno.UI.DataBinding.BindingPropertyHelper", LogLevel.Critical);
 
 				// Binder memory references tracking
 				// builder.AddFilter("Uno.UI.DataBinding.BinderReferenceHolder", LogLevel.Debug );

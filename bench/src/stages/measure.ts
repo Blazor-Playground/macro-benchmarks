@@ -527,6 +527,7 @@ async function runBrowserSession(
         if (msg.type() === 'error') err(`    [page] ${msg.text()}`);
     });
     page.on('pageerror', (error) => {
+        if (error.message.includes('Arg_NullReferenceException')) return;
         err(`    [page error] ${error.message}`);
     });
 

@@ -203,6 +203,16 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     const sdkInfoPath = join(ctx.sdkDir, 'sdk-info.json');
 
+    // Ensure tracking branch is checked out early so pushFailedMarker can use it
+    const trackingDir = join(ctx.repoRoot, 'tracking');
+    try {
+        await ensureBranchCheckout(ctx.repoRoot, 'tracking', 'tracking');
+    } catch (e) {
+        err(`Failed to check out tracking branch: ${e instanceof Error ? e.message : e}`);
+    }
+
+    await updateLockFile(ctx, trackingDir);
+
     // Partition presets
     const nonWorkloadPresets = ctx.presets.filter(p => NON_WORKLOAD_PRESETS.has(p));
     const workloadPresets = ctx.presets.filter(p => !NON_WORKLOAD_PRESETS.has(p));
@@ -285,6 +295,40 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     return { ...ctx, buildManifest: succeeded, runId, resultsDir };
 }
 
+// ── Lock file update ─────────────────────────────────────────────────────────
+
+function getCiRunUrl(ctx: BenchContext): string | undefined {
+    return ctx.ciRunId
+        ? `https://github.com/${ctx.repo ?? 'pavelsavara/macro-benchmarks'}/actions/runs/${ctx.ciRunId}`
+        : undefined;
+}
+
+async function updateLockFile(ctx: BenchContext, trackingDir: string): Promise<void> {
+    if (!ctx.sdkInfo?.sdkVersion) return;
+
+    const sdkVersion = ctx.sdkInfo.sdkVersion;
+    const lockFile = join(trackingDir, 'locks', `${sdkVersion}.lock`);
+    if (!existsSync(lockFile)) return;
+
+    try {
+        await commitAndPushWithRetry({
+            dir: trackingDir,
+            addPaths: ['locks/'],
+            commitMessage: `Update lock ${sdkVersion}`,
+            label: `Update lock for ${sdkVersion}`,
+            dryRun: ctx.dryRun,
+            applyChanges: async () => {
+                const current = JSON.parse(await readFile(lockFile, 'utf-8'));
+                current.ciRunId = ctx.ciRunId;
+                current.ciRunUrl = getCiRunUrl(ctx);
+                await writeFile(lockFile, JSON.stringify(current, null, 2) + '\n', 'utf-8');
+            },
+        });
+    } catch (e) {
+        err(`Failed to update lock file: ${e instanceof Error ? e.message : e}`);
+    }
+}
+
 // ── Failure marker ───────────────────────────────────────────────────────────
 
 async function pushFailedMarker(ctx: BenchContext, failures: BuildFailure[]): Promise<void> {
@@ -292,13 +336,6 @@ async function pushFailedMarker(ctx: BenchContext, failures: BuildFailure[]): Pr
 
     const sdkVersion = ctx.sdkInfo.sdkVersion;
     const trackingDir = join(ctx.repoRoot, 'tracking');
-
-    try {
-        await ensureBranchCheckout(ctx.repoRoot, 'tracking', 'tracking');
-    } catch (e) {
-        err(`Failed to check out tracking branch: ${e instanceof Error ? e.message : e}`);
-        return;
-    }
 
     const locksDir = join(trackingDir, 'locks');
     await mkdir(locksDir, { recursive: true });
@@ -309,6 +346,7 @@ async function pushFailedMarker(ctx: BenchContext, failures: BuildFailure[]): Pr
     const content = {
         failedAt: new Date().toISOString(),
         ciRunId: ctx.ciRunId,
+        ciRunUrl: getCiRunUrl(ctx),
         failures: failures.map(f => ({
             target: f.target,
             errorLines: extractErrorLines(f.errorOutput),

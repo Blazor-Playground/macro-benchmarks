@@ -176,6 +176,9 @@ export function shouldSkipBuild(app: App, preset: Preset, ctx: BenchContext): st
     if (NON_BLAZOR_APPS.has(app) && !NON_BLAZOR_REDUCED_PRESETS.has(preset)) {
         return `Non-Blazor app '${app}' with '${preset}' is in reduced matrix `;
     }
+    if (app === App.UnoGallery && ctx.sdkInfo.major < 9) {
+        return `UnoGallery app '${app}' does not build with SDK versions below 9.0.0`;
+    }
     if (app === App.MudBlazor && ctx.sdkInfo.major < 9) {
         return `MudBlazor app '${app}' does not build with SDK versions below 9.0.0`;
     }

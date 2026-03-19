@@ -90,6 +90,7 @@ export const WALKTHROUGH_METRICS = new Set([
 
 // Metrics to skip for micro-benchmarks (not meaningful for internal throughput tests)
 export const MICROBENCH_SKIP_METRICS: Set<string> = new Set([
+    'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-cold', 'download-size-warm', 'server-requests-cold', 'server-requests-warm',
 ]);
 
 // Release tick spacing

@@ -30,11 +30,11 @@ public static class DashboardConfig
         "json-parse-ops", "js-interop-ops", "exception-ops",
         "time-to-reach-managed-cold", "time-to-reach-managed-warm",
         "time-to-create-dotnet-cold", "time-to-create-dotnet-warm",
-        "time-to-exit-cold", "time-to-exit-warm",
         "download-size-cold", "download-size-warm",
         "server-requests-cold", "server-requests-warm",
         "disk-size-native", "disk-size-assemblies",
-        "wasm-memory-size", "memory-peak", "compile-time"
+        "wasm-memory-size", "memory-peak", "compile-time",
+        "time-to-exit-cold", "time-to-exit-warm",
     };
 
     // Apps that are Blazor-based (cannot run in v8/node CLI engines)

@@ -39,7 +39,7 @@ public partial class Home : IAsyncDisposable
 
         try
         {
-            var indexJson = await ChartInterop.InitDashboard("https://blazor-playground.github.io/macro-benchmarks/data/views");
+            var indexJson = await ChartInterop.InitDashboard($"{DashboardConfig.GitHubPagesUrl}/data/views");
             viewIndex = JsonSerializer.Deserialize<ViewIndex>(indexJson);
 
             if (viewIndex == null || viewIndex.Apps.Count == 0)

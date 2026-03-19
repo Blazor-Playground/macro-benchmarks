@@ -120,6 +120,7 @@ function getPublishArgs(
         '-c', PRESET_CONFIG[preset],
         ...getRuntimeProps(ctx.runtime),
         `/p:BuildLabel=${ctx.buildLabel!}`,
+        ...(ctx.repo ? [`/p:GitHubRepo=${ctx.repo}`] : []),
         '/p:MSBuildDisableTaskHost=true',
         '/p:DisableParallelEmccCompile=true',
         '/p:DisableParallelAot=true',
@@ -299,7 +300,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
 function getCiRunUrl(ctx: BenchContext): string | undefined {
     return ctx.ciRunId
-        ? `https://github.com/${ctx.repo ?? 'blazor-playground/macro-benchmarks'}/actions/runs/${ctx.ciRunId}`
+        ? `https://github.com/${ctx.repo}/actions/runs/${ctx.ciRunId}`
         : undefined;
 }
 

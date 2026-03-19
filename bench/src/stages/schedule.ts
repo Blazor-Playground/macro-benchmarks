@@ -97,8 +97,11 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const toDispatch = candidates.slice(0, ctx.maxDispatches);
     info(`Will dispatch ${toDispatch.length} of ${candidates.length} untested packs`);
 
-    // 7. Dispatch via GitHub REST API
-    const repo = ctx.repo || 'blazor-playground/macro-benchmarks';
+    // 8. Dispatch via GitHub REST API
+    const repo = ctx.repo;
+    if (!repo) {
+        throw new Error('No repository configured — set GITHUB_REPOSITORY or pass --repo');
+    }
     const token = await resolveGitHubToken();
     if (!token && !ctx.dryRun) {
         throw new Error('No GitHub token available — set GITHUB_TOKEN or GH_TOKEN');

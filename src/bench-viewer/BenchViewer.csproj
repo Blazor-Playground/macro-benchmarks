@@ -16,6 +16,17 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="$(MicrosoftAspNetCoreVersion)" PrivateAssets="all" />
   </ItemGroup>
 
+  <!-- Generate BuildConfig.g.cs with MSBuild properties available at runtime -->
+  <Target Name="GenerateBuildConfig" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <_BuildConfigFile>$(IntermediateOutputPath)BuildConfig.g.cs</_BuildConfigFile>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(_BuildConfigFile)" Overwrite="true" Lines="namespace BenchViewer.Models%3B;internal static class BuildConfig;{;    public const string GitHubRepo = &quot;$(GitHubRepo)&quot;%3B;}" />
+    <ItemGroup>
+      <Compile Include="$(_BuildConfigFile)" />
+    </ItemGroup>
+  </Target>
+
   <!-- TypeScript compilation -->
   <PropertyGroup>
     <TypeScriptOutputDir>wwwroot\chart</TypeScriptOutputDir>

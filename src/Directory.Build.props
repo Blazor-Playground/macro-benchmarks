@@ -3,6 +3,12 @@
   <Import Project="presets.props" />
   <Import Project="runtimes.props" />
 
+  <!-- GitHub repository (owner/name) — override via -p:GitHubRepo=org/repo or GITHUB_REPOSITORY env var -->
+  <PropertyGroup>
+    <GitHubRepo Condition="'$(GitHubRepo)' == '' and '$(GITHUB_REPOSITORY)' != ''">$(GITHUB_REPOSITORY)</GitHubRepo>
+    <GitHubRepo Condition="'$(GitHubRepo)' == ''">pavelsavara/macro-benchmarks</GitHubRepo>
+  </PropertyGroup>
+
   <!-- Prevent MSB5022: ILLink/WASM tasks need IBuildEngine callbacks, so
        they must run in-process rather than in the out-of-proc task host. -->
   <PropertyGroup>

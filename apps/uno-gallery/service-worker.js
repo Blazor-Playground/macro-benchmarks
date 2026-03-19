@@ -1,4 +1,4 @@
-﻿import { config as unoConfig } from "/package_47341fd84a06665321e223194ddc76e327081573/uno-config.js";
+﻿import { config as unoConfig } from "/macro-benchmarks/apps/uno-gallery/package_47341fd84a06665321e223194ddc76e327081573/uno-config.js";
 
 
 if (unoConfig.environmentVariables["UNO_BOOTSTRAP_DEBUGGER_ENABLED"] !== "True") {
@@ -8,7 +8,7 @@ if (unoConfig.environmentVariables["UNO_BOOTSTRAP_DEBUGGER_ENABLED"] !== "True")
     self.addEventListener('install', function (e) {
         console.debug('[ServiceWorker] Installing offline worker');
         e.waitUntil(
-            caches.open('53e9ec7b-c2e7-4e44-8a26-c7879fda233e').then(async function (cache) {
+            caches.open('dbf17afa-0b2a-4fc4-aad7-44550f9fedbd').then(async function (cache) {
                 console.debug('[ServiceWorker] Caching app binaries and content');
 
                 // Add files one by one to avoid failed downloads to prevent the
@@ -29,7 +29,7 @@ if (unoConfig.environmentVariables["UNO_BOOTSTRAP_DEBUGGER_ENABLED"] !== "True")
                 // Add the runtime's own files to the cache. We cannot use the
                 // existing cached content from the runtime as the keys contain a
                 // hash we cannot reliably compute.
-                var c = await fetch("/_framework/blazor.boot.json");
+                var c = await fetch("/macro-benchmarks/apps/uno-gallery/_framework/blazor.boot.json");
                 const monoConfigResources = (await c.json()).resources;
 
                 var entries = {
@@ -46,7 +46,7 @@ if (unoConfig.environmentVariables["UNO_BOOTSTRAP_DEBUGGER_ENABLED"] !== "True")
                 };
 
                 for (var key in entries) {
-                    var uri = `/_framework/${key}`;
+                    var uri = `/macro-benchmarks/apps/uno-gallery/_framework/${key}`;
 
                     if (uno_enable_tracing) {
                         console.debug(`[ServiceWorker] cache ${uri}`);

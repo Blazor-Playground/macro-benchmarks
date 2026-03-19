@@ -299,7 +299,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
 function getCiRunUrl(ctx: BenchContext): string | undefined {
     return ctx.ciRunId
-        ? `https://github.com/${ctx.repo ?? 'pavelsavara/macro-benchmarks'}/actions/runs/${ctx.ciRunId}`
+        ? `https://github.com/${ctx.repo ?? 'blazor-playground/macro-benchmarks'}/actions/runs/${ctx.ciRunId}`
         : undefined;
 }
 

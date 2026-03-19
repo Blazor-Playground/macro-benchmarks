@@ -119,9 +119,9 @@ public partial class Home : IAsyncDisposable
         {
             presets.Add("native-relink");
         }
-        if (app == "uno-gallery" && checkedValues.TryGetValue("presets", out var presets))
+        if (app == "uno-gallery" && checkedValues.TryGetValue("presets", out var presetsu))
         {
-            presets.Add("native-relink");
+            presetsu.Add("native-relink");
         }
 
         StateHasChanged();

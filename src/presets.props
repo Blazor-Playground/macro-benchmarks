@@ -99,6 +99,7 @@
 
   <!-- consider
     <WasmFingerprintAssets>false</WasmFingerprintAssets>
+    <WasmFingerprintDotnetJs>true</WasmFingerprintDotnetJs>
     <BlazorFingerprintBlazorJs>false</BlazorFingerprintBlazorJs>
     <TrimMode>link</TrimMode>
     <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>

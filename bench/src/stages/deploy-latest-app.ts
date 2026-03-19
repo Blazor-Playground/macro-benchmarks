@@ -52,6 +52,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
             await rm(join(appDestDir, 'css'), { recursive: true, force: true });
             for (const f of await readdir(appDestDir)) {
                 if (f.endsWith('.mjs')) await unlink(join(appDestDir, f));
+                if (f.endsWith('.html')) await unlink(join(appDestDir, f));
             }
 
             // ── Copy wwwroot contents ────────────────────────────────────────

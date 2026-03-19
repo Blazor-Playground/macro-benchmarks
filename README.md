@@ -1,6 +1,6 @@
 # .NET Browser WASM Benchmark Suite
 
-Daily performance tracking for .NET WebAssembly in browsers. Automatically builds sample apps against the latest nightly .NET SDK, measures load time, download size, and memory across engines and build configurations, then publishes the results to a [live dashboard](https://pavelsavara.github.io/macro-benchmarks/).
+Daily performance tracking for .NET WebAssembly in browsers. Automatically builds sample apps against the latest nightly .NET SDK, measures load time, download size, and memory across engines and build configurations, then publishes the results to a [live dashboard](https://blazor-playground.github.io/macro-benchmarks/).
 
 ## Apps benchmarked
 
@@ -65,7 +65,7 @@ Use `--help` for all options.
 
 ## CI/CD
 
-- **benchmark.yml** — Daily + manual: resolve → build → measure → deploy results ([recent runs](https://github.com/pavelsavara/macro-benchmarks/actions/workflows/benchmark.yml))
+- **benchmark.yml** — Daily + manual: resolve → build → measure → deploy results ([recent runs](https://github.com/blazor-playground/macro-benchmarks/actions/workflows/benchmark.yml))
 - **docker-build.yml** — Weekly: builds `browser-bench-build` and `browser-bench-measure` container images
 - **schedule.yml** — Dispatches benchmarks for SDK channels
 

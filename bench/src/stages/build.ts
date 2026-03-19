@@ -111,6 +111,9 @@ async function buildPhase(
     succeeded: BuildManifestEntry[],
     failed: string[],
 ): Promise<void> {
+    const nugetPackagesDir = join(ctx.artifactsDir, 'nuget-packages');
+    const dotnetEnv = { NUGET_PACKAGES: nugetPackagesDir };
+
     for (const app of ctx.apps) {
         const appDir = join(ctx.repoRoot, 'src', app);
         for (const preset of presets) {
@@ -133,10 +136,10 @@ async function buildPhase(
                 // Uno.Gallery uses Uno.Sdk with complex build targets (Resizetizer, ShellTask)
                 // that break when restore and publish are split. Run publish with implicit restore.
                 const restoreArgs = getRestoreArgs(ctx, appDir, app, preset);
-                await dotnetRestore(ctx.dotnetBin!, restoreArgs, { cwd: ctx.repoRoot });
+                await dotnetRestore(ctx.dotnetBin!, restoreArgs, { cwd: ctx.repoRoot, env: dotnetEnv });
 
                 const startTime = performance.now();
-                await dotnetPublish(ctx.dotnetBin!, publishArgs, { cwd: ctx.repoRoot });
+                await dotnetPublish(ctx.dotnetBin!, publishArgs, { cwd: ctx.repoRoot, env: dotnetEnv });
                 const compileTimeMs = Math.round(performance.now() - startTime);
 
                 await writeFile(

@@ -14,7 +14,9 @@
     "empty-blazor",
     "havit-bootstrap",
     "micro-benchmarks",
-    "mud-blazor"
+    "mud-blazor",
+    "uno-gallery",
+    "semi-avalonia"
   ],
   "metrics": {
     "blazing-pizza": [

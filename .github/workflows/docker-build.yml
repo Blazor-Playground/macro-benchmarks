@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  REGISTRY_IMAGE: ghcr.io/pavelsavara/macro-benchmarks
+  REGISTRY_IMAGE: ghcr.io/${{ github.repository }}
 
 jobs:
   build-image:

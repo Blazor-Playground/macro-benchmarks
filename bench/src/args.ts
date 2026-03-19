@@ -242,7 +242,7 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
 
         // Scheduling
         maxDispatches: parseIntStrict(values['max-dispatches']!, 'max-dispatches'),
-        repo: values.repo || undefined,
+        repo: values.repo || process.env['GITHUB_REPOSITORY'] || undefined,
         branch: values.branch!,
 
         // Enumeration

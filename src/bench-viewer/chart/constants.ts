@@ -89,7 +89,7 @@ export const WALKTHROUGH_METRICS = new Set([
 ]);
 
 // Metrics to skip for micro-benchmarks (not meaningful for internal throughput tests)
-export const MICROBENCH_SKIP_METRICS = new Set([
+export const MICROBENCH_SKIP_METRICS: Set<string> = new Set([
 ]);
 
 // Release tick spacing

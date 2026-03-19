@@ -16,11 +16,19 @@
     <BaseIntermediateOutputPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'artifacts', 'obj', '$(MSBuildProjectName)', '$(BuildLabel)', '$(BenchmarkPreset)'))</BaseIntermediateOutputPath>
   </PropertyGroup>
 
-  <!-- importmap + fingerprint -->
-  <PropertyGroup Condition="'$(DashName)' != 'uno-gallery'">
+  <!-- disable importmap + fingerprint -->
+  <PropertyGroup Condition="'$(BenchmarkTargetFramework)' == 'net8.0' or '$(BenchmarkTargetFramework)' == 'net9.0' or '$(DashName)' == 'uno-gallery'">
+    <WasmFingerprintAssets>false</WasmFingerprintAssets>
+    <BlazorFingerprintBlazorJs>false</BlazorFingerprintBlazorJs>
+    <OverrideHtmlAssetPlaceholders>false</OverrideHtmlAssetPlaceholders>
+  </PropertyGroup>
+  <!-- enable importmap + fingerprint -->
+  <PropertyGroup Condition="'$(BenchmarkTargetFramework)' != 'net8.0' and '$(BenchmarkTargetFramework)' != 'net9.0' and '$(DashName)' != 'uno-gallery'">
+    <WasmFingerprintAssets>true</WasmFingerprintAssets>
+    <BlazorFingerprintBlazorJs>true</BlazorFingerprintBlazorJs>
     <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
   </PropertyGroup>
-  <ItemGroup Condition="'$(DashName)' != 'uno-gallery'">
+  <ItemGroup Condition="'$(BenchmarkTargetFramework)' != 'net8.0' and '$(BenchmarkTargetFramework)' != 'net9.0' and '$(DashName)' != 'uno-gallery'">
     <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />
     <StaticWebAssetFingerprintPattern Include="MJS" Pattern="*.mjs" Expression="#[.{fingerprint}]!" />
   </ItemGroup>

@@ -20,6 +20,10 @@
     </Target>
 
     <Target Name="RenameFingerprinting" AfterTargets="ComputeAndCopyFilesToPublishDirectory">
+        <PropertyGroup>
+            <_PublishedIndexHtml>$(PublishDir)\wwwroot\index.html</_PublishedIndexHtml>
+            <_PublishedIndexNFpHtml>$(PublishDir)\wwwroot\index-nfp.html</_PublishedIndexNFpHtml>
+        </PropertyGroup>
         <ItemGroup>
             <_FingerprintedMainMjs Include="$(PublishDir)wwwroot/main.*.mjs" />
             <_FingerprintedDotnetJs Include="$(PublishDir)wwwroot/_framework/dotnet.*.js"
@@ -31,10 +35,22 @@
         </ItemGroup>
         <Copy SourceFiles="@(_FingerprintedMainMjs)"
               DestinationFiles="$(PublishDir)wwwroot/main.mjs"
-              Condition="'@(_FingerprintedMainMjs)' != ''" />
+              Condition="'@(_FingerprintedMainMjs)' != '' and '$(WasmFingerprintAssets)' == 'true'" />
         <Copy SourceFiles="@(_FingerprintedDotnetJs)"
               DestinationFiles="$(PublishDir)wwwroot/_framework/dotnet.js"
-              Condition="'@(_FingerprintedDotnetJs)' != ''" />
-    </Target>
+              Condition="'@(_FingerprintedDotnetJs)' != '' and '$(WasmFingerprintAssets)' == 'true'" />
 
+        <Copy SourceFiles="$(_PublishedIndexNFpHtml)"
+              DestinationFiles="$(_PublishedIndexHtml)"
+              OverwriteReadOnlyFiles="true"
+              Condition="Exists('$(_PublishedIndexNFpHtml)') and '$(WasmFingerprintAssets)' != 'true'" />
+        <Copy SourceFiles="$(_PublishedIndexNFpHtml).gz"
+              DestinationFiles="$(_PublishedIndexHtml).gz"
+              OverwriteReadOnlyFiles="true"
+              Condition="Exists('$(_PublishedIndexNFpHtml).gz')  and '$(WasmFingerprintAssets)' != 'true'" />
+        <Copy SourceFiles="$(_PublishedIndexNFpHtml).br"
+              DestinationFiles="$(_PublishedIndexHtml).br"
+              OverwriteReadOnlyFiles="true"
+              Condition="Exists('$(_PublishedIndexNFpHtml).br') and '$(WasmFingerprintAssets)' != 'true'" />
+    </Target>
 </Project>

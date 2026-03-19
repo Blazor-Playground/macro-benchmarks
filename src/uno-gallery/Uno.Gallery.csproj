@@ -35,23 +35,6 @@
     <ExcludeXamlNamespaces Include="mobile" Visible="False" />
   </ItemGroup>
 
-  <!--
-  <PropertyGroup Condition="'$(Configuration)'=='Debug' or '$(IsUiAutomationMappingEnabled)'=='True'">
-    <IsUiAutomationMappingEnabled>True</IsUiAutomationMappingEnabled>
-    <DefineConstants>$(DefineConstants);USE_UITESTS</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Release' and '$(WasmShellMonoRuntimeExecutionMode)'=='InterpreterAndAOT'">
-    <WasmAotFileName Condition="'$(IsUiAutomationMappingEnabled)'=='' AND '$(UseNativeRendering)' != 'true' ">aot-skiawasm.profile</WasmAotFileName>
-    <WasmAotFileName Condition="'$(IsUiAutomationMappingEnabled)'=='' AND '$(UseNativeRendering)' == 'true' ">aot.profile</WasmAotFileName>
-    <WasmAotFileName Condition="'$(IsUiAutomationMappingEnabled)'=='True'">aot-uitests.profile</WasmAotFileName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <WasmShellMonoRuntimeExecutionMode>InterpreterAndAOT</WasmShellMonoRuntimeExecutionMode>
-    <WasmShellEmccLinkOptimization>false</WasmShellEmccLinkOptimization>
-    <WasmShellEnableEmccProfiling>true</WasmShellEnableEmccProfiling>
-  </PropertyGroup>
-  -->
-
   <ItemGroup>
     <PackageReference Include="Uno.ShowMeTheXAML" Version="$(UnoShowMeTheXAMLVersion)" />
     <PackageReference Include="Uno.ShowMeTheXAML.MSBuild" Version="$(UnoShowMeTheXAMLVersion)" />
@@ -69,14 +52,6 @@
     <EmbeddedResource Include="Platforms\WebAssembly\WasmScripts\UnoGallery.js" />
     <WasmShellMonoEnvironment Include="MONO_GC_PARAMS" Value="soft-heap-limit=512m,nursery-size=64m,evacuation-threshold=66,major=marksweep" />
   </ItemGroup>
-
-
-  <!-- TODO fix me -->
-  <PropertyGroup>
-    <EnableAggressiveTrimming>false</EnableAggressiveTrimming>
-    <PublishTrimmed>false</PublishTrimmed>
-    <WasmNativeStrip>false</WasmNativeStrip>
-  </PropertyGroup>
 
   <!-- https://github.com/dotnet/runtime/issues/109289 -->
   <Target Name="Issue109289_Workaround" AfterTargets="_BrowserWasmWriteRspForLinking" Condition=" $(NETCoreSdkVersion.Contains('9.0.100')) ">

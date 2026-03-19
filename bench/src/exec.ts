@@ -24,6 +24,19 @@ export interface ExecResult {
     stderr: string;
 }
 
+export class ExecError extends Error {
+    exitCode: number;
+    stdout: string;
+    stderr: string;
+    constructor(message: string, exitCode: number, stdout: string, stderr: string) {
+        super(message);
+        this.name = 'ExecError';
+        this.exitCode = exitCode;
+        this.stdout = stdout;
+        this.stderr = stderr;
+    }
+}
+
 export interface DockerRunOptions {
     cwd?: string;
     volumes?: Array<{ host: string; container: string }>;
@@ -114,8 +127,8 @@ export function exec(command: string, args: string[], opts?: ExecOptions): Promi
         if (stdio === 'pipe') {
             spawnOpts.stdio = 'pipe';
         } else if (suppressStdout) {
-            // Redirect child stdout to parent stderr to avoid polluting $GITHUB_OUTPUT
-            spawnOpts.stdio = ['inherit', process.stderr, 'inherit'];
+            // Pipe both streams so they can be captured; forwarded to parent stderr below
+            spawnOpts.stdio = ['inherit', 'pipe', 'pipe'];
         } else {
             spawnOpts.stdio = 'inherit';
         }
@@ -132,9 +145,15 @@ export function exec(command: string, args: string[], opts?: ExecOptions): Promi
         let stdout = '';
         let stderr = '';
 
-        if (stdio === 'pipe') {
-            child.stdout?.on('data', (chunk: Buffer) => { stdout += chunk.toString(); });
-            child.stderr?.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
+        if (stdio === 'pipe' || suppressStdout) {
+            child.stdout?.on('data', (chunk: Buffer) => {
+                stdout += chunk.toString();
+                if (suppressStdout) process.stderr.write(chunk);
+            });
+            child.stderr?.on('data', (chunk: Buffer) => {
+                stderr += chunk.toString();
+                if (suppressStdout) process.stderr.write(chunk);
+            });
         }
 
         child.on('error', (err) => {
@@ -146,7 +165,7 @@ export function exec(command: string, args: string[], opts?: ExecOptions): Promi
             const result: ExecResult = { exitCode, stdout, stderr };
             if (throwOnError && exitCode !== 0) {
                 const msg = label ?? [command, ...args].join(' ');
-                reject(new Error(`Command failed (exit ${exitCode}): ${msg}${stderr ? '\n' + stderr : ''}`));
+                reject(new ExecError(`Command failed (exit ${exitCode}): ${msg}${stderr ? '\n' + stderr : ''}`, exitCode, stdout, stderr));
             } else {
                 resolve(result);
             }

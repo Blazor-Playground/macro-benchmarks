@@ -6,6 +6,7 @@ import { banner, info, debug, err } from '../log.js';
 import { GITHUB_API, githubHeaders, resolveGitHubToken } from '../lib/http.js';
 import { getVersionMajor } from '../lib/version-utils.js';
 import { exec } from '../exec.js';
+import { commitAndPushWithRetry } from '../lib/git-push.js';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -49,22 +50,26 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const lockedSdkVersions = await buildLockedSet(trackingDir, ctx.verbose);
     info(`Found ${lockedSdkVersions.size} locked (in-progress) SDK versions`);
 
-    // 3. Load pack lists from artifacts (populated by enumerate stages)
+    // 3. Build the set of permanently failed SDK versions from tracking/locks/*.failed
+    const failedSdkVersions = await buildFailedSet(trackingDir, ctx.verbose);
+    info(`Found ${failedSdkVersions.size} permanently failed SDK versions`);
+
+    // 4. Load pack lists from artifacts (populated by enumerate stages)
     const releasePacks = await loadPacks(join(ctx.artifactsDir, 'release-packs-list.json'));
     const dailyPacks = await loadPacks(join(ctx.artifactsDir, 'daily-packs-list.json'));
 
-    // 4. Filter to untested and unlocked packs
+    // 5. Filter to untested, unlocked, and not-failed packs
     const untestedReleases = releasePacks.filter(p =>
-        !doneSdkVersions.has(p.sdkVersion) && !lockedSdkVersions.has(p.sdkVersion));
+        !doneSdkVersions.has(p.sdkVersion) && !lockedSdkVersions.has(p.sdkVersion) && !failedSdkVersions.has(p.sdkVersion));
     const untestedDaily = dailyPacks.filter(p =>
-        !doneSdkVersions.has(p.sdkVersion) && !lockedSdkVersions.has(p.sdkVersion));
+        !doneSdkVersions.has(p.sdkVersion) && !lockedSdkVersions.has(p.sdkVersion) && !failedSdkVersions.has(p.sdkVersion));
 
     if (ctx.verbose) {
         debug(`Release packs: ${releasePacks.length} total, ${untestedReleases.length} untested+unlocked`);
         debug(`Daily packs: ${dailyPacks.length} total, ${untestedDaily.length} untested+unlocked`);
     }
 
-    // 5. Filter by channel major if --sdk-channel was specified
+    // 6. Filter by channel major if --sdk-channel was specified
     const channelMajor = getVersionMajor(ctx.sdkChannel);
     const filterByMajor = (p: PackEntry) => {
         const major = getVersionMajor(p.sdkVersion);
@@ -77,7 +82,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         debug(`Filtered to major ${channelMajor}: ${filteredReleases.length} releases, ${filteredDaily.length} daily`);
     }
 
-    // 6. Priority: releases oldest→newest, then daily builds latest→oldest
+    // 7. Priority: releases oldest→newest, then daily builds latest→oldest
     //    (release-packs-list already has newest first; daily-packs-list has newest first)
     const candidates = [
         ...filteredReleases.reverse(),   // oldest → newest
@@ -175,6 +180,28 @@ async function buildDoneSet(trackingDir: string, verbose?: boolean): Promise<Set
 }
 
 /**
+ * Scan tracking/locks/ for .failed files and return the set of permanently failed SDK versions.
+ */
+async function buildFailedSet(trackingDir: string, verbose?: boolean): Promise<Set<string>> {
+    const failed = new Set<string>();
+    const locksDir = join(trackingDir, LOCK_DIR);
+
+    if (!existsSync(locksDir)) {
+        return failed;
+    }
+
+    const entries = await readdir(locksDir);
+    for (const entry of entries) {
+        if (!entry.endsWith('.failed')) continue;
+        const sdkVersion = entry.replace(/\.failed$/, '');
+        failed.add(sdkVersion);
+        if (verbose) debug(`Permanently failed: ${sdkVersion}`);
+    }
+
+    return failed;
+}
+
+/**
  * Mark an SDK version as done: write .done file, remove .lock file, push to tracking.
  */
 async function pushDoneMarker(
@@ -193,52 +220,18 @@ async function pushDoneMarker(
         ciRunId: ctx.ciRunId,
     };
 
-    await writeFile(doneFile, JSON.stringify(doneContent, null, 2), 'utf-8');
-    if (existsSync(lockFile)) {
-        await unlink(lockFile);
-    }
-
-    if (ctx.dryRun) {
-        info(`[dry-run] Marked ${sdkVersion} as done`);
-        return true;
-    }
-
-    for (let attempt = 1; attempt <= MAX_PUSH_RETRIES; attempt++) {
-        await exec('git', ['-C', trackingDir, 'pull', '--rebase'], { throwOnError: false });
-
-        // Re-apply changes after pull (rebase may have clobbered them)
-        await writeFile(doneFile, JSON.stringify(doneContent, null, 2), 'utf-8');
-        if (existsSync(lockFile)) await unlink(lockFile);
-
-        await exec('git', ['-C', trackingDir, 'config', 'user.name', 'github-actions[bot]']);
-        await exec('git', ['-C', trackingDir, 'config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
-
-        await exec('git', ['-C', trackingDir, 'add', `${LOCK_DIR}/`]);
-        const { exitCode: diffCode } = await exec('git', ['-C', trackingDir, 'diff', '--cached', '--quiet'], {
-            throwOnError: false,
-        });
-        if (diffCode === 0) {
-            info(`Done marker for ${sdkVersion} already in git`);
-            return true;
-        }
-        await exec('git', ['-C', trackingDir, 'commit', '-m', `Done ${sdkVersion}`]);
-
-        const { exitCode: pushCode } = await exec('git', ['-C', trackingDir, 'push'], {
-            throwOnError: false,
-        });
-        if (pushCode === 0) {
-            info(`Done marker pushed for ${sdkVersion}`);
-            return true;
-        }
-
-        if (attempt < MAX_PUSH_RETRIES) {
-            info(`Push failed (attempt ${attempt}/${MAX_PUSH_RETRIES}) — pulling and retrying`);
-            await exec('git', ['-C', trackingDir, 'reset', '--soft', 'HEAD~1'], { throwOnError: false });
-        }
-    }
-
-    err(`Failed to push done marker for ${sdkVersion} after ${MAX_PUSH_RETRIES} attempts`);
-    return false;
+    return commitAndPushWithRetry({
+        dir: trackingDir,
+        addPaths: [`${LOCK_DIR}/`],
+        commitMessage: `Done ${sdkVersion}`,
+        label: `Done marker for ${sdkVersion}`,
+        dryRun: ctx.dryRun,
+        maxRetries: MAX_PUSH_RETRIES,
+        applyChanges: async () => {
+            await writeFile(doneFile, JSON.stringify(doneContent, null, 2), 'utf-8');
+            if (existsSync(lockFile)) await unlink(lockFile);
+        },
+    });
 }
 
 // ── Lock Helpers ─────────────────────────────────────────────────────────────
@@ -340,69 +333,38 @@ async function pushLockFile(
     const lockRelPath = join(LOCK_DIR, `${sdkVersion}.lock`);
     const lockAbsPath = join(trackingDir, lockRelPath);
 
-    for (let attempt = 1; attempt <= MAX_PUSH_RETRIES; attempt++) {
-        // Pull latest to see if someone else created this lock
-        await exec('git', ['-C', trackingDir, 'pull', '--rebase'], { throwOnError: false });
-
-        // Re-check: another scheduler may have pushed this lock while we were writing ours
-        if (existsSync(lockAbsPath)) {
-            try {
-                const existing: LockFile = JSON.parse(await readFile(lockAbsPath, 'utf-8'));
-                // If the lock is from someone else (different ciRunId) and not expired, bail
-                if (existing.ciRunId !== ctx.ciRunId) {
-                    const age = Date.now() - new Date(existing.dispatchedAt).getTime();
-                    if (age <= LOCK_TTL_MS) {
-                        info(`Lock taken by another scheduler for ${sdkVersion} (run ${existing.ciRunId ?? 'unknown'})`);
-                        return false;
+    return commitAndPushWithRetry({
+        dir: trackingDir,
+        addPaths: [lockRelPath],
+        commitMessage: `Lock ${sdkVersion}`,
+        label: `Lock for ${sdkVersion}`,
+        dryRun: ctx.dryRun, // pushLockFile is only called in non-dry-run path
+        maxRetries: MAX_PUSH_RETRIES,
+        applyChanges: async () => {
+            // Re-check: another scheduler may have pushed this lock
+            if (existsSync(lockAbsPath)) {
+                try {
+                    const existing: LockFile = JSON.parse(await readFile(lockAbsPath, 'utf-8'));
+                    if (existing.ciRunId !== ctx.ciRunId) {
+                        const age = Date.now() - new Date(existing.dispatchedAt).getTime();
+                        if (age <= LOCK_TTL_MS) {
+                            info(`Lock taken by another scheduler for ${sdkVersion} (run ${existing.ciRunId ?? 'unknown'})`);
+                            return false;
+                        }
+                        if (ctx.verbose) debug(`Overwriting expired lock for ${sdkVersion}`);
                     }
-                    if (ctx.verbose) debug(`Overwriting expired lock for ${sdkVersion}`);
+                } catch {
+                    // Malformed lock — overwrite it
                 }
-            } catch {
-                // Malformed lock — overwrite it
             }
-        }
 
-        // Re-write lock file (pull --rebase may have replaced it)
-        const lockContent: LockFile = {
-            dispatchedAt: new Date().toISOString(),
-            ciRunId: ctx.ciRunId,
-        };
-        await writeFile(lockAbsPath, JSON.stringify(lockContent, null, 2), 'utf-8');
-
-        // Configure git user
-        await exec('git', ['-C', trackingDir, 'config', 'user.name', 'github-actions[bot]']);
-        await exec('git', ['-C', trackingDir, 'config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
-
-        // Stage and commit
-        await exec('git', ['-C', trackingDir, 'add', lockRelPath]);
-        const { exitCode: diffCode } = await exec('git', ['-C', trackingDir, 'diff', '--cached', '--quiet'], {
-            throwOnError: false,
-        });
-        if (diffCode === 0) {
-            // No staged changes — lock content already matches git (we own it)
-            info(`Lock for ${sdkVersion} already in git`);
-            return true;
-        }
-        await exec('git', ['-C', trackingDir, 'commit', '-m', `Lock ${sdkVersion}`]);
-
-        // Push
-        const { exitCode: pushCode } = await exec('git', ['-C', trackingDir, 'push'], {
-            throwOnError: false,
-        });
-        if (pushCode === 0) {
-            info(`Lock pushed for ${sdkVersion}`);
-            return true;
-        }
-
-        // Push failed (likely concurrent push) — retry
-        if (attempt < MAX_PUSH_RETRIES) {
-            info(`Push failed (attempt ${attempt}/${MAX_PUSH_RETRIES}) — pulling and retrying`);
-            await exec('git', ['-C', trackingDir, 'reset', '--soft', 'HEAD~1'], { throwOnError: false });
-        }
-    }
-
-    err(`Failed to push lock for ${sdkVersion} after ${MAX_PUSH_RETRIES} attempts`);
-    return false;
+            const lockContent: LockFile = {
+                dispatchedAt: new Date().toISOString(),
+                ciRunId: ctx.ciRunId,
+            };
+            await writeFile(lockAbsPath, JSON.stringify(lockContent, null, 2), 'utf-8');
+        },
+    });
 }
 
 // ── Data Helpers ─────────────────────────────────────────────────────────────

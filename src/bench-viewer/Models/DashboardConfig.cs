@@ -20,7 +20,9 @@ public static class DashboardConfig
     {
         "blazing-pizza", "havit-bootstrap", "mud-blazor", "empty-blazor",
         "semi-avalonia", "uno-gallery",
-        "empty-browser", "micro-benchmarks","bench-viewer", 
+        "empty-browser", "empty-browser",
+        "micro-benchmarks",
+        "bench-viewer", 
     };
 
     // Preferred metric display order

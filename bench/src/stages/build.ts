@@ -1,5 +1,6 @@
-import { readFile, writeFile, readdir, rm, mkdir, stat } from 'node:fs/promises';
+import { readFile, writeFile, readdir, rm, mkdir, stat, unlink } from 'node:fs/promises';
 import { join } from 'node:path';
+import { existsSync } from 'node:fs';
 import { type BenchContext, type BuildManifestEntry } from '../context.js';
 import {
     type Preset, type Runtime,
@@ -9,8 +10,34 @@ import {
     PRESET_MAP, PRESET_CONFIG,
     shouldSkipBuild,
 } from '../enums.js';
-import { dotnetRestore, dotnetPublish, dotnetWorkloadInstall, dotnetWorkloadList } from '../exec.js';
+import { dotnetRestore, dotnetPublish, dotnetWorkloadInstall, dotnetWorkloadList, ExecError } from '../exec.js';
 import { banner, info, err } from '../log.js';
+import { ensureBranchCheckout } from '../lib/branch-checkout.js';
+import { commitAndPushWithRetry } from '../lib/git-push.js';
+
+// ── Build failure tracking ──────────────────────────────────────────────────
+
+interface BuildFailure {
+    target: string;
+    errorOutput: string;
+}
+
+const ERROR_LINE_PATTERN = /\b(error\s*(:|MSB|CS|NU|NETSDK|TS)\S*|Build FAILED)\b/i;
+
+function extractErrorLines(output: string): string[] {
+    const seen = new Set<string>();
+    const results: string[] = [];
+    for (const line of output.split('\n')) {
+        if (ERROR_LINE_PATTERN.test(line)) {
+            const trimmed = line.trim();
+            if (trimmed && !seen.has(trimmed)) {
+                seen.add(trimmed);
+                results.push(trimmed);
+            }
+        }
+    }
+    return results.slice(0, 50);
+}
 
 // ── Runtime flavor mapping ──────────────────────────────────────────────────
 
@@ -112,7 +139,7 @@ async function buildPhase(
     ctx: BenchContext,
     presets: Preset[],
     succeeded: BuildManifestEntry[],
-    failed: string[],
+    failed: BuildFailure[],
 ): Promise<void> {
     const nugetPackagesDir = join(ctx.artifactsDir, 'nuget-packages');
     const dotnetEnv = { NUGET_PACKAGES: nugetPackagesDir };
@@ -156,7 +183,10 @@ async function buildPhase(
                 succeeded.push({ app: app as App, preset, runtime: ctx.runtime, compileTimeMs, integrity, publishDir });
             } catch (e) {
                 err(`Build failed for ${app}/${preset}: ${e instanceof Error ? e.message : e}`);
-                failed.push(`${app}/${preset}`);
+                const errorOutput = e instanceof ExecError
+                    ? e.stdout + '\n' + e.stderr
+                    : (e instanceof Error ? e.message : String(e));
+                failed.push({ target: `${app}/${preset}`, errorOutput });
             }
         }
     }
@@ -194,7 +224,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     }
 
     const succeeded: BuildManifestEntry[] = [];
-    const failed: string[] = [];
+    const failed: BuildFailure[] = [];
 
     // Phase A: Non-workload presets (before wasm-tools install)
     if (nonWorkloadPresets.length > 0) {
@@ -226,11 +256,13 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     }
 
     if (succeeded.length === 0) {
+        await pushFailedMarker(ctx, failed);
         throw new Error('All builds failed — nothing to measure');
     }
     if (failed.length > 0) {
         info(`${succeeded.length} builds succeeded, ${failed.length} failed`);
-        throw new Error(`Build failed for: ${failed.join(', ')}`);
+        await pushFailedMarker(ctx, failed);
+        throw new Error(`Build failed for: ${failed.map(f => f.target).join(', ')}`);
     }
     info(`${succeeded.length} builds succeeded`);
 
@@ -251,4 +283,47 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     info(`Build manifest written to ${resultsDir}`);
 
     return { ...ctx, buildManifest: succeeded, runId, resultsDir };
+}
+
+// ── Failure marker ───────────────────────────────────────────────────────────
+
+async function pushFailedMarker(ctx: BenchContext, failures: BuildFailure[]): Promise<void> {
+    if (!ctx.sdkInfo?.sdkVersion) return;
+
+    const sdkVersion = ctx.sdkInfo.sdkVersion;
+    const trackingDir = join(ctx.repoRoot, 'tracking');
+
+    try {
+        await ensureBranchCheckout(ctx.repoRoot, 'tracking', 'tracking');
+    } catch (e) {
+        err(`Failed to check out tracking branch: ${e instanceof Error ? e.message : e}`);
+        return;
+    }
+
+    const locksDir = join(trackingDir, 'locks');
+    await mkdir(locksDir, { recursive: true });
+
+    const lockFile = join(locksDir, `${sdkVersion}.lock`);
+    const failedFile = join(locksDir, `${sdkVersion}.failed`);
+
+    const content = {
+        failedAt: new Date().toISOString(),
+        ciRunId: ctx.ciRunId,
+        failures: failures.map(f => ({
+            target: f.target,
+            errorLines: extractErrorLines(f.errorOutput),
+        })),
+    };
+
+    await commitAndPushWithRetry({
+        dir: trackingDir,
+        addPaths: ['locks/'],
+        commitMessage: `Failed ${sdkVersion}`,
+        label: `Failed marker for ${sdkVersion}`,
+        dryRun: ctx.dryRun,
+        applyChanges: async () => {
+            await writeFile(failedFile, JSON.stringify(content, null, 2) + '\n', 'utf-8');
+            if (existsSync(lockFile)) await unlink(lockFile);
+        },
+    });
 }

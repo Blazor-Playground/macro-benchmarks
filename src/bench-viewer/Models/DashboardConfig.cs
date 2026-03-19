@@ -13,8 +13,9 @@ public static class DashboardConfig
     // Preferred app display order
     public static readonly List<string> AppOrder = new()
     {
-        "blazing-pizza", "havit-bootstrap", "mud-blazor", "semi-avalonia", "bench-viewer", "empty-blazor",
-        "empty-browser", "micro-benchmarks"
+        "blazing-pizza", "havit-bootstrap", "mud-blazor", "empty-blazor",
+        "semi-avalonia", "uno-gallery",
+        "empty-browser", "micro-benchmarks","bench-viewer", 
     };
 
     // Preferred metric display order

@@ -254,7 +254,7 @@ jobs:
   aggregate:
     name: Aggregate
     needs: [resolve, build, measure]
-    if: always() && needs.measure.result != 'skipped'
+    if: always() && needs.measure.result == 'success'
     runs-on: ubuntu-latest
     container: ghcr.io/pavelsavara/macro-benchmarks/browser-bench-build:latest
     permissions:

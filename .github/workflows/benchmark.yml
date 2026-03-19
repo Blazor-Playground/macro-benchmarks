@@ -31,12 +31,15 @@ on:
         default: false
         type: boolean
 
+# Set the CONTAINER_REGISTRY repository variable to ghcr.io/<owner>/<repo> (lowercase).
+# Example: ghcr.io/blazor-playground/macro-benchmarks
+
 jobs:
   # ── Job 1: Resolve SDK version ─────────────────────────────────────────────
   resolve:
     name: Resolve (${{ inputs.sdk_version || 'latest' }})
     runs-on: ubuntu-latest
-    container: ghcr.io/${{ github.repository }}/browser-bench-build:latest
+    container: ${{ vars.CONTAINER_REGISTRY }}/browser-bench-build:latest
     permissions:
       contents: write
       packages: read
@@ -96,7 +99,7 @@ jobs:
     name: Build (${{ needs.resolve.outputs.sdk-version }}, ${{ needs.resolve.outputs.runtime-commit-date }}, ${{ needs.resolve.outputs.runtime-commit-message }})
     needs: resolve
     runs-on: ubuntu-latest
-    container: ghcr.io/${{ github.repository }}/browser-bench-build:latest
+    container: ${{ vars.CONTAINER_REGISTRY }}/browser-bench-build:latest
     permissions:
       contents: write
       packages: read
@@ -189,7 +192,7 @@ jobs:
     if: needs.build.outputs.matrix != '[]' && needs.build.outputs.matrix != ''
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/${{ github.repository }}/browser-bench-measure:latest
+      image: ${{ vars.CONTAINER_REGISTRY }}/browser-bench-measure:latest
       options: --user 1001
     timeout-minutes: 30
     strategy:
@@ -256,7 +259,7 @@ jobs:
     needs: [resolve, build, measure]
     if: always() && needs.measure.result == 'success'
     runs-on: ubuntu-latest
-    container: ghcr.io/${{ github.repository }}/browser-bench-build:latest
+    container: ${{ vars.CONTAINER_REGISTRY }}/browser-bench-build:latest
     permissions:
       contents: write
       packages: read
@@ -322,7 +325,7 @@ jobs:
     needs: [resolve, aggregate]
     if: always() && needs.aggregate.result == 'success'
     runs-on: ubuntu-latest
-    container: ghcr.io/${{ github.repository }}/browser-bench-build:latest
+    container: ${{ vars.CONTAINER_REGISTRY }}/browser-bench-build:latest
     permissions:
       contents: write
       actions: write

@@ -159,7 +159,7 @@ function buildMeta(
     };
     if (ctx.ciRunId) {
         meta.ciRunId = ctx.ciRunId;
-        meta.ciRunUrl = `https://github.com/${ctx.repo ?? 'pavelsavara/macro-benchmarks'}/actions/runs/${ctx.ciRunId}`;
+        meta.ciRunUrl = `https://github.com/${ctx.repo ?? 'blazor-playground/macro-benchmarks'}/actions/runs/${ctx.ciRunId}`;
     }
     return meta;
 }

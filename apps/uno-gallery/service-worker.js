@@ -8,7 +8,7 @@ if (unoConfig.environmentVariables["UNO_BOOTSTRAP_DEBUGGER_ENABLED"] !== "True")
     self.addEventListener('install', function (e) {
         console.debug('[ServiceWorker] Installing offline worker');
         e.waitUntil(
-            caches.open('9691d11d-ca38-4fc6-8457-61956234e0ac').then(async function (cache) {
+            caches.open('7bddb07b-c33c-4a71-b72e-3f9df8eb1149').then(async function (cache) {
                 console.debug('[ServiceWorker] Caching app binaries and content');
 
                 // Add files one by one to avoid failed downloads to prevent the

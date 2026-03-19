@@ -52,6 +52,8 @@ export const METRIC_DISPLAY = {
     'disk-size-assemblies': 'Assemblies size - brotli',
     'download-size-cold': 'Download Size (Cold)',
     'download-size-warm': 'Download Size (Warm)',
+    'server-requests-cold': 'Server Requests (Cold)',
+    'server-requests-warm': 'Server Requests (Warm)',
     'time-to-reach-managed-warm': 'Time to Managed (Warm)',
     'time-to-reach-managed-cold': 'Time to Managed (Cold)',
     'time-to-create-dotnet-warm': 'Time to Create Dotnet (Warm)',
@@ -63,6 +65,8 @@ export const METRIC_DISPLAY = {
     'pizza-walkthrough': 'Blazing Pizza Walkthrough',
     'havit-walkthrough': 'Havit Bootstrap Walkthrough',
     'mud-walkthrough': 'MudBlazor Walkthrough',
+    'uno-walkthrough': 'Uno Gallery Walkthrough',
+    'semi-walkthrough': 'Semi Avalonia Walkthrough',
     'js-interop-ops': 'JS Interop',
     'json-parse-ops': 'JSON Parse',
     'exception-ops': 'Exception Handling',
@@ -73,7 +77,7 @@ export const BUILD_METRICS = new Set([
 ]);
 // Walkthrough metrics are only collected for chrome/desktop
 export const WALKTHROUGH_METRICS = new Set([
-    'pizza-walkthrough', 'havit-walkthrough', 'mud-walkthrough',
+    'pizza-walkthrough', 'havit-walkthrough', 'mud-walkthrough', 'uno-walkthrough', 'semi-walkthrough',
 ]);
 // Metrics to skip for micro-benchmarks (not meaningful for internal throughput tests)
 export const MICROBENCH_SKIP_METRICS = new Set([

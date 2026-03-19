@@ -24,7 +24,7 @@ Pipeline control:
 SDK & Runtime:
   --sdk-channel <ch>       SDK channel (default: 11.0)
   --sdk-version <ver>      Exact SDK version (overrides channel)
-  --runtime <rt>           Runtime flavor: mono, coreclr (default: mono)
+  --runtime <rt>           Runtime flavor: mono, coreclr, naotllvm (default: mono)
   --runtime-pack <ver>     Specific runtime pack version
   --runtime-commit <hash>  Specific dotnet/runtime commit hash
 

@@ -14,8 +14,11 @@ import { banner, info, err } from '../log.js';
 
 // ── Runtime flavor mapping ──────────────────────────────────────────────────
 
-function mapRuntimeFlavor(runtime: Runtime): string {
-    return runtime === R.CoreCLR ? 'CoreCLR' : 'Mono';
+function getRuntimeProps(runtime: Runtime): string[] {
+    if (runtime === R.NativeAOTLLVM) {
+        return ['/p:UsingNativeAOT=true'];
+    }
+    return [`/p:RuntimeFlavor=${runtime === R.CoreCLR ? 'CoreCLR' : 'Mono'}`];
 }
 
 // ── Workload detection helpers ───────────────────────────────────────────────
@@ -57,7 +60,7 @@ function getRestoreArgs(
     const args = [
         appDir,
         `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,
-        `/p:RuntimeFlavor=${mapRuntimeFlavor(ctx.runtime)}`,
+        ...getRuntimeProps(ctx.runtime),
         `/p:BuildLabel=${ctx.buildLabel}`,
         '/p:MSBuildDisableTaskHost=true',
         '-m:1',
@@ -88,7 +91,7 @@ function getPublishArgs(
     args.push(
         `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,
         '-c', PRESET_CONFIG[preset],
-        `/p:RuntimeFlavor=${mapRuntimeFlavor(ctx.runtime)}`,
+        ...getRuntimeProps(ctx.runtime),
         `/p:BuildLabel=${ctx.buildLabel!}`,
         '/p:MSBuildDisableTaskHost=true',
         '/p:DisableParallelEmccCompile=true',

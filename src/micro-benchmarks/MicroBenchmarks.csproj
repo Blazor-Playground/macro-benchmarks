@@ -3,4 +3,20 @@
     <TargetFramework>$(BenchmarkTargetFramework)</TargetFramework>
     <DashName>micro-benchmarks</DashName>
   </PropertyGroup>
+
+  <!-- Native AOT specific settings -->
+  <PropertyGroup Condition="'$(UsingNativeAOT)' == 'true'">
+    <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
+    <CompressionEnabled>false</CompressionEnabled>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(UsingNativeAOT)' == 'true'">
+    <NativeFileReference Include="native.c" />
+  </ItemGroup>
+  <Target Name="HackNaot" BeforeTargets="GeneratePublishWasmBootJson" Condition="'$(UsingNativeAOT)' == 'true'">
+      <ItemGroup>
+          <IntermediateAssembly Remove="@(IntermediateAssembly)" />
+          <IntermediateAssembly Include="$(IntermediateOutputPath)$(TargetFileName)" />
+      </ItemGroup>
+  </Target>
+
 </Project>

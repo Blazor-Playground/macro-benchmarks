@@ -1,0 +1,27 @@
+<Project>
+  <!-- NativeAOT (needs configuration of additional feeds to properly restore packages) -->
+  <PropertyGroup Condition="'$(UsingNativeAOT)' == 'true'">
+    <PublishTrimmed>true</PublishTrimmed>
+    <PublishDir>$(MSBuildThisFileDirectory)/bin/$(Configuration)/publish/wwwroot</PublishDir>
+    <DebugType>none</DebugType>
+    <UsingBrowserRuntimeWorkload>false</UsingBrowserRuntimeWorkload>
+    <UsingWasiRuntimeWorkload>false</UsingWasiRuntimeWorkload>
+    <UsingEmscriptenWorkload>true</UsingEmscriptenWorkload>
+    <DotNetJsApi>true</DotNetJsApi>
+    <_ExeExt Condition="$([MSBuild]::IsOSPlatform('WINDOWS'))">.exe</_ExeExt>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(UsingNativeAOT)' == 'true'">
+    <PackageReference Include="Microsoft.DotNet.ILCompiler.LLVM" Version="$(MicrosoftDotNetILCompilerLLVMVersion)" />
+    <!--
+    <PackageReference Include="runtime.browser-wasm.Microsoft.DotNet.ILCompiler.LLVM" Version="$(MicrosoftDotNetILCompilerLLVMVersion)" />
+    -->
+    <PackageReference Include="runtime.win-x64.Microsoft.DotNet.ILCompiler.LLVM" Version="$(MicrosoftDotNetILCompilerLLVMVersion)" />
+    <!-- TODO: Can be removed when emscripten workload refactoring is aligned with NativeAOT -->
+    <EmscriptenEnvVars Include="DOTNET_EMSCRIPTEN_LLVM_ROOT=$(EmscriptenSdkToolsPath)bin" />
+    <EmscriptenEnvVars Include="DOTNET_EMSCRIPTEN_BINARYEN_ROOT=$(EmscriptenSdkToolsPath)" />
+    <EmscriptenEnvVars Include="DOTNET_EMSCRIPTEN_NODE_JS=$([MSBuild]::NormalizePath($(EmscriptenNodeToolsPath), 'bin', 'node$(_ExeExt)'))" />
+    <EmscriptenEnvVars Include="EM_FROZEN_CACHE=1" />
+    <EmscriptenEnvVars Include="EM_CACHE=$(WasmCachePath)" Condition="'$(WasmCachePath)' != ''" />
+  </ItemGroup>
+  <!-- /NativeAOT -->
+</Project>

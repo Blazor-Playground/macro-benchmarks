@@ -1,7 +1,7 @@
 <Project>
   <Import Project="versions.props" />
-
   <Import Project="presets.props" />
+  <Import Project="runtimes.props" />
 
   <!-- Prevent MSB5022: ILLink/WASM tasks need IBuildEngine callbacks, so
        they must run in-process rather than in the out-of-proc task host. -->

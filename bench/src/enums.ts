@@ -161,6 +161,15 @@ export function shouldSkipMeasurement(app: App, preset: Preset, ctx: BenchContex
  * or null if the combination is valid.
  */
 export function shouldSkipBuild(app: App, preset: Preset, ctx: BenchContext): string | null {
+    if (ctx.runtime === Runtime.CoreCLR && ctx.sdkInfo.major < 11) {
+        return `CoreCLR runtime does not build with SDK versions below 11.0.0`;
+    }
+    if (ctx.runtime === Runtime.NativeAOTLLVM && ctx.sdkInfo.major < 11) {
+        return `NativeAOTLLVM runtime does not build with SDK versions below 11.0.0`;
+    }
+    if (ctx.runtime === Runtime.NativeAOTLLVM && preset !== Preset.Aot) {
+        return `NativeAOTLLVM runtime does not build with preset '${preset}'`;
+    }
     if (MONO_ONLY_PRESETS.has(preset) && ctx.runtime === Runtime.CoreCLR) {
         return `Preset '${preset}' is mono-only and cannot be used with runtime '${ctx.runtime}'`;
     }

@@ -1,0 +1,5 @@
+{
+  "dispatchedAt": "2026-03-19T08:41:35.679Z",
+  "ciRunId": "23284744936",
+  "error": "MSB5022: The MSBuild task host does not support running tasks that perform IBuildEngine callbacks"
+}

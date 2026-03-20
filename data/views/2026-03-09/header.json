@@ -20,9 +20,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-18T03:51:18.135Z",
-      "ciRunId": "23227198559",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23227198559"
+      "benchmarkDateTime": "2026-03-20T08:03:49.583Z",
+      "ciRunId": "23332701262",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23332701262"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26162.108",
@@ -44,9 +44,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-18T02:59:01.706Z",
-      "ciRunId": "23225790023",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23225790023"
+      "benchmarkDateTime": "2026-03-20T07:50:52.226Z",
+      "ciRunId": "23332368901",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23332368901"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26162.121",
@@ -68,9 +68,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-18T02:05:09.165Z",
-      "ciRunId": "23224433251",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23224433251"
+      "benchmarkDateTime": "2026-03-20T07:22:09.910Z",
+      "ciRunId": "23331707054",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23331707054"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26163.101",
@@ -92,9 +92,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-18T01:53:13.353Z",
-      "ciRunId": "23224136479",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23224136479"
+      "benchmarkDateTime": "2026-03-20T06:52:12.853Z",
+      "ciRunId": "23330850253",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23330850253"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26163.109",
@@ -116,9 +116,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-18T01:06:51.453Z",
-      "ciRunId": "23222948757",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23222948757"
+      "benchmarkDateTime": "2026-03-20T06:47:15.681Z",
+      "ciRunId": "23330835292",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23330835292"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26163.115",
@@ -140,9 +140,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-18T00:52:44.906Z",
-      "ciRunId": "23222582258",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23222582258"
+      "benchmarkDateTime": "2026-03-20T06:33:19.830Z",
+      "ciRunId": "23330583807",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23330583807"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26164.101",
@@ -164,9 +164,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-18T00:15:25.164Z",
-      "ciRunId": "23221541905",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23221541905"
+      "benchmarkDateTime": "2026-03-20T05:22:03.353Z",
+      "ciRunId": "23329002708",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23329002708"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26165.107",
@@ -188,9 +188,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-17T23:26:28.803Z",
-      "ciRunId": "23220003996",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23220003996"
+      "benchmarkDateTime": "2026-03-20T02:55:05.349Z",
+      "ciRunId": "23325766652",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23325766652"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26166.101",
@@ -212,9 +212,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-17T23:06:46.142Z",
-      "ciRunId": "23219306513",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23219306513"
+      "benchmarkDateTime": "2026-03-20T01:35:27.982Z",
+      "ciRunId": "23323934750",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23323934750"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26166.106",
@@ -236,9 +236,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-17T22:37:03.335Z",
-      "ciRunId": "23218281908",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23218281908"
+      "benchmarkDateTime": "2026-03-20T00:26:36.183Z",
+      "ciRunId": "23321886522",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23321886522"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26166.111",
@@ -260,9 +260,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-17T22:14:40.298Z",
-      "ciRunId": "23217005757",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23217005757"
+      "benchmarkDateTime": "2026-03-19T23:19:52.398Z",
+      "ciRunId": "23319554340",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23319554340"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26167.112",
@@ -284,9 +284,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-18T06:23:43.558Z",
-      "ciRunId": "23230799261",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23230799261"
+      "benchmarkDateTime": "2026-03-19T22:02:04.025Z",
+      "ciRunId": "23316784737",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23316784737"
     }
   ],
   "apps": {
@@ -294,9 +294,12 @@
       "compile-time",
       "disk-size-assemblies",
       "disk-size-native",
-      "download-size-total",
+      "download-size-cold",
+      "download-size-warm",
       "memory-peak",
       "pizza-walkthrough",
+      "server-requests-cold",
+      "server-requests-warm",
       "time-to-create-dotnet-cold",
       "time-to-create-dotnet-warm",
       "time-to-reach-managed-cold",
@@ -307,10 +310,30 @@
       "compile-time",
       "disk-size-assemblies",
       "disk-size-native",
-      "download-size-total",
+      "download-size-cold",
+      "download-size-warm",
       "memory-peak",
+      "server-requests-cold",
+      "server-requests-warm",
       "time-to-create-dotnet-cold",
       "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ],
+    "empty-browser": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-cold",
+      "download-size-warm",
+      "memory-peak",
+      "server-requests-cold",
+      "server-requests-warm",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-exit-cold",
+      "time-to-exit-warm",
       "time-to-reach-managed-cold",
       "time-to-reach-managed-warm",
       "wasm-memory-size"
@@ -319,9 +342,12 @@
       "compile-time",
       "disk-size-assemblies",
       "disk-size-native",
-      "download-size-total",
+      "download-size-cold",
+      "download-size-warm",
       "havit-walkthrough",
       "memory-peak",
+      "server-requests-cold",
+      "server-requests-warm",
       "time-to-create-dotnet-cold",
       "time-to-create-dotnet-warm",
       "time-to-reach-managed-cold",
@@ -342,13 +368,48 @@
       "compile-time",
       "disk-size-assemblies",
       "disk-size-native",
-      "download-size-total",
+      "download-size-cold",
+      "download-size-warm",
       "memory-peak",
       "mud-walkthrough",
+      "server-requests-cold",
+      "server-requests-warm",
       "time-to-create-dotnet-cold",
       "time-to-create-dotnet-warm",
       "time-to-reach-managed-cold",
       "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ],
+    "semi-avalonia": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-cold",
+      "download-size-warm",
+      "memory-peak",
+      "semi-walkthrough",
+      "server-requests-cold",
+      "server-requests-warm",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ],
+    "uno-gallery": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-cold",
+      "download-size-warm",
+      "memory-peak",
+      "server-requests-cold",
+      "server-requests-warm",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "uno-walkthrough",
       "wasm-memory-size"
     ]
   },

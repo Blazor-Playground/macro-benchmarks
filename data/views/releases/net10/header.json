@@ -20,9 +20,9 @@
       "patch": 100,
       "channel": "10.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-17T22:00:38.490Z",
-      "ciRunId": "23216999294",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23216999294"
+      "benchmarkDateTime": "2026-03-19T12:54:25.761Z",
+      "ciRunId": "23293978705",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23293978705"
     },
     {
       "sdkVersion": "10.0.101",
@@ -44,9 +44,9 @@
       "patch": 101,
       "channel": "10.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-17T23:02:08.129Z",
-      "ciRunId": "23219019563",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23219019563"
+      "benchmarkDateTime": "2026-03-19T14:00:23.445Z",
+      "ciRunId": "23296419861",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23296419861"
     },
     {
       "sdkVersion": "10.0.102",
@@ -68,9 +68,9 @@
       "patch": 102,
       "channel": "10.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-17T23:58:16.505Z",
-      "ciRunId": "23220949537",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23220949537"
+      "benchmarkDateTime": "2026-03-19T15:07:37.680Z",
+      "ciRunId": "23299211503",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23299211503"
     },
     {
       "sdkVersion": "10.0.103",
@@ -92,9 +92,9 @@
       "patch": 103,
       "channel": "10.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-18T00:59:09.650Z",
-      "ciRunId": "23222485026",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23222485026"
+      "benchmarkDateTime": "2026-03-19T16:21:36.023Z",
+      "ciRunId": "23302478864",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23302478864"
     },
     {
       "sdkVersion": "10.0.200",
@@ -116,9 +116,9 @@
       "patch": 200,
       "channel": "10.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-18T01:58:46.504Z",
-      "ciRunId": "23224179852",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23224179852"
+      "benchmarkDateTime": "2026-03-19T17:29:27.246Z",
+      "ciRunId": "23305737198",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23305737198"
     },
     {
       "sdkVersion": "10.0.201",
@@ -140,9 +140,9 @@
       "patch": 201,
       "channel": "10.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-18T02:48:05.322Z",
-      "ciRunId": "23225803118",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23225803118"
+      "benchmarkDateTime": "2026-03-19T20:50:58.766Z",
+      "ciRunId": "23313406545",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23313406545"
     }
   ],
   "apps": {
@@ -150,9 +150,12 @@
       "compile-time",
       "disk-size-assemblies",
       "disk-size-native",
-      "download-size-total",
+      "download-size-cold",
+      "download-size-warm",
       "memory-peak",
       "pizza-walkthrough",
+      "server-requests-cold",
+      "server-requests-warm",
       "time-to-create-dotnet-cold",
       "time-to-create-dotnet-warm",
       "time-to-reach-managed-cold",
@@ -163,10 +166,30 @@
       "compile-time",
       "disk-size-assemblies",
       "disk-size-native",
-      "download-size-total",
+      "download-size-cold",
+      "download-size-warm",
       "memory-peak",
+      "server-requests-cold",
+      "server-requests-warm",
       "time-to-create-dotnet-cold",
       "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ],
+    "empty-browser": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-cold",
+      "download-size-warm",
+      "memory-peak",
+      "server-requests-cold",
+      "server-requests-warm",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-exit-cold",
+      "time-to-exit-warm",
       "time-to-reach-managed-cold",
       "time-to-reach-managed-warm",
       "wasm-memory-size"
@@ -175,9 +198,12 @@
       "compile-time",
       "disk-size-assemblies",
       "disk-size-native",
-      "download-size-total",
+      "download-size-cold",
+      "download-size-warm",
       "havit-walkthrough",
       "memory-peak",
+      "server-requests-cold",
+      "server-requests-warm",
       "time-to-create-dotnet-cold",
       "time-to-create-dotnet-warm",
       "time-to-reach-managed-cold",
@@ -198,13 +224,48 @@
       "compile-time",
       "disk-size-assemblies",
       "disk-size-native",
-      "download-size-total",
+      "download-size-cold",
+      "download-size-warm",
       "memory-peak",
       "mud-walkthrough",
+      "server-requests-cold",
+      "server-requests-warm",
       "time-to-create-dotnet-cold",
       "time-to-create-dotnet-warm",
       "time-to-reach-managed-cold",
       "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ],
+    "semi-avalonia": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-cold",
+      "download-size-warm",
+      "memory-peak",
+      "semi-walkthrough",
+      "server-requests-cold",
+      "server-requests-warm",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ],
+    "uno-gallery": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-cold",
+      "download-size-warm",
+      "memory-peak",
+      "server-requests-cold",
+      "server-requests-warm",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "uno-walkthrough",
       "wasm-memory-size"
     ]
   },

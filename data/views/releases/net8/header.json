@@ -1,6 +1,30 @@
 {
   "columns": [
     {
+      "sdkVersion": "8.0.100",
+      "runtimeGitHash": "5535e31a712343a63f5d7d796cd874e563e5ac14",
+      "aspnetCoreGitHash": "3f1acb59718cadf111a0a796681e3d3509bb3381",
+      "sdkGitHash": "e9d13cbe7e8c1d52ce276a8655f52a87e1017c46",
+      "vmrGitHash": "e9d13cbe7e8c1d52ce276a8655f52a87e1017c46",
+      "runtimeCommitDateTime": "2023-10-31T14:37:06Z",
+      "runtimeCommitAuthor": "dotnet-bot",
+      "runtimeCommitMessage": "Merge in 'release/8.0' changes",
+      "aspnetCoreCommitDateTime": "2023-10-31T23:36:13Z",
+      "aspnetCoreVersion": "8.0.0",
+      "runtimePackVersion": "8.0.0",
+      "workloadVersion": "8.0.25",
+      "bootstrapSdkVersion": "8.0.100-rtm.23506.1",
+      "releaseDate": "2023-11-14",
+      "major": 8,
+      "minor": 0,
+      "patch": 100,
+      "channel": "8.0",
+      "isPrerelease": false,
+      "benchmarkDateTime": "2026-03-19T12:29:07.996Z",
+      "ciRunId": "23293966406",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23293966406"
+    },
+    {
       "sdkVersion": "8.0.101",
       "runtimeGitHash": "bf5e279d9239bfef5bb1b8d6212f1b971c434606",
       "aspnetCoreGitHash": "8e941eb42f819adb116b881195158b3887a70a1c",
@@ -20,9 +44,9 @@
       "patch": 101,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-17T21:04:40.940Z",
-      "ciRunId": "23215400591",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23215400591"
+      "benchmarkDateTime": "2026-03-19T12:59:32.769Z",
+      "ciRunId": "23295078625",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23295078625"
     },
     {
       "sdkVersion": "8.0.201",
@@ -44,9 +68,9 @@
       "patch": 201,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-17T21:36:08.098Z",
-      "ciRunId": "23216588126",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23216588126"
+      "benchmarkDateTime": "2026-03-19T13:32:39.526Z",
+      "ciRunId": "23296373721",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23296373721"
     },
     {
       "sdkVersion": "8.0.203",
@@ -68,9 +92,9 @@
       "patch": 203,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-17T22:10:28.713Z",
-      "ciRunId": "23217756564",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23217756564"
+      "benchmarkDateTime": "2026-03-19T14:06:25.507Z",
+      "ciRunId": "23297683274",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23297683274"
     },
     {
       "sdkVersion": "8.0.204",
@@ -92,9 +116,9 @@
       "patch": 204,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-17T22:44:05.492Z",
-      "ciRunId": "23219013351",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23219013351"
+      "benchmarkDateTime": "2026-03-19T14:37:34.491Z",
+      "ciRunId": "23299154159",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23299154159"
     },
     {
       "sdkVersion": "8.0.300",
@@ -116,9 +140,9 @@
       "patch": 300,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-17T23:17:01.813Z",
-      "ciRunId": "23220077104",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23220077104"
+      "benchmarkDateTime": "2026-03-19T15:07:19.337Z",
+      "ciRunId": "23300552031",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23300552031"
     },
     {
       "sdkVersion": "8.0.302",
@@ -140,9 +164,9 @@
       "patch": 302,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-17T23:46:52.289Z",
-      "ciRunId": "23221077593",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23221077593"
+      "benchmarkDateTime": "2026-03-19T15:39:40.110Z",
+      "ciRunId": "23302023135",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23302023135"
     },
     {
       "sdkVersion": "8.0.303",
@@ -164,9 +188,9 @@
       "patch": 303,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-18T00:20:37.027Z",
-      "ciRunId": "23222062051",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23222062051"
+      "benchmarkDateTime": "2026-03-19T16:18:20.383Z",
+      "ciRunId": "23303603833",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23303603833"
     },
     {
       "sdkVersion": "8.0.402",
@@ -188,9 +212,9 @@
       "patch": 402,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-18T01:03:46.784Z",
-      "ciRunId": "23222996709",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23222996709"
+      "benchmarkDateTime": "2026-03-19T16:50:40.415Z",
+      "ciRunId": "23305200792",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23305200792"
     },
     {
       "sdkVersion": "8.0.403",
@@ -212,9 +236,9 @@
       "patch": 403,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-18T01:35:06.441Z",
-      "ciRunId": "23224158709",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23224158709"
+      "benchmarkDateTime": "2026-03-19T17:22:45.746Z",
+      "ciRunId": "23306719800",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23306719800"
     },
     {
       "sdkVersion": "8.0.404",
@@ -236,9 +260,9 @@
       "patch": 404,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-18T02:11:00.646Z",
-      "ciRunId": "23225034086",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23225034086"
+      "benchmarkDateTime": "2026-03-19T17:56:51.264Z",
+      "ciRunId": "23308147876",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23308147876"
     },
     {
       "sdkVersion": "8.0.405",
@@ -260,9 +284,9 @@
       "patch": 405,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-18T02:40:54.826Z",
-      "ciRunId": "23225946145",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23225946145"
+      "benchmarkDateTime": "2026-03-19T18:28:41.610Z",
+      "ciRunId": "23309526888",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23309526888"
     },
     {
       "sdkVersion": "8.0.406",
@@ -284,9 +308,9 @@
       "patch": 406,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-18T03:25:09.986Z",
-      "ciRunId": "23226689567",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23226689567"
+      "benchmarkDateTime": "2026-03-19T20:07:06.344Z",
+      "ciRunId": "23313402669",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23313402669"
     },
     {
       "sdkVersion": "8.0.407",
@@ -308,9 +332,9 @@
       "patch": 407,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-18T03:54:56.980Z",
-      "ciRunId": "23227754614",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23227754614"
+      "benchmarkDateTime": "2026-03-19T19:30:47.804Z",
+      "ciRunId": "23312170928",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23312170928"
     },
     {
       "sdkVersion": "8.0.408",
@@ -332,9 +356,9 @@
       "patch": 408,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-18T04:27:44.692Z",
-      "ciRunId": "23228491434",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23228491434"
+      "benchmarkDateTime": "2026-03-19T21:02:50.380Z",
+      "ciRunId": "23314781293",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23314781293"
     },
     {
       "sdkVersion": "8.0.410",
@@ -356,9 +380,9 @@
       "patch": 410,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-18T04:59:33.740Z",
-      "ciRunId": "23229221671",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23229221671"
+      "benchmarkDateTime": "2026-03-19T21:36:41.007Z",
+      "ciRunId": "23316982392",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23316982392"
     },
     {
       "sdkVersion": "8.0.411",
@@ -380,9 +404,9 @@
       "patch": 411,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-18T05:30:34.759Z",
-      "ciRunId": "23229979931",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23229979931"
+      "benchmarkDateTime": "2026-03-19T22:09:50.098Z",
+      "ciRunId": "23318243086",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23318243086"
     },
     {
       "sdkVersion": "8.0.412",
@@ -404,9 +428,9 @@
       "patch": 412,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-18T06:01:56.413Z",
-      "ciRunId": "23230767784",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23230767784"
+      "benchmarkDateTime": "2026-03-19T22:46:53.741Z",
+      "ciRunId": "23319549277",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23319549277"
     },
     {
       "sdkVersion": "8.0.413",
@@ -428,9 +452,153 @@
       "patch": 413,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-18T06:32:44.189Z",
-      "ciRunId": "23231561693",
-      "ciRunUrl": "https://github.com/dotnet/macro-benchmarks/actions/runs/23231561693"
+      "benchmarkDateTime": "2026-03-19T23:20:28.865Z",
+      "ciRunId": "23320736117",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23320736117"
+    },
+    {
+      "sdkVersion": "8.0.414",
+      "runtimeGitHash": "574100b692e71fa3426931adf4c1ba42e4ee5213",
+      "aspnetCoreGitHash": "c78f4a816c0c6a978a801a05a31dce9013e099e2",
+      "sdkGitHash": "b18496abfd61ce1fd0ab0e745e8f6a65d84b7d40",
+      "vmrGitHash": "b18496abfd61ce1fd0ab0e745e8f6a65d84b7d40",
+      "runtimeCommitDateTime": "2025-08-19T21:42:49Z",
+      "runtimeCommitAuthor": "Mirroring",
+      "runtimeCommitMessage": "Merge commit '4514d64d47394f6c2f3b28e54e511af1ea7d64d3'",
+      "aspnetCoreCommitDateTime": "2025-08-20T08:10:00Z",
+      "aspnetCoreVersion": "8.0.20",
+      "runtimePackVersion": "8.0.20",
+      "workloadVersion": "8.0.25",
+      "bootstrapSdkVersion": "8.0.117",
+      "releaseDate": "2025-09-09",
+      "major": 8,
+      "minor": 0,
+      "patch": 414,
+      "channel": "8.0",
+      "isPrerelease": false,
+      "benchmarkDateTime": "2026-03-19T23:53:41.316Z",
+      "ciRunId": "23321834412",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23321834412"
+    },
+    {
+      "sdkVersion": "8.0.415",
+      "runtimeGitHash": "362ab6669d55a75d51166f01b596c967c734ef4c",
+      "aspnetCoreGitHash": "6254f5ca64f85b90327592dff67ea6b2ec0262c6",
+      "sdkGitHash": "687ed4752722665dc134f116c6b6c90e3c97fa77",
+      "vmrGitHash": "687ed4752722665dc134f116c6b6c90e3c97fa77",
+      "runtimeCommitDateTime": "2025-09-25T18:53:49Z",
+      "runtimeCommitAuthor": "Mirroring",
+      "runtimeCommitMessage": "Merge commit 'fda25cd42d28a3457be3c8adc736756d11a2684f'",
+      "aspnetCoreCommitDateTime": "2025-09-26T01:49:06Z",
+      "aspnetCoreVersion": "8.0.21",
+      "runtimePackVersion": "8.0.21",
+      "workloadVersion": "8.0.25",
+      "bootstrapSdkVersion": "8.0.120",
+      "releaseDate": "2025-10-14",
+      "major": 8,
+      "minor": 0,
+      "patch": 415,
+      "channel": "8.0",
+      "isPrerelease": false,
+      "benchmarkDateTime": "2026-03-20T00:29:52.320Z",
+      "ciRunId": "23322814974",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23322814974"
+    },
+    {
+      "sdkVersion": "8.0.416",
+      "runtimeGitHash": "a2266c728f63a494ccb6786d794da2df135030be",
+      "aspnetCoreGitHash": "ee417479933278bb5aadc5944706a96b5ef74a5d",
+      "sdkGitHash": "bd8ff52a950627d432878cee33a0c3696836df75",
+      "vmrGitHash": "bd8ff52a950627d432878cee33a0c3696836df75",
+      "runtimeCommitDateTime": "2025-10-27T21:01:26Z",
+      "runtimeCommitAuthor": "Mirroring",
+      "runtimeCommitMessage": "Merge commit 'a9d6fdea674fedb93f7cf138df8b77276674a9f2'",
+      "aspnetCoreCommitDateTime": "2025-10-28T09:38:01Z",
+      "aspnetCoreVersion": "8.0.22",
+      "runtimePackVersion": "8.0.22",
+      "workloadVersion": "8.0.25",
+      "bootstrapSdkVersion": "8.0.121",
+      "releaseDate": "2025-11-11",
+      "major": 8,
+      "minor": 0,
+      "patch": 416,
+      "channel": "8.0",
+      "isPrerelease": false,
+      "benchmarkDateTime": "2026-03-20T01:06:29.577Z",
+      "ciRunId": "23323847143",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23323847143"
+    },
+    {
+      "sdkVersion": "8.0.417",
+      "runtimeGitHash": "c96cd11cb2f0c204f272b2280082a329aee24cf7",
+      "aspnetCoreGitHash": "568fff703254def7dcd35fda9892bf702d4c81d3",
+      "sdkGitHash": "e6abed5c59bd02aec05a2e0558c10ea67370666e",
+      "vmrGitHash": "e6abed5c59bd02aec05a2e0558c10ea67370666e",
+      "runtimeCommitDateTime": "2025-12-06T22:07:18Z",
+      "runtimeCommitAuthor": "Mirroring",
+      "runtimeCommitMessage": "Merge commit 'ac345324f04146714172ea78c5496bd979fc3dcf'",
+      "aspnetCoreCommitDateTime": "2025-12-09T21:05:35Z",
+      "aspnetCoreVersion": "8.0.23",
+      "runtimePackVersion": "8.0.23",
+      "workloadVersion": "8.0.25",
+      "bootstrapSdkVersion": "8.0.122",
+      "releaseDate": "2026-01-13",
+      "major": 8,
+      "minor": 0,
+      "patch": 417,
+      "channel": "8.0",
+      "isPrerelease": false,
+      "benchmarkDateTime": "2026-03-20T01:44:20.578Z",
+      "ciRunId": "23324732443",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23324732443"
+    },
+    {
+      "sdkVersion": "8.0.418",
+      "runtimeGitHash": "b3b35ce80e9eb94f72c4aa36a171a5e1cde72ace",
+      "aspnetCoreGitHash": "159901324421e89ca7612465fc8c138609837f3d",
+      "sdkGitHash": "d9ba08558d003ffd8730a44d2da9bd5fb128576d",
+      "vmrGitHash": "d9ba08558d003ffd8730a44d2da9bd5fb128576d",
+      "runtimeCommitDateTime": "2026-01-20T16:29:23Z",
+      "runtimeCommitAuthor": "Mirroring",
+      "runtimeCommitMessage": "Merge commit 'b43df221a7854ae9b3c831a436c333ec9549bc5d'",
+      "aspnetCoreCommitDateTime": "2026-01-22T18:30:19Z",
+      "aspnetCoreVersion": "8.0.24",
+      "runtimePackVersion": "8.0.24",
+      "workloadVersion": "8.0.25",
+      "bootstrapSdkVersion": "8.0.122",
+      "releaseDate": "2026-02-10",
+      "major": 8,
+      "minor": 0,
+      "patch": 418,
+      "channel": "8.0",
+      "isPrerelease": false,
+      "benchmarkDateTime": "2026-03-20T02:16:00.844Z",
+      "ciRunId": "23325606777",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23325606777"
+    },
+    {
+      "sdkVersion": "8.0.419",
+      "runtimeGitHash": "b753199016332cbf257e70c417aa5d1d02202dc7",
+      "aspnetCoreGitHash": "ef18546e04f9b0127bbd7709b6af054cc18da98a",
+      "sdkGitHash": "9c30042786e42e6be80a6b107d13f51293740a4f",
+      "vmrGitHash": "9c30042786e42e6be80a6b107d13f51293740a4f",
+      "runtimeCommitDateTime": "2026-02-12T09:27:33Z",
+      "runtimeCommitAuthor": "Mirroring",
+      "runtimeCommitMessage": "Merge commit 'cf19152e6aafdcdb03b1f6bab452cd4bb926c58f'",
+      "aspnetCoreCommitDateTime": "2026-02-12T23:39:10Z",
+      "aspnetCoreVersion": "8.0.25",
+      "runtimePackVersion": "8.0.25",
+      "workloadVersion": "8.0.25",
+      "bootstrapSdkVersion": "8.0.122",
+      "releaseDate": "2026-03-10",
+      "major": 8,
+      "minor": 0,
+      "patch": 419,
+      "channel": "8.0",
+      "isPrerelease": false,
+      "benchmarkDateTime": "2026-03-20T02:50:47.263Z",
+      "ciRunId": "23326397310",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23326397310"
     }
   ],
   "apps": {
@@ -438,9 +606,12 @@
       "compile-time",
       "disk-size-assemblies",
       "disk-size-native",
-      "download-size-total",
+      "download-size-cold",
+      "download-size-warm",
       "memory-peak",
       "pizza-walkthrough",
+      "server-requests-cold",
+      "server-requests-warm",
       "time-to-create-dotnet-cold",
       "time-to-create-dotnet-warm",
       "time-to-reach-managed-cold",
@@ -451,10 +622,30 @@
       "compile-time",
       "disk-size-assemblies",
       "disk-size-native",
-      "download-size-total",
+      "download-size-cold",
+      "download-size-warm",
       "memory-peak",
+      "server-requests-cold",
+      "server-requests-warm",
       "time-to-create-dotnet-cold",
       "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ],
+    "empty-browser": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-cold",
+      "download-size-warm",
+      "memory-peak",
+      "server-requests-cold",
+      "server-requests-warm",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-exit-cold",
+      "time-to-exit-warm",
       "time-to-reach-managed-cold",
       "time-to-reach-managed-warm",
       "wasm-memory-size"
@@ -463,9 +654,12 @@
       "compile-time",
       "disk-size-assemblies",
       "disk-size-native",
-      "download-size-total",
+      "download-size-cold",
+      "download-size-warm",
       "havit-walkthrough",
       "memory-peak",
+      "server-requests-cold",
+      "server-requests-warm",
       "time-to-create-dotnet-cold",
       "time-to-create-dotnet-warm",
       "time-to-reach-managed-cold",

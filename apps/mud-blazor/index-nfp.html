@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width">
+    <title>MudBlazor - Blazor Component Library</title>
+    <base href="/" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="mask-icon" href="safari-pinned-tab.svg" color="#7e6fff">
+    <meta name="msapplication-TileColor" content="#110e2d">
+    <meta name="theme-color" content="#ffffff">
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <link href="MudBlazorDocs.min.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div id="app">
+        <div id="loading-screen"
+            style="height:100%;width:100%;margin:0;position:fixed;background-color:rgba(26,26,39,1);">
+            <div style="display: flex;justify-content: center;align-items:center;height:100%;width:100%;">
+                <p style="color:white;">Loading MudBlazor...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    <script src="JS/docs.js"></script>
+    <script src="_framework/blazor.webassembly.js" autostart="false"></script>
+    <script src="main.mjs" type="module"></script>
+</body>
+
+</html>

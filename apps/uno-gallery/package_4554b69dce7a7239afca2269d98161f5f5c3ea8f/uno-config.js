@@ -1,7 +1,7 @@
 let config = {};
 config.uno_remote_managedpath = "_framework";
 config.uno_app_base = "/package_4554b69dce7a7239afca2269d98161f5f5c3ea8f";
-config.dotnet_js_filename = "dotnet.6lq5b5qj8g.js";
+config.dotnet_js_filename = "dotnet.u6dmeja85b.js";
 config.uno_dependencies = ["/package_4554b69dce7a7239afca2269d98161f5f5c3ea8f/Uno.Runtime.Wasm.js", "/package_4554b69dce7a7239afca2269d98161f5f5c3ea8f/setImmediate.js", "/package_4554b69dce7a7239afca2269d98161f5f5c3ea8f/Uno.Wasm.js", "/package_4554b69dce7a7239afca2269d98161f5f5c3ea8f/main.js", "/package_4554b69dce7a7239afca2269d98161f5f5c3ea8f/UnoGallery.js", "/package_4554b69dce7a7239afca2269d98161f5f5c3ea8f/AppManifest.js"];
 config.uno_runtime_options = [];
 config.enable_pwa = false;

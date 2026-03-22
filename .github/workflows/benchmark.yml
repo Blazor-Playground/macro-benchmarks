@@ -1,7 +1,5 @@
 name: Benchmark
 on:
-  schedule:
-    - cron: '0 4 * * *'  # Daily at 04:00 UTC
   pull_request:
   workflow_dispatch:
     inputs:
@@ -103,7 +101,7 @@ jobs:
     permissions:
       contents: write
       packages: read
-    timeout-minutes: 60
+    timeout-minutes: 90
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
@@ -194,7 +192,7 @@ jobs:
     container:
       image: ${{ vars.CONTAINER_REGISTRY }}/browser-bench-measure:latest
       options: --user 1001
-    timeout-minutes: 30
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:

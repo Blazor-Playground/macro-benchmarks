@@ -28,8 +28,6 @@ public class MetricInfo
         ["time-to-reach-managed-cold"] = new("time-to-reach-managed-cold", "Time to Managed (Cold)", "ms", "time"),
         ["time-to-create-dotnet-warm"] = new("time-to-create-dotnet-warm", "Time to Create Dotnet (Warm)", "ms", "time"),
         ["time-to-create-dotnet-cold"] = new("time-to-create-dotnet-cold", "Time to Create Dotnet (Cold)", "ms", "time"),
-        ["time-to-exit-warm"] = new("time-to-exit-warm", "Time to Exit (Warm)", "ms", "time"),
-        ["time-to-exit-cold"] = new("time-to-exit-cold", "Time to Exit (Cold)", "ms", "time"),
         ["wasm-memory-size"] = new("wasm-memory-size", "WASM Memory Size", "bytes", "memory"),
         ["memory-peak"] = new("memory-peak", "Peak JS Heap", "bytes", "memory"),
         ["pizza-walkthrough"] = new("pizza-walkthrough", "Blazing Pizza Walkthrough", "ms", "time"),
@@ -39,6 +37,8 @@ public class MetricInfo
         ["js-interop-ops"] = new("js-interop-ops", "JS Interop", "ops/sec", "throughput"),
         ["json-parse-ops"] = new("json-parse-ops", "JSON Parse", "ops/sec", "throughput"),
         ["exception-ops"] = new("exception-ops", "Exception Handling", "ops/sec", "throughput"),
+        ["time-to-exit-warm"] = new("time-to-exit-warm", "Time to Exit (Warm)", "ms", "time"),
+        ["time-to-exit-cold"] = new("time-to-exit-cold", "Time to Exit (Cold)", "ms", "time"),
     };
 
     public static string GetDisplay(string key)

@@ -9,6 +9,7 @@
     <RootNamespace>Semi.Avalonia.Demo</RootNamespace>
     <AssemblyName>Semi.Avalonia.Demo</AssemblyName>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <NoWarn>$(NoWarn);AD0001</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,5 +1,7 @@
 name: Schedule
 on:
+  schedule:
+    - cron: '0 4 * * *'  # Daily at 04:00 UTC
   workflow_dispatch:
     inputs:
       sdk_channel:

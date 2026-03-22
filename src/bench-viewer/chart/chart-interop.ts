@@ -78,6 +78,14 @@ export async function loadAppCharts(app: string, filtersJson: string): Promise<s
         rendered.push(metric);
     }
 
+    // Re-calibrate y-axis on all charts after all data is loaded
+    for (const chart of Object.values(charts)) {
+        const anyScales = chart.options.scales as any;
+        anyScales.y.min = undefined;
+        anyScales.y.max = undefined;
+        chart.update();
+    }
+
     return JSON.stringify(rendered);
 }
 

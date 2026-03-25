@@ -22,6 +22,28 @@
                 </div>
             }
 
+            @if (!string.IsNullOrEmpty(CurrentPoint.Column.SdkGitHash) && !string.IsNullOrEmpty(PreviousPoint.Column.SdkGitHash)
+                && CurrentPoint.Column.SdkGitHash != PreviousPoint.Column.SdkGitHash)
+            {
+                <div class="mb-2 text-center">
+                    <a href="https://github.com/dotnet/sdk/compare/@PreviousPoint.Column.SdkGitHash...@CurrentPoint.Column.SdkGitHash"
+                       target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary w-100">
+                        ⇕ Compare SDK commits
+                    </a>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(CurrentPoint.Column.AspnetCoreGitHash) && !string.IsNullOrEmpty(PreviousPoint.Column.AspnetCoreGitHash)
+                && CurrentPoint.Column.AspnetCoreGitHash != PreviousPoint.Column.AspnetCoreGitHash)
+            {
+                <div class="mb-2 text-center">
+                    <a href="https://github.com/dotnet/aspnetcore/compare/@PreviousPoint.Column.AspnetCoreGitHash...@CurrentPoint.Column.AspnetCoreGitHash"
+                       target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary w-100">
+                        ⇕ Compare aspnetcore commits
+                    </a>
+                </div>
+            }
+
             <hr class="my-1" />
 
             <CommitInfoBlock Point="@PreviousPoint" Expanded="false" />

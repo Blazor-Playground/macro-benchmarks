@@ -482,7 +482,7 @@ async function runWalkthroughs(
     verbose: boolean,
 ): Promise<Partial<Record<MetricKey, number | null>>> {
     // Walkthroughs can be noisy, so do extra runs when possible
-    warmRuns = warmRuns > 1 ? warmRuns * 2 : 1;
+    warmRuns = warmRuns > 1 ? warmRuns * 4 : 1;
     // Walkthroughs are Chrome-only + desktop-only (CDP required for reliable timing)
     if (profile !== 'desktop' || engine !== E.Chrome) return {};
     const wt = WALKTHROUGHS.find(w => w.app === entry.app);
@@ -657,7 +657,9 @@ async function measureBrowser(
     const pw = await import('playwright');
     const browserType = engine === E.Firefox ? pw.firefox : pw.chromium;
     const useCDP = engine !== E.Firefox;
-    const warmRuns = ctx.dryRun ? 1 : ctx.warmRuns;
+    const warmRuns = ctx.dryRun ? 1
+        : entry.preset === Preset.DevLoop ? 1
+            : ctx.warmRuns;
     const timeout = ctx.timeout;
     const maxRetries = ctx.retries;
 

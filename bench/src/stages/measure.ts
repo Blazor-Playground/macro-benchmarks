@@ -216,6 +216,14 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn }[] = [
 
 const INTERNAL_KEYS = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;
 
+/** Average of the top-N largest values in an array (default N=3). */
+function avgOfTopN(values: number[], n = 3): number | null {
+    if (values.length === 0) return null;
+    const sorted = [...values].sort((a, b) => b - a);
+    const top = sorted.slice(0, n);
+    return top.reduce((a, b) => a + b, 0) / top.length;
+}
+
 // (#10) Logging separated from data assembly
 function logInternalSummary(
     statsMap: Record<string, SampleStats>,
@@ -471,6 +479,12 @@ async function runWarmLoads(
 }
 
 // (#5) Simplified walkthrough filter — early return instead of loop-with-continue
+interface WalkthroughResult {
+    metrics: Partial<Record<MetricKey, number | null>>;
+    jsHeapSamples: number[];
+    wasmMemorySamples: number[];
+}
+
 async function runWalkthroughs(
     page: Page,
     pageUrl: string,
@@ -480,25 +494,54 @@ async function runWalkthroughs(
     warmRuns: number,
     timeout: number,
     verbose: boolean,
-): Promise<Partial<Record<MetricKey, number | null>>> {
+    cdp: CDPState | null,
+): Promise<WalkthroughResult> {
+    const empty: WalkthroughResult = { metrics: {}, jsHeapSamples: [], wasmMemorySamples: [] };
     // Walkthroughs can be noisy, so do extra runs when possible
     warmRuns = warmRuns > 1 ? warmRuns * 4 : 1;
     // Walkthroughs are Chrome-only + desktop-only (CDP required for reliable timing)
-    if (profile !== 'desktop' || engine !== E.Chrome) return {};
+    if (profile !== 'desktop' || engine !== E.Chrome) return empty;
     const wt = WALKTHROUGHS.find(w => w.app === entry.app);
-    if (!wt) return {};
+    if (!wt) return empty;
 
     const times: number[] = [];
+    const jsHeapSamples: number[] = [];
+    const wasmMemorySamples: number[] = [];
     for (let i = 0; i < warmRuns; i++) {
         if (verbose) debug(`${wt.metric} ${i + 1}/${warmRuns}...`);
         const t = await wt.fn(page, pageUrl, timeout, verbose);
         times.push(t);
         if (verbose) debug(`${wt.metric} ${i + 1}/${warmRuns}: ${t}ms`);
+
+        // Sample JS heap and WASM linear memory after each walkthrough run
+        if (cdp) {
+            try {
+                const perfMetrics = await cdp.client.send('Performance.getMetrics');
+                const heapUsed = perfMetrics.metrics.find(
+                    (m: { name: string; value: number }) => m.name === 'JSHeapUsedSize',
+                );
+                if (heapUsed) jsHeapSamples.push(heapUsed.value);
+            } catch { /* ignore */ }
+        }
+        try {
+            const wasmBytes = await page.evaluate(
+                () => (globalThis as any).getDotnetRuntime(0)?.Module?.HEAPU8?.byteLength ?? null,
+            );
+            if (wasmBytes != null) wasmMemorySamples.push(wasmBytes);
+        } catch { /* ignore */ }
     }
     const med = sortedMedian(times);
     const rounded = med != null ? Math.round(med) : null;
-    if (verbose) debug(`${wt.metric} times: [${times.join(', ')}] → median=${rounded}ms`);
-    return { [wt.metric]: rounded };
+    if (verbose) {
+        debug(`${wt.metric} times: [${times.join(', ')}] → median=${rounded}ms`);
+        if (jsHeapSamples.length > 0) debug(`Post-walkthrough JS heap samples: [${jsHeapSamples.join(', ')}] → avgTop3=${avgOfTopN(jsHeapSamples)}`);
+        if (wasmMemorySamples.length > 0) debug(`Post-walkthrough WASM memory samples: [${wasmMemorySamples.join(', ')}] → avgTop3=${avgOfTopN(wasmMemorySamples)}`);
+    }
+    return {
+        metrics: { [wt.metric]: rounded },
+        jsHeapSamples,
+        wasmMemorySamples,
+    };
 }
 
 // ── Browser Session ──────────────────────────────────────────────────────────
@@ -591,9 +634,20 @@ async function runBrowserSession(
     const wasmMemorySize = allWasmMem.length > 0 ? Math.max(...allWasmMem) : null;
 
     // Walkthroughs (external apps only)
-    const walkthroughMetrics = !isInternal
-        ? await runWalkthroughs(page, pageUrl, entry, engine, profile, warmRuns, timeout, verbose)
-        : {};
+    const walkthroughResult = !isInternal
+        ? await runWalkthroughs(page, pageUrl, entry, engine, profile, warmRuns, timeout, verbose, cdp)
+        : { metrics: {}, jsHeapSamples: [] as number[], wasmMemorySamples: [] as number[] };
+    const walkthroughMetrics = walkthroughResult.metrics;
+
+    // Replace memory metrics with post-walkthrough avg-of-top-3 when walkthrough ran
+    if (walkthroughResult.jsHeapSamples.length > 0) {
+        const v = avgOfTopN(walkthroughResult.jsHeapSamples);
+        if (v != null && verbose) debug(`memory-peak (post-walkthrough avgTop3): ${Math.round(v)} bytes`);
+    }
+    if (walkthroughResult.wasmMemorySamples.length > 0) {
+        const v = avgOfTopN(walkthroughResult.wasmMemorySamples);
+        if (v != null && verbose) debug(`wasm-memory-size (post-walkthrough avgTop3): ${Math.round(v)} bytes`);
+    }
 
     // Discard any download accumulation from walkthroughs
     if (cdp) cdp.resetDownloadSize();
@@ -629,14 +683,24 @@ async function runBrowserSession(
         );
     }
 
+    // Use post-walkthrough memory values (avg of top 3) when available,
+    // otherwise fall back to load-phase values.
+    const finalMemoryPeak = walkthroughResult.jsHeapSamples.length > 0
+        ? (avgOfTopN(walkthroughResult.jsHeapSamples) ?? null)
+        : useCDP ? (cdp!.memoryPeak || null) : null;
+    const finalWasmMemorySize = walkthroughResult.wasmMemorySamples.length > 0
+        ? (avgOfTopN(walkthroughResult.wasmMemorySamples) ?? null)
+        : wasmMemorySize;
+
     return buildExternalMetrics(
         compileTime, fileSizes!,
-        coldArrays, warmArrays, wasmMemorySize,
+        coldArrays, warmArrays,
+        finalWasmMemorySize != null ? Math.round(finalWasmMemorySize) : null,
         useCDP ? (coldDownloadSize || null) : null,
         useCDP ? (warmDownloadSize || null) : null,
         coldRequestCount || null,
         warmRequestCount,
-        useCDP ? (cdp!.memoryPeak || null) : null,
+        finalMemoryPeak != null ? Math.round(finalMemoryPeak) : null,
         walkthroughMetrics,
     );
 }

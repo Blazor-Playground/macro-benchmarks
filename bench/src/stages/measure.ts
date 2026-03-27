@@ -27,7 +27,7 @@ import { runHavitWalkthrough } from '../lib/havit-walkthrough.js';
 import { runMudWalkthrough } from '../lib/mud-walkthrough.js';
 import { runUnoWalkthrough } from '../lib/uno-walkthrough.js';
 import { runSemiWalkthrough } from '../lib/semi-walkthrough.js';
-import { runBlazorCounter, runBlazorVirtualScroll } from '../lib/blazor-bench.js';
+import { runBlazorCounter, runBlazorVirtualScroll, runBlazorJsToCsNumber, runBlazorJsToCsString, runBlazorJsToCsJson, runBlazorCsToJsNumber, runBlazorCsToJsString, runBlazorCsToJsJson } from '../lib/blazor-bench.js';
 import { type WalkthroughOpts } from '../lib/walkthrough-types.js';
 import { type SampleStats, computeStats, formatStats, sortedMedian, sortedIQM } from '../lib/stats.js';
 import type { CDPSession, Page, BrowserContext, Browser } from 'playwright';
@@ -214,8 +214,14 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
     { app: A.MudBlazor, metric: MetricKey.MudWalkthrough, fn: runMudWalkthrough as WalkthroughFn },
     { app: A.UnoGallery, metric: MetricKey.UnoWalkthrough, fn: runUnoWalkthrough as WalkthroughFn },
     { app: A.SemiAvalonia, metric: MetricKey.SemiWalkthrough, fn: runSemiWalkthrough as WalkthroughFn },
-    { app: A.EmptyBlazor, metric: MetricKey.CounterPerMinute, fn: runBlazorCounter as WalkthroughFn, runs: 1 },
-    { app: A.EmptyBlazor, metric: MetricKey.VirtualScrollPerMinute, fn: runBlazorVirtualScroll as WalkthroughFn, runs: 1 },
+    { app: A.EmptyBlazor, metric: MetricKey.CounterPerSecond, fn: runBlazorCounter as WalkthroughFn, runs: 1 },
+    { app: A.EmptyBlazor, metric: MetricKey.VirtualScrollPerSecond, fn: runBlazorVirtualScroll as WalkthroughFn, runs: 1 },
+    { app: A.EmptyBlazor, metric: MetricKey.BlazorJsToCsNumber, fn: runBlazorJsToCsNumber as WalkthroughFn, runs: 1 },
+    { app: A.EmptyBlazor, metric: MetricKey.BlazorJsToCsString, fn: runBlazorJsToCsString as WalkthroughFn, runs: 1 },
+    { app: A.EmptyBlazor, metric: MetricKey.BlazorJsToCsJson, fn: runBlazorJsToCsJson as WalkthroughFn, runs: 1 },
+    { app: A.EmptyBlazor, metric: MetricKey.BlazorCsToJsNumber, fn: runBlazorCsToJsNumber as WalkthroughFn, runs: 1 },
+    { app: A.EmptyBlazor, metric: MetricKey.BlazorCsToJsString, fn: runBlazorCsToJsString as WalkthroughFn, runs: 1 },
+    { app: A.EmptyBlazor, metric: MetricKey.BlazorCsToJsJson, fn: runBlazorCsToJsJson as WalkthroughFn, runs: 1 },
 ];
 
 const INTERNAL_KEYS = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;

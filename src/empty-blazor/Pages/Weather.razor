@@ -154,6 +154,54 @@ else
         return results;
     }
 
+    [Microsoft.JSInterop.JSInvokable]
+    public static async Task<int> BenchCsToJsNumber(int ms)
+    {
+        var js = _jsRuntime ?? throw new InvalidOperationException("JSRuntime not initialized");
+        int count = 0;
+        var deadline = DateTime.Now.AddMilliseconds(ms);
+        while (DateTime.Now < deadline)
+        {
+            await js.InvokeAsync<int>("csInvokableWithNumber", 42, 1234567890123456789, 3.14);
+            count++;
+        }
+        return count;
+    }
+
+    [Microsoft.JSInterop.JSInvokable]
+    public static async Task<int> BenchCsToJsString(int ms)
+    {
+        var js = _jsRuntime ?? throw new InvalidOperationException("JSRuntime not initialized");
+        int count = 0;
+        var deadline = DateTime.Now.AddMilliseconds(ms);
+        while (DateTime.Now < deadline)
+        {
+            var s = await js.InvokeAsync<string>("csInvokableWithString", "test");
+            count++;
+        }
+        return count;
+    }
+
+    [Microsoft.JSInterop.JSInvokable]
+    public static async Task<int> BenchCsToJsJson(int ms)
+    {
+        var js = _jsRuntime ?? throw new InvalidOperationException("JSRuntime not initialized");
+        int count = 0;
+        var sampleForecasts = new WeatherForecast[]
+        {
+            new WeatherForecast { Date = DateOnly.FromDateTime(DateTime.Now), TemperatureC = 20, Summary = "Mild" },
+            new WeatherForecast { Date = DateOnly.FromDateTime(DateTime.Now).AddDays(1), TemperatureC = 25, Summary = "Warm" },
+            new WeatherForecast { Date = DateOnly.FromDateTime(DateTime.Now).AddDays(2), TemperatureC = 30, Summary = "Hot" }
+        };
+        var deadline = DateTime.Now.AddMilliseconds(ms);
+        while (DateTime.Now < deadline)
+        {
+            await js.InvokeAsync<double>("csInvokableWithJson", 1, sampleForecasts);
+            count++;
+        }
+        return count;
+    }
+
     public class CStoJSResults
     {
         public int NumberCount { get; set; }

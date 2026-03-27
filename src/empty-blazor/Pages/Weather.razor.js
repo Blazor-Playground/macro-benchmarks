@@ -27,6 +27,53 @@ export async function benchCsToJs(ms) {
     return await DotNet.invokeMethodAsync('EmptyBlazor', 'BenchCsToJs', ms);
 }
 
+export async function benchCsToJsNumber(ms) {
+    return await DotNet.invokeMethodAsync('EmptyBlazor', 'BenchCsToJsNumber', ms);
+}
+
+export async function benchCsToJsString(ms) {
+    return await DotNet.invokeMethodAsync('EmptyBlazor', 'BenchCsToJsString', ms);
+}
+
+export async function benchCsToJsJson(ms) {
+    return await DotNet.invokeMethodAsync('EmptyBlazor', 'BenchCsToJsJson', ms);
+}
+
+export async function benchJsToCsNumber(ms) {
+    let count = 0;
+    const deadline = Date.now() + ms;
+    while (Date.now() < deadline) {
+        await DotNet.invokeMethodAsync('EmptyBlazor', 'JSInvokableWithNumber', 42, 1234567890123456789, 3.14);
+        count++;
+    }
+    return count;
+}
+
+export async function benchJsToCsString(ms) {
+    let count = 0;
+    const deadline = Date.now() + ms;
+    while (Date.now() < deadline) {
+        await DotNet.invokeMethodAsync('EmptyBlazor', 'JSInvokableWithString', 'test');
+        count++;
+    }
+    return count;
+}
+
+export async function benchJsToCsJson(ms) {
+    let count = 0;
+    const sampleForecasts = [
+        { date: new Date().toISOString().split('T')[0], temperatureC: 20, summary: 'Mild' },
+        { date: new Date(Date.now() + 86400000).toISOString().split('T')[0], temperatureC: 25, summary: 'Warm' },
+        { date: new Date(Date.now() + 172800000).toISOString().split('T')[0], temperatureC: 30, summary: 'Hot' }
+    ];
+    const deadline = Date.now() + ms;
+    while (Date.now() < deadline) {
+        await DotNet.invokeMethodAsync('EmptyBlazor', 'JSInvokableWithJson', 1, sampleForecasts);
+        count++;
+    }
+    return count;
+}
+
 export async function benchJsToCs(ms) {
     const results = { numberCount: 0, stringCount: 0, jsonCount: 0 };
     let total = 0;
@@ -66,3 +113,9 @@ globalThis.csInvokableWithNumber = csInvokableWithNumber;
 globalThis.csInvokableWithJson = csInvokableWithJson;
 globalThis.benchJsToCs = benchJsToCs;
 globalThis.benchCsToJs = benchCsToJs;
+globalThis.benchJsToCsNumber = benchJsToCsNumber;
+globalThis.benchJsToCsString = benchJsToCsString;
+globalThis.benchJsToCsJson = benchJsToCsJson;
+globalThis.benchCsToJsNumber = benchCsToJsNumber;
+globalThis.benchCsToJsString = benchCsToJsString;
+globalThis.benchCsToJsJson = benchCsToJsJson;

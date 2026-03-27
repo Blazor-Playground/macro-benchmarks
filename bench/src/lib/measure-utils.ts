@@ -232,18 +232,32 @@ export async function verifyIntegrity(
  * Build the result JSON object.
  * - Strips null/undefined metrics
  * - Rounds all numeric values to integers
+ * - Includes sample counts when provided
  */
 export function buildResultJson(
     meta: Record<string, unknown>,
     metrics: Partial<Record<MetricKey, number | null>>,
-): { meta: Record<string, unknown>; metrics: Record<string, number> } {
+    sampleCounts?: Partial<Record<MetricKey, number>>,
+): { meta: Record<string, unknown>; metrics: Record<string, number>; samples?: Record<string, number> } {
     const cleanMetrics: Record<string, number> = {};
     for (const [key, value] of Object.entries(metrics)) {
         if (value != null && Number.isFinite(value)) {
             cleanMetrics[key] = Math.round(value);
         }
     }
-    return { meta, metrics: cleanMetrics };
+    const result: { meta: Record<string, unknown>; metrics: Record<string, number>; samples?: Record<string, number> } = { meta, metrics: cleanMetrics };
+    if (sampleCounts) {
+        const cleanSamples: Record<string, number> = {};
+        for (const [key, value] of Object.entries(sampleCounts)) {
+            if (value != null && value > 0) {
+                cleanSamples[key] = value;
+            }
+        }
+        if (Object.keys(cleanSamples).length > 0) {
+            result.samples = cleanSamples;
+        }
+    }
+    return result;
 }
 
 // ── Compile Time Reader ──────────────────────────────────────────────────────

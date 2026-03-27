@@ -27,7 +27,7 @@ import { runHavitWalkthrough } from '../lib/havit-walkthrough.js';
 import { runMudWalkthrough } from '../lib/mud-walkthrough.js';
 import { runUnoWalkthrough } from '../lib/uno-walkthrough.js';
 import { runSemiWalkthrough } from '../lib/semi-walkthrough.js';
-import { type SampleStats, computeStats, formatStats, sortedMedian } from '../lib/stats.js';
+import { type SampleStats, computeStats, formatStats, sortedMedian, sortedIQM } from '../lib/stats.js';
 import type { CDPSession, Page, BrowserContext, Browser } from 'playwright';
 
 // ── Stage Entry Point ────────────────────────────────────────────────────────
@@ -100,15 +100,15 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
                 try {
                     info(`  ${engine}/${profile}`);
 
-                    let metrics: Partial<Record<MetricKey, number | null>>;
+                    let result: MetricsResult;
 
                     if (BROWSER_ENGINES.has(engine)) {
-                        metrics = await measureBrowser(
+                        result = await measureBrowser(
                             engine, profile, entry, webRoot,
                             compileTime, fileSizes, isInternal, ctx,
                         );
                     } else {
-                        metrics = await measureCli(
+                        result = await measureCli(
                             engine, entry, webRoot,
                             compileTime, fileSizes, isInternal, ctx,
                         );
@@ -116,13 +116,13 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
                     // Build and write result JSON
                     const meta = buildMeta(ctx, entry, engine, profile);
-                    const result = buildResultJson(meta, metrics);
+                    const resultJson = buildResultJson(meta, result.metrics, result.sampleCounts);
                     const filename = buildResultFilename(
                         ctx.sdkInfo, ctx.runtime, entry.preset,
                         profile, engine, entry.app,
                     );
                     const outPath = join(ctx.resultsDir, filename);
-                    await writeFile(outPath, JSON.stringify(result, null, 2) + '\n');
+                    await writeFile(outPath, JSON.stringify(resultJson, null, 2) + '\n');
                     info(`    → ${filename}`);
                 } catch (e) {
                     totalFailures++;
@@ -216,6 +216,12 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn }[] = [
 
 const INTERNAL_KEYS = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;
 
+/** Metrics + sample counts for each metric key. */
+interface MetricsResult {
+    metrics: Partial<Record<MetricKey, number | null>>;
+    sampleCounts: Partial<Record<MetricKey, number>>;
+}
+
 /** Average of the top-N largest values in an array (default N=3). */
 function avgOfTopN(values: number[], n = 3): number | null {
     if (values.length === 0) return null;
@@ -247,16 +253,23 @@ function assembleInternalMetrics(
     timeToCreateDotnetCold: number | null,
     timeToExitCold: number | null,
     wasmMemorySize: number | null,
-): Partial<Record<MetricKey, number | null>> {
+): MetricsResult {
     return {
-        [MetricKey.CompileTime]: compileTime,
-        [MetricKey.MemoryPeak]: memoryPeak,
-        [MetricKey.TimeToCreateDotnetCold]: timeToCreateDotnetCold,
-        [MetricKey.TimeToExitCold]: timeToExitCold,
-        [MetricKey.WasmMemorySize]: wasmMemorySize,
-        [MetricKey.JsInteropOps]: statsMap['js-interop-ops'] ? Math.round(statsMap['js-interop-ops'].median) : null,
-        [MetricKey.JsonParseOps]: statsMap['json-parse-ops'] ? Math.round(statsMap['json-parse-ops'].median) : null,
-        [MetricKey.ExceptionOps]: statsMap['exception-ops'] ? Math.round(statsMap['exception-ops'].median) : null,
+        metrics: {
+            [MetricKey.CompileTime]: compileTime,
+            [MetricKey.MemoryPeak]: memoryPeak,
+            [MetricKey.TimeToCreateDotnetCold]: timeToCreateDotnetCold,
+            [MetricKey.TimeToExitCold]: timeToExitCold,
+            [MetricKey.WasmMemorySize]: wasmMemorySize,
+            [MetricKey.JsInteropOps]: statsMap['js-interop-ops'] ? Math.round(statsMap['js-interop-ops'].median) : null,
+            [MetricKey.JsonParseOps]: statsMap['json-parse-ops'] ? Math.round(statsMap['json-parse-ops'].median) : null,
+            [MetricKey.ExceptionOps]: statsMap['exception-ops'] ? Math.round(statsMap['exception-ops'].median) : null,
+        },
+        sampleCounts: {
+            [MetricKey.JsInteropOps]: statsMap['js-interop-ops']?.n,
+            [MetricKey.JsonParseOps]: statsMap['json-parse-ops']?.n,
+            [MetricKey.ExceptionOps]: statsMap['exception-ops']?.n,
+        },
     };
 }
 
@@ -283,24 +296,36 @@ function buildExternalMetrics(
     serverRequestsWarm: number | null,
     memoryPeak: number | null,
     walkthroughMetrics: Partial<Record<MetricKey, number | null>>,
-): Partial<Record<MetricKey, number | null>> {
+    walkthroughSampleCounts: Partial<Record<MetricKey, number>>,
+): MetricsResult {
     return {
-        [MetricKey.CompileTime]: compileTime,
-        [MetricKey.DiskSizeNative]: fileSizes.diskSizeNative,
-        [MetricKey.DiskSizeAssemblies]: fileSizes.diskSizeAssemblies,
-        [MetricKey.DownloadSizeCold]: downloadSizeCold,
-        [MetricKey.DownloadSizeWarm]: downloadSizeWarm,
-        [MetricKey.ServerRequestsCold]: serverRequestsCold,
-        [MetricKey.ServerRequestsWarm]: serverRequestsWarm,
-        [MetricKey.TimeToReachManagedWarm]: sortedMedian(warmArrays.reachManaged),
-        [MetricKey.TimeToReachManagedCold]: sortedMedian(coldArrays.reachManaged),
-        [MetricKey.TimeToCreateDotnetWarm]: sortedMedian(warmArrays.createDotnet),
-        [MetricKey.TimeToCreateDotnetCold]: sortedMedian(coldArrays.createDotnet),
-        [MetricKey.TimeToExitWarm]: sortedMedian(warmArrays.exit),
-        [MetricKey.TimeToExitCold]: sortedMedian(coldArrays.exit),
-        [MetricKey.WasmMemorySize]: wasmMemorySize,
-        [MetricKey.MemoryPeak]: memoryPeak,
-        ...walkthroughMetrics,
+        metrics: {
+            [MetricKey.CompileTime]: compileTime,
+            [MetricKey.DiskSizeNative]: fileSizes.diskSizeNative,
+            [MetricKey.DiskSizeAssemblies]: fileSizes.diskSizeAssemblies,
+            [MetricKey.DownloadSizeCold]: downloadSizeCold,
+            [MetricKey.DownloadSizeWarm]: downloadSizeWarm,
+            [MetricKey.ServerRequestsCold]: serverRequestsCold,
+            [MetricKey.ServerRequestsWarm]: serverRequestsWarm,
+            [MetricKey.TimeToReachManagedWarm]: sortedIQM(warmArrays.reachManaged),
+            [MetricKey.TimeToReachManagedCold]: sortedIQM(coldArrays.reachManaged),
+            [MetricKey.TimeToCreateDotnetWarm]: sortedIQM(warmArrays.createDotnet),
+            [MetricKey.TimeToCreateDotnetCold]: sortedIQM(coldArrays.createDotnet),
+            [MetricKey.TimeToExitWarm]: sortedIQM(warmArrays.exit),
+            [MetricKey.TimeToExitCold]: sortedIQM(coldArrays.exit),
+            [MetricKey.WasmMemorySize]: wasmMemorySize,
+            [MetricKey.MemoryPeak]: memoryPeak,
+            ...walkthroughMetrics,
+        },
+        sampleCounts: {
+            [MetricKey.TimeToReachManagedWarm]: warmArrays.reachManaged.length || undefined,
+            [MetricKey.TimeToReachManagedCold]: coldArrays.reachManaged.length || undefined,
+            [MetricKey.TimeToCreateDotnetWarm]: warmArrays.createDotnet.length || undefined,
+            [MetricKey.TimeToCreateDotnetCold]: coldArrays.createDotnet.length || undefined,
+            [MetricKey.TimeToExitWarm]: warmArrays.exit.length || undefined,
+            [MetricKey.TimeToExitCold]: coldArrays.exit.length || undefined,
+            ...walkthroughSampleCounts,
+        },
     };
 }
 
@@ -481,6 +506,7 @@ async function runWarmLoads(
 // (#5) Simplified walkthrough filter — early return instead of loop-with-continue
 interface WalkthroughResult {
     metrics: Partial<Record<MetricKey, number | null>>;
+    sampleCounts: Partial<Record<MetricKey, number>>;
     jsHeapSamples: number[];
     wasmMemorySamples: number[];
 }
@@ -496,7 +522,7 @@ async function runWalkthroughs(
     verbose: boolean,
     cdp: CDPState | null,
 ): Promise<WalkthroughResult> {
-    const empty: WalkthroughResult = { metrics: {}, jsHeapSamples: [], wasmMemorySamples: [] };
+    const empty: WalkthroughResult = { metrics: {}, sampleCounts: {}, jsHeapSamples: [], wasmMemorySamples: [] };
     // Walkthroughs can be noisy, so do extra runs when possible
     warmRuns = warmRuns > 1 ? warmRuns * 4 : 1;
     // Walkthroughs are Chrome-only + desktop-only (CDP required for reliable timing)
@@ -530,15 +556,16 @@ async function runWalkthroughs(
             if (wasmBytes != null) wasmMemorySamples.push(wasmBytes);
         } catch { /* ignore */ }
     }
-    const med = sortedMedian(times);
-    const rounded = med != null ? Math.round(med) : null;
+    const iqm = sortedIQM(times);
+    const rounded = iqm != null ? Math.round(iqm) : null;
     if (verbose) {
-        debug(`${wt.metric} times: [${times.join(', ')}] → median=${rounded}ms`);
+        debug(`${wt.metric} times: [${times.join(', ')}] → iqm=${rounded}ms`);
         if (jsHeapSamples.length > 0) debug(`Post-walkthrough JS heap samples: [${jsHeapSamples.join(', ')}] → avgTop3=${avgOfTopN(jsHeapSamples)}`);
         if (wasmMemorySamples.length > 0) debug(`Post-walkthrough WASM memory samples: [${wasmMemorySamples.join(', ')}] → avgTop3=${avgOfTopN(wasmMemorySamples)}`);
     }
     return {
         metrics: { [wt.metric]: rounded },
+        sampleCounts: { [wt.metric]: times.length },
         jsHeapSamples,
         wasmMemorySamples,
     };
@@ -561,7 +588,7 @@ async function runBrowserSession(
     timeout: number,
     verbose: boolean,
     srv: StaticServer,
-): Promise<Partial<Record<MetricKey, number | null>>> {
+): Promise<MetricsResult> {
     const context = await browser.newContext();
     const page = await context.newPage();
 
@@ -608,7 +635,7 @@ async function runBrowserSession(
             mergeTimingArrays(coldArrays, extraCold);
         }
         if (verbose && coldArrays.reachManaged.length > 1) {
-            debug(`Cold times: [${coldArrays.reachManaged.join(', ')}] → median=${sortedMedian(coldArrays.reachManaged)}`);
+            debug(`Cold times: [${coldArrays.reachManaged.join(', ')}] → iqm=${sortedIQM(coldArrays.reachManaged)}`);
         }
     }
 
@@ -618,7 +645,7 @@ async function runBrowserSession(
     const warmArrays = warmResult.timings;
 
     if (verbose && warmArrays.reachManaged.length > 1) {
-        debug(`Warm times: [${warmArrays.reachManaged.join(', ')}] → median=${sortedMedian(warmArrays.reachManaged)}`);
+        debug(`Warm times: [${warmArrays.reachManaged.join(', ')}] → iqm=${sortedIQM(warmArrays.reachManaged)}`);
     }
     const warmDownloadSize = warmResult.downloadSizes.length > 0
         ? sortedMedian(warmResult.downloadSizes)
@@ -636,8 +663,9 @@ async function runBrowserSession(
     // Walkthroughs (external apps only)
     const walkthroughResult = !isInternal
         ? await runWalkthroughs(page, pageUrl, entry, engine, profile, warmRuns, timeout, verbose, cdp)
-        : { metrics: {}, jsHeapSamples: [] as number[], wasmMemorySamples: [] as number[] };
+        : { metrics: {}, sampleCounts: {}, jsHeapSamples: [] as number[], wasmMemorySamples: [] as number[] };
     const walkthroughMetrics = walkthroughResult.metrics;
+    const walkthroughSampleCounts = walkthroughResult.sampleCounts;
 
     // Replace memory metrics with post-walkthrough avg-of-top-3 when walkthrough ran
     if (walkthroughResult.jsHeapSamples.length > 0) {
@@ -673,8 +701,8 @@ async function runBrowserSession(
     // Assemble metrics
     if (isInternal) {
         const statsMap = computeInternalStats(benchSamples!);
-        const createDotnetCold = sortedMedian(coldArrays.createDotnet);
-        const exitCold = sortedMedian(coldArrays.exit);
+        const createDotnetCold = sortedIQM(coldArrays.createDotnet);
+        const exitCold = sortedIQM(coldArrays.exit);
         logInternalSummary(statsMap, createDotnetCold, exitCold, wasmMemorySize);
         return assembleInternalMetrics(
             statsMap, compileTime,
@@ -702,6 +730,7 @@ async function runBrowserSession(
         warmRequestCount,
         finalMemoryPeak != null ? Math.round(finalMemoryPeak) : null,
         walkthroughMetrics,
+        walkthroughSampleCounts,
     );
 }
 
@@ -717,7 +746,7 @@ async function measureBrowser(
     fileSizes: { diskSizeNative: number; diskSizeAssemblies: number } | null,
     isInternal: boolean,
     ctx: BenchContext,
-): Promise<Partial<Record<MetricKey, number | null>>> {
+): Promise<MetricsResult> {
     const pw = await import('playwright');
     const browserType = engine === E.Firefox ? pw.firefox : pw.chromium;
     const useCDP = engine !== E.Firefox;
@@ -786,7 +815,7 @@ async function measureCli(
     fileSizes: { diskSizeNative: number; diskSizeAssemblies: number } | null,
     isInternal: boolean,
     ctx: BenchContext,
-): Promise<Partial<Record<MetricKey, number | null>>> {
+): Promise<MetricsResult> {
     const { cmd, args: engineArgs } = getEngineCommand(engine);
     const entryFile = await findEntryFile(webRoot);
 
@@ -838,6 +867,6 @@ async function measureCli(
     return buildExternalMetrics(
         compileTime, fileSizes!,
         cliArrays, cliArrays, t.wasmMemory,
-        null, null, null, null, null, {},
+        null, null, null, null, null, {}, {},
     );
 }

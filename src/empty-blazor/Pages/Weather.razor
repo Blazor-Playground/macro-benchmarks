@@ -1,4 +1,6 @@
 ﻿@page "/weather"
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <PageTitle>Weather</PageTitle>
 
@@ -37,8 +39,10 @@ else
 }
 
 @code {
+    private static IJSRuntime? _jsRuntime;
     private int renderCount = 0;
     private WeatherForecast[]? forecasts;
+    private IJSObjectReference? module;
 
     private static readonly string[] Summaries = new[]
     {
@@ -69,11 +73,92 @@ else
         Console.WriteLine($"Weather component rendered. Render count: {renderCount}");
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _jsRuntime = JS;
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./Pages/Weather.razor.js");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (module is not null)
+        {
+            await module.DisposeAsync();
+        }
+    }
+
     private ValueTask<ItemsProviderResult<WeatherForecast>> LoadForecasts(ItemsProviderRequest request)
     {
         var items = forecasts!.Skip(request.StartIndex).Take(request.Count).ToArray();
         Console.WriteLine($"Virtual scroll loaded items {request.StartIndex}-{request.StartIndex + items.Length}");
         return ValueTask.FromResult(new ItemsProviderResult<WeatherForecast>(items, forecasts!.Length));
+    }
+
+    [Microsoft.JSInterop.JSInvokable]
+    public static Task<double> JSInvokableWithJson(int number, WeatherForecast[] forecasts)
+    {
+        var average = forecasts.Average(f => f.TemperatureC);
+        return Task.FromResult(number + average);
+    }
+
+    [Microsoft.JSInterop.JSInvokable]
+    public static Task<int> JSInvokableWithNumber(int number, long bigNumber, double decimalNumber)
+    {
+        return Task.FromResult(number * 2 + (int)bigNumber + (int)decimalNumber);
+    }
+
+    [Microsoft.JSInterop.JSInvokable]
+    public static Task<string> JSInvokableWithString(string value)
+    {
+        return Task.FromResult(value + value);
+    }
+
+    [Microsoft.JSInterop.JSInvokable]
+    public static async Task<CStoJSResults> BenchCsToJs(int ms)
+    {
+        var js = _jsRuntime ?? throw new InvalidOperationException("JSRuntime not initialized");
+        var results = new CStoJSResults();
+        int total = 0;
+        var deadline = DateTime.Now.AddMilliseconds(ms);
+        while (DateTime.Now < deadline)
+        {
+            var numberResult = await js.InvokeAsync<int>("csInvokableWithNumber", 42, 1234567890123456789, 3.14);
+            total += numberResult;
+            results.NumberCount++;
+        }
+        deadline = DateTime.Now.AddMilliseconds(ms);
+        while (DateTime.Now < deadline)
+        {
+            var value = await js.InvokeAsync<string>("csInvokableWithString", "test" + total);
+            total += value.Length;
+            results.StringCount++;
+        }
+        var sampleForecasts = new WeatherForecast[]
+        {
+            new WeatherForecast { Date = DateOnly.FromDateTime(DateTime.Now), TemperatureC = 20, Summary = "Mild" },
+            new WeatherForecast { Date = DateOnly.FromDateTime(DateTime.Now).AddDays(1), TemperatureC = 25, Summary = "Warm" },
+            new WeatherForecast { Date = DateOnly.FromDateTime(DateTime.Now).AddDays(2), TemperatureC = 30, Summary = "Hot" }
+        };
+        deadline = DateTime.Now.AddMilliseconds(ms);
+        while (DateTime.Now < deadline)
+        {
+            sampleForecasts[0].TemperatureC = total % 40 - 20;
+            sampleForecasts[0].Date = DateOnly.FromDateTime(deadline);
+            var average = await js.InvokeAsync<double>("csInvokableWithJson", 1, sampleForecasts);
+            total += (int)average;
+            results.JsonCount++;
+        }
+        return results;
+    }
+
+    public class CStoJSResults
+    {
+        public int NumberCount { get; set; }
+        public int StringCount { get; set; }
+        public int JsonCount { get; set; }
     }
 
     public class WeatherForecast

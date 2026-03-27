@@ -1,5 +1,4 @@
 ﻿@page "/weather"
-@inject HttpClient Http
 
 <PageTitle>Weather</PageTitle>
 
@@ -13,35 +12,68 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th aria-label="Temperature in Celsius">Temp. (C)</th>
-                <th aria-label="Temperature in Fahrenheit">Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
+    <div style="height:500px;overflow-y:auto">
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
+                    <th>Date</th>
+                    <th aria-label="Temperature in Celsius">Temp. (C)</th>
+                    <th aria-label="Temperature in Fahrenheit">Temp. (F)</th>
+                    <th>Summary</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <Virtualize ItemsProvider="LoadForecasts" Context="forecast" OverscanCount="20">
+                    <tr>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.TemperatureF</td>
+                        <td>@forecast.Summary</td>
+                    </tr>
+                </Virtualize>
+            </tbody>
+        </table>
+    </div>
 }
 
 @code {
+    private int renderCount = 0;
     private WeatherForecast[]? forecasts;
+
+    private static readonly string[] Summaries = new[]
+    {
+        "Freezing", "Bracing", "Chilly", "Cool", "Mild",
+        "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+    };
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+        await Task.Yield();
+        var random = new Random(42);
+        var startDate = DateOnly.FromDateTime(DateTime.Now);
+        forecasts = new WeatherForecast[1000];
+        for (int i = 0; i < 1000; i++)
+        {
+            forecasts[i] = new WeatherForecast
+            {
+                Date = startDate.AddDays(i),
+                TemperatureC = random.Next(-20, 55),
+                Summary = Summaries[random.Next(Summaries.Length)]
+            };
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        renderCount++;
+        Console.WriteLine($"Weather component rendered. Render count: {renderCount}");
+    }
+
+    private ValueTask<ItemsProviderResult<WeatherForecast>> LoadForecasts(ItemsProviderRequest request)
+    {
+        var items = forecasts!.Skip(request.StartIndex).Take(request.Count).ToArray();
+        Console.WriteLine($"Virtual scroll loaded items {request.StartIndex}-{request.StartIndex + items.Length}");
+        return ValueTask.FromResult(new ItemsProviderResult<WeatherForecast>(items, forecasts!.Length));
     }
 
     public class WeatherForecast

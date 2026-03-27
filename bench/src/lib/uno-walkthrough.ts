@@ -1,7 +1,9 @@
 /**
  * uno-walkthrough.ts — Playwright walkthrough for Uno Gallery app.
  *
- * Measures total wall-clock time from fresh navigation to completion.
+ * All walkthrough steps run entirely inside the browser via a single
+ * page.evaluate() call, eliminating Playwright round-trip overhead from
+ * the benchmark measurement.
  *
  * Steps: load home → focus sidebar → expand each category via Space →
  * navigate through all child samples via ArrowDown + Enter.
@@ -11,8 +13,9 @@
  * (Space to expand categories, ArrowDown to move, Enter to select) on the
  * NavigationView sidebar, similar to the Semi Avalonia walkthrough approach.
  *
- * Navigation is confirmed by listening for `[uno-nav] <title>` console
- * messages emitted by the C# SelectionChanged handler in App.xaml.cs.
+ * Navigation is confirmed by subscribing to `globalThis.onConsole` to
+ * intercept `[uno-nav] <title>` messages emitted by the C# SelectionChanged
+ * handler in App.xaml.cs.
  */
 
 import { debug } from '../log.js';
@@ -22,7 +25,7 @@ type ConsoleMessage = { text(): string };
 type PlaywrightPage = {
     goto(url: string, options?: { timeout?: number; waitUntil?: string }): Promise<unknown>;
     waitForFunction(fn: (() => boolean) | string, arg: unknown, options?: { timeout?: number }): Promise<unknown>;
-    evaluate<T>(fn: (() => T) | ((arg: string) => T), arg?: string): Promise<T>;
+    evaluate<T>(fn: (() => T) | ((arg: unknown) => T), arg?: unknown): Promise<T>;
     mouse: { click(x: number, y: number): Promise<void> };
     keyboard: { press(key: string): Promise<void> };
     on(event: string, handler: (...args: unknown[]) => void): void;
@@ -167,9 +170,123 @@ async function focusCanvas(page: PlaywrightPage): Promise<void> {
 }
 
 /**
- * Full walkthrough: navigates to home, then visits every sample page via
- * keyboard navigation through the sidebar NavigationView.
+ * Runs entirely inside the browser (passed to page.evaluate).
+ * Navigates through every sample page via keyboard events on the canvas,
+ * subscribing to globalThis.onConsole for [uno-nav] confirmation messages.
  * Returns wall-clock duration in ms.
+ *
+ * Arrow function to avoid bundler __name helper injection that breaks
+ * Playwright's function serialization for page.evaluate().
+ */
+const browserUnoWalkthrough = (args: unknown): Promise<number> => {
+    const { timeout: t, verbose, navItems } = args as {
+        timeout: number;
+        verbose: boolean;
+        navItems: NavItem[];
+    };
+
+    const NAV_PREFIX = '[uno-nav] ';
+    const log = verbose
+        ? (msg: string) => console.log(`[uno-walkthrough] ${msg}`)
+        : () => { /* noop */ };
+
+    // ── Subscribe to globalThis.onConsole for [uno-nav] messages ─────
+    let lastNavSample: string | null = null;
+    let navResolve: (() => void) | null = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onConsole = (globalThis as any).onConsole as ((...a: unknown[]) => void)[];
+    const navHandler = (...logArgs: unknown[]): void => {
+        const first = logArgs[0];
+        if (typeof first === 'string' && first.startsWith(NAV_PREFIX)) {
+            lastNavSample = first.slice(NAV_PREFIX.length);
+            if (navResolve) {
+                navResolve();
+                navResolve = null;
+            }
+        }
+    };
+    onConsole.push(navHandler);
+
+    const waitForNav = (expected: string, ms: number): Promise<void> =>
+        new Promise<void>((resolve, reject) => {
+            if (lastNavSample === expected) { resolve(); return; }
+            const timer = setTimeout(() => {
+                navResolve = null;
+                reject(new Error(`Timed out waiting for [uno-nav] ${expected} (last seen: ${lastNavSample})`));
+            }, ms);
+            navResolve = () => { clearTimeout(timer); resolve(); };
+        });
+
+    const waitForRepaintBrowser = (): Promise<void> =>
+        new Promise<void>(resolve => {
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+        });
+
+    const pressKey = (key: string, code: string, keyCode: number): void => {
+        const canvas = document.getElementById('uno-canvas');
+        if (!canvas) throw new Error('uno-canvas not found');
+        canvas.focus();
+        canvas.dispatchEvent(new KeyboardEvent('keydown', {
+            key, code, keyCode, bubbles: true, cancelable: true,
+        }));
+        canvas.dispatchEvent(new KeyboardEvent('keyup', {
+            key, code, keyCode, bubbles: true, cancelable: true,
+        }));
+    };
+
+    const startTime = performance.now();
+
+    const steps = async (): Promise<number> => {
+        try {
+            let firstCategory = true;
+            for (let i = 0; i < navItems.length; i++) {
+                const item = navItems[i];
+
+                if (item.type === 'category') {
+                    if (firstCategory) {
+                        firstCategory = false;
+                        log(`${item.name} (already expanded)`);
+                    } else {
+                        log(`expanding: ${item.name}`);
+                        pressKey(' ', 'Space', 32);
+                        await waitForRepaintBrowser();
+                        await waitForRepaintBrowser();
+                    }
+                    // Move focus into the first child
+                    pressKey('ArrowDown', 'ArrowDown', 40);
+                    await waitForRepaintBrowser();
+                } else {
+                    // Select the sample and wait for the C# confirmation
+                    lastNavSample = null;
+                    pressKey('Enter', 'Enter', 13);
+                    await waitForRepaintBrowser();
+                    await waitForNav(item.name, t);
+                    await waitForRepaintBrowser();
+                    log(`loaded: ${item.name}`);
+
+                    // Move to next item if there is one
+                    const next = i + 1 < navItems.length ? navItems[i + 1] : null;
+                    if (next) {
+                        pressKey('ArrowDown', 'ArrowDown', 40);
+                        await waitForRepaintBrowser();
+                    }
+                }
+            }
+
+            return performance.now() - startTime;
+        } finally {
+            const idx = onConsole.indexOf(navHandler);
+            if (idx >= 0) onConsole.splice(idx, 1);
+        }
+    };
+
+    return steps();
+};
+
+/**
+ * Loads the page via Playwright, then runs all timed walkthrough steps inside
+ * the browser via a single page.evaluate() to avoid measuring Playwright
+ * communication overhead. Returns wall-clock duration in ms.
  */
 export async function runUnoWalkthrough(
     page: PlaywrightPage,
@@ -198,8 +315,8 @@ export async function runUnoWalkthrough(
     page.on('console', consoleHandler);
 
     /** Wait until a [uno-nav] message arrives, with timeout. */
-    function waitForNav(expected: string, ms: number): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
+    const waitForNav = (expected: string, ms: number): Promise<void> =>
+        new Promise<void>((resolve, reject) => {
             if (lastNavSample === expected) { resolve(); return; }
             const timer = setTimeout(() => {
                 navResolve = null;
@@ -207,10 +324,9 @@ export async function runUnoWalkthrough(
             }, ms);
             navResolve = () => { clearTimeout(timer); resolve(); };
         });
-    }
 
     try {
-        // ── Step 0: Load home ────────────────────────────────────────────────
+        // ── Step 0: Load home (via Playwright — not part of the timed section) ──
         log('navigating to home...');
         await page.goto(url, { timeout, waitUntil: 'load' });
         await page.waitForFunction(
@@ -247,52 +363,19 @@ export async function runUnoWalkthrough(
         await waitForRepaint(page);
         log('focused NavigationView, first category expanded');
 
-        // Capture start time AFTER load and focus setup
-        const startTime: number = await page.evaluate(() => performance.now());
+        // ── Run timed walkthrough steps inside the browser ───────────────────
+        log('starting in-browser walkthrough...');
+        // esbuild's keepNames injects __name() calls into the serialized function body;
+        // provide the helper in the browser so they resolve at runtime.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await page.evaluate(() => { (globalThis as any).__name = (fn: any) => fn; });
+        const duration: number = await page.evaluate(
+            browserUnoWalkthrough,
+            { timeout, verbose, navItems: NAV_ITEMS },
+        );
 
-        // ── Step 2: Navigate through every sample page ───────────────────────
-        let firstCategory = true;
-        for (let i = 0; i < NAV_ITEMS.length; i++) {
-            const item = NAV_ITEMS[i];
-
-            if (item.type === 'category') {
-                if (firstCategory) {
-                    firstCategory = false;
-                    log(`${item.name} (already expanded)`);
-                } else {
-                    log(`expanding: ${item.name}`);
-                    await page.keyboard.press('Space');
-                    await waitForRepaint(page);
-                    await waitForRepaint(page);
-                }
-                // Move focus into the first child
-                await page.keyboard.press('ArrowDown');
-                await waitForRepaint(page);
-            } else {
-                // Select the sample and wait for the C# confirmation
-                lastNavSample = null;
-                await page.keyboard.press('Enter');
-                await waitForRepaint(page);
-                await waitForNav(item.name, timeout);
-                // One extra repaint to let the content render after selection
-                await waitForRepaint(page);
-                log(`loaded: ${item.name}`);
-
-                // Move to next item if there is one
-                const next = i + 1 < NAV_ITEMS.length ? NAV_ITEMS[i + 1] : null;
-                if (next) {
-                    await page.keyboard.press('ArrowDown');
-                    await waitForRepaint(page);
-                }
-            }
-        }
-
-        // ── Step 3: Measure elapsed time ─────────────────────────────────────
-        const endTime: number = await page.evaluate(() => performance.now());
-        const duration = Math.round(endTime - startTime);
-        log(`walkthrough complete: ${duration}ms (${NAV_ITEMS.filter(i => i.type === 'sample').length} samples visited)`);
-
-        return endTime - startTime;
+        log(`in-browser walkthrough completed: ${Math.round(duration)}ms (${NAV_ITEMS.filter(i => i.type === 'sample').length} samples visited)`);
+        return duration;
     } finally {
         page.off('console', consoleHandler);
     }

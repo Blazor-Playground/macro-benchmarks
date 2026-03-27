@@ -1,4 +1,4 @@
-<Router AppAssembly="typeof(Program).Assembly">
+<Router AppAssembly="typeof(Program).Assembly" OnNavigateAsync="OnNavigate">
     <Found Context="routeData">
 		<AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
 			<Authorizing>
@@ -13,3 +13,15 @@
         </LayoutView>
     </NotFound>
 </Router>
+
+@code {
+    private void OnNavigate(NavigationContext context)
+    {
+        Console.WriteLine($"Navigating to: {context.Path}");
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        Console.WriteLine($"App rendered after navigation. FirstRender: {firstRender}");
+    }
+}

@@ -15,4 +15,9 @@
     {
         currentCount++;
     }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        Console.WriteLine($"Counter component rendered. Current count: {currentCount}");
+    }
 }

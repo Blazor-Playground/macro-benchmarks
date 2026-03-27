@@ -773,7 +773,7 @@ async function measureBrowser(
             const isChromium = engine !== E.Firefox;
             const browser = await browserType.launch({
                 headless: ctx.headless,
-                args: isChromium ? [
+                args: isChromium && ctx.headless ? [
                     '--enable-unsafe-swiftshader',
                     '--use-gl=angle',
                     '--use-angle=swiftshader',

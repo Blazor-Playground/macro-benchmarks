@@ -1,4 +1,4 @@
-﻿<Router AppAssembly="@typeof(MudBlazor.Docs.Pages.Index).Assembly">
+﻿<Router AppAssembly="@typeof(MudBlazor.Docs.Pages.Index).Assembly" OnNavigateAsync="OnNavigate">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MudBlazor.Docs.Shared.MainLayout)" />
     </Found>
@@ -8,3 +8,15 @@
         </LayoutView>
     </NotFound>
 </Router>
+
+@code {
+    private void OnNavigate(Microsoft.AspNetCore.Components.Routing.NavigationContext context)
+    {
+        Console.WriteLine($"Navigating to: {context.Path}");
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        Console.WriteLine($"App rendered after navigation. FirstRender: {firstRender}");
+    }
+}

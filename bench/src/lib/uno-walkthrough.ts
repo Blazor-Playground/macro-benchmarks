@@ -19,6 +19,7 @@
  */
 
 import { debug } from '../log.js';
+import { type WalkthroughOpts } from './walkthrough-types.js';
 
 // Minimal Playwright Page type surface used by the walkthrough
 type ConsoleMessage = { text(): string };
@@ -288,12 +289,8 @@ const browserUnoWalkthrough = (args: unknown): Promise<number> => {
  * the browser via a single page.evaluate() to avoid measuring Playwright
  * communication overhead. Returns wall-clock duration in ms.
  */
-export async function runUnoWalkthrough(
-    page: PlaywrightPage,
-    url: string,
-    timeout: number,
-    verbose = false,
-): Promise<number> {
+export async function runUnoWalkthrough(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    const { page, url, timeout, verbose = false } = opts;
     const log = verbose ? (msg: string) => debug(`Uno: ${msg}`) : () => { };
 
     // ── Capture [uno-nav] console messages from C# SelectionChanged handler ─

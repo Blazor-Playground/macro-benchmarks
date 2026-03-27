@@ -12,7 +12,7 @@
 }
 else
 {
-    <div style="height:500px;overflow-y:auto">
+    <div style="height:500px;overflow-y:auto" data-testid="weather-scroll-container" tabindex="0">
         <table class="table">
             <thead>
                 <tr>
@@ -23,7 +23,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                <Virtualize ItemsProvider="LoadForecasts" Context="forecast" OverscanCount="20">
+                <Virtualize ItemsProvider="LoadForecasts" Context="forecast" OverscanCount="2">
                     <tr>
                         <td>@forecast.Date.ToShortDateString()</td>
                         <td>@forecast.TemperatureC</td>

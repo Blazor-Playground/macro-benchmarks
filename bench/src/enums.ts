@@ -80,6 +80,8 @@ export enum MetricKey {
     MudWalkthrough = 'mud-walkthrough',
     UnoWalkthrough = 'uno-walkthrough',
     SemiWalkthrough = 'semi-walkthrough',
+    CounterPerMinute = 'counter-per-minute',
+    VirtualScrollPerMinute = 'virtual-scroll-per-minute',
     JsInteropOps = 'js-interop-ops',
     JsonParseOps = 'json-parse-ops',
     ExceptionOps = 'exception-ops',

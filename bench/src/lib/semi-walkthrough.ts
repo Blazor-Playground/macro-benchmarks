@@ -15,6 +15,7 @@
  */
 
 import { debug } from '../log.js';
+import { type WalkthroughOpts } from './walkthrough-types.js';
 
 // Minimal Playwright Page type surface used by the walkthrough
 type ConsoleMessage = { text(): string };
@@ -221,12 +222,8 @@ const browserSemiWalkthrough = (args: unknown): Promise<number> => {
  * the browser via a single page.evaluate() to avoid measuring Playwright
  * communication overhead. Returns wall-clock duration in ms.
  */
-export async function runSemiWalkthrough(
-    page: PlaywrightPage,
-    url: string,
-    timeout: number,
-    verbose = false,
-): Promise<number> {
+export async function runSemiWalkthrough(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    const { page, url, timeout, verbose = false } = opts;
     const log = verbose ? (msg: string) => debug(`Semi: ${msg}`) : () => { };
 
     // ── Capture [semi-nav] console messages from C# SelectionChanged handler ─

@@ -27,6 +27,8 @@ import { runHavitWalkthrough } from '../lib/havit-walkthrough.js';
 import { runMudWalkthrough } from '../lib/mud-walkthrough.js';
 import { runUnoWalkthrough } from '../lib/uno-walkthrough.js';
 import { runSemiWalkthrough } from '../lib/semi-walkthrough.js';
+import { runBlazorCounter, runBlazorVirtualScroll } from '../lib/blazor-bench.js';
+import { type WalkthroughOpts } from '../lib/walkthrough-types.js';
 import { type SampleStats, computeStats, formatStats, sortedMedian, sortedIQM } from '../lib/stats.js';
 import type { CDPSession, Page, BrowserContext, Browser } from 'playwright';
 
@@ -204,14 +206,16 @@ function mergeTimingArrays(target: TimingArrays, source: TimingArrays): void {
 }
 
 // Walkthrough dispatch table — Chrome + desktop only
-type WalkthroughFn = (page: Page, url: string, timeout: number, verbose: boolean) => Promise<number>;
+type WalkthroughFn = (opts: WalkthroughOpts<Page>) => Promise<number>;
 
-const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn }[] = [
+const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: number }[] = [
     { app: A.BlazingPizza, metric: MetricKey.PizzaWalkthrough, fn: runPizzaWalkthrough as WalkthroughFn },
     { app: A.HavitBootstrap, metric: MetricKey.HavitWalkthrough, fn: runHavitWalkthrough as WalkthroughFn },
     { app: A.MudBlazor, metric: MetricKey.MudWalkthrough, fn: runMudWalkthrough as WalkthroughFn },
     { app: A.UnoGallery, metric: MetricKey.UnoWalkthrough, fn: runUnoWalkthrough as WalkthroughFn },
     { app: A.SemiAvalonia, metric: MetricKey.SemiWalkthrough, fn: runSemiWalkthrough as WalkthroughFn },
+    { app: A.EmptyBlazor, metric: MetricKey.CounterPerMinute, fn: runBlazorCounter as WalkthroughFn, runs: 1 },
+    { app: A.EmptyBlazor, metric: MetricKey.VirtualScrollPerMinute, fn: runBlazorVirtualScroll as WalkthroughFn, runs: 1 },
 ];
 
 const INTERNAL_KEYS = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;
@@ -520,52 +524,64 @@ async function runWalkthroughs(
     warmRuns: number,
     timeout: number,
     verbose: boolean,
+    dryRun: boolean,
     cdp: CDPState | null,
 ): Promise<WalkthroughResult> {
     const empty: WalkthroughResult = { metrics: {}, sampleCounts: {}, jsHeapSamples: [], wasmMemorySamples: [] };
-    // Walkthroughs can be noisy, so do extra runs when possible
-    warmRuns = warmRuns > 1 ? warmRuns * 4 : 1;
+    const defaultRuns = warmRuns > 1 ? warmRuns * 4 : 1;
     // Walkthroughs are Chrome-only + desktop-only (CDP required for reliable timing)
     if (profile !== 'desktop' || engine !== E.Chrome) return empty;
-    const wt = WALKTHROUGHS.find(w => w.app === entry.app);
-    if (!wt) return empty;
+    const matches = WALKTHROUGHS.filter(w => w.app === entry.app);
+    if (matches.length === 0) return empty;
 
-    const times: number[] = [];
+    const durationMs = dryRun ? 5_000 : 60_000;
+    const allMetrics: Partial<Record<MetricKey, number | null>> = {};
+    const allSampleCounts: Partial<Record<MetricKey, number>> = {};
     const jsHeapSamples: number[] = [];
     const wasmMemorySamples: number[] = [];
-    for (let i = 0; i < warmRuns; i++) {
-        if (verbose) debug(`${wt.metric} ${i + 1}/${warmRuns}...`);
-        const t = await wt.fn(page, pageUrl, timeout, verbose);
-        times.push(t);
-        if (verbose) debug(`${wt.metric} ${i + 1}/${warmRuns}: ${t}ms`);
 
-        // Sample JS heap and WASM linear memory after each walkthrough run
-        if (cdp) {
+    for (const wt of matches) {
+        const runs = wt.runs ?? defaultRuns;
+        const times: number[] = [];
+        for (let i = 0; i < runs; i++) {
+            if (verbose) debug(`${wt.metric} ${i + 1}/${runs}...`);
+            const t = await wt.fn({ page, url: pageUrl, timeout, verbose, durationMs });
+            times.push(t);
+            if (verbose) debug(`${wt.metric} ${i + 1}/${runs}: ${t}`);
+
+            // Sample JS heap and WASM linear memory after each walkthrough run
+            if (cdp) {
+                try {
+                    const perfMetrics = await cdp.client.send('Performance.getMetrics');
+                    const heapUsed = perfMetrics.metrics.find(
+                        (m: { name: string; value: number }) => m.name === 'JSHeapUsedSize',
+                    );
+                    if (heapUsed) jsHeapSamples.push(heapUsed.value);
+                } catch { /* ignore */ }
+            }
             try {
-                const perfMetrics = await cdp.client.send('Performance.getMetrics');
-                const heapUsed = perfMetrics.metrics.find(
-                    (m: { name: string; value: number }) => m.name === 'JSHeapUsedSize',
+                const wasmBytes = await page.evaluate(
+                    () => (globalThis as any).getDotnetRuntime(0)?.Module?.HEAPU8?.byteLength ?? null,
                 );
-                if (heapUsed) jsHeapSamples.push(heapUsed.value);
+                if (wasmBytes != null) wasmMemorySamples.push(wasmBytes);
             } catch { /* ignore */ }
         }
-        try {
-            const wasmBytes = await page.evaluate(
-                () => (globalThis as any).getDotnetRuntime(0)?.Module?.HEAPU8?.byteLength ?? null,
-            );
-            if (wasmBytes != null) wasmMemorySamples.push(wasmBytes);
-        } catch { /* ignore */ }
+        const iqm = sortedIQM(times);
+        const rounded = iqm != null ? Math.round(iqm) : null;
+        if (verbose) {
+            debug(`${wt.metric} values: [${times.join(', ')}] → iqm=${rounded}`);
+        }
+        allMetrics[wt.metric] = rounded;
+        allSampleCounts[wt.metric] = times.length;
     }
-    const iqm = sortedIQM(times);
-    const rounded = iqm != null ? Math.round(iqm) : null;
+
     if (verbose) {
-        debug(`${wt.metric} times: [${times.join(', ')}] → iqm=${rounded}ms`);
         if (jsHeapSamples.length > 0) debug(`Post-walkthrough JS heap samples: [${jsHeapSamples.join(', ')}] → avgTop3=${avgOfTopN(jsHeapSamples)}`);
         if (wasmMemorySamples.length > 0) debug(`Post-walkthrough WASM memory samples: [${wasmMemorySamples.join(', ')}] → avgTop3=${avgOfTopN(wasmMemorySamples)}`);
     }
     return {
-        metrics: { [wt.metric]: rounded },
-        sampleCounts: { [wt.metric]: times.length },
+        metrics: allMetrics,
+        sampleCounts: allSampleCounts,
         jsHeapSamples,
         wasmMemorySamples,
     };
@@ -587,6 +603,7 @@ async function runBrowserSession(
     warmRuns: number,
     timeout: number,
     verbose: boolean,
+    dryRun: boolean,
     srv: StaticServer,
 ): Promise<MetricsResult> {
     const context = await browser.newContext();
@@ -662,7 +679,7 @@ async function runBrowserSession(
 
     // Walkthroughs (external apps only)
     const walkthroughResult = !isInternal
-        ? await runWalkthroughs(page, pageUrl, entry, engine, profile, warmRuns, timeout, verbose, cdp)
+        ? await runWalkthroughs(page, pageUrl, entry, engine, profile, warmRuns, timeout, verbose, dryRun, cdp)
         : { metrics: {}, sampleCounts: {}, jsHeapSamples: [] as number[], wasmMemorySamples: [] as number[] };
     const walkthroughMetrics = walkthroughResult.metrics;
     const walkthroughSampleCounts = walkthroughResult.sampleCounts;
@@ -787,7 +804,7 @@ async function measureBrowser(
                 const result = await runBrowserSession(
                     browser, pageUrl, entry, engine, profile,
                     compileTime, fileSizes, isInternal, useCDP,
-                    warmRuns, timeout, ctx.verbose, srv,
+                    warmRuns, timeout, ctx.verbose, ctx.dryRun, srv,
                 );
                 await browser.close();
                 return result;

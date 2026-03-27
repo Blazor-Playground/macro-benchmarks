@@ -47,6 +47,10 @@ export const METRIC_UNITS: Record<string, string> = {
     'pizza-walkthrough': 'ms',
     'havit-walkthrough': 'ms',
     'mud-walkthrough': 'ms',
+    'uno-walkthrough': 'ms',
+    'semi-walkthrough': 'ms',
+    'counter-per-minute': 'count',
+    'virtual-scroll-per-minute': 'count',
     'js-interop-ops': 'ops/sec',
     'json-parse-ops': 'ops/sec',
     'exception-ops': 'ops/sec',
@@ -73,6 +77,8 @@ export const METRIC_DISPLAY: Record<string, string> = {
     'mud-walkthrough': 'MudBlazor Walkthrough',
     'uno-walkthrough': 'Uno Gallery Walkthrough',
     'semi-walkthrough': 'Semi Avalonia Walkthrough',
+    'counter-per-minute': 'Counter clicks/min',
+    'virtual-scroll-per-minute': 'Virtual scroll/min',
     'js-interop-ops': 'JS Interop',
     'json-parse-ops': 'JSON Parse',
     'exception-ops': 'Exception Handling',
@@ -86,6 +92,7 @@ export const BUILD_METRICS = new Set([
 // Walkthrough metrics are only collected for chrome/desktop
 export const WALKTHROUGH_METRICS = new Set([
     'pizza-walkthrough', 'havit-walkthrough', 'mud-walkthrough', 'uno-walkthrough', 'semi-walkthrough',
+    'counter-per-minute', 'virtual-scroll-per-minute',
 ]);
 
 // Metrics to skip for micro-benchmarks (not meaningful for internal throughput tests)

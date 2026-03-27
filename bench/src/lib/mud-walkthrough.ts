@@ -9,6 +9,7 @@
  */
 
 import { debug } from '../log.js';
+import { type WalkthroughOpts } from './walkthrough-types.js';
 
 // Minimal Playwright Page type surface used by the walkthrough
 type PlaywrightPage = {
@@ -274,13 +275,8 @@ const browserMudWalkthrough = (args: unknown): Promise<number> => {
  * browser via a single page.evaluate() to avoid measuring Playwright
  * communication overhead. Returns wall-clock duration in ms.
  */
-export async function runMudWalkthrough(
-    page: PlaywrightPage,
-    url: string,
-    timeout: number,
-    verbose = false,
-): Promise<number> {
-    const t = timeout;
+export async function runMudWalkthrough(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    const { page, url, timeout: t, verbose = false } = opts;
     const log = verbose ? (msg: string) => debug(`Mud: ${msg}`) : () => { };
     const dialogHandler = (dialog: unknown) => {
         void (dialog as { accept: () => Promise<void> }).accept().catch((err: unknown) => {

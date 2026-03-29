@@ -800,6 +800,8 @@ async function measureBrowser(
                     '--enable-unsafe-swiftshader',
                     '--use-gl=angle',
                     '--use-angle=swiftshader',
+                    '--disable-gpu-vsync',
+                    '--disable-frame-rate-limit',
                     '--enable-webgl',
                     '--ignore-gpu-blocklist',
                     '--no-sandbox',

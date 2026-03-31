@@ -20,9 +20,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T08:03:49.583Z",
-      "ciRunId": "23332701262",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23332701262"
+      "benchmarkDateTime": "2026-03-30T10:26:54.031Z",
+      "ciRunId": "23737186297",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23737186297"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26162.108",
@@ -44,9 +44,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T07:50:52.226Z",
-      "ciRunId": "23332368901",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23332368901"
+      "benchmarkDateTime": "2026-03-30T10:05:05.337Z",
+      "ciRunId": "23736909168",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23736909168"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26162.121",
@@ -68,9 +68,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T07:22:09.910Z",
-      "ciRunId": "23331707054",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23331707054"
+      "benchmarkDateTime": "2026-03-30T09:41:09.556Z",
+      "ciRunId": "23735756805",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23735756805"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26163.101",
@@ -92,9 +92,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T06:52:12.853Z",
-      "ciRunId": "23330850253",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23330850253"
+      "benchmarkDateTime": "2026-03-30T08:53:34.182Z",
+      "ciRunId": "23733800594",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23733800594"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26163.109",
@@ -116,9 +116,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T06:47:15.681Z",
-      "ciRunId": "23330835292",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23330835292"
+      "benchmarkDateTime": "2026-03-30T08:45:06.708Z",
+      "ciRunId": "23733725674",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23733725674"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26163.115",
@@ -140,9 +140,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T06:33:19.830Z",
-      "ciRunId": "23330583807",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23330583807"
+      "benchmarkDateTime": "2026-03-30T08:23:41.654Z",
+      "ciRunId": "23733030035",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23733030035"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26164.101",
@@ -164,33 +164,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T05:22:03.353Z",
-      "ciRunId": "23329002708",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23329002708"
-    },
-    {
-      "sdkVersion": "11.0.100-preview.3.26165.107",
-      "runtimeGitHash": "8cf2e90c41f50c41d49698b3e37598f96bff9be0",
-      "aspnetCoreGitHash": "f8410f812a2a76401468a78a4f776586c3af498c",
-      "sdkGitHash": "9cd9ee7618877c277db7c78705c04b244745481d",
-      "vmrGitHash": "5ff448a6425ec6980e08b5c9a35e454c8a843c35",
-      "runtimeCommitDateTime": "2026-03-14T00:22:22Z",
-      "runtimeCommitAuthor": "Levi Broderick",
-      "runtimeCommitMessage": "Exclude noisy crypto rules from the repo's CodeQL runs (#125364)",
-      "aspnetCoreCommitDateTime": "2026-03-13T19:32:44Z",
-      "aspnetCoreVersion": "11.0.0-preview.3.26165.107",
-      "runtimePackVersion": "11.0.0-preview.3.26165.107",
-      "workloadVersion": "11.0.100-preview.3.26165.107",
-      "bootstrapSdkVersion": "11.0.100-preview.3.26161.119",
-      "releaseDate": "2026-03-15",
-      "major": 11,
-      "minor": 0,
-      "patch": 100,
-      "channel": "11.0",
-      "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T02:55:05.349Z",
-      "ciRunId": "23325766652",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23325766652"
+      "benchmarkDateTime": "2026-03-30T08:20:12.723Z",
+      "ciRunId": "23732492998",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23732492998"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26166.101",
@@ -212,9 +188,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T01:35:27.982Z",
-      "ciRunId": "23323934750",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23323934750"
+      "benchmarkDateTime": "2026-03-30T06:46:32.290Z",
+      "ciRunId": "23729928943",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23729928943"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26166.106",
@@ -236,9 +212,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T00:26:36.183Z",
-      "ciRunId": "23321886522",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23321886522"
+      "benchmarkDateTime": "2026-03-30T05:39:00.450Z",
+      "ciRunId": "23728162789",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23728162789"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26166.111",
@@ -260,33 +236,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-19T23:19:52.398Z",
-      "ciRunId": "23319554340",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23319554340"
-    },
-    {
-      "sdkVersion": "11.0.100-preview.3.26167.112",
-      "runtimeGitHash": "c38f37a3a1c39ca921fe156d472990d259977f6f",
-      "aspnetCoreGitHash": "773e0c2b8690e13166da211ca08f8b0507fd9f82",
-      "sdkGitHash": "31f158e4da31a48ca3f9a3db7c01dc975064d560",
-      "vmrGitHash": "a6a5ddf95840f305b42bd43a8d30b062f9b67d1f",
-      "runtimeCommitDateTime": "2026-03-15T14:23:53Z",
-      "runtimeCommitAuthor": "Stephen Toub",
-      "runtimeCommitMessage": "Remove unnecessary volatile from fields in Libraries (#125274)",
-      "aspnetCoreCommitDateTime": "2026-03-16T01:04:10Z",
-      "aspnetCoreVersion": "11.0.0-preview.3.26167.112",
-      "runtimePackVersion": "11.0.0-preview.3.26167.112",
-      "workloadVersion": "11.0.100-preview.3.26167.112",
-      "bootstrapSdkVersion": "11.0.100-preview.3.26161.119",
-      "releaseDate": "2026-03-17",
-      "major": 11,
-      "minor": 0,
-      "patch": 100,
-      "channel": "11.0",
-      "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-19T22:02:04.025Z",
-      "ciRunId": "23316784737",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23316784737"
+      "benchmarkDateTime": "2026-03-30T05:31:20.541Z",
+      "ciRunId": "23727842492",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23727842492"
     }
   ],
   "apps": {
@@ -307,7 +259,14 @@
       "wasm-memory-size"
     ],
     "empty-blazor": [
+      "blazor-cs-to-js-json",
+      "blazor-cs-to-js-number",
+      "blazor-cs-to-js-string",
+      "blazor-js-to-cs-json",
+      "blazor-js-to-cs-number",
+      "blazor-js-to-cs-string",
       "compile-time",
+      "counter-per-second",
       "disk-size-assemblies",
       "disk-size-native",
       "download-size-cold",
@@ -319,6 +278,7 @@
       "time-to-create-dotnet-warm",
       "time-to-reach-managed-cold",
       "time-to-reach-managed-warm",
+      "virtual-scroll-per-second",
       "wasm-memory-size"
     ],
     "empty-browser": [

@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-22T06:27:52.233Z",
+  "lastUpdated": "2026-03-30T16:57:28.836Z",
   "activeRelease": "net11",
   "releases": [
     "net8",
@@ -7,15 +7,11 @@
     "net10"
   ],
   "weeks": [
+    "2026-03-23",
     "2026-03-16",
     "2026-03-09",
     "2026-03-02",
-    "2026-02-23",
-    "2026-02-16",
-    "2026-02-09",
-    "2026-02-02",
-    "2026-01-26",
-    "2026-01-19"
+    "2026-02-23"
   ],
   "apps": [
     "blazing-pizza",
@@ -45,6 +41,29 @@
       "wasm-memory-size"
     ],
     "empty-blazor": [
+      "blazor-cs-to-js-json",
+      "blazor-cs-to-js-number",
+      "blazor-cs-to-js-string",
+      "blazor-js-to-cs-json",
+      "blazor-js-to-cs-number",
+      "blazor-js-to-cs-string",
+      "compile-time",
+      "counter-per-second",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-cold",
+      "download-size-warm",
+      "memory-peak",
+      "server-requests-cold",
+      "server-requests-warm",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "virtual-scroll-per-second",
+      "wasm-memory-size"
+    ],
+    "empty-browser": [
       "compile-time",
       "disk-size-assemblies",
       "disk-size-native",
@@ -55,6 +74,8 @@
       "server-requests-warm",
       "time-to-create-dotnet-cold",
       "time-to-create-dotnet-warm",
+      "time-to-exit-cold",
+      "time-to-exit-warm",
       "time-to-reach-managed-cold",
       "time-to-reach-managed-warm",
       "wasm-memory-size"
@@ -129,23 +150,6 @@
       "server-requests-warm",
       "time-to-create-dotnet-cold",
       "time-to-create-dotnet-warm",
-      "time-to-reach-managed-cold",
-      "time-to-reach-managed-warm",
-      "wasm-memory-size"
-    ],
-    "empty-browser": [
-      "compile-time",
-      "disk-size-assemblies",
-      "disk-size-native",
-      "download-size-cold",
-      "download-size-warm",
-      "memory-peak",
-      "server-requests-cold",
-      "server-requests-warm",
-      "time-to-create-dotnet-cold",
-      "time-to-create-dotnet-warm",
-      "time-to-exit-cold",
-      "time-to-exit-warm",
       "time-to-reach-managed-cold",
       "time-to-reach-managed-warm",
       "wasm-memory-size"

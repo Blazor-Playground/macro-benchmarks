@@ -6,15 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-    <script type="text/javascript" src="/package_4554b69dce7a7239afca2269d98161f5f5c3ea8f/require.js"></script>
-    <script type="module" src="/package_4554b69dce7a7239afca2269d98161f5f5c3ea8f/uno-bootstrap.js"></script>
-    <link rel="stylesheet" type="text/css" href="/package_4554b69dce7a7239afca2269d98161f5f5c3ea8f/normalize.css" />
-<link rel="stylesheet" type="text/css" href="/package_4554b69dce7a7239afca2269d98161f5f5c3ea8f/uno-bootstrap.css" />
-<link rel="stylesheet" type="text/css" href="/package_4554b69dce7a7239afca2269d98161f5f5c3ea8f/uno.css" />
-<link rel="stylesheet" type="text/css" href="/package_4554b69dce7a7239afca2269d98161f5f5c3ea8f/Fonts.css" />
+    <script type="text/javascript" src="./package_63ca97fb6c0130c48c11b6e0cd2db8a290d186e8/require.js"></script>
+    <script type="module" src="./package_63ca97fb6c0130c48c11b6e0cd2db8a290d186e8/uno-bootstrap.js"></script>
+    <link rel="stylesheet" type="text/css" href="./package_63ca97fb6c0130c48c11b6e0cd2db8a290d186e8/normalize.css" />
+<link rel="stylesheet" type="text/css" href="./package_63ca97fb6c0130c48c11b6e0cd2db8a290d186e8/uno-bootstrap.css" />
+<link rel="stylesheet" type="text/css" href="./package_63ca97fb6c0130c48c11b6e0cd2db8a290d186e8/uno.css" />
+<link rel="stylesheet" type="text/css" href="./package_63ca97fb6c0130c48c11b6e0cd2db8a290d186e8/Fonts.css" />
     
     <script type='module'>
         globalThis.js_loaded = performance.now();
+        globalThis.onConsole = [];
+        globalThis.console.logOriginal = globalThis.console.log;
+        globalThis.console.log = (...args) => {
+            for (const handler of globalThis.onConsole) {
+                handler(...args);
+            }
+            globalThis.console.logOriginal(...args);
+        };
     </script>
 </head>
 

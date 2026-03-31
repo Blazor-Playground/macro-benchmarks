@@ -1,78 +1,6 @@
 {
   "columns": [
     {
-      "sdkVersion": "11.0.100-preview.3.26126.114",
-      "runtimeGitHash": "133c7bde3fb7dd914f423ffb3e408cc61787e0bb",
-      "aspnetCoreGitHash": "eec80e1c63963802a215d58b3907d6e46090fc28",
-      "sdkGitHash": "e90c4413024970eca97d05122243737aa207af11",
-      "vmrGitHash": "9cab7cc4343eedeb72a720a0a9d6d536e9bb8ecd",
-      "runtimeCommitDateTime": "2026-02-26T00:36:40Z",
-      "runtimeCommitAuthor": "Alan Hayward",
-      "runtimeCommitMessage": "Arm64: Add SM4 and SHA3 instructions (#124504)",
-      "aspnetCoreCommitDateTime": "2026-02-24T20:58:11Z",
-      "aspnetCoreVersion": "11.0.0-preview.3.26126.114",
-      "runtimePackVersion": "11.0.0-preview.3.26126.114",
-      "workloadVersion": "11.0.100-preview.3.26126.114",
-      "bootstrapSdkVersion": "11.0.100-preview.1.26104.118",
-      "releaseDate": "2026-02-26",
-      "major": 11,
-      "minor": 0,
-      "patch": 100,
-      "channel": "11.0",
-      "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T14:17:22.364Z",
-      "ciRunId": "23344543663",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23344543663"
-    },
-    {
-      "sdkVersion": "11.0.100-preview.3.26127.101",
-      "runtimeGitHash": "133c7bde3fb7dd914f423ffb3e408cc61787e0bb",
-      "aspnetCoreGitHash": "eec80e1c63963802a215d58b3907d6e46090fc28",
-      "sdkGitHash": "e90c4413024970eca97d05122243737aa207af11",
-      "vmrGitHash": "29e27492f3c22a11530e45fcf3707987125b7edf",
-      "runtimeCommitDateTime": "2026-02-26T00:36:40Z",
-      "runtimeCommitAuthor": "Alan Hayward",
-      "runtimeCommitMessage": "Arm64: Add SM4 and SHA3 instructions (#124504)",
-      "aspnetCoreCommitDateTime": "2026-02-24T20:58:11Z",
-      "aspnetCoreVersion": "11.0.0-preview.3.26127.101",
-      "runtimePackVersion": "11.0.0-preview.3.26127.101",
-      "workloadVersion": "11.0.100-preview.3.26127.101",
-      "bootstrapSdkVersion": "11.0.100-preview.1.26104.118",
-      "releaseDate": "2026-02-27",
-      "major": 11,
-      "minor": 0,
-      "patch": 100,
-      "channel": "11.0",
-      "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T14:12:30.990Z",
-      "ciRunId": "23344445073",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23344445073"
-    },
-    {
-      "sdkVersion": "11.0.100-preview.3.26127.120",
-      "runtimeGitHash": "7b677795021892ab4506cd8f05e3ac5a8ea0ffc5",
-      "aspnetCoreGitHash": "8dc0b08f3cc5ad2acacb242745b68bf52257a63d",
-      "sdkGitHash": "e90c4413024970eca97d05122243737aa207af11",
-      "vmrGitHash": "e95736fe223fcbea38c903fae50e0dcfd07daf99",
-      "runtimeCommitDateTime": "2026-02-27T09:00:48Z",
-      "runtimeCommitAuthor": "Pavel Savara",
-      "runtimeCommitMessage": "[browser] Webcil alignment (#124905)",
-      "aspnetCoreCommitDateTime": "2026-02-27T00:26:10Z",
-      "aspnetCoreVersion": "11.0.0-preview.3.26127.120",
-      "runtimePackVersion": "11.0.0-preview.3.26127.120",
-      "workloadVersion": "11.0.100-preview.3.26127.120",
-      "bootstrapSdkVersion": "11.0.100-preview.1.26104.118",
-      "releaseDate": "2026-02-27",
-      "major": 11,
-      "minor": 0,
-      "patch": 100,
-      "channel": "11.0",
-      "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T13:33:04.989Z",
-      "ciRunId": "23343163570",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23343163570"
-    },
-    {
       "sdkVersion": "11.0.100-preview.2.26159.112",
       "runtimeGitHash": "68d697a4971a0f3ceb4ae7fed51ce3b244018c36",
       "aspnetCoreGitHash": "552df3085ec12b38fc5e6620dc6fc8b352dfe5d5",
@@ -92,33 +20,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T20:30:16.999Z",
-      "ciRunId": "23359443536",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23359443536"
-    },
-    {
-      "sdkVersion": "11.0.100-preview.3.26128.103",
-      "runtimeGitHash": "d7362ecd2500f0536b4a162d469575494b36390f",
-      "aspnetCoreGitHash": "8dc0b08f3cc5ad2acacb242745b68bf52257a63d",
-      "sdkGitHash": "e90c4413024970eca97d05122243737aa207af11",
-      "vmrGitHash": "9125b1394d3efb03c42d9120f9eb36325e5f80b7",
-      "runtimeCommitDateTime": "2026-02-27T22:08:43Z",
-      "runtimeCommitAuthor": "Andy Ayers",
-      "runtimeCommitMessage": "Cleanup flowgraph files (#124882)",
-      "aspnetCoreCommitDateTime": "2026-02-27T00:26:10Z",
-      "aspnetCoreVersion": "11.0.0-preview.3.26128.103",
-      "runtimePackVersion": "11.0.0-preview.3.26128.103",
-      "workloadVersion": "11.0.100-preview.3.26128.103",
-      "bootstrapSdkVersion": "11.0.100-preview.1.26104.118",
-      "releaseDate": "2026-02-28",
-      "major": 11,
-      "minor": 0,
-      "patch": 100,
-      "channel": "11.0",
-      "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T13:09:30.966Z",
-      "ciRunId": "23342177847",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23342177847"
+      "benchmarkDateTime": "2026-03-30T15:46:44.442Z",
+      "ciRunId": "23751052354",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23751052354"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26151.102",
@@ -140,9 +44,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T12:58:11.160Z",
-      "ciRunId": "23341745654",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23341745654"
+      "benchmarkDateTime": "2026-03-30T14:48:47.037Z",
+      "ciRunId": "23746673305",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23746673305"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26151.104",
@@ -164,9 +68,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T12:25:03.410Z",
-      "ciRunId": "23340589879",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23340589879"
+      "benchmarkDateTime": "2026-03-30T14:38:48.247Z",
+      "ciRunId": "23746420846",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23746420846"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26152.106",
@@ -188,9 +92,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T11:54:03.573Z",
-      "ciRunId": "23339707023",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23339707023"
+      "benchmarkDateTime": "2026-03-30T14:32:46.867Z",
+      "ciRunId": "23746086723",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23746086723"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26153.109",
@@ -212,9 +116,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T11:48:37.208Z",
-      "ciRunId": "23339435555",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23339435555"
+      "benchmarkDateTime": "2026-03-30T14:18:04.822Z",
+      "ciRunId": "23745424138",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23745424138"
     },
     {
       "sdkVersion": "11.0.100-preview.3.26153.117",
@@ -236,9 +140,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-20T11:37:31.156Z",
-      "ciRunId": "23339290310",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23339290310"
+      "benchmarkDateTime": "2026-03-30T13:43:52.947Z",
+      "ciRunId": "23745403727",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23745403727"
     }
   ],
   "apps": {
@@ -259,7 +163,14 @@
       "wasm-memory-size"
     ],
     "empty-blazor": [
+      "blazor-cs-to-js-json",
+      "blazor-cs-to-js-number",
+      "blazor-cs-to-js-string",
+      "blazor-js-to-cs-json",
+      "blazor-js-to-cs-number",
+      "blazor-js-to-cs-string",
       "compile-time",
+      "counter-per-second",
       "disk-size-assemblies",
       "disk-size-native",
       "download-size-cold",
@@ -271,6 +182,7 @@
       "time-to-create-dotnet-warm",
       "time-to-reach-managed-cold",
       "time-to-reach-managed-warm",
+      "virtual-scroll-per-second",
       "wasm-memory-size"
     ],
     "empty-browser": [

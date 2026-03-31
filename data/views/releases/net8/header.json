@@ -20,9 +20,9 @@
       "patch": 100,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T12:29:07.996Z",
-      "ciRunId": "23293966406",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23293966406"
+      "benchmarkDateTime": "2026-03-29T19:14:45.733Z",
+      "ciRunId": "23716392635",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23716392635"
     },
     {
       "sdkVersion": "8.0.101",
@@ -44,9 +44,9 @@
       "patch": 101,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T12:59:32.769Z",
-      "ciRunId": "23295078625",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23295078625"
+      "benchmarkDateTime": "2026-03-29T19:53:13.756Z",
+      "ciRunId": "23717027260",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23717027260"
     },
     {
       "sdkVersion": "8.0.201",
@@ -68,9 +68,9 @@
       "patch": 201,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T13:32:39.526Z",
-      "ciRunId": "23296373721",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23296373721"
+      "benchmarkDateTime": "2026-03-29T20:37:20.918Z",
+      "ciRunId": "23717999173",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23717999173"
     },
     {
       "sdkVersion": "8.0.203",
@@ -92,9 +92,9 @@
       "patch": 203,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T14:06:25.507Z",
-      "ciRunId": "23297683274",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23297683274"
+      "benchmarkDateTime": "2026-03-29T21:22:47.348Z",
+      "ciRunId": "23718665709",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23718665709"
     },
     {
       "sdkVersion": "8.0.204",
@@ -116,9 +116,9 @@
       "patch": 204,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T14:37:34.491Z",
-      "ciRunId": "23299154159",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23299154159"
+      "benchmarkDateTime": "2026-03-29T22:17:11.602Z",
+      "ciRunId": "23719816491",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23719816491"
     },
     {
       "sdkVersion": "8.0.300",
@@ -140,9 +140,9 @@
       "patch": 300,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T15:07:19.337Z",
-      "ciRunId": "23300552031",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23300552031"
+      "benchmarkDateTime": "2026-03-29T22:53:57.491Z",
+      "ciRunId": "23720506266",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23720506266"
     },
     {
       "sdkVersion": "8.0.302",
@@ -164,9 +164,9 @@
       "patch": 302,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T15:39:40.110Z",
-      "ciRunId": "23302023135",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23302023135"
+      "benchmarkDateTime": "2026-03-29T23:52:13.973Z",
+      "ciRunId": "23721557912",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23721557912"
     },
     {
       "sdkVersion": "8.0.303",
@@ -188,9 +188,9 @@
       "patch": 303,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T16:18:20.383Z",
-      "ciRunId": "23303603833",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23303603833"
+      "benchmarkDateTime": "2026-03-30T00:27:44.484Z",
+      "ciRunId": "23722198700",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23722198700"
     },
     {
       "sdkVersion": "8.0.402",
@@ -212,9 +212,9 @@
       "patch": 402,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T16:50:40.415Z",
-      "ciRunId": "23305200792",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23305200792"
+      "benchmarkDateTime": "2026-03-30T01:39:45.489Z",
+      "ciRunId": "23723506605",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23723506605"
     },
     {
       "sdkVersion": "8.0.403",
@@ -236,9 +236,9 @@
       "patch": 403,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T17:22:45.746Z",
-      "ciRunId": "23306719800",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23306719800"
+      "benchmarkDateTime": "2026-03-30T02:29:04.437Z",
+      "ciRunId": "23724435554",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23724435554"
     },
     {
       "sdkVersion": "8.0.404",
@@ -260,9 +260,9 @@
       "patch": 404,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T17:56:51.264Z",
-      "ciRunId": "23308147876",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23308147876"
+      "benchmarkDateTime": "2026-03-30T03:06:46.581Z",
+      "ciRunId": "23725542469",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23725542469"
     },
     {
       "sdkVersion": "8.0.405",
@@ -284,9 +284,9 @@
       "patch": 405,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T18:28:41.610Z",
-      "ciRunId": "23309526888",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23309526888"
+      "benchmarkDateTime": "2026-03-30T03:47:03.282Z",
+      "ciRunId": "23726335979",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23726335979"
     },
     {
       "sdkVersion": "8.0.406",
@@ -308,9 +308,9 @@
       "patch": 406,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T20:07:06.344Z",
-      "ciRunId": "23313402669",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23313402669"
+      "benchmarkDateTime": "2026-03-30T04:40:40.852Z",
+      "ciRunId": "23727409544",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23727409544"
     },
     {
       "sdkVersion": "8.0.407",
@@ -332,9 +332,9 @@
       "patch": 407,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T19:30:47.804Z",
-      "ciRunId": "23312170928",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23312170928"
+      "benchmarkDateTime": "2026-03-30T05:18:31.137Z",
+      "ciRunId": "23728374002",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23728374002"
     },
     {
       "sdkVersion": "8.0.408",
@@ -356,9 +356,9 @@
       "patch": 408,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T21:02:50.380Z",
-      "ciRunId": "23314781293",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23314781293"
+      "benchmarkDateTime": "2026-03-30T06:15:09.145Z",
+      "ciRunId": "23729904107",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23729904107"
     },
     {
       "sdkVersion": "8.0.410",
@@ -380,9 +380,9 @@
       "patch": 410,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T21:36:41.007Z",
-      "ciRunId": "23316982392",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23316982392"
+      "benchmarkDateTime": "2026-03-30T06:53:59.714Z",
+      "ciRunId": "23730891086",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23730891086"
     },
     {
       "sdkVersion": "8.0.411",
@@ -404,9 +404,9 @@
       "patch": 411,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T22:09:50.098Z",
-      "ciRunId": "23318243086",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23318243086"
+      "benchmarkDateTime": "2026-03-30T07:47:34.717Z",
+      "ciRunId": "23732483325",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23732483325"
     },
     {
       "sdkVersion": "8.0.412",
@@ -428,9 +428,9 @@
       "patch": 412,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T22:46:53.741Z",
-      "ciRunId": "23319549277",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23319549277"
+      "benchmarkDateTime": "2026-03-30T08:34:32.142Z",
+      "ciRunId": "23734050893",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23734050893"
     },
     {
       "sdkVersion": "8.0.413",
@@ -452,9 +452,9 @@
       "patch": 413,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T23:20:28.865Z",
-      "ciRunId": "23320736117",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23320736117"
+      "benchmarkDateTime": "2026-03-30T09:25:34.876Z",
+      "ciRunId": "23735905195",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23735905195"
     },
     {
       "sdkVersion": "8.0.414",
@@ -476,9 +476,9 @@
       "patch": 414,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-19T23:53:41.316Z",
-      "ciRunId": "23321834412",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23321834412"
+      "benchmarkDateTime": "2026-03-30T10:20:14.755Z",
+      "ciRunId": "23738288470",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23738288470"
     },
     {
       "sdkVersion": "8.0.415",
@@ -500,9 +500,9 @@
       "patch": 415,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-20T00:29:52.320Z",
-      "ciRunId": "23322814974",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23322814974"
+      "benchmarkDateTime": "2026-03-30T11:20:20.008Z",
+      "ciRunId": "23740948756",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23740948756"
     },
     {
       "sdkVersion": "8.0.416",
@@ -524,9 +524,9 @@
       "patch": 416,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-20T01:06:29.577Z",
-      "ciRunId": "23323847143",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23323847143"
+      "benchmarkDateTime": "2026-03-30T12:28:36.719Z",
+      "ciRunId": "23742367153",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23742367153"
     },
     {
       "sdkVersion": "8.0.417",
@@ -548,9 +548,9 @@
       "patch": 417,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-20T01:44:20.578Z",
-      "ciRunId": "23324732443",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23324732443"
+      "benchmarkDateTime": "2026-03-30T13:16:08.952Z",
+      "ciRunId": "23745409919",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23745409919"
     },
     {
       "sdkVersion": "8.0.418",
@@ -572,9 +572,9 @@
       "patch": 418,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-20T02:16:00.844Z",
-      "ciRunId": "23325606777",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23325606777"
+      "benchmarkDateTime": "2026-03-30T14:23:38.140Z",
+      "ciRunId": "23747098011",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23747098011"
     },
     {
       "sdkVersion": "8.0.419",
@@ -596,9 +596,9 @@
       "patch": 419,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-20T02:50:47.263Z",
-      "ciRunId": "23326397310",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23326397310"
+      "benchmarkDateTime": "2026-03-30T15:17:58.014Z",
+      "ciRunId": "23751080670",
+      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23751080670"
     }
   ],
   "apps": {
@@ -619,7 +619,14 @@
       "wasm-memory-size"
     ],
     "empty-blazor": [
+      "blazor-cs-to-js-json",
+      "blazor-cs-to-js-number",
+      "blazor-cs-to-js-string",
+      "blazor-js-to-cs-json",
+      "blazor-js-to-cs-number",
+      "blazor-js-to-cs-string",
       "compile-time",
+      "counter-per-second",
       "disk-size-assemblies",
       "disk-size-native",
       "download-size-cold",
@@ -631,6 +638,7 @@
       "time-to-create-dotnet-warm",
       "time-to-reach-managed-cold",
       "time-to-reach-managed-warm",
+      "virtual-scroll-per-second",
       "wasm-memory-size"
     ],
     "empty-browser": [

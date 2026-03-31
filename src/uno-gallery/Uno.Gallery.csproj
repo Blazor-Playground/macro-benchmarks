@@ -25,9 +25,7 @@
     <DefineConstants>$(DefineConstants);IS_WASM_SKIA</DefineConstants>
     <DefineConstants>$(DefineConstants);HAS_SKIA_RENDERER</DefineConstants>
     <DefineConstants>$(DefineConstants);__WASM__</DefineConstants>
-    <!--
-    <WasmShellWebAppBasePath>/</WasmShellWebAppBasePath>
-    -->
+    <WasmShellWebAppBasePath>./</WasmShellWebAppBasePath>
     <WasmShellIndexHtmlPath>wwwroot/index.html</WasmShellIndexHtmlPath>
   </PropertyGroup>
   <ItemGroup>

@@ -123,7 +123,7 @@ jobs:
         shell: bash
         run: |
           npx --prefix bench tsx bench/src/main.ts \
-            --stages check-out-tracking,download-sdk,build,deploy-latest-app \
+            --stages check-out-tracking,download-sdk,build \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
             --runtime mono \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}

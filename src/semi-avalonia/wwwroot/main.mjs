@@ -18,6 +18,15 @@ function setManagedReady() {
 }
 
 async function outer() {
+    globalThis.onConsole = [];
+    globalThis.console.logOriginal = globalThis.console.log;
+    globalThis.console.log = (...args) => {
+        for (const handler of globalThis.onConsole) {
+            handler(...args);
+        }
+        globalThis.console.logOriginal(...args);
+    };
+
     globalThis.js_loaded = performance.now();
 
     const { setModuleImports, runMain } = await dotnet

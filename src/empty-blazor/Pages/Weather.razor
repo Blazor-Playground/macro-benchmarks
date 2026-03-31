@@ -1,5 +1,6 @@
 ﻿@page "/weather"
-@inject HttpClient Http
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <PageTitle>Weather</PageTitle>
 
@@ -13,35 +14,199 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th aria-label="Temperature in Celsius">Temp. (C)</th>
-                <th aria-label="Temperature in Fahrenheit">Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
+    <div style="height:500px;overflow-y:auto" data-testid="weather-scroll-container" tabindex="0">
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
+                    <th>Date</th>
+                    <th aria-label="Temperature in Celsius">Temp. (C)</th>
+                    <th aria-label="Temperature in Fahrenheit">Temp. (F)</th>
+                    <th>Summary</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <Virtualize ItemsProvider="LoadForecasts" Context="forecast" OverscanCount="2">
+                    <tr>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.TemperatureF</td>
+                        <td>@forecast.Summary</td>
+                    </tr>
+                </Virtualize>
+            </tbody>
+        </table>
+    </div>
 }
 
 @code {
+    private static IJSRuntime? _jsRuntime;
+    private int renderCount = 0;
     private WeatherForecast[]? forecasts;
+    private IJSObjectReference? module;
+
+    private static readonly string[] Summaries = new[]
+    {
+        "Freezing", "Bracing", "Chilly", "Cool", "Mild",
+        "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+    };
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+        await Task.Yield();
+        var random = new Random(42);
+        var startDate = DateOnly.FromDateTime(DateTime.Now);
+        forecasts = new WeatherForecast[1000];
+        for (int i = 0; i < 1000; i++)
+        {
+            forecasts[i] = new WeatherForecast
+            {
+                Date = startDate.AddDays(i),
+                TemperatureC = random.Next(-20, 55),
+                Summary = Summaries[random.Next(Summaries.Length)]
+            };
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        renderCount++;
+        Console.WriteLine($"Weather component rendered. Render count: {renderCount}");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _jsRuntime = JS;
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./Pages/Weather.razor.js");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (module is not null)
+        {
+            await module.DisposeAsync();
+        }
+    }
+
+    private ValueTask<ItemsProviderResult<WeatherForecast>> LoadForecasts(ItemsProviderRequest request)
+    {
+        var items = forecasts!.Skip(request.StartIndex).Take(request.Count).ToArray();
+        Console.WriteLine($"Virtual scroll loaded items {request.StartIndex}-{request.StartIndex + items.Length}");
+        return ValueTask.FromResult(new ItemsProviderResult<WeatherForecast>(items, forecasts!.Length));
+    }
+
+    [Microsoft.JSInterop.JSInvokable]
+    public static Task<double> JSInvokableWithJson(int number, WeatherForecast[] forecasts)
+    {
+        var average = forecasts.Average(f => f.TemperatureC);
+        return Task.FromResult(number + average);
+    }
+
+    [Microsoft.JSInterop.JSInvokable]
+    public static Task<int> JSInvokableWithNumber(int number, long bigNumber, double decimalNumber)
+    {
+        return Task.FromResult(number * 2 + (int)bigNumber + (int)decimalNumber);
+    }
+
+    [Microsoft.JSInterop.JSInvokable]
+    public static Task<string> JSInvokableWithString(string value)
+    {
+        return Task.FromResult(value + value);
+    }
+
+    [Microsoft.JSInterop.JSInvokable]
+    public static async Task<CStoJSResults> BenchCsToJs(int ms)
+    {
+        var js = _jsRuntime ?? throw new InvalidOperationException("JSRuntime not initialized");
+        var results = new CStoJSResults();
+        int total = 0;
+        var deadline = DateTime.Now.AddMilliseconds(ms);
+        while (DateTime.Now < deadline)
+        {
+            var numberResult = await js.InvokeAsync<int>("csInvokableWithNumber", 42, 1234567890123456789, 3.14);
+            total += numberResult;
+            results.NumberCount++;
+        }
+        deadline = DateTime.Now.AddMilliseconds(ms);
+        while (DateTime.Now < deadline)
+        {
+            var value = await js.InvokeAsync<string>("csInvokableWithString", "test" + total);
+            total += value.Length;
+            results.StringCount++;
+        }
+        var sampleForecasts = new WeatherForecast[]
+        {
+            new WeatherForecast { Date = DateOnly.FromDateTime(DateTime.Now), TemperatureC = 20, Summary = "Mild" },
+            new WeatherForecast { Date = DateOnly.FromDateTime(DateTime.Now).AddDays(1), TemperatureC = 25, Summary = "Warm" },
+            new WeatherForecast { Date = DateOnly.FromDateTime(DateTime.Now).AddDays(2), TemperatureC = 30, Summary = "Hot" }
+        };
+        deadline = DateTime.Now.AddMilliseconds(ms);
+        while (DateTime.Now < deadline)
+        {
+            sampleForecasts[0].TemperatureC = total % 40 - 20;
+            sampleForecasts[0].Date = DateOnly.FromDateTime(deadline);
+            var average = await js.InvokeAsync<double>("csInvokableWithJson", 1, sampleForecasts);
+            total += (int)average;
+            results.JsonCount++;
+        }
+        return results;
+    }
+
+    [Microsoft.JSInterop.JSInvokable]
+    public static async Task<int> BenchCsToJsNumber(int ms)
+    {
+        var js = _jsRuntime ?? throw new InvalidOperationException("JSRuntime not initialized");
+        int count = 0;
+        var deadline = DateTime.Now.AddMilliseconds(ms);
+        while (DateTime.Now < deadline)
+        {
+            await js.InvokeAsync<int>("csInvokableWithNumber", 42, 1234567890123456789, 3.14);
+            count++;
+        }
+        return count;
+    }
+
+    [Microsoft.JSInterop.JSInvokable]
+    public static async Task<int> BenchCsToJsString(int ms)
+    {
+        var js = _jsRuntime ?? throw new InvalidOperationException("JSRuntime not initialized");
+        int count = 0;
+        var deadline = DateTime.Now.AddMilliseconds(ms);
+        while (DateTime.Now < deadline)
+        {
+            var s = await js.InvokeAsync<string>("csInvokableWithString", "test");
+            count++;
+        }
+        return count;
+    }
+
+    [Microsoft.JSInterop.JSInvokable]
+    public static async Task<int> BenchCsToJsJson(int ms)
+    {
+        var js = _jsRuntime ?? throw new InvalidOperationException("JSRuntime not initialized");
+        int count = 0;
+        var sampleForecasts = new WeatherForecast[]
+        {
+            new WeatherForecast { Date = DateOnly.FromDateTime(DateTime.Now), TemperatureC = 20, Summary = "Mild" },
+            new WeatherForecast { Date = DateOnly.FromDateTime(DateTime.Now).AddDays(1), TemperatureC = 25, Summary = "Warm" },
+            new WeatherForecast { Date = DateOnly.FromDateTime(DateTime.Now).AddDays(2), TemperatureC = 30, Summary = "Hot" }
+        };
+        var deadline = DateTime.Now.AddMilliseconds(ms);
+        while (DateTime.Now < deadline)
+        {
+            await js.InvokeAsync<double>("csInvokableWithJson", 1, sampleForecasts);
+            count++;
+        }
+        return count;
+    }
+
+    public class CStoJSResults
+    {
+        public int NumberCount { get; set; }
+        public int StringCount { get; set; }
+        public int JsonCount { get; set; }
     }
 
     public class WeatherForecast

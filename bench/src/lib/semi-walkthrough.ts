@@ -1,7 +1,9 @@
 /**
  * semi-walkthrough.ts — Playwright walkthrough for Semi Avalonia Demo app.
  *
- * Measures total wall-clock time from fresh navigation to completion.
+ * All walkthrough steps run entirely inside the browser via a single
+ * page.evaluate() call, eliminating Playwright round-trip overhead from
+ * the benchmark measurement.
  *
  * Steps: load home → focus sidebar TabControl → navigate through all
  * component demo tabs via ArrowDown keyboard navigation.
@@ -13,13 +15,14 @@
  */
 
 import { debug } from '../log.js';
+import { type WalkthroughOpts } from './walkthrough-types.js';
 
 // Minimal Playwright Page type surface used by the walkthrough
 type ConsoleMessage = { text(): string };
 type PlaywrightPage = {
     goto(url: string, options?: { timeout?: number; waitUntil?: string }): Promise<unknown>;
     waitForFunction(fn: (() => boolean) | string, arg: unknown, options?: { timeout?: number }): Promise<unknown>;
-    evaluate<T>(fn: (() => T) | ((arg: string) => T), arg?: string): Promise<T>;
+    evaluate<T>(fn: (() => T) | ((arg: unknown) => T), arg?: unknown): Promise<T>;
     mouse: { click(x: number, y: number): Promise<void> };
     keyboard: { press(key: string): Promise<void> };
     on(event: string, handler: (...args: unknown[]) => void): void;
@@ -100,7 +103,7 @@ let rafCount = 0;
 /** Wait for Avalonia canvas to repaint (two rAF cycles), logging the count. */
 async function waitForRepaint(page: PlaywrightPage): Promise<void> {
     const n = ++rafCount;
-    await page.evaluate((idx: string) => new Promise<void>(resolve => {
+    await page.evaluate((idx: unknown) => new Promise<void>(resolve => {
         requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
     }), String(n));
 }
@@ -122,15 +125,105 @@ async function pressArrowDown(page: PlaywrightPage): Promise<void> {
 }
 
 /**
- * Full walkthrough: navigates to home, then visits every component demo tab.
+ * Runs entirely inside the browser (passed to page.evaluate).
+ * Navigates through every component demo tab via ArrowDown keyboard events,
+ * intercepting [semi-nav] console messages to confirm navigation.
  * Returns wall-clock duration in ms.
+ *
+ * Arrow function to avoid bundler __name helper injection that breaks
+ * Playwright's function serialization for page.evaluate().
  */
-export async function runSemiWalkthrough(
-    page: PlaywrightPage,
-    url: string,
-    timeout: number,
-    verbose = false,
-): Promise<number> {
+const browserSemiWalkthrough = (args: unknown): Promise<number> => {
+    const { timeout: t, verbose, tabNames, skipTabs } = args as {
+        timeout: number;
+        verbose: boolean;
+        tabNames: string[];
+        skipTabs: number;
+    };
+
+    const NAV_PREFIX = '[semi-nav] ';
+    const log = verbose
+        ? (msg: string) => console.log(`[semi-walkthrough] ${msg}`)
+        : () => { /* noop */ };
+
+    // ── Subscribe to globalThis.onConsole to capture [semi-nav] messages ─
+    // main.mjs replaces console.log with a dispatcher that calls onConsole handlers,
+    // so dotnet's console.log calls go through onConsole, not the native console.log.
+    let lastNavTab: string | null = null;
+    let navResolve: (() => void) | null = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onConsole = (globalThis as any).onConsole as ((...args: unknown[]) => void)[];
+    const navHandler = (...logArgs: unknown[]): void => {
+        const first = logArgs[0];
+        if (typeof first === 'string' && first.startsWith(NAV_PREFIX)) {
+            lastNavTab = first.slice(NAV_PREFIX.length);
+            if (navResolve) {
+                navResolve();
+                navResolve = null;
+            }
+        }
+    };
+    onConsole.push(navHandler);
+
+    const waitForNav = (expected: string, ms: number): Promise<void> =>
+        new Promise<void>((resolve, reject) => {
+            if (lastNavTab === expected) { resolve(); return; }
+            const timer = setTimeout(() => {
+                navResolve = null;
+                reject(new Error(`Timed out waiting for [semi-nav] ${expected} (last seen: ${lastNavTab})`));
+            }, ms);
+            navResolve = () => { clearTimeout(timer); resolve(); };
+        });
+
+    const waitForRepaintBrowser = (): Promise<void> =>
+        new Promise<void>(resolve => {
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+        });
+
+    const pressArrowDownBrowser = (): void => {
+        const container = document.querySelector('.avalonia-container') as HTMLElement | null;
+        if (!container) throw new Error('Avalonia container not found');
+        container.focus();
+        container.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'ArrowDown', code: 'ArrowDown', keyCode: 40, bubbles: true, cancelable: true,
+        }));
+        container.dispatchEvent(new KeyboardEvent('keyup', {
+            key: 'ArrowDown', code: 'ArrowDown', keyCode: 40, bubbles: true, cancelable: true,
+        }));
+    };
+
+    const startTime = performance.now();
+    const componentTabs = tabNames.length - skipTabs;
+
+    const steps = async (): Promise<number> => {
+        try {
+            for (let i = 1; i < componentTabs; i++) {
+                const tabName = tabNames[skipTabs + i];
+                lastNavTab = null;
+                pressArrowDownBrowser();
+                await waitForRepaintBrowser();
+                await waitForNav(tabName, t);
+                await waitForRepaintBrowser();
+                log(`loaded: ${tabName}`);
+            }
+
+            return performance.now() - startTime;
+        } finally {
+            const idx = onConsole.indexOf(navHandler);
+            if (idx >= 0) onConsole.splice(idx, 1);
+        }
+    };
+
+    return steps();
+};
+
+/**
+ * Loads the page via Playwright, then runs all timed walkthrough steps inside
+ * the browser via a single page.evaluate() to avoid measuring Playwright
+ * communication overhead. Returns wall-clock duration in ms.
+ */
+export async function runSemiWalkthrough(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    const { page, url, timeout, verbose = false } = opts;
     const log = verbose ? (msg: string) => debug(`Semi: ${msg}`) : () => { };
 
     // ── Capture [semi-nav] console messages from C# SelectionChanged handler ─
@@ -152,9 +245,8 @@ export async function runSemiWalkthrough(
     page.on('console', consoleHandler);
 
     /** Wait until a [semi-nav] message arrives, with timeout. */
-    function waitForNav(expected: string, ms: number): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            // If the message already arrived (race), resolve immediately
+    const waitForNav = (expected: string, ms: number): Promise<void> =>
+        new Promise<void>((resolve, reject) => {
             if (lastNavTab === expected) { resolve(); return; }
             const timer = setTimeout(() => {
                 navResolve = null;
@@ -162,10 +254,9 @@ export async function runSemiWalkthrough(
             }, ms);
             navResolve = () => { clearTimeout(timer); resolve(); };
         });
-    }
 
     try {
-        // ── Step 0: Load home ────────────────────────────────────────────────
+        // ── Step 0: Load home (via Playwright — not part of the timed section) ──
         log('navigating to home...');
         await page.goto(url, { timeout, waitUntil: 'load' });
         await page.waitForFunction(
@@ -212,27 +303,19 @@ export async function runSemiWalkthrough(
         }
         log(`positioned on ${TAB_NAMES[SKIP_TABS]}`);
 
-        // Capture start time AFTER load and positioning on first component tab
-        const startTime: number = await page.evaluate(() => performance.now());
+        // ── Run timed walkthrough steps inside the browser ───────────────────
+        log('starting in-browser walkthrough...');
+        // esbuild's keepNames injects __name() calls into the serialized function body;
+        // provide the helper in the browser so they resolve at runtime.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await page.evaluate(() => { (globalThis as any).__name = (fn: any) => fn; });
+        const duration: number = await page.evaluate(
+            browserSemiWalkthrough,
+            { timeout, verbose, tabNames: TAB_NAMES, skipTabs: SKIP_TABS },
+        );
 
-        // ── Step 2: Navigate through every component demo tab ────────────────
-        const componentTabs = TAB_NAMES.length - SKIP_TABS;
-        for (let i = 1; i < componentTabs; i++) {
-            const tabName = TAB_NAMES[SKIP_TABS + i];
-            lastNavTab = null;
-            await pressArrowDown(page);
-            await waitForRepaint(page);
-            await waitForNav(tabName, timeout);
-            // One extra repaint to let the content render after selection
-            await waitForRepaint(page);
-            log(`loaded: ${tabName}`);
-        }
-
-        // Capture end time after visiting all component tabs
-        const endTime: number = await page.evaluate(() => performance.now());
-
-        log(`walkthrough complete: ${Math.round(endTime - startTime)}ms`);
-        return endTime - startTime;
+        log(`in-browser walkthrough completed: ${Math.round(duration)}ms`);
+        return duration;
     } finally {
         page.off('console', consoleHandler);
     }

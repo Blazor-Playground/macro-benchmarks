@@ -1,4 +1,4 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
+﻿<Router AppAssembly="@typeof(App).Assembly" OnNavigateAsync="OnNavigate">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
@@ -9,3 +9,15 @@
         </LayoutView>
     </NotFound>
 </Router>
+
+@code {
+    private void OnNavigate(NavigationContext context)
+    {
+        Console.WriteLine($"Navigating to: {context.Path}");
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        Console.WriteLine($"App rendered after navigation. FirstRender: {firstRender}");
+    }
+}

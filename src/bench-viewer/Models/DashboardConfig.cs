@@ -28,7 +28,7 @@ public static class DashboardConfig
     // Preferred metric display order
     public static readonly List<string> MetricOrder = new()
     {
-        "pizza-walkthrough", "havit-walkthrough", "mud-walkthrough", "semi-walkthrough",
+        "pizza-walkthrough", "havit-walkthrough", "mud-walkthrough", "semi-walkthrough", "uno-walkthrough",
         "json-parse-ops", "js-interop-ops", "exception-ops",
         "time-to-reach-managed-cold", "time-to-reach-managed-warm",
         "time-to-create-dotnet-cold", "time-to-create-dotnet-warm",

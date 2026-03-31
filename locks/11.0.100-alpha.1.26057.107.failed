@@ -1,0 +1,107 @@
+{
+  "failedAt": "2026-03-22T21:18:05.851Z",
+  "ciRunId": "23412578541",
+  "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23412578541",
+  "failures": [
+    {
+      "target": "empty-browser/aot",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26057.107/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(154,38): error MSB4057: The target \"WasmBuildApp\" does not exist in the project. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]"
+      ]
+    },
+    {
+      "target": "empty-browser/native-relink",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26057.107/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(154,38): error MSB4057: The target \"WasmBuildApp\" does not exist in the project. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]"
+      ]
+    },
+    {
+      "target": "empty-browser/no-jiterp",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26057.107/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(154,38): error MSB4057: The target \"WasmBuildApp\" does not exist in the project. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]"
+      ]
+    },
+    {
+      "target": "empty-browser/invariant",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26057.107/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(154,38): error MSB4057: The target \"WasmBuildApp\" does not exist in the project. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]"
+      ]
+    },
+    {
+      "target": "empty-browser/no-reflection-emit",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26057.107/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(154,38): error MSB4057: The target \"WasmBuildApp\" does not exist in the project. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]"
+      ]
+    },
+    {
+      "target": "micro-benchmarks/aot",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26057.107/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(154,38): error MSB4057: The target \"WasmBuildApp\" does not exist in the project. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]"
+      ]
+    },
+    {
+      "target": "micro-benchmarks/native-relink",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26057.107/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(154,38): error MSB4057: The target \"WasmBuildApp\" does not exist in the project. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]"
+      ]
+    },
+    {
+      "target": "micro-benchmarks/no-jiterp",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26057.107/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(154,38): error MSB4057: The target \"WasmBuildApp\" does not exist in the project. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]"
+      ]
+    },
+    {
+      "target": "micro-benchmarks/invariant",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26057.107/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(154,38): error MSB4057: The target \"WasmBuildApp\" does not exist in the project. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]"
+      ]
+    },
+    {
+      "target": "micro-benchmarks/no-reflection-emit",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26057.107/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(154,38): error MSB4057: The target \"WasmBuildApp\" does not exist in the project. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]"
+      ]
+    },
+    {
+      "target": "empty-blazor/aot",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26057.107/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(154,38): error MSB4057: The target \"WasmBuildApp\" does not exist in the project. [/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "blazing-pizza/aot",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26057.107/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(154,38): error MSB4057: The target \"WasmBuildApp\" does not exist in the project. [/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj]"
+      ]
+    },
+    {
+      "target": "havit-bootstrap/aot",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26057.107/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(154,38): error MSB4057: The target \"WasmBuildApp\" does not exist in the project. [/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj]"
+      ]
+    },
+    {
+      "target": "mud-blazor/aot",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26057.107/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(154,38): error MSB4057: The target \"WasmBuildApp\" does not exist in the project. [/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "semi-avalonia/aot",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26057.107/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(154,38): error MSB4057: The target \"WasmBuildApp\" does not exist in the project. [/__w/macro-benchmarks/macro-benchmarks/src/semi-avalonia/SemiAvalonia.csproj]"
+      ]
+    },
+    {
+      "target": "semi-avalonia/native-relink",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26057.107/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(154,38): error MSB4057: The target \"WasmBuildApp\" does not exist in the project. [/__w/macro-benchmarks/macro-benchmarks/src/semi-avalonia/SemiAvalonia.csproj]"
+      ]
+    },
+    {
+      "target": "uno-gallery/native-relink",
+      "errorLines": []
+    }
+  ]
+}

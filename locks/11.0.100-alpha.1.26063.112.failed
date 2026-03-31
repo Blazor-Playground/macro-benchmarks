@@ -1,0 +1,210 @@
+{
+  "failedAt": "2026-03-22T14:27:09.423Z",
+  "ciRunId": "23405019895",
+  "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23405019895",
+  "failures": [
+    {
+      "target": "empty-browser/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]"
+      ]
+    },
+    {
+      "target": "empty-browser/no-workload",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]"
+      ]
+    },
+    {
+      "target": "micro-benchmarks/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]"
+      ]
+    },
+    {
+      "target": "micro-benchmarks/no-workload",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]"
+      ]
+    },
+    {
+      "target": "empty-blazor/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "empty-blazor/no-workload",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "blazing-pizza/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj]"
+      ]
+    },
+    {
+      "target": "blazing-pizza/no-workload",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj]"
+      ]
+    },
+    {
+      "target": "havit-bootstrap/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj]"
+      ]
+    },
+    {
+      "target": "havit-bootstrap/no-workload",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj]"
+      ]
+    },
+    {
+      "target": "mud-blazor/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "mud-blazor/no-workload",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "empty-browser/aot",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]"
+      ]
+    },
+    {
+      "target": "empty-browser/native-relink",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]"
+      ]
+    },
+    {
+      "target": "empty-browser/no-jiterp",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]"
+      ]
+    },
+    {
+      "target": "empty-browser/invariant",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]"
+      ]
+    },
+    {
+      "target": "empty-browser/no-reflection-emit",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj]"
+      ]
+    },
+    {
+      "target": "micro-benchmarks/aot",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]"
+      ]
+    },
+    {
+      "target": "micro-benchmarks/native-relink",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]"
+      ]
+    },
+    {
+      "target": "micro-benchmarks/no-jiterp",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]"
+      ]
+    },
+    {
+      "target": "micro-benchmarks/invariant",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]"
+      ]
+    },
+    {
+      "target": "micro-benchmarks/no-reflection-emit",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj]"
+      ]
+    },
+    {
+      "target": "empty-blazor/aot",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "blazing-pizza/aot",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj]"
+      ]
+    },
+    {
+      "target": "havit-bootstrap/aot",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj]"
+      ]
+    },
+    {
+      "target": "mud-blazor/aot",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "semi-avalonia/aot",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/semi-avalonia/SemiAvalonia.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/semi-avalonia/SemiAvalonia.csproj]"
+      ]
+    },
+    {
+      "target": "semi-avalonia/native-relink",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/semi-avalonia/SemiAvalonia.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/semi-avalonia/SemiAvalonia.csproj]"
+      ]
+    },
+    {
+      "target": "uno-gallery/native-relink",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062: The \"Microsoft.NET.Sdk.WebAssembly.ComputeWasmBuildAssets\" task could not be loaded from the assembly /bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll. Could not load file or assembly '/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/../tools/net10.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll'. The system cannot find the file specified. [/__w/macro-benchmarks/macro-benchmarks/src/uno-gallery/Uno.Gallery.csproj]",
+        "/bench/artifacts/nuget-packages/microsoft.net.sdk.webassembly.pack/11.0.0-alpha.1.26063.112/build/Microsoft.NET.Sdk.WebAssembly.Browser.targets(309,5): error MSB4062:  Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [/__w/macro-benchmarks/macro-benchmarks/src/uno-gallery/Uno.Gallery.csproj]"
+      ]
+    }
+  ]
+}

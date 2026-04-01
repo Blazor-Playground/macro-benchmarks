@@ -23,6 +23,30 @@
       "benchmarkDateTime": "2026-04-01T10:04:34.192Z",
       "ciRunId": "23840998264",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/23840998264"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.4.26201.113",
+      "runtimeGitHash": "5685458cf2939310e9dbf47d1603b3d67a232ca6",
+      "aspnetCoreGitHash": "1d3289965aa91c6b730734275496e269325b1087",
+      "sdkGitHash": "1e5d8e39d3026edb222cdf4f8d8240f1eb99f24b",
+      "vmrGitHash": "185a5cc19c0edff3dd2e0acdea9a182d9f077d36",
+      "runtimeCommitDateTime": "2026-03-31T00:12:11Z",
+      "runtimeCommitAuthor": "Larkliy",
+      "runtimeCommitMessage": "Fix ArrayValue.ToString separators (#126202)",
+      "aspnetCoreCommitDateTime": "2026-03-30T13:34:33Z",
+      "aspnetCoreVersion": "11.0.0-preview.4.26201.113",
+      "runtimePackVersion": "11.0.0-preview.4.26201.113",
+      "workloadVersion": "11.0.100-preview.4.26201.113",
+      "bootstrapSdkVersion": "11.0.100-preview.3.26170.106",
+      "releaseDate": "2026-04-01",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-04-01T23:20:51.188Z",
+      "ciRunId": "23873867715",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/23873867715"
     }
   ],
   "apps": {

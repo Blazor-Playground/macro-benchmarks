@@ -47,6 +47,30 @@
       "benchmarkDateTime": "2026-04-01T23:20:51.188Z",
       "ciRunId": "23873867715",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/23873867715"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.4.26201.117",
+      "runtimeGitHash": "7010dbd3f0ace7d499d2b872bc330ac3e7346f1a",
+      "aspnetCoreGitHash": "a6faeae3e7b98684fe5944d0bf8b3808135a416f",
+      "sdkGitHash": "1e5d8e39d3026edb222cdf4f8d8240f1eb99f24b",
+      "vmrGitHash": "3dcdd0b9dd98fcf53b8c232ea6893e5bc2449b1f",
+      "runtimeCommitDateTime": "2026-04-01T00:54:27Z",
+      "runtimeCommitAuthor": "Egor Bogatov",
+      "runtimeCommitMessage": "Move polyfills for !NET targets to src/libraries/Common/src/Polyfills/ (#126287)",
+      "aspnetCoreCommitDateTime": "2026-03-31T16:57:48Z",
+      "aspnetCoreVersion": "11.0.0-preview.4.26201.117",
+      "runtimePackVersion": "11.0.0-preview.4.26201.117",
+      "workloadVersion": "11.0.100-preview.4.26201.117",
+      "bootstrapSdkVersion": "11.0.100-preview.3.26170.106",
+      "releaseDate": "2026-04-01",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-04-02T05:14:19.029Z",
+      "ciRunId": "23883541088",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/23883541088"
     }
   ],
   "apps": {

@@ -143,6 +143,30 @@
       "benchmarkDateTime": "2026-04-04T05:02:01.035Z",
       "ciRunId": "23970954383",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/23970954383"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.3.26203.107",
+      "runtimeGitHash": "d23e53a91dcd11629c2768d2e57dd27e0e862354",
+      "aspnetCoreGitHash": "655f41d52f2fc75992eac41496b8e9cc119e1b54",
+      "sdkGitHash": "1c98288c64bb33c8e2569429cd1d59ae9e2e643f",
+      "vmrGitHash": "ca90a9c694e4f149f919285cc0d20454520f037c",
+      "runtimeCommitDateTime": "2026-04-02T23:02:10Z",
+      "runtimeCommitAuthor": "github-actions[bot]",
+      "runtimeCommitMessage": "[release/11.0-preview3] Fix publish-time Framework materialization for multi-client WASM and add test (#126378)",
+      "aspnetCoreCommitDateTime": "2026-03-25T23:38:04Z",
+      "aspnetCoreVersion": "11.0.0-preview.3.26203.107",
+      "runtimePackVersion": "11.0.0-preview.3.26203.107",
+      "workloadVersion": "11.0.100-preview.3.26203.107",
+      "bootstrapSdkVersion": "11.0.100-preview.3.26170.106",
+      "releaseDate": "2026-04-03",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-04-04T19:23:25.676Z",
+      "ciRunId": "23984892354",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/23984892354"
     }
   ],
   "apps": {

@@ -119,6 +119,30 @@
       "benchmarkDateTime": "2026-04-02T19:35:22.958Z",
       "ciRunId": "23916163533",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/23916163533"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.4.26203.108",
+      "runtimeGitHash": "655c517ccccad501dddac7c296815fabb2c8f1ad",
+      "aspnetCoreGitHash": "d7faa01532637396e8fcf011786c582a86ec05ba",
+      "sdkGitHash": "1e5d8e39d3026edb222cdf4f8d8240f1eb99f24b",
+      "vmrGitHash": "1a405c76db678301b6f6f5b22d2a63a152c26b97",
+      "runtimeCommitDateTime": "2026-04-02T01:30:32Z",
+      "runtimeCommitAuthor": "Rachel",
+      "runtimeCommitMessage": "Add GetCodeHeapList cDAC API (#126231)",
+      "aspnetCoreCommitDateTime": "2026-04-02T18:48:21Z",
+      "aspnetCoreVersion": "11.0.0-preview.4.26203.108",
+      "runtimePackVersion": "11.0.0-preview.4.26203.108",
+      "workloadVersion": "11.0.100-preview.4.26203.108",
+      "bootstrapSdkVersion": "11.0.100-preview.3.26170.106",
+      "releaseDate": "2026-04-03",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-04-04T05:02:01.035Z",
+      "ciRunId": "23970954383",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/23970954383"
     }
   ],
   "apps": {

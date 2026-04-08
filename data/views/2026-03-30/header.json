@@ -191,6 +191,30 @@
       "benchmarkDateTime": "2026-04-08T07:59:51.035Z",
       "ciRunId": "24122551542",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/24122551542"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.4.26208.101",
+      "runtimeGitHash": "ab2f538fca8e2d278e592da1dd6e6ad82954e91c",
+      "aspnetCoreGitHash": "7fc648533c6ebcf08fad355c599f81092f60b777",
+      "sdkGitHash": "1e5d8e39d3026edb222cdf4f8d8240f1eb99f24b",
+      "vmrGitHash": "062dd07abfbc46bbe0ff4463968d55d40f9de253",
+      "runtimeCommitDateTime": "2026-04-04T05:08:05Z",
+      "runtimeCommitAuthor": "Jan Kotas",
+      "runtimeCommitMessage": "Revert \"Inline CORINFO_HELP_ARRADDR_ST helper call, remove WriteBarrier FCall\" (#126530)",
+      "aspnetCoreCommitDateTime": "2026-04-03T18:53:04Z",
+      "aspnetCoreVersion": "11.0.0-preview.4.26208.101",
+      "runtimePackVersion": "11.0.0-preview.4.26208.101",
+      "workloadVersion": "11.0.100-preview.4.26208.101",
+      "bootstrapSdkVersion": "11.0.100-preview.3.26170.106",
+      "releaseDate": "2026-04-08",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-04-08T17:47:03.001Z",
+      "ciRunId": "24147563475",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/24147563475"
     }
   ],
   "apps": {

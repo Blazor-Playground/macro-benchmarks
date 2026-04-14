@@ -1,10 +1,9 @@
 // Visual encoding maps and metric configuration constants
 
-export const ENGINE_COLORS: Record<string, string> = {
-    chrome: '#F4B400',
-    firefox: '#EA4335',
-    v8: '#4285F4',
-    node: '#34A853',
+export const RUNTIME_COLORS: Record<string, string> = {
+    mono: '#F4B400',
+    coreclr: '#4285F4',
+    naotllvm: '#34A853',
 };
 
 export const PRESET_DASH: Record<string, number[]> = {
@@ -17,10 +16,11 @@ export const PRESET_DASH: Record<string, number[]> = {
     'no-reflection-emit': [15, 5],
 };
 
-export const RUNTIME_MARKER: Record<string, string> = {
-    mono: 'triangle',
-    coreclr: 'circle',
-    naotllvm: 'rect',
+export const ENGINE_MARKER: Record<string, string> = {
+    chrome: 'circle',
+    firefox: 'triangle',
+    v8: 'rect',
+    node: 'rectRot',
 };
 
 export const PROFILE_LINE_WIDTH: Record<string, number> = {

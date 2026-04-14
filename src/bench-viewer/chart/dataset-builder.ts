@@ -4,7 +4,7 @@ import { fetchJson } from './data-fetcher.js';
 import type { Bucket } from './data-fetcher.js';
 import type { TickLayout } from './tick-layout.js';
 import {
-    ENGINE_COLORS, PRESET_DASH, RUNTIME_MARKER, PROFILE_LINE_WIDTH,
+    RUNTIME_COLORS, PRESET_DASH, ENGINE_MARKER, PROFILE_LINE_WIDTH,
     BUILD_METRICS, WALKTHROUGH_METRICS, assert,
 } from './constants.js';
 
@@ -49,11 +49,11 @@ export function formatRowLabel(rowKey: string, metric: string): string {
 export function makeDatasetStyle(rowKey: string): Record<string, unknown> {
     const d = parseRowKey(rowKey);
     return {
-        borderColor: ENGINE_COLORS[d.engine] || '#999',
-        backgroundColor: (ENGINE_COLORS[d.engine] || '#999') + '33',
+        borderColor: RUNTIME_COLORS[d.runtime] || '#999',
+        backgroundColor: (RUNTIME_COLORS[d.runtime] || '#999') + '33',
         borderDash: PRESET_DASH[d.preset] || [],
         borderWidth: PROFILE_LINE_WIDTH[d.profile] || 1,
-        pointStyle: RUNTIME_MARKER[d.runtime] || 'circle',
+        pointStyle: ENGINE_MARKER[d.engine] || 'circle',
         pointRadius: 3,
         pointHoverRadius: 5,
         tension: 0,

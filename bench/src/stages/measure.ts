@@ -485,8 +485,10 @@ async function runColdLoads(
             if (verbose) debug(`Cold load ${i + 1}/${warmRuns}: time-to-reach-managed=${t.reachManaged}`);
             pushTiming(arrays, t);
         } finally {
+            await sleep(100);
             await coldPage.close();
             await coldCtx.close();
+            await sleep(400);
         }
     }
     return arrays;
@@ -528,7 +530,7 @@ interface WalkthroughResult {
 }
 
 async function runWalkthroughs(
-    page: Page,
+    context: BrowserContext,
     pageUrl: string,
     entry: BuildManifestEntry,
     engine: Engine,
@@ -556,27 +558,35 @@ async function runWalkthroughs(
         const runs = wt.runs ?? defaultRuns;
         const times: number[] = [];
         for (let i = 0; i < runs; i++) {
-            if (verbose) debug(`${wt.metric} ${i + 1}/${runs}...`);
-            const t = await wt.fn({ page, url: pageUrl, timeout, verbose, durationMs });
-            times.push(t);
-            if (verbose) debug(`${wt.metric} ${i + 1}/${runs}: ${t}`);
-
-            // Sample JS heap and WASM linear memory after each walkthrough run
-            if (cdp) {
-                try {
-                    const perfMetrics = await cdp.client.send('Performance.getMetrics');
-                    const heapUsed = perfMetrics.metrics.find(
-                        (m: { name: string; value: number }) => m.name === 'JSHeapUsedSize',
-                    );
-                    if (heapUsed) jsHeapSamples.push(heapUsed.value);
-                } catch { /* ignore */ }
-            }
+            const wtPage = await context.newPage();
+            await wtPage.goto(pageUrl, { timeout, waitUntil: 'load' });
+            await waitForBenchComplete(wtPage, timeout);
             try {
-                const wasmBytes = await page.evaluate(
-                    () => (globalThis as any).getDotnetRuntime(0)?.Module?.HEAPU8?.byteLength ?? null,
-                );
-                if (wasmBytes != null) wasmMemorySamples.push(wasmBytes);
-            } catch { /* ignore */ }
+                if (verbose) debug(`${wt.metric} ${i + 1}/${runs}...`);
+                const t = await wt.fn({ page: wtPage, url: pageUrl, timeout, verbose, durationMs });
+                times.push(t);
+                if (verbose) debug(`${wt.metric} ${i + 1}/${runs}: ${t}`);
+
+                // Sample JS heap and WASM linear memory after each walkthrough run
+                if (cdp) {
+                    try {
+                        const perfMetrics = await cdp.client.send('Performance.getMetrics');
+                        const heapUsed = perfMetrics.metrics.find(
+                            (m: { name: string; value: number }) => m.name === 'JSHeapUsedSize',
+                        );
+                        if (heapUsed) jsHeapSamples.push(heapUsed.value);
+                    } catch { /* ignore */ }
+                }
+                try {
+                    const wasmBytes = await wtPage.evaluate(
+                        () => (globalThis as any).getDotnetRuntime(0)?.Module?.HEAPU8?.byteLength ?? null,
+                    );
+                    if (wasmBytes != null) wasmMemorySamples.push(wasmBytes);
+                } catch { /* ignore */ }
+            } finally {
+                await wtPage.close();
+                await sleep(200);
+            }
         }
         const iqm = sortedIQM(times);
         const rounded = iqm != null ? Math.round(iqm) : null;
@@ -691,7 +701,7 @@ async function runBrowserSession(
 
     // Walkthroughs (external apps only)
     const walkthroughResult = !isInternal
-        ? await runWalkthroughs(page, pageUrl, entry, engine, profile, warmRuns, timeout, verbose, dryRun, cdp)
+        ? await runWalkthroughs(context, pageUrl, entry, engine, profile, warmRuns, timeout, verbose, dryRun, cdp)
         : { metrics: {}, sampleCounts: {}, jsHeapSamples: [] as number[], wasmMemorySamples: [] as number[] };
     const walkthroughMetrics = walkthroughResult.metrics;
     const walkthroughSampleCounts = walkthroughResult.sampleCounts;
@@ -723,8 +733,10 @@ async function runBrowserSession(
     }
 
     if (verbose) debug(`Closing browser context...`);
+    await sleep(100);
     await page.close();
     await context.close();
+    await sleep(400);
     if (verbose) debug(`Cleanup complete`);
 
     // Assemble metrics
@@ -820,11 +832,16 @@ async function measureBrowser(
                     compileTime, fileSizes, isInternal, useCDP,
                     warmRuns, timeout, ctx.verbose, ctx.dryRun, srv,
                 );
+                await sleep(100);
                 await browser.close();
+                await sleep(400);
                 return result;
             } catch (e) {
                 lastError = e instanceof Error ? e : new Error(String(e));
-                try { await browser.close(); } catch { /* ignore */ }
+                try {
+                    await browser.close();
+                    await sleep(500);
+                } catch { /* ignore */ }
                 if (attempt >= maxRetries) throw lastError;
                 info(`    Attempt ${attempt + 1} failed: ${lastError.message}`);
             }

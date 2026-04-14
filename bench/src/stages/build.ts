@@ -93,8 +93,8 @@ function getRestoreArgs(
         '/p:MSBuildDisableTaskHost=true',
         '-m:1',
     ];
-    if (ctx.runtimePackDir) {
-        args.push(`/p:RuntimePackDir=${ctx.runtimePackDir}`);
+    if (ctx.runtimePackDirs?.[runtime]) {
+        args.push(`/p:RuntimePackDir=${ctx.runtimePackDirs[runtime]}`);
     }
     if (app === App.UnoGallery) {
         args.push(`/p:TargetFramework=net${ctx.sdkInfo.major}.0-browserwasm`);
@@ -130,8 +130,8 @@ function getPublishArgs(
         `-bl:${publishDir}/publish.binlog`,
         '-o', publishDir,
     );
-    if (ctx.runtimePackDir) {
-        args.push(`/p:RuntimePackDir=${ctx.runtimePackDir}`);
+    if (ctx.runtimePackDirs?.[runtime]) {
+        args.push(`/p:RuntimePackDir=${ctx.runtimePackDirs[runtime]}`);
     }
     return args;
 }

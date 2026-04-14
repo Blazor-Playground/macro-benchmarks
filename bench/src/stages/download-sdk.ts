@@ -160,19 +160,19 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     info(`Bundled runtime pack: ${bundledVersion}`);
 
     // ── Step 4: Runtime pack override ────────────────────────────────────
-    let runtimePackDir: string | undefined;
-    const needsPackRestore = ctx.runtimes.includes(Runtime.CoreCLR)
-        || sdkInfo.runtimePackVersion !== bundledVersion;
+    let runtimePackDirs: Partial<Record<Runtime, string>> | undefined;
+    const needsPackRestore = sdkInfo.runtimePackVersion !== bundledVersion;
 
     if (needsPackRestore) {
-        const reason = ctx.runtimes.includes(Runtime.CoreCLR)
-            ? `CoreCLR browser pack is not bundled with SDK`
-            : `Runtime pack override: ${sdkInfo.runtimePackVersion} (bundled: ${bundledVersion})`;
-        info(reason);
-        runtimePackDir = await restoreRuntimePack(
-            dotnetBin, ctx.repoRoot, ctx.artifactsDir, sdkInfo.runtimePackVersion, ctx.runtimes.includes(Runtime.CoreCLR) ? Runtime.CoreCLR : Runtime.Mono,
-        );
-        info(`Runtime pack restored to ${runtimePackDir}`);
+        info(`Runtime pack override: ${sdkInfo.runtimePackVersion} (bundled: ${bundledVersion})`);
+        runtimePackDirs = {};
+        for (const runtime of ctx.runtimes) {
+            const packDir = await restoreRuntimePack(
+                dotnetBin, ctx.repoRoot, ctx.artifactsDir, sdkInfo.runtimePackVersion, runtime,
+            );
+            runtimePackDirs[runtime] = packDir;
+            info(`Runtime pack restored for ${runtime}: ${packDir}`);
+        }
     } else {
         info('Runtime pack matches bundled — no override needed');
     }
@@ -183,13 +183,13 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     info(`SDK info written to ${sdkInfoPath}`);
 
     // ── Step 6: Update context ───────────────────────────────────────────
-    const buildLabel = runtimePackDir
+    const buildLabel = runtimePackDirs
         ? `${sdkInfo.sdkVersion}_${sdkInfo.runtimePackVersion}`
         : sdkInfo.sdkVersion;
 
     return {
         ...ctx,
         buildLabel,
-        runtimePackDir,
+        runtimePackDirs,
     };
 }

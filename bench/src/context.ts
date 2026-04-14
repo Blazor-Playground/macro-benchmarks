@@ -87,7 +87,7 @@ export interface BenchContext {
     artifactsDir: string;
     sdkDir: string;
     dotnetBin: string;
-    runtimePackDir?: string;
+    runtimePackDirs?: Partial<Record<Runtime, string>>;
     publishDir: string;
     resultsDir: string;
     buildLabel: string;

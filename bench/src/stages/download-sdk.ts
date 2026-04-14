@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { type BenchContext, type SdkInfo } from '../context.js';
+import { Runtime } from '../enums.js';
 import { exec } from '../exec.js';
 import { banner, info } from '../log.js';
 
@@ -11,7 +12,12 @@ import { banner, info } from '../log.js';
 const DAILY_AZURE_FEED = 'https://ci.dot.net/public';
 const INSTALL_SCRIPT_PS1 = 'https://dot.net/v1/dotnet-install.ps1';
 const INSTALL_SCRIPT_SH = 'https://dot.net/v1/dotnet-install.sh';
-const RUNTIME_PACK_ID = 'microsoft.netcore.app.runtime.mono.browser-wasm';
+const MONO_RUNTIME_PACK_ID = 'microsoft.netcore.app.runtime.mono.browser-wasm';
+const CORECLR_RUNTIME_PACK_ID = 'microsoft.netcore.app.runtime.browser-wasm';
+
+function getRuntimePackId(runtime: Runtime): string {
+    return runtime === Runtime.CoreCLR ? CORECLR_RUNTIME_PACK_ID : MONO_RUNTIME_PACK_ID;
+}
 
 // ── SDK Installation via dotnet-install scripts ──────────────────────────────
 
@@ -88,14 +94,19 @@ async function restoreRuntimePack(
     repoRoot: string,
     artifactsDir: string,
     runtimePackVersion: string,
+    runtime: Runtime,
 ): Promise<string> {
     const nugetPackagesDir = join(artifactsDir, 'nuget-packages');
     await mkdir(nugetPackagesDir, { recursive: true });
+
+    const runtimePackId = getRuntimePackId(runtime);
+    const runtimeFlavor = runtime === Runtime.CoreCLR ? 'CoreCLR' : 'Mono';
 
     const restoreProj = join(repoRoot, 'src', 'restore', 'restore-runtime-pack.proj');
     await exec(dotnetBin, [
         'restore', restoreProj,
         `/p:RuntimePackVersion=${runtimePackVersion}`,
+        `/p:RuntimeFlavor=${runtimeFlavor}`,
         '--packages', nugetPackagesDir,
     ], {
         cwd: repoRoot,
@@ -103,11 +114,11 @@ async function restoreRuntimePack(
         suppressStdout: true,
     });
 
-    const packDir = join(nugetPackagesDir, RUNTIME_PACK_ID, runtimePackVersion);
+    const packDir = join(nugetPackagesDir, runtimePackId, runtimePackVersion);
     if (!existsSync(packDir)) {
         throw new Error(
             `Runtime pack not found after restore at: ${packDir}\n`
-            + `Package: ${RUNTIME_PACK_ID} ${runtimePackVersion}`,
+            + `Package: ${runtimePackId} ${runtimePackVersion}`,
         );
     }
 
@@ -150,10 +161,16 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     // ── Step 4: Runtime pack override ────────────────────────────────────
     let runtimePackDir: string | undefined;
-    if (sdkInfo.runtimePackVersion !== bundledVersion) {
-        info(`Runtime pack override: ${sdkInfo.runtimePackVersion} (bundled: ${bundledVersion})`);
+    const needsPackRestore = ctx.runtimes.includes(Runtime.CoreCLR)
+        || sdkInfo.runtimePackVersion !== bundledVersion;
+
+    if (needsPackRestore) {
+        const reason = ctx.runtimes.includes(Runtime.CoreCLR)
+            ? `CoreCLR browser pack is not bundled with SDK`
+            : `Runtime pack override: ${sdkInfo.runtimePackVersion} (bundled: ${bundledVersion})`;
+        info(reason);
         runtimePackDir = await restoreRuntimePack(
-            dotnetBin, ctx.repoRoot, ctx.artifactsDir, sdkInfo.runtimePackVersion,
+            dotnetBin, ctx.repoRoot, ctx.artifactsDir, sdkInfo.runtimePackVersion, ctx.runtimes.includes(Runtime.CoreCLR) ? Runtime.CoreCLR : Runtime.Mono,
         );
         info(`Runtime pack restored to ${runtimePackDir}`);
     } else {

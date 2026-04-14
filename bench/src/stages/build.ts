@@ -81,13 +81,14 @@ async function computeIntegrity(dir: string): Promise<{ fileCount: number; total
 function getRestoreArgs(
     ctx: BenchContext,
     appDir: string,
+    runtime: Runtime,
     app: App,
     preset: Preset,
 ): string[] {
     const args = [
         appDir,
         `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,
-        ...getRuntimeProps(ctx.runtime),
+        ...getRuntimeProps(runtime),
         `/p:BuildLabel=${ctx.buildLabel}`,
         '/p:MSBuildDisableTaskHost=true',
         '-m:1',
@@ -104,6 +105,7 @@ function getRestoreArgs(
 function getPublishArgs(
     ctx: BenchContext,
     appDir: string,
+    runtime: Runtime,
     app: App,
     preset: Preset,
     publishDir: string,
@@ -118,7 +120,7 @@ function getPublishArgs(
     args.push(
         `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,
         '-c', PRESET_CONFIG[preset],
-        ...getRuntimeProps(ctx.runtime),
+        ...getRuntimeProps(runtime),
         `/p:BuildLabel=${ctx.buildLabel!}`,
         ...(ctx.repo ? [`/p:GitHubRepo=${ctx.repo}`] : []),
         '/p:MSBuildDisableTaskHost=true',
@@ -145,49 +147,51 @@ async function buildPhase(
     const nugetPackagesDir = join(ctx.artifactsDir, 'nuget-packages');
     const dotnetEnv = { NUGET_PACKAGES: nugetPackagesDir };
 
-    for (const app of ctx.apps) {
-        const appDir = join(ctx.repoRoot, 'src', app);
-        for (const preset of presets) {
-            const skipReason = shouldSkipBuild(app, preset, ctx);
-            if (skipReason) {
-                info(`Skipping ${app}/${preset}: ${skipReason}`);
-                continue;
-            }
+    for (const runtime of ctx.runtimes) {
+        for (const app of ctx.apps) {
+            const appDir = join(ctx.repoRoot, 'src', app);
+            for (const preset of presets) {
+                const skipReason = shouldSkipBuild(runtime, app, preset, ctx);
+                if (skipReason) {
+                    info(`Skipping ${app}/${preset}: ${skipReason}`);
+                    continue;
+                }
 
-            const publishDir = join(ctx.artifactsDir, 'publish', app, ctx.buildLabel!, preset);
+                const publishDir = join(ctx.artifactsDir, 'publish', app, runtime, ctx.buildLabel!, preset);
 
-            try {
-                await rm(publishDir, { recursive: true, force: true });
-                await mkdir(publishDir, { recursive: true });
+                try {
+                    await rm(publishDir, { recursive: true, force: true });
+                    await mkdir(publishDir, { recursive: true });
 
-                info(`Building ${app} (runtime=${ctx.runtime}, preset=${preset})`);
+                    info(`Building ${app} (runtime=${runtime}, preset=${preset})`);
 
-                const publishArgs = getPublishArgs(ctx, appDir, app, preset, publishDir);
+                    const publishArgs = getPublishArgs(ctx, appDir, runtime, app, preset, publishDir);
 
-                // Uno.Gallery uses Uno.Sdk with complex build targets (Resizetizer, ShellTask)
-                // that break when restore and publish are split. Run publish with implicit restore.
-                const restoreArgs = getRestoreArgs(ctx, appDir, app, preset);
-                await dotnetRestore(ctx.dotnetBin!, restoreArgs, { cwd: ctx.repoRoot, env: dotnetEnv });
+                    // Uno.Gallery uses Uno.Sdk with complex build targets (Resizetizer, ShellTask)
+                    // that break when restore and publish are split. Run publish with implicit restore.
+                    const restoreArgs = getRestoreArgs(ctx, appDir, runtime, app, preset);
+                    await dotnetRestore(ctx.dotnetBin!, restoreArgs, { cwd: ctx.repoRoot, env: dotnetEnv });
 
-                const startTime = performance.now();
-                await dotnetPublish(ctx.dotnetBin!, publishArgs, { cwd: ctx.repoRoot, env: dotnetEnv });
-                const compileTimeMs = Math.round(performance.now() - startTime);
+                    const startTime = performance.now();
+                    await dotnetPublish(ctx.dotnetBin!, publishArgs, { cwd: ctx.repoRoot, env: dotnetEnv });
+                    const compileTimeMs = Math.round(performance.now() - startTime);
 
-                await writeFile(
-                    join(publishDir, 'compile-time.json'),
-                    JSON.stringify({ compileTimeMs, app, runtime: ctx.runtime, preset }, null, 2) + '\n',
-                );
+                    await writeFile(
+                        join(publishDir, 'compile-time.json'),
+                        JSON.stringify({ compileTimeMs, app, runtime, preset }, null, 2) + '\n',
+                    );
 
-                const integrity = await computeIntegrity(publishDir);
-                info(`  ${app}/${preset}: ${integrity.fileCount} files, ${(integrity.totalBytes / 1024 / 1024).toFixed(1)} MB, ${compileTimeMs}ms`);
+                    const integrity = await computeIntegrity(publishDir);
+                    info(`  ${app}/${preset}: ${integrity.fileCount} files, ${(integrity.totalBytes / 1024 / 1024).toFixed(1)} MB, ${compileTimeMs}ms`);
 
-                succeeded.push({ app: app as App, preset, runtime: ctx.runtime, compileTimeMs, integrity, publishDir });
-            } catch (e) {
-                err(`Build failed for ${app}/${preset}: ${e instanceof Error ? e.message : e}`);
-                const errorOutput = e instanceof ExecError
-                    ? e.stdout + '\n' + e.stderr
-                    : (e instanceof Error ? e.message : String(e));
-                failed.push({ target: `${app}/${preset}`, errorOutput });
+                    succeeded.push({ app: app as App, preset, runtime, compileTimeMs, integrity, publishDir });
+                } catch (e) {
+                    err(`Build failed for ${app}/${preset}: ${e instanceof Error ? e.message : e}`);
+                    const errorOutput = e instanceof ExecError
+                        ? e.stdout + '\n' + e.stderr
+                        : (e instanceof Error ? e.message : String(e));
+                    failed.push({ target: `${app}/${preset}`, errorOutput });
+                }
             }
         }
     }

@@ -5,15 +5,21 @@
 
     Usage:
       dotnet restore src/restore/restore-runtime-pack.proj /p:RuntimePackVersion=11.0.0-preview.3.26153.117
+      dotnet restore src/restore/restore-runtime-pack.proj /p:RuntimePackVersion=11.0.0-preview.4.26210.110 /p:RuntimeFlavor=CoreCLR
 
-    The restored package lands in $(NUGET_PACKAGES)/microsoft.netcore.app.runtime.mono.browser-wasm/{version}/
+    The restored package lands in $(NUGET_PACKAGES)/microsoft.netcore.app.runtime.[mono.]browser-wasm/{version}/
   -->
   <PropertyGroup>
     <TargetFramework>$(BenchmarkTargetFramework)</TargetFramework>
     <RuntimePackVersion>$(RuntimePackVersion)</RuntimePackVersion>
+    <RuntimeFlavor Condition="'$(RuntimeFlavor)' == ''">Mono</RuntimeFlavor>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(RuntimePackVersion)' != ''">
+  <ItemGroup Condition="'$(RuntimePackVersion)' != '' and '$(RuntimeFlavor)' == 'Mono'">
     <PackageDownload Include="Microsoft.NETCore.App.Runtime.Mono.browser-wasm" Version="[$(RuntimePackVersion)]" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(RuntimePackVersion)' != '' and '$(RuntimeFlavor)' == 'CoreCLR'">
+    <PackageDownload Include="Microsoft.NETCore.App.Runtime.browser-wasm" Version="[$(RuntimePackVersion)]" />
   </ItemGroup>
 </Project>

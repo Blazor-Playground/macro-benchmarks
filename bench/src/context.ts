@@ -48,7 +48,6 @@ export interface BenchContext {
     // ── SDK & Runtime ──
     sdkChannel: string;
     sdkVersion: string;
-    runtime: Runtime;
     runtimePack: string;
     runtimeCommit: string;
 
@@ -57,6 +56,7 @@ export interface BenchContext {
     presets: Preset[];
     engines: Engine[];
     profiles: Profile[];
+    runtimes: Runtime[];
 
     // ── Measurement ──
     retries: number;

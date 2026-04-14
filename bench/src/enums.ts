@@ -100,18 +100,20 @@ export interface AppConfig {
     browserOnly: boolean;
     /** Uses measure-internal instead of measure-external */
     internal: boolean;
+    /** Only runs with Mono runtime (no CoreCLR support) */
+    monoOnly: boolean;
 }
 
 export const APP_CONFIG: Record<App, AppConfig> = {
-    [App.EmptyBrowser]: { browserOnly: false, internal: false },
-    [App.MicroBenchmarks]: { browserOnly: false, internal: true },
-    [App.EmptyBlazor]: { browserOnly: true, internal: false },
-    [App.BlazingPizza]: { browserOnly: true, internal: false },
-    [App.HavitBootstrap]: { browserOnly: true, internal: false },
-    [App.BenchViewer]: { browserOnly: true, internal: false },
-    [App.MudBlazor]: { browserOnly: true, internal: false },
-    [App.UnoGallery]: { browserOnly: true, internal: false },
-    [App.SemiAvalonia]: { browserOnly: true, internal: false },
+    [App.EmptyBrowser]: { browserOnly: false, internal: false, monoOnly: false },
+    [App.MicroBenchmarks]: { browserOnly: false, internal: true, monoOnly: false },
+    [App.EmptyBlazor]: { browserOnly: true, internal: false, monoOnly: false },
+    [App.BlazingPizza]: { browserOnly: true, internal: false, monoOnly: false },
+    [App.HavitBootstrap]: { browserOnly: true, internal: false, monoOnly: true },
+    [App.BenchViewer]: { browserOnly: true, internal: false, monoOnly: true },
+    [App.MudBlazor]: { browserOnly: true, internal: false, monoOnly: true },
+    [App.UnoGallery]: { browserOnly: true, internal: false, monoOnly: true },
+    [App.SemiAvalonia]: { browserOnly: true, internal: false, monoOnly: true },
 };
 
 // ── Preset Constraints ───────────────────────────────────────────────────────
@@ -136,10 +138,13 @@ export const NON_BLAZOR_APPS = new Set<App>([App.UnoGallery, App.SemiAvalonia]);
 export const NON_BLAZOR_REDUCED_PRESETS = new Set<Preset>([Preset.NativeRelink, Preset.Aot]);
 
 
-export function shouldSkipDeployment(app: App, preset: Preset, ctx: BenchContext): string | null {
-    const build = shouldSkipBuild(app, preset, ctx);
+export function shouldSkipDeployment(runtime: Runtime, app: App, preset: Preset, ctx: BenchContext): string | null {
+    const build = shouldSkipBuild(runtime, app, preset, ctx);
     if (build) {
         return build;
+    }
+    if (runtime === Runtime.CoreCLR) {
+        return `We deploy only Mono for now`;
     }
     if (BLAZOR_APPS.has(app) && preset !== Preset.NoWorkload) {
         return `Blazor app '${app}' deploy with no-workload preset only`;
@@ -155,8 +160,8 @@ export function shouldSkipDeployment(app: App, preset: Preset, ctx: BenchContext
  * Returns a reason string if the app+preset combination should be skipped,
  * or null if the combination is valid.
  */
-export function shouldSkipMeasurement(app: App, preset: Preset, ctx: BenchContext): string | null {
-    const build = shouldSkipBuild(app, preset, ctx);
+export function shouldSkipMeasurement(runtime: Runtime, app: App, preset: Preset, ctx: BenchContext): string | null {
+    const build = shouldSkipBuild(runtime, app, preset, ctx);
     if (build) {
         return build;
     }
@@ -168,18 +173,21 @@ export function shouldSkipMeasurement(app: App, preset: Preset, ctx: BenchContex
  * Returns a reason string if the app+preset combination should be skipped,
  * or null if the combination is valid.
  */
-export function shouldSkipBuild(app: App, preset: Preset, ctx: BenchContext): string | null {
-    if (ctx.runtime === Runtime.CoreCLR && ctx.sdkInfo.major < 11) {
+export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx: BenchContext): string | null {
+    if (runtime === Runtime.CoreCLR && ctx.sdkInfo.major < 11) {
         return `CoreCLR runtime does not build with SDK versions below 11.0.0`;
     }
-    if (ctx.runtime === Runtime.NativeAOTLLVM && ctx.sdkInfo.major < 11) {
+    if (runtime === Runtime.NativeAOTLLVM && ctx.sdkInfo.major < 11) {
         return `NativeAOTLLVM runtime does not build with SDK versions below 11.0.0`;
     }
-    if (ctx.runtime === Runtime.NativeAOTLLVM && preset !== Preset.Aot) {
+    if (runtime === Runtime.NativeAOTLLVM && preset !== Preset.Aot) {
         return `NativeAOTLLVM runtime does not build with preset '${preset}'`;
     }
-    if (MONO_ONLY_PRESETS.has(preset) && ctx.runtime === Runtime.CoreCLR) {
-        return `Preset '${preset}' is mono-only and cannot be used with runtime '${ctx.runtime}'`;
+    if (MONO_ONLY_PRESETS.has(preset) && runtime === Runtime.CoreCLR) {
+        return `Preset '${preset}' is mono-only and cannot be used with runtime '${runtime}'`;
+    }
+    if (runtime === Runtime.CoreCLR && (preset !== Preset.DevLoop && preset !== Preset.NoWorkload)) {
+        return `Preset '${preset}' requires native rebuild which is not supported with CoreCLR`;
     }
     if (BLAZOR_APPS.has(app) && preset === Preset.NoReflectionEmit) {
         return `Blazor app '${app}' is not supported with preset '${preset}'`;
@@ -288,6 +296,12 @@ export function validatePresetRuntime(preset: Preset, runtime: Runtime): void {
     if (MONO_ONLY_PRESETS.has(preset) && runtime === Runtime.CoreCLR) {
         throw new Error(`Preset '${preset}' is only valid for mono runtime, got '${runtime}'`);
     }
+}
+
+export function getRuntimesForApp(app: App, filter?: Runtime[]): Runtime[] {
+    const config = APP_CONFIG[app];
+    const available = config.monoOnly ? [Runtime.Mono] : [...ALL_RUNTIMES];
+    return filter ? available.filter(r => filter.includes(r)) : available;
 }
 
 /** Get valid engines for an app, optionally filtered */

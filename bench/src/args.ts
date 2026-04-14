@@ -78,7 +78,7 @@ const ARG_OPTIONS = {
     // SDK & Runtime
     'sdk-channel': { type: 'string' as const, default: '' },
     'sdk-version': { type: 'string' as const, default: '' },
-    'runtime': { type: 'string' as const, default: 'mono' },
+    'runtime': { type: 'string' as const, default: 'mono,coreclr' },
     'runtime-pack': { type: 'string' as const, default: '' },
     'runtime-commit': { type: 'string' as const, default: '' },
 
@@ -188,6 +188,7 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
     const presets = parseCommaSeparated(values.preset!, parsePreset);
     const engines = parseCommaSeparated(values.engine!, parseEngine);
     const profiles = parseCommaSeparated(values.profile!, parseProfile);
+    const runtimes = parseCommaSeparated(values.runtime!, parseRuntime);
 
     // Apply dry-run defaults
     const effectiveApps = apps.length > 0 ? apps
@@ -204,6 +205,10 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
             : [...Object.values(Engine)];
     const effectiveProfiles = profiles.length > 0 ? profiles
         : [...Object.values(Profile)];
+    const effectiveRuntimes = runtimes.length > 0 ? runtimes
+        : dryRun
+            ? [Runtime.Mono]
+            : [...Object.values(Runtime)];
 
     const repoRoot = process.env['REPO_ROOT'] ?? loaded.repoRoot ?? findRepoRoot();
     const artifactsDir = process.env['ARTIFACTS_DIR'] ?? loaded.artifactsDir ?? resolve(repoRoot, 'artifacts');
@@ -217,7 +222,7 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
         // SDK & Runtime
         sdkChannel: values['sdk-channel'] || loaded.sdkChannel || '11.0',
         sdkVersion: values['sdk-version'],
-        runtime: parseRuntime(values.runtime!),
+        runtimes: effectiveRuntimes,
         runtimePack: values['runtime-pack'],
         runtimeCommit: values['runtime-commit'],
 

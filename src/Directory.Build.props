@@ -15,11 +15,11 @@
     <MSBuildDisableTaskHost>true</MSBuildDisableTaskHost>
   </PropertyGroup>
 
-  <!-- bin/obj location: artifacts/{bin,obj}/{app}/{BuildLabel}/{BenchmarkPreset} -->
+  <!-- bin/obj location: artifacts/{bin,obj}/{app}/{BuildLabel}/{RuntimeFlavor}/{BenchmarkPreset} -->
   <PropertyGroup>
     <BuildLabel Condition="'$(BuildLabel)' == ''">local</BuildLabel>
-    <ArtifactsPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'artifacts', 'bin', '$(MSBuildProjectName)', '$(BuildLabel)', '$(BenchmarkPreset)'))</ArtifactsPath>
-    <BaseIntermediateOutputPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'artifacts', 'obj', '$(MSBuildProjectName)', '$(BuildLabel)', '$(BenchmarkPreset)'))</BaseIntermediateOutputPath>
+    <ArtifactsPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'artifacts', 'bin', '$(MSBuildProjectName)', '$(BuildLabel)', '$(RuntimeFlavor)', '$(BenchmarkPreset)'))</ArtifactsPath>
+    <BaseIntermediateOutputPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'artifacts', 'obj', '$(MSBuildProjectName)', '$(BuildLabel)', '$(RuntimeFlavor)', '$(BenchmarkPreset)'))</BaseIntermediateOutputPath>
   </PropertyGroup>
 
   <!-- disable importmap + fingerprint -->

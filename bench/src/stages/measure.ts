@@ -5,12 +5,13 @@ import { execFileSync } from 'node:child_process';
 import { type BenchContext, type BuildManifestEntry } from '../context.js';
 import {
     type Engine, type Profile,
-    App as A, Engine as E,
+    App as A, Engine as E, Runtime as R,
     APP_CONFIG, BROWSER_ENGINES,
     MetricKey,
     getEnginesForApp, getProfilesForEngine,
     shouldSkipMeasurement,
     Preset,
+    getRuntimesForApp,
 } from '../enums.js';
 import { isWindows } from '../exec.js';
 import { banner, info, err, debug } from '../log.js';
@@ -40,12 +41,14 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     if (!ctx.resultsDir) throw new Error('measure stage requires ctx.resultsDir (run build first)');
 
     const effectiveEngines = ctx.dryRun ? [E.Chrome] : ctx.engines;
+    const effectiveRuntimes = ctx.dryRun ? [R.Mono] : ctx.runtimes;
     const effectiveProfiles = ctx.dryRun ? ['desktop' as Profile] : ctx.profiles;
     let totalMeasurements = 0;
     let totalFailures = 0;
 
     if (ctx.verbose) {
         debug(`Engines: ${effectiveEngines.join(', ')}`);
+        debug(`Runtimes: ${effectiveRuntimes.join(', ')}`);
         debug(`Profiles: ${effectiveProfiles.join(', ')}`);
         debug(`Apps: ${ctx.apps.join(', ')}`);
         debug(`Presets: ${ctx.presets.join(', ')}`);
@@ -58,7 +61,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         if (!ctx.apps.includes(entry.app)) continue;
         if (!ctx.presets.includes(entry.preset)) continue;
 
-        const skipReason = shouldSkipMeasurement(entry.app, entry.preset, ctx);
+        const skipReason = shouldSkipMeasurement(entry.runtime, entry.app, entry.preset, ctx);
         if (skipReason) {
             info(`Skipping ${entry.app}/${entry.preset}: ${skipReason}`);
             continue;
@@ -95,40 +98,43 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
         // Engine × profile loop
         const engines = getEnginesForApp(entry.app, effectiveEngines);
-        for (const engine of engines) {
-            const profiles = getProfilesForEngine(engine, effectiveProfiles);
-            for (const profile of profiles) {
-                totalMeasurements++;
-                try {
-                    info(`  ${engine}/${profile}`);
+        const runtimes = getRuntimesForApp(entry.app, effectiveRuntimes);
+        for (const runtime of runtimes) {
+            for (const engine of engines) {
+                const profiles = getProfilesForEngine(engine, effectiveProfiles);
+                for (const profile of profiles) {
+                    totalMeasurements++;
+                    try {
+                        info(`  ${engine}/${profile}`);
 
-                    let result: MetricsResult;
+                        let result: MetricsResult;
 
-                    if (BROWSER_ENGINES.has(engine)) {
-                        result = await measureBrowser(
-                            engine, profile, entry, webRoot,
-                            compileTime, fileSizes, isInternal, ctx,
+                        if (BROWSER_ENGINES.has(engine)) {
+                            result = await measureBrowser(
+                                engine, profile, entry, webRoot,
+                                compileTime, fileSizes, isInternal, ctx,
+                            );
+                        } else {
+                            result = await measureCli(
+                                engine, entry, webRoot,
+                                compileTime, fileSizes, isInternal, ctx,
+                            );
+                        }
+
+                        // Build and write result JSON
+                        const meta = buildMeta(ctx, entry, engine, profile);
+                        const resultJson = buildResultJson(meta, result.metrics, result.sampleCounts);
+                        const filename = buildResultFilename(
+                            ctx.sdkInfo, runtime, entry.preset,
+                            profile, engine, entry.app,
                         );
-                    } else {
-                        result = await measureCli(
-                            engine, entry, webRoot,
-                            compileTime, fileSizes, isInternal, ctx,
-                        );
+                        const outPath = join(ctx.resultsDir, filename);
+                        await writeFile(outPath, JSON.stringify(resultJson, null, 2) + '\n');
+                        info(`    → ${filename}`);
+                    } catch (e) {
+                        totalFailures++;
+                        err(`  Failed ${entry.app}/${entry.preset} ${engine}/${profile}: ${e instanceof Error ? e.message : e}`);
                     }
-
-                    // Build and write result JSON
-                    const meta = buildMeta(ctx, entry, engine, profile);
-                    const resultJson = buildResultJson(meta, result.metrics, result.sampleCounts);
-                    const filename = buildResultFilename(
-                        ctx.sdkInfo, ctx.runtime, entry.preset,
-                        profile, engine, entry.app,
-                    );
-                    const outPath = join(ctx.resultsDir, filename);
-                    await writeFile(outPath, JSON.stringify(resultJson, null, 2) + '\n');
-                    info(`    → ${filename}`);
-                } catch (e) {
-                    totalFailures++;
-                    err(`  Failed ${entry.app}/${entry.preset} ${engine}/${profile}: ${e instanceof Error ? e.message : e}`);
                 }
             }
         }

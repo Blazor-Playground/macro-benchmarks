@@ -67,7 +67,6 @@ jobs:
             ${{ inputs.sdk_version && format('--sdk-version "{0}"', inputs.sdk_version) || '' }} \
             ${{ inputs.runtime_commit && format('--runtime-commit "{0}"', inputs.runtime_commit) || '' }} \
             ${{ inputs.runtime_pack && format('--runtime-pack "{0}"', inputs.runtime_pack) || '' }} \
-            --runtime mono \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 
       - name: Read SDK version
@@ -101,7 +100,7 @@ jobs:
     permissions:
       contents: write
       packages: read
-    timeout-minutes: 90
+    timeout-minutes: 180
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
@@ -125,7 +124,6 @@ jobs:
           npx --prefix bench tsx bench/src/main.ts \
             --stages check-out-tracking,download-sdk,build \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
-            --runtime mono \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 
       - name: Read run ID
@@ -192,7 +190,7 @@ jobs:
     container:
       image: ${{ vars.CONTAINER_REGISTRY }}/browser-bench-measure:latest
       options: --user 1001
-    timeout-minutes: 60
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
@@ -237,9 +235,8 @@ jobs:
             --context "${ARTIFACTS_DIR}/bench-context.json" \
             --app "${{ matrix.app }}" \
             --preset "${{ matrix.preset }}" \
-            --runtime mono \
             --retries 3 \
-            --timeout 300000 \
+            --timeout 600000 \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 
       - name: Upload results
@@ -305,7 +302,6 @@ jobs:
             --stages transform-views,update-views \
             --verbose \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
-            --runtime mono \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 
       - name: Upload final results
@@ -356,5 +352,4 @@ jobs:
           npx --prefix bench tsx bench/src/main.ts \
             --stages check-out-tracking,schedule \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
-            --runtime mono \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}

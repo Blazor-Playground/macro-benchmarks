@@ -3,6 +3,15 @@
 
 import { dotnet, exit } from './_framework/dotnet.js'
 
+function silentExit() {
+    try {
+        exit(0);
+    } catch (err) {
+        if (err.status === 0) return;
+        throw err;
+    }
+}
+
 async function outer() {
     const isBrowser = typeof globalThis.window !== 'undefined';
     globalThis.js_loaded = performance.now();
@@ -24,7 +33,7 @@ async function outer() {
     await inner({ setModuleImports, getAssemblyExports, runMain, exit }, globalThis.bench_results, globalThis.bench_samples);
 
     if (isBrowser) {
-        exit(0);
+        silentExit();
     }
 
     globalThis.dotnet_exit = performance.now();
@@ -48,7 +57,7 @@ async function outer() {
     }
 
     if (!isBrowser) {
-        exit(0);
+        silentExit();
     }
 }
 

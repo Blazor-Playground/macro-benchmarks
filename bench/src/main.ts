@@ -9,7 +9,7 @@ async function main(): Promise<void> {
 
     if (ctx.verbose) {
         console.log('Stages:', ctx.stages.join(', '));
-        console.log('Runtime:', ctx.runtime);
+        console.log('Runtimes:', ctx.runtimes.join(', '));
         console.log('Apps:', ctx.apps.join(', '));
         console.log('Presets:', ctx.presets.join(', '));
         console.log('Engines:', ctx.engines.join(', '));

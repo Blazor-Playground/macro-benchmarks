@@ -60,6 +60,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         // Apply app/preset filters
         if (!ctx.apps.includes(entry.app)) continue;
         if (!ctx.presets.includes(entry.preset)) continue;
+        if (!ctx.runtimes.includes(entry.runtime)) continue;
 
         const skipReason = shouldSkipMeasurement(entry.runtime, entry.app, entry.preset, ctx);
         if (skipReason) {

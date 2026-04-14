@@ -161,6 +161,7 @@ jobs:
           path: ${{ env.ARTIFACTS_DIR }}/bench-context.json
           if-no-files-found: error
           retention-days: 7
+          overwrite: true
 
       - name: Upload results
         uses: actions/upload-artifact@v7

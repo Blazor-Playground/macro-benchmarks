@@ -43,6 +43,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const effectiveEngines = ctx.dryRun ? [E.Chrome] : ctx.engines;
     const effectiveRuntimes = ctx.dryRun ? [R.Mono] : ctx.runtimes;
     const effectiveProfiles = ctx.dryRun ? ['desktop' as Profile] : ctx.profiles;
+    const deadlineAt = ctx.deadlineMs > 0 ? Date.now() + ctx.deadlineMs : 0;
     let totalMeasurements = 0;
     let totalFailures = 0;
 
@@ -114,6 +115,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
                             result = await measureBrowser(
                                 engine, profile, entry, webRoot,
                                 compileTime, fileSizes, isInternal, ctx,
+                                deadlineAt,
                             );
                         } else {
                             result = await measureCli(
@@ -541,6 +543,7 @@ async function runWalkthroughs(
     verbose: boolean,
     dryRun: boolean,
     cdp: CDPState | null,
+    deadlineAt: number,
 ): Promise<WalkthroughResult> {
     const empty: WalkthroughResult = { metrics: {}, sampleCounts: {}, jsHeapSamples: [], wasmMemorySamples: [] };
     const defaultRuns = warmRuns > 1 ? warmRuns * 4 : 1;
@@ -558,7 +561,19 @@ async function runWalkthroughs(
     for (const wt of matches) {
         const runs = wt.runs ?? defaultRuns;
         const times: number[] = [];
+        let maxIterationMs = 0;
         for (let i = 0; i < runs; i++) {
+            // Time-budget guard: if remaining time < 2× longest iteration, stop early
+            if (deadlineAt > 0 && i > 0) {
+                const remainingMs = deadlineAt - Date.now();
+                const safetyMargin = maxIterationMs * 2;
+                if (remainingMs < safetyMargin) {
+                    err(`⚠ DEADLINE: ${wt.metric} stopped after ${i}/${runs} runs — ` +
+                        `remaining ${Math.round(remainingMs / 1000)}s < 2× max iteration ${Math.round(maxIterationMs / 1000)}s`);
+                    break;
+                }
+            }
+            const iterStart = performance.now();
             const wtPage = await context.newPage();
             await wtPage.goto(pageUrl, { timeout, waitUntil: 'load' });
             await waitForBenchComplete(wtPage, timeout);
@@ -587,7 +602,12 @@ async function runWalkthroughs(
             } finally {
                 await wtPage.close();
                 await sleep(200);
+                const iterMs = performance.now() - iterStart;
+                if (iterMs > maxIterationMs) maxIterationMs = iterMs;
             }
+        }
+        if (times.length < runs) {
+            err(`⚠ PARTIAL RESULT: ${wt.metric} completed ${times.length}/${runs} runs (deadline reached)`);
         }
         const iqm = sortedIQM(times);
         const rounded = iqm != null ? Math.round(iqm) : null;
@@ -628,6 +648,7 @@ async function runBrowserSession(
     verbose: boolean,
     dryRun: boolean,
     srv: StaticServer,
+    deadlineAt: number,
 ): Promise<MetricsResult> {
     const context = await browser.newContext();
     const page = await context.newPage();
@@ -702,7 +723,7 @@ async function runBrowserSession(
 
     // Walkthroughs (external apps only)
     const walkthroughResult = !isInternal
-        ? await runWalkthroughs(context, pageUrl, entry, engine, profile, warmRuns, timeout, verbose, dryRun, cdp)
+        ? await runWalkthroughs(context, pageUrl, entry, engine, profile, warmRuns, timeout, verbose, dryRun, cdp, deadlineAt)
         : { metrics: {}, sampleCounts: {}, jsHeapSamples: [] as number[], wasmMemorySamples: [] as number[] };
     const walkthroughMetrics = walkthroughResult.metrics;
     const walkthroughSampleCounts = walkthroughResult.sampleCounts;
@@ -788,6 +809,7 @@ async function measureBrowser(
     fileSizes: { diskSizeNative: number; diskSizeAssemblies: number } | null,
     isInternal: boolean,
     ctx: BenchContext,
+    deadlineAt: number,
 ): Promise<MetricsResult> {
     const pw = await import('playwright');
     const browserType = engine === E.Firefox ? pw.firefox : pw.chromium;
@@ -832,6 +854,7 @@ async function measureBrowser(
                     browser, pageUrl, entry, engine, profile,
                     compileTime, fileSizes, isInternal, useCDP,
                     warmRuns, timeout, ctx.verbose, ctx.dryRun, srv,
+                    deadlineAt,
                 );
                 await sleep(100);
                 await browser.close();

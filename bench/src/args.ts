@@ -42,6 +42,7 @@ Measurement:
   --retries <n>            Max retries on timeout (default: 0)
   --timeout <ms>           Per-measurement timeout (default: 300000)
   --warm-runs <n>          Warm/cold reload iterations (default: 5)
+  --deadline-minutes <n>   Time budget for measure stage (default: 0 = no limit)
   --no-headless            Launch browsers in headed mode
 
 Docker:
@@ -92,6 +93,7 @@ const ARG_OPTIONS = {
     'retries': { type: 'string' as const, default: '0' },
     'timeout': { type: 'string' as const, default: '300000' },
     'warm-runs': { type: 'string' as const, default: '5' },
+    'deadline-minutes': { type: 'string' as const, default: '0' },
     'no-headless': { type: 'boolean' as const, default: false },
 
     // Docker
@@ -236,6 +238,7 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
         retries: parseIntStrict(values.retries!, 'retries'),
         timeout: parseIntStrict(values.timeout!, 'timeout'),
         warmRuns: parseIntStrict(values['warm-runs']!, 'warm-runs'),
+        deadlineMs: parseIntStrict(values['deadline-minutes']!, 'deadline-minutes') * 60_000 || 0,
         headless: !(values['no-headless'] ?? false),
 
         // Docker

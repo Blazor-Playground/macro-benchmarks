@@ -190,7 +190,7 @@ jobs:
     container:
       image: ${{ vars.CONTAINER_REGISTRY }}/browser-bench-measure:latest
       options: --user 1001
-    timeout-minutes: 120
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -238,6 +238,7 @@ jobs:
             --runtime "${{ matrix.runtime }}" \
             --retries 3 \
             --timeout 600000 \
+            --deadline-minutes 55 \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 
       - name: Upload results

@@ -62,6 +62,7 @@ export interface BenchContext {
     retries: number;
     timeout: number;
     warmRuns: number;
+    deadlineMs: number;
     headless: boolean;
 
     // ── Docker ──

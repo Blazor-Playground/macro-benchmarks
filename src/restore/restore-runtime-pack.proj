@@ -13,6 +13,8 @@
     <TargetFramework>$(BenchmarkTargetFramework)</TargetFramework>
     <RuntimePackVersion>$(RuntimePackVersion)</RuntimePackVersion>
     <RuntimeFlavor Condition="'$(RuntimeFlavor)' == ''">Mono</RuntimeFlavor>
+    <UseMonoRuntime Condition="'$(RuntimeFlavor)' != 'Mono'">false</UseMonoRuntime>
+    <UseMonoRuntime Condition="'$(RuntimeFlavor)' == 'Mono'">true</UseMonoRuntime>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(RuntimePackVersion)' != '' and '$(RuntimeFlavor)' == 'Mono'">

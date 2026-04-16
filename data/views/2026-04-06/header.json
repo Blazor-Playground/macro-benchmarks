@@ -119,6 +119,30 @@
       "benchmarkDateTime": "2026-04-16T02:22:12.560Z",
       "ciRunId": "24486937306",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/24486937306"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.4.26215.118",
+      "runtimeGitHash": "cf7fcfa43074d09d94bf5afce174289c74257502",
+      "aspnetCoreGitHash": "bc03ef8fdfeb771cf53a55e21b5cd29e4edf93ee",
+      "sdkGitHash": "2eac35a9507b59f3f19160f9e39aa944379c7e43",
+      "vmrGitHash": "37d611a345239465f81d820e97e3113354a5f058",
+      "runtimeCommitDateTime": "2026-04-11T00:26:12Z",
+      "runtimeCommitAuthor": "Copilot",
+      "runtimeCommitMessage": "Remove unused AssemblySpecHash class (#126761)",
+      "aspnetCoreCommitDateTime": "2026-04-14T00:41:01Z",
+      "aspnetCoreVersion": "11.0.0-preview.4.26215.118",
+      "runtimePackVersion": "11.0.0-preview.4.26215.118",
+      "workloadVersion": "11.0.100-preview.4.26215.118",
+      "bootstrapSdkVersion": "11.0.100-preview.4.26210.111",
+      "releaseDate": "2026-04-15",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-04-16T05:44:36.486Z",
+      "ciRunId": "24492493217",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/24492493217"
     }
   ],
   "apps": {

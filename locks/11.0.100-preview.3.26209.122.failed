@@ -1,0 +1,151 @@
+{
+  "failedAt": "2026-04-16T11:48:29.959Z",
+  "ciRunId": "24506323498",
+  "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/24506323498",
+  "failures": [
+    {
+      "target": "empty-browser/dev-loop",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1102: Unable to find package Microsoft.NETCore.App.Runtime.browser-wasm with version (= 11.0.0-preview.3.26209.122)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1102:   - Found 27 version(s) in nuget.org [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1102:   - Found 27 version(s) in dotnet-public [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1102:   - Found 8 version(s) in dotnet11 [ Nearest version: 11.0.0-preview.4.26210.110 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1102:   - Found 1 version(s) in naotllvm [ Nearest version: 5.0.0-rc.1.20372.2 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1102:   - Found 0 version(s) in dotnet10",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1102:   - Found 0 version(s) in unoplatformdev"
+      ]
+    },
+    {
+      "target": "empty-browser/no-workload",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1102: Unable to find package Microsoft.NETCore.App.Runtime.browser-wasm with version (= 11.0.0-preview.3.26209.122)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1102:   - Found 27 version(s) in nuget.org [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1102:   - Found 27 version(s) in dotnet-public [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1102:   - Found 8 version(s) in dotnet11 [ Nearest version: 11.0.0-preview.4.26210.110 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1102:   - Found 1 version(s) in naotllvm [ Nearest version: 5.0.0-rc.1.20372.2 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1102:   - Found 0 version(s) in dotnet10",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1102:   - Found 0 version(s) in unoplatformdev"
+      ]
+    },
+    {
+      "target": "micro-benchmarks/dev-loop",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error NU1102: Unable to find package Microsoft.NETCore.App.Runtime.browser-wasm with version (= 11.0.0-preview.3.26209.122)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error NU1102:   - Found 27 version(s) in nuget.org [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error NU1102:   - Found 27 version(s) in dotnet-public [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error NU1102:   - Found 8 version(s) in dotnet11 [ Nearest version: 11.0.0-preview.4.26210.110 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error NU1102:   - Found 1 version(s) in naotllvm [ Nearest version: 5.0.0-rc.1.20372.2 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error NU1102:   - Found 0 version(s) in dotnet10",
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error NU1102:   - Found 0 version(s) in unoplatformdev"
+      ]
+    },
+    {
+      "target": "micro-benchmarks/no-workload",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error NU1102: Unable to find package Microsoft.NETCore.App.Runtime.browser-wasm with version (= 11.0.0-preview.3.26209.122)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error NU1102:   - Found 27 version(s) in nuget.org [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error NU1102:   - Found 27 version(s) in dotnet-public [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error NU1102:   - Found 8 version(s) in dotnet11 [ Nearest version: 11.0.0-preview.4.26210.110 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error NU1102:   - Found 1 version(s) in naotllvm [ Nearest version: 5.0.0-rc.1.20372.2 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error NU1102:   - Found 0 version(s) in dotnet10",
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error NU1102:   - Found 0 version(s) in unoplatformdev"
+      ]
+    },
+    {
+      "target": "empty-blazor/dev-loop",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj : error NU1102: Unable to find package Microsoft.NETCore.App.Runtime.browser-wasm with version (= 11.0.0-preview.3.26209.122)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj : error NU1102:   - Found 27 version(s) in nuget.org [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj : error NU1102:   - Found 27 version(s) in dotnet-public [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj : error NU1102:   - Found 8 version(s) in dotnet11 [ Nearest version: 11.0.0-preview.4.26210.110 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj : error NU1102:   - Found 1 version(s) in naotllvm [ Nearest version: 5.0.0-rc.1.20372.2 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj : error NU1102:   - Found 0 version(s) in dotnet10",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj : error NU1102:   - Found 0 version(s) in unoplatformdev"
+      ]
+    },
+    {
+      "target": "empty-blazor/no-workload",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj : error NU1102: Unable to find package Microsoft.NETCore.App.Runtime.browser-wasm with version (= 11.0.0-preview.3.26209.122)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj : error NU1102:   - Found 27 version(s) in nuget.org [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj : error NU1102:   - Found 27 version(s) in dotnet-public [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj : error NU1102:   - Found 8 version(s) in dotnet11 [ Nearest version: 11.0.0-preview.4.26210.110 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj : error NU1102:   - Found 1 version(s) in naotllvm [ Nearest version: 5.0.0-rc.1.20372.2 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj : error NU1102:   - Found 0 version(s) in dotnet10",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj : error NU1102:   - Found 0 version(s) in unoplatformdev"
+      ]
+    },
+    {
+      "target": "blazing-pizza/dev-loop",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj : error NU1102: Unable to find package Microsoft.NETCore.App.Runtime.browser-wasm with version (= 11.0.0-preview.3.26209.122)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj : error NU1102:   - Found 27 version(s) in nuget.org [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj : error NU1102:   - Found 27 version(s) in dotnet-public [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj : error NU1102:   - Found 8 version(s) in dotnet11 [ Nearest version: 11.0.0-preview.4.26210.110 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj : error NU1102:   - Found 1 version(s) in naotllvm [ Nearest version: 5.0.0-rc.1.20372.2 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj : error NU1102:   - Found 0 version(s) in dotnet10",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj : error NU1102:   - Found 0 version(s) in unoplatformdev"
+      ]
+    },
+    {
+      "target": "blazing-pizza/no-workload",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj : error NU1102: Unable to find package Microsoft.NETCore.App.Runtime.browser-wasm with version (= 11.0.0-preview.3.26209.122)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj : error NU1102:   - Found 27 version(s) in nuget.org [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj : error NU1102:   - Found 27 version(s) in dotnet-public [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj : error NU1102:   - Found 8 version(s) in dotnet11 [ Nearest version: 11.0.0-preview.4.26210.110 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj : error NU1102:   - Found 1 version(s) in naotllvm [ Nearest version: 5.0.0-rc.1.20372.2 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj : error NU1102:   - Found 0 version(s) in dotnet10",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj : error NU1102:   - Found 0 version(s) in unoplatformdev"
+      ]
+    },
+    {
+      "target": "havit-bootstrap/dev-loop",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj : error NU1102: Unable to find package Microsoft.NETCore.App.Runtime.browser-wasm with version (= 11.0.0-preview.3.26209.122)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj : error NU1102:   - Found 27 version(s) in nuget.org [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj : error NU1102:   - Found 27 version(s) in dotnet-public [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj : error NU1102:   - Found 8 version(s) in dotnet11 [ Nearest version: 11.0.0-preview.4.26210.110 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj : error NU1102:   - Found 1 version(s) in naotllvm [ Nearest version: 5.0.0-rc.1.20372.2 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj : error NU1102:   - Found 0 version(s) in dotnet10",
+        "/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj : error NU1102:   - Found 0 version(s) in unoplatformdev"
+      ]
+    },
+    {
+      "target": "havit-bootstrap/no-workload",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj : error NU1102: Unable to find package Microsoft.NETCore.App.Runtime.browser-wasm with version (= 11.0.0-preview.3.26209.122)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj : error NU1102:   - Found 27 version(s) in nuget.org [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj : error NU1102:   - Found 27 version(s) in dotnet-public [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj : error NU1102:   - Found 8 version(s) in dotnet11 [ Nearest version: 11.0.0-preview.4.26210.110 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj : error NU1102:   - Found 1 version(s) in naotllvm [ Nearest version: 5.0.0-rc.1.20372.2 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj : error NU1102:   - Found 0 version(s) in dotnet10",
+        "/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj : error NU1102:   - Found 0 version(s) in unoplatformdev"
+      ]
+    },
+    {
+      "target": "mud-blazor/dev-loop",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1102: Unable to find package Microsoft.NETCore.App.Runtime.browser-wasm with version (= 11.0.0-preview.3.26209.122)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1102:   - Found 27 version(s) in nuget.org [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1102:   - Found 27 version(s) in dotnet-public [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1102:   - Found 8 version(s) in dotnet11 [ Nearest version: 11.0.0-preview.4.26210.110 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1102:   - Found 1 version(s) in naotllvm [ Nearest version: 5.0.0-rc.1.20372.2 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1102:   - Found 0 version(s) in dotnet10",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1102:   - Found 0 version(s) in unoplatformdev"
+      ]
+    },
+    {
+      "target": "mud-blazor/no-workload",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1102: Unable to find package Microsoft.NETCore.App.Runtime.browser-wasm with version (= 11.0.0-preview.3.26209.122)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1102:   - Found 27 version(s) in nuget.org [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1102:   - Found 27 version(s) in dotnet-public [ Nearest version: 6.0.0-preview.3.21201.4 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1102:   - Found 8 version(s) in dotnet11 [ Nearest version: 11.0.0-preview.4.26210.110 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1102:   - Found 1 version(s) in naotllvm [ Nearest version: 5.0.0-rc.1.20372.2 ]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1102:   - Found 0 version(s) in dotnet10",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1102:   - Found 0 version(s) in unoplatformdev"
+      ]
+    }
+  ]
+}

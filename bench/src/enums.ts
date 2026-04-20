@@ -177,6 +177,9 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     if (runtime === Runtime.CoreCLR && ctx.sdkInfo.major < 11) {
         return `CoreCLR runtime does not build with SDK versions below 11.0.0`;
     }
+    if (runtime === Runtime.CoreCLR && ctx.sdkInfo.major == 11 && ctx.sdkInfo.isPrerelease && ctx.sdkInfo.sdkVersion.includes('preview.3')) {
+        return `CoreCLR runtime does not build with SDK versions below 11 preview.4`;
+    }
     if (runtime === Runtime.NativeAOTLLVM && ctx.sdkInfo.major < 11) {
         return `NativeAOTLLVM runtime does not build with SDK versions below 11.0.0`;
     }

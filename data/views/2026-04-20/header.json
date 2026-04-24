@@ -23,6 +23,30 @@
       "benchmarkDateTime": "2026-04-23T16:32:57.026Z",
       "ciRunId": "24843876377",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/24843876377"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.4.26223.112",
+      "runtimeGitHash": "a28fe52ce3f656f49c7d552f2b455ff6da9d6b31",
+      "aspnetCoreGitHash": "11a9d22aa163093c31bd70c7caafadeb5f656db8",
+      "sdkGitHash": "e259547ae0d38e7273966e3ff12ae381f4d263bf",
+      "vmrGitHash": "1a76ed96ce79d0aaafccd60f0f0e0d46cd7d7510",
+      "runtimeCommitDateTime": "2026-04-23T01:12:46Z",
+      "runtimeCommitAuthor": "Andy Ayers",
+      "runtimeCommitMessage": "[Wasm RyuJit] EH, Unwind, and unwindable frames (#127043)",
+      "aspnetCoreCommitDateTime": "2026-04-21T00:23:21Z",
+      "aspnetCoreVersion": "11.0.0-preview.4.26223.112",
+      "runtimePackVersion": "11.0.0-preview.4.26223.112",
+      "workloadVersion": "11.0.100-preview.4.26223.112",
+      "bootstrapSdkVersion": "11.0.100-preview.4.26210.111",
+      "releaseDate": "2026-04-23",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-04-24T08:49:18.678Z",
+      "ciRunId": "24878402117",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/24878402117"
     }
   ],
   "apps": {

@@ -71,6 +71,30 @@
       "benchmarkDateTime": "2026-04-24T23:35:04.472Z",
       "ciRunId": "24914786964",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/24914786964"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.5.26224.123",
+      "runtimeGitHash": "50794446cccb75ec027939d9770a289f11314caa",
+      "aspnetCoreGitHash": "11a9d22aa163093c31bd70c7caafadeb5f656db8",
+      "sdkGitHash": "a1f2c13671e73fd0dc0864d374968bc0342c63c2",
+      "vmrGitHash": "472c68a4fb23be92717d1714fb7a38bda7c4aac0",
+      "runtimeCommitDateTime": "2026-04-23T23:58:44Z",
+      "runtimeCommitAuthor": "John Tur",
+      "runtimeCommitMessage": "Annotate System.ServiceModel.Syndication for trimming and AOT (#114028)",
+      "aspnetCoreCommitDateTime": "2026-04-21T00:23:21Z",
+      "aspnetCoreVersion": "11.0.0-preview.5.26224.123",
+      "runtimePackVersion": "11.0.0-preview.5.26224.123",
+      "workloadVersion": "11.0.100-preview.5.26224.123",
+      "bootstrapSdkVersion": "11.0.100-preview.4.26210.111",
+      "releaseDate": "2026-04-24",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-04-25T08:03:08.494Z",
+      "ciRunId": "24925233894",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/24925233894"
     }
   ],
   "apps": {

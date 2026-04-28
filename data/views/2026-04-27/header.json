@@ -25,7 +25,7 @@
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/25041230390"
     },
     {
-      "sdkVersion": "11.0.100-preview.5.26227.131",
+      "sdkVersion": "11.0.100-preview.5.26228.102",
       "runtimeGitHash": "5ef1257b9b3042bd577bc93003bac71432830fbb",
       "aspnetCoreGitHash": "11a9d22aa163093c31bd70c7caafadeb5f656db8",
       "sdkGitHash": "a1f2c13671e73fd0dc0864d374968bc0342c63c2",
@@ -34,19 +34,19 @@
       "runtimeCommitAuthor": "Copilot",
       "runtimeCommitMessage": "NativeAOT: make external TypeMap trimming array-aware with MdArray element fallback (#127135)",
       "aspnetCoreCommitDateTime": "2026-04-21T00:23:21Z",
-      "aspnetCoreVersion": "11.0.0-preview.5.26227.131",
-      "runtimePackVersion": "11.0.0-preview.5.26227.131",
-      "workloadVersion": "11.0.100-preview.5.26227.131",
+      "aspnetCoreVersion": "11.0.0-preview.5.26228.102",
+      "runtimePackVersion": "11.0.0-preview.5.26228.102",
+      "workloadVersion": "11.0.100-preview.5.26228.102",
       "bootstrapSdkVersion": "11.0.100-preview.4.26210.111",
-      "releaseDate": "2026-04-27",
+      "releaseDate": "2026-04-28",
       "major": 11,
       "minor": 0,
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-04-28T14:29:27.203Z",
-      "ciRunId": "25055501645",
-      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/25055501645"
+      "benchmarkDateTime": "2026-04-28T17:09:17.047Z",
+      "ciRunId": "25064050022",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/25064050022"
     }
   ],
   "apps": {

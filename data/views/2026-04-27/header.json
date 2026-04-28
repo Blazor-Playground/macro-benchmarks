@@ -1,33 +1,31 @@
 {
-  "lastUpdated": "2026-04-28T10:00:07.469Z",
-  "activeRelease": "net11",
-  "releases": [
-    "net8",
-    "net9",
-    "net10"
+  "columns": [
+    {
+      "sdkVersion": "11.0.100-preview.5.26227.124",
+      "runtimeGitHash": "5ef1257b9b3042bd577bc93003bac71432830fbb",
+      "aspnetCoreGitHash": "11a9d22aa163093c31bd70c7caafadeb5f656db8",
+      "sdkGitHash": "a1f2c13671e73fd0dc0864d374968bc0342c63c2",
+      "vmrGitHash": "0188adf7c695ee112445a74c0f2b0f23c517c750",
+      "runtimeCommitDateTime": "2026-04-27T00:32:32Z",
+      "runtimeCommitAuthor": "Copilot",
+      "runtimeCommitMessage": "NativeAOT: make external TypeMap trimming array-aware with MdArray element fallback (#127135)",
+      "aspnetCoreCommitDateTime": "2026-04-21T00:23:21Z",
+      "aspnetCoreVersion": "11.0.0-preview.5.26227.124",
+      "runtimePackVersion": "11.0.0-preview.5.26227.124",
+      "workloadVersion": "11.0.100-preview.5.26227.124",
+      "bootstrapSdkVersion": "11.0.100-preview.4.26210.111",
+      "releaseDate": "2026-04-27",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-04-28T09:03:44.245Z",
+      "ciRunId": "25041230390",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/25041230390"
+    }
   ],
-  "weeks": [
-    "2026-04-27",
-    "2026-04-20",
-    "2026-04-06",
-    "2026-03-30",
-    "2026-03-23",
-    "2026-03-16",
-    "2026-03-09",
-    "2026-03-02",
-    "2026-02-23"
-  ],
-  "apps": [
-    "blazing-pizza",
-    "empty-blazor",
-    "empty-browser",
-    "havit-bootstrap",
-    "micro-benchmarks",
-    "mud-blazor",
-    "semi-avalonia",
-    "uno-gallery"
-  ],
-  "metrics": {
+  "apps": {
     "blazing-pizza": [
       "compile-time",
       "disk-size-assemblies",
@@ -126,22 +124,6 @@
       "time-to-reach-managed-warm",
       "wasm-memory-size"
     ],
-    "uno-gallery": [
-      "compile-time",
-      "disk-size-assemblies",
-      "disk-size-native",
-      "download-size-cold",
-      "download-size-warm",
-      "memory-peak",
-      "server-requests-cold",
-      "server-requests-warm",
-      "time-to-create-dotnet-cold",
-      "time-to-create-dotnet-warm",
-      "time-to-reach-managed-cold",
-      "time-to-reach-managed-warm",
-      "uno-walkthrough",
-      "wasm-memory-size"
-    ],
     "semi-avalonia": [
       "compile-time",
       "disk-size-assemblies",
@@ -157,31 +139,23 @@
       "time-to-reach-managed-cold",
       "time-to-reach-managed-warm",
       "wasm-memory-size"
+    ],
+    "uno-gallery": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-cold",
+      "download-size-warm",
+      "memory-peak",
+      "server-requests-cold",
+      "server-requests-warm",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "uno-walkthrough",
+      "wasm-memory-size"
     ]
   },
-  "dimensions": {
-    "runtimes": [
-      "coreclr",
-      "mono"
-    ],
-    "presets": [
-      "aot",
-      "dev-loop",
-      "invariant",
-      "native-relink",
-      "no-jiterp",
-      "no-reflection-emit",
-      "no-workload"
-    ],
-    "profiles": [
-      "desktop",
-      "mobile"
-    ],
-    "engines": [
-      "chrome",
-      "firefox",
-      "node",
-      "v8"
-    ]
-  }
+  "week": "2026-04-27"
 }

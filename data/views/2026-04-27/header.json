@@ -71,6 +71,30 @@
       "benchmarkDateTime": "2026-04-29T06:22:01.768Z",
       "ciRunId": "25092203694",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/25092203694"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.5.26229.113",
+      "runtimeGitHash": "5391e9ec4fb4ab1bcebe4dbfc33bf4b8fdf01981",
+      "aspnetCoreGitHash": "5a0718fe4b75003ac136d3235dbc9a171700b3f4",
+      "sdkGitHash": "50044437f4d10f44c1e8925218955edf39f1f657",
+      "vmrGitHash": "4c4e7f410fc876590f219fc6022b6c18d6f6a475",
+      "runtimeCommitDateTime": "2026-04-28T21:27:00Z",
+      "runtimeCommitAuthor": "Rachel Jarvi",
+      "runtimeCommitMessage": "[cDAC] Adding IsLeafFrame and GetContext DacDbi APIs (#127195)",
+      "aspnetCoreCommitDateTime": "2026-04-29T02:06:59Z",
+      "aspnetCoreVersion": "11.0.0-preview.5.26229.113",
+      "runtimePackVersion": "11.0.0-preview.5.26229.113",
+      "workloadVersion": "11.0.100-preview.5.26229.113",
+      "bootstrapSdkVersion": "11.0.100-preview.4.26210.111",
+      "releaseDate": "2026-04-29",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-04-29T23:50:57.495Z",
+      "ciRunId": "25137717582",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/25137717582"
     }
   ],
   "apps": {

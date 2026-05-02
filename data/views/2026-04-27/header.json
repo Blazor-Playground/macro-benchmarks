@@ -119,6 +119,30 @@
       "benchmarkDateTime": "2026-04-30T14:22:11.059Z",
       "ciRunId": "25167546605",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/25167546605"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.5.26251.110",
+      "runtimeGitHash": "013ca46b740c861d66c3f783ada239c669f83c34",
+      "aspnetCoreGitHash": "a80ff304d3a0aad42b2b3182b181e5c6de578002",
+      "sdkGitHash": "50044437f4d10f44c1e8925218955edf39f1f657",
+      "vmrGitHash": "613deef68ee29a6fbe891984df0e2a0b27945bc6",
+      "runtimeCommitDateTime": "2026-05-01T00:25:41Z",
+      "runtimeCommitAuthor": "Tanner Gooding",
+      "runtimeCommitMessage": "Split the xarch specific data from register.h into its own file to match other platforms (#127528)",
+      "aspnetCoreCommitDateTime": "2026-04-30T21:21:57Z",
+      "aspnetCoreVersion": "11.0.0-preview.5.26251.110",
+      "runtimePackVersion": "11.0.0-preview.5.26251.110",
+      "workloadVersion": "11.0.100-preview.5.26251.110",
+      "bootstrapSdkVersion": "11.0.100-preview.4.26210.111",
+      "releaseDate": "2026-05-01",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-05-02T08:16:03.432Z",
+      "ciRunId": "25246668902",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/25246668902"
     }
   ],
   "apps": {

@@ -23,6 +23,30 @@
       "benchmarkDateTime": "2026-05-07T09:15:18.359Z",
       "ciRunId": "25484041056",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/25484041056"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.5.26256.117",
+      "runtimeGitHash": "055e04bbff528e950acfa0f5e56aa80c2e7929f7",
+      "aspnetCoreGitHash": "05434a9e554a75c887f204d08849fba337488dc3",
+      "sdkGitHash": "6dc6b337ba082226f836da7585a07f58d781e7f1",
+      "vmrGitHash": "ebbbb32f13fb8f53a8a34587c4c7dcb792adb8ea",
+      "runtimeCommitDateTime": "2026-05-06T06:37:39Z",
+      "runtimeCommitAuthor": "Tanner Gooding",
+      "runtimeCommitMessage": "Centralize a couple JIT arithmetic helpers (#127781)",
+      "aspnetCoreCommitDateTime": "2026-05-05T20:04:32Z",
+      "aspnetCoreVersion": "11.0.0-preview.5.26256.117",
+      "runtimePackVersion": "11.0.0-preview.5.26256.117",
+      "workloadVersion": "11.0.100-preview.5.26256.117",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
+      "releaseDate": "2026-05-06",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-05-07T12:43:33.856Z",
+      "ciRunId": "25493611265",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/25493611265"
     }
   ],
   "apps": {

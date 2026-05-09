@@ -71,6 +71,30 @@
       "benchmarkDateTime": "2026-05-08T05:48:06.255Z",
       "ciRunId": "25537318671",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/25537318671"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.5.26258.107",
+      "runtimeGitHash": "06ca6751830996c1c815bfdd73a3fb4c8b53d77f",
+      "aspnetCoreGitHash": "b9c48b36859337db2fb0681bb147e83621af083d",
+      "sdkGitHash": "6dc6b337ba082226f836da7585a07f58d781e7f1",
+      "vmrGitHash": "6a78ff2ff4f82b8929d58d6af5d97b16737ca756",
+      "runtimeCommitDateTime": "2026-05-07T01:08:18Z",
+      "runtimeCommitAuthor": "Copilot",
+      "runtimeCommitMessage": "Merge ThreadTasks into ThreadState, remove ThreadTasks (#127884)",
+      "aspnetCoreCommitDateTime": "2026-05-08T00:18:23Z",
+      "aspnetCoreVersion": "11.0.0-preview.5.26258.107",
+      "runtimePackVersion": "11.0.0-preview.5.26258.107",
+      "workloadVersion": "11.0.100-preview.5.26258.107",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
+      "releaseDate": "2026-05-08",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-05-09T02:46:24.037Z",
+      "ciRunId": "25588203400",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/25588203400"
     }
   ],
   "apps": {

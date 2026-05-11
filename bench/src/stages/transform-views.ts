@@ -290,9 +290,7 @@ async function writeBucketView(
         : [...columnMap.values()].sort((a, b) =>
             compareSdkVersion(a.sdkVersion, b.sdkVersion));
 
-    const colIndex = new Map(columns.map((c, i) => [
-        type === 'week' ? c.vmrGitHash : c.sdkVersion, i,
-    ]));
+    const colIndex = new Map(columns.map((c, i) => [getColumnId(c), i]));
 
     // Build grid: app → metric → rowKey → values[]
     // For build-time and size metrics, only keep chrome/desktop to avoid redundant rows

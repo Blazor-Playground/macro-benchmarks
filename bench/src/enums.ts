@@ -110,9 +110,11 @@ export const APP_CONFIG: Record<App, AppConfig> = {
     [App.MicroBenchmarks]: { browserOnly: false, internal: true, monoOnly: false },
     [App.EmptyBlazor]: { browserOnly: true, internal: false, monoOnly: false },
     [App.BlazingPizza]: { browserOnly: true, internal: false, monoOnly: false },
-    [App.HavitBootstrap]: { browserOnly: true, internal: false, monoOnly: true },
+    [App.HavitBootstrap]: { browserOnly: true, internal: false, monoOnly: false },
+    [App.MudBlazor]: { browserOnly: true, internal: false, monoOnly: false },
+
+    // mono only
     [App.BenchViewer]: { browserOnly: true, internal: false, monoOnly: true },
-    [App.MudBlazor]: { browserOnly: true, internal: false, monoOnly: true },
     [App.UnoGallery]: { browserOnly: true, internal: false, monoOnly: true },
     [App.SemiAvalonia]: { browserOnly: true, internal: false, monoOnly: true },
 };

@@ -7,6 +7,8 @@ namespace BenchViewer.Pages;
 
 public partial class Delta
 {
+    [Inject] private HttpClient Http { get; set; } = default!;
+
     private DeltaIndex? deltaIndex;
     private DeltaReport? report;
     private string selectedFile = "";
@@ -15,11 +17,8 @@ public partial class Delta
     private bool noData;
     private string? reportError;
 
-    private string dataBaseUrl = "";
-
     private List<DeltaEntry> SignificantEntries => report?.Entries
-        .Where(e => e.Significant)
-        .OrderByDescending(e => Math.Abs(e.Sigma))
+        .OrderByDescending(e => Math.Abs(e.DeltaPct ?? 0))
         .ToList() ?? new();
 
     [SupplyParameterFromQuery(Name = "sdk")]
@@ -29,13 +28,9 @@ public partial class Delta
     {
         if (!firstRender) return;
 
-        dataBaseUrl = $"{DashboardConfig.GitHubPagesUrl}/data/views";
-
         try
         {
-            using var http = new HttpClient();
-            var indexUrl = $"{dataBaseUrl}/delta/index.json";
-            var response = await http.GetAsync(indexUrl);
+            var response = await Http.GetAsync("data/views/delta/index.json");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -100,9 +95,8 @@ public partial class Delta
 
         try
         {
-            using var http = new HttpClient();
-            var url = $"{dataBaseUrl}/delta/{selectedFile}";
-            report = await http.GetFromJsonAsync<DeltaReport>(url);
+            var url = $"data/views/delta/{selectedFile}";
+            report = await Http.GetFromJsonAsync<DeltaReport>(url);
             if (report == null)
             {
                 reportError = "Report not found.";
@@ -128,9 +122,9 @@ public partial class Delta
         return pct > 0 ? $"+{pct:F1}%" : $"{pct:F1}%";
     }
 
-    private static string FormatSigma(double sigma)
+    private static string FormatSigma(double? sigma)
     {
-        if (double.IsInfinity(sigma)) return "∞σ";
-        return $"{sigma:F1}σ";
+        if (sigma == null || double.IsInfinity(sigma.Value)) return "∞σ";
+        return $"{sigma.Value:F1}σ";
     }
 }

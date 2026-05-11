@@ -7,7 +7,7 @@
         <button class="btn btn-sm btn-link p-0" @onclick="OnClose">✕</button>
     </div>
     <div class="detail-panel-body px-3 py-2 small">
-        <CommitInfoBlock Point="@CurrentPoint" Expanded="true" />
+        <CommitInfoBlock Point="@CurrentPoint" Expanded="true" PreviousMetrics="@PreviousPoint?.Metrics" />
 
         @if (PreviousPoint != null)
         {

@@ -37,6 +37,12 @@ public class MetricInfo
         ["js-interop-ops"] = new("js-interop-ops", "JS Interop", "ops/sec", "throughput"),
         ["json-parse-ops"] = new("json-parse-ops", "JSON Parse", "ops/sec", "throughput"),
         ["exception-ops"] = new("exception-ops", "Exception Handling", "ops/sec", "throughput"),
+        ["blazor-js-to-cs-number"] = new("blazor-js-to-cs-number", "Blazor JS→CS Number", "ops/sec", "throughput"),
+        ["blazor-js-to-cs-string"] = new("blazor-js-to-cs-string", "Blazor JS→CS String", "ops/sec", "throughput"),
+        ["blazor-js-to-cs-json"] = new("blazor-js-to-cs-json", "Blazor JS→CS JSON", "ops/sec", "throughput"),
+        ["blazor-cs-to-js-number"] = new("blazor-cs-to-js-number", "Blazor CS→JS Number", "ops/sec", "throughput"),
+        ["blazor-cs-to-js-string"] = new("blazor-cs-to-js-string", "Blazor CS→JS String", "ops/sec", "throughput"),
+        ["blazor-cs-to-js-json"] = new("blazor-cs-to-js-json", "Blazor CS→JS JSON", "ops/sec", "throughput"),
         ["time-to-exit-warm"] = new("time-to-exit-warm", "Time to Exit (Warm)", "ms", "time"),
         ["time-to-exit-cold"] = new("time-to-exit-cold", "Time to Exit (Cold)", "ms", "time"),
     };

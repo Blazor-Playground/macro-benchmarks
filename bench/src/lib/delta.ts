@@ -47,6 +47,8 @@ interface DeltaMeta {
 interface DeltaBaseline {
     sdkVersion: string;
     runtimeGitHash: string;
+    aspnetCoreGitHash: string;
+    vmrGitHash: string;
     runtimeCommitDateTime: string;
     runtimeCommitMessage: string;
     benchmarkDateTime: string;
@@ -84,6 +86,10 @@ interface ColumnRef {
     column: ColumnData;
 }
 
+function isCustomBuild(col: ColumnData): boolean {
+    return col.runtimePackVersion === 'custom-build';
+}
+
 // ── Metric direction & classification ────────────────────────────────────────
 
 const HIGHER_IS_BETTER = new Set([
@@ -107,7 +113,7 @@ export type MetricType = 'compile-time' | 'size' | 'throughput' | 'timing-memory
 export function classifyMetric(metric: string): MetricType {
     if (metric.startsWith('compile-time')) return 'compile-time';
     if (metric.startsWith('disk-size') || metric.startsWith('download-size')) return 'size';
-    if (metric.includes('-ops') || metric.includes('-per-second')) return 'throughput';
+    if (metric.includes('-ops') || metric.includes('-per-second') || metric.startsWith('blazor-')) return 'throughput';
     if (metric.startsWith('time-to') || metric.startsWith('memory')) return 'timing-memory';
     return 'other';
 }
@@ -146,15 +152,18 @@ interface SigmaThreshold {
 }
 
 const METRIC_THRESHOLDS: Record<MetricType, SigmaThreshold> = {
-    'compile-time':  { regression: 5,  improvement: 8 },
-    'size':          { regression: 8,  improvement: 15 },
-    'throughput':    { regression: 7,  improvement: 15 },
+    'compile-time': { regression: 5, improvement: 8 },
+    'size': { regression: 8, improvement: 15 },
+    'throughput': { regression: 7, improvement: 15 },
     'timing-memory': { regression: 10, improvement: 20 },
-    'other':         { regression: 8,  improvement: 15 },
+    'other': { regression: 8, improvement: 15 },
 };
 
 /** For MAD=0 (deterministic) metrics, require at least this |Δ%| to flag at all. */
-const MAD_ZERO_MIN_DELTA_PCT = 0.5;
+const MAD_ZERO_MIN_DELTA_PCT = 1.0;
+
+/** Metrics excluded from delta analysis (too noisy to be useful). */
+const EXCLUDED_METRICS = new Set(['memory-peak']);
 
 /** Hard cap: keep at most this many regressions per build. */
 const MAX_REGRESSIONS_PER_BUILD = 2;
@@ -208,24 +217,31 @@ export async function computeAndWriteDelta(
         return;
     }
 
-    // Previous column: the one immediately before current
-    if (currentIdx === 0) {
-        info('Delta: current column is the very first — no previous build — skipping');
+    // Previous column: the nearest non-custom-build column before current
+    // (for PR builds, baseline is the last daily build)
+    let prevIdx = currentIdx - 1;
+    while (prevIdx >= 0 && isCustomBuild(allColumns[prevIdx].column)) {
+        prevIdx--;
+    }
+    if (prevIdx < 0) {
+        info('Delta: no non-custom-build baseline found before current — skipping');
         return;
     }
-    const prevIdx = currentIdx - 1;
 
-    // Rolling window: up to ROLLING_WINDOW columns before (not including) current
-    const windowStart = Math.max(0, currentIdx - ROLLING_WINDOW);
-    const windowEnd = currentIdx; // exclusive
-    if (windowEnd - windowStart < ROLLING_WINDOW) {
-        info(`Delta: only ${windowEnd - windowStart} builds before current (need ${ROLLING_WINDOW}) — skipping`);
+    // Rolling window: up to ROLLING_WINDOW non-custom-build columns before current
+    const windowRefs: ColumnRef[] = [];
+    for (let i = currentIdx - 1; i >= 0 && windowRefs.length < ROLLING_WINDOW; i--) {
+        if (!isCustomBuild(allColumns[i].column)) {
+            windowRefs.unshift(allColumns[i]);
+        }
+    }
+    if (windowRefs.length < ROLLING_WINDOW) {
+        info(`Delta: only ${windowRefs.length} daily builds before current (need ${ROLLING_WINDOW}) — skipping`);
         return;
     }
 
     const currentRef = allColumns[currentIdx];
     const prevRef = allColumns[prevIdx];
-    const windowRefs = allColumns.slice(windowStart, windowEnd);
 
     if (verbose) {
         debug(`Delta: current=${currentRef.column.sdkVersion} (${currentRef.weekKey}[${currentRef.colIndex}])`);
@@ -246,6 +262,8 @@ export async function computeAndWriteDelta(
     const rawEntries: DeltaEntry[] = [];
 
     for (const { app, metric } of appMetrics) {
+        if (EXCLUDED_METRICS.has(metric)) continue;
+
         // Load current bucket data
         const currentData = await loadMetricData(viewsDir, currentRef.weekKey, app, metric);
         if (!currentData) continue;
@@ -360,6 +378,8 @@ export async function computeAndWriteDelta(
         baseline: {
             sdkVersion: prevRef.column.sdkVersion,
             runtimeGitHash: prevRef.column.runtimeGitHash,
+            aspnetCoreGitHash: prevRef.column.aspnetCoreGitHash,
+            vmrGitHash: prevRef.column.vmrGitHash,
             runtimeCommitDateTime: prevRef.column.runtimeCommitDateTime,
             runtimeCommitMessage: prevRef.column.runtimeCommitMessage ?? '',
             benchmarkDateTime: prevRef.column.benchmarkDateTime ?? '',

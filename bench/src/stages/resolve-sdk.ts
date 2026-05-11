@@ -243,6 +243,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
             aspnetCoreCommitDateTime: sdkEntry.entry.aspnetCoreCommitDateTime,
             aspnetCoreVersion: sdkEntry.entry.aspnetCoreVersion,
             runtimePackVersion: 'custom-build',
+            ...(ctx.runtimePR ? { runtimePR: ctx.runtimePR } : {}),
             workloadVersion: sdkEntry.entry.workloadVersion,
             bootstrapSdkVersion: sdkEntry.entry.bootstrapSdkVersion,
             releaseDate: commitMeta.commitDateTime.slice(0, 10),

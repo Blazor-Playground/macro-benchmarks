@@ -248,10 +248,14 @@ async function writeBucketView(
     await mkdir(dir, { recursive: true });
 
     const columnKey = type === 'week'
-        ? (r: LoadedResult) => r.vmrGitHash
+        ? (r: LoadedResult) => r.runtimePackVersion === 'custom-build'
+            ? `${r.vmrGitHash}_${r.runtimeGitHash}`
+            : r.vmrGitHash
         : (r: LoadedResult) => r.sdkVersion;
     const getColumnId = type === 'week'
-        ? (column: SdkInfo) => column.vmrGitHash
+        ? (column: SdkInfo) => column.runtimePackVersion === 'custom-build'
+            ? `${column.vmrGitHash}_${column.runtimeGitHash}`
+            : column.vmrGitHash
         : (column: SdkInfo) => column.sdkVersion;
 
     // Deduplicate columns

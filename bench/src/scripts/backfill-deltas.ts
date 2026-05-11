@@ -34,6 +34,10 @@ interface ColumnRef {
     column: SdkInfo;
 }
 
+function isCustomBuild(col: SdkInfo): boolean {
+    return col.runtimePackVersion === 'custom-build';
+}
+
 interface DeltaEntry {
     app: string;
     metric: string;
@@ -67,7 +71,8 @@ interface DeltaIndexEntry {
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const ROLLING_WINDOW = 20;
-const MAD_ZERO_MIN_DELTA_PCT = 0.5;
+const MAD_ZERO_MIN_DELTA_PCT = 1.0;
+const EXCLUDED_METRICS = new Set(['memory-peak']);
 const MAX_REGRESSIONS_PER_BUILD = 2;
 const MAX_IMPROVEMENTS_PER_BUILD = 1;
 
@@ -81,11 +86,11 @@ const HIGHER_IS_BETTER = new Set([
 interface SigmaThreshold { regression: number; improvement: number; }
 
 const METRIC_THRESHOLDS: Record<MetricType, SigmaThreshold> = {
-    'compile-time':  { regression: 5,  improvement: 8 },
-    'size':          { regression: 8,  improvement: 15 },
-    'throughput':    { regression: 7,  improvement: 15 },
+    'compile-time': { regression: 5, improvement: 8 },
+    'size': { regression: 8, improvement: 15 },
+    'throughput': { regression: 7, improvement: 15 },
     'timing-memory': { regression: 10, improvement: 20 },
-    'other':         { regression: 8,  improvement: 15 },
+    'other': { regression: 8, improvement: 15 },
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -185,8 +190,23 @@ async function main() {
 
     for (let ci = ROLLING_WINDOW; ci < allColumns.length; ci++) {
         const currentRef = allColumns[ci];
-        const prevRef = allColumns[ci - 1];
-        const windowRefs = allColumns.slice(ci - ROLLING_WINDOW, ci);
+
+        // Find previous non-custom-build column
+        let prevIdx = ci - 1;
+        while (prevIdx >= 0 && isCustomBuild(allColumns[prevIdx].column)) {
+            prevIdx--;
+        }
+        if (prevIdx < 0) continue;
+        const prevRef = allColumns[prevIdx];
+
+        // Collect rolling window of non-custom-build columns
+        const windowRefs: ColumnRef[] = [];
+        for (let i = ci - 1; i >= 0 && windowRefs.length < ROLLING_WINDOW; i--) {
+            if (!isCustomBuild(allColumns[i].column)) {
+                windowRefs.unshift(allColumns[i]);
+            }
+        }
+        if (windowRefs.length < ROLLING_WINDOW) continue;
 
         const currentHeader = headers.get(currentRef.weekKey)!;
         const appMetrics: { app: string; metric: string }[] = [];
@@ -199,6 +219,8 @@ async function main() {
         const rawEntries: DeltaEntry[] = [];
 
         for (const { app, metric } of appMetrics) {
+            if (EXCLUDED_METRICS.has(metric)) continue;
+
             const currentData = await loadMetricData(viewsDir, currentRef.weekKey, app, metric);
             if (!currentData) continue;
             const prevData = await loadMetricData(viewsDir, prevRef.weekKey, app, metric);
@@ -305,6 +327,8 @@ async function main() {
             baseline: {
                 sdkVersion: prevRef.column.sdkVersion,
                 runtimeGitHash: prevRef.column.runtimeGitHash,
+                aspnetCoreGitHash: prevRef.column.aspnetCoreGitHash ?? '',
+                vmrGitHash: prevRef.column.vmrGitHash ?? '',
                 runtimeCommitDateTime: prevRef.column.runtimeCommitDateTime,
                 runtimeCommitMessage: prevRef.column.runtimeCommitMessage ?? '',
                 benchmarkDateTime: prevRef.column.benchmarkDateTime ?? '',

@@ -87,25 +87,25 @@
         </tbody>
     </table>
 
-    @if (Point.Column.IsPrerelease)
-    {
-        <div class="mt-1">
-            <a href="./delta?sdk=@(System.Net.WebUtility.UrlEncode(Point.Column.SdkVersion))" class="small">
-                📊 View Delta Report
-            </a>
-        </div>
-    }
-
     @if (Point.Metrics.Count > 0)
     {
         @if (Expanded)
         {
             <hr class="my-1" />
-            <div class="mb-1"><strong>Metrics:</strong></div>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <strong>Metrics:</strong>
+                @if (Point.Column.IsPrerelease)
+                {
+                    <a href="./delta?sdk=@(System.Net.WebUtility.UrlEncode(Point.Column.SdkVersion))" class="small">
+                        📊 Delta Report
+                    </a>
+                }
+            </div>
             <div class="metrics-list">
                 @foreach (var kv in Point.Metrics)
                 {
-                    <div>@MetricInfo.GetDisplay(kv.Key): @MetricInfo.FormatValue(kv.Key, kv.Value)</div>
+                    var delta = GetDelta(kv.Key, kv.Value);
+                    <div>@delta.Icon @MetricInfo.GetDisplay(kv.Key): @MetricInfo.FormatValue(kv.Key, kv.Value) <span class="@delta.CssClass">@delta.Text</span></div>
                 }
             </div>
         }
@@ -116,7 +116,8 @@
                 <div class="mt-1 metrics-list">
                     @foreach (var kv in Point.Metrics)
                     {
-                        <div>@MetricInfo.GetDisplay(kv.Key): @MetricInfo.FormatValue(kv.Key, kv.Value)</div>
+                        var delta = GetDelta(kv.Key, kv.Value);
+                        <div>@delta.Icon @MetricInfo.GetDisplay(kv.Key): @MetricInfo.FormatValue(kv.Key, kv.Value) <span class="@delta.CssClass">@delta.Text</span></div>
                     }
                 </div>
             </details>
@@ -127,6 +128,34 @@
 @code {
     [Parameter, EditorRequired] public SelectedPointInfo Point { get; set; } = default!;
     [Parameter] public bool Expanded { get; set; }
+    [Parameter] public Dictionary<string, double>? PreviousMetrics { get; set; }
+
+    private static readonly HashSet<string> HigherIsBetter = new()
+    {
+        "js-interop-ops", "json-parse-ops", "exception-ops"
+    };
+
+    private static bool IsHigherBetter(string metricKey)
+        => HigherIsBetter.Contains(metricKey) || metricKey.StartsWith("blazor-");
+
+    private record struct MetricDelta(string Icon, string Text, string CssClass);
+
+    private MetricDelta GetDelta(string metricKey, double currentValue)
+    {
+        if (PreviousMetrics == null || !PreviousMetrics.TryGetValue(metricKey, out var prevValue) || prevValue == 0)
+            return new("", "", "");
+
+        var pct = (currentValue - prevValue) / prevValue * 100;
+        if (Math.Abs(pct) < 0.01)
+            return new("", "", "");
+
+        var isImprovement = IsHigherBetter(metricKey) ? pct > 0 : pct < 0;
+        var icon = isImprovement ? "🟢" : "🔴";
+        var sign = pct > 0 ? "+" : "";
+        var text = $"{sign}{pct:F1}%";
+        var css = isImprovement ? "text-success" : "text-danger";
+        return new(icon, text, css);
+    }
 
     private static string TruncateMessage(string msg, int max)
     {

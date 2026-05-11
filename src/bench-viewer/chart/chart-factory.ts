@@ -118,7 +118,11 @@ export function createChart(canvas: HTMLCanvasElement, metric: string, mergedDat
                             if (!col) return '';
                             const lines: string[] = [];
                             lines.push(`SDK: ${col.sdkVersion}`);
-                            lines.push(`Runtime: ${col.runtimeGitHash.substring(0, 7)}`);
+                            if (col.runtimePackVersion === 'custom-build') {
+                                lines.push(`Runtime: ${col.runtimeGitHash.substring(0, 7)} (PR build)`);
+                            } else {
+                                lines.push(`Runtime: ${col.runtimeGitHash.substring(0, 7)}`);
+                            }
                             return lines.join('\n');
                         },
                         label(ctx: { dataset: ChartDatasetBase; raw: ChartDataPoint }) {
@@ -150,6 +154,8 @@ export function createChart(canvas: HTMLCanvasElement, metric: string, mergedDat
                             const ts = typeof value === 'number' ? value : new Date(value).getTime();
                             const ver = tickToSdk.get(ts);
                             if (!ver) return '';
+                            // PR builds already have a short label like "PR#127905"
+                            if (ver.startsWith('PR#')) return ver;
                             // Shorten: e.g. "11.0.100-preview.3.26153.117" → "preview.3.26153"
                             const m = ver.match(/-(\w+\.\d+\.\d+\.\d+)/);
                             return m

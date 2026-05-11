@@ -76,6 +76,12 @@ public class DeltaReportBaseline
     [JsonPropertyName("runtimeGitHash")]
     public string RuntimeGitHash { get; set; } = "";
 
+    [JsonPropertyName("aspnetCoreGitHash")]
+    public string AspnetCoreGitHash { get; set; } = "";
+
+    [JsonPropertyName("vmrGitHash")]
+    public string VmrGitHash { get; set; } = "";
+
     [JsonPropertyName("runtimeCommitDateTime")]
     public string RuntimeCommitDateTime { get; set; } = "";
 
@@ -116,7 +122,7 @@ public class DeltaEntry
     public double RollingMad { get; set; }
 
     [JsonPropertyName("sigma")]
-    public double Sigma { get; set; }
+    public double? Sigma { get; set; }
 
     [JsonPropertyName("significant")]
     public bool Significant { get; set; }

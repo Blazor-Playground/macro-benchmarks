@@ -47,7 +47,11 @@ export function computeTickLayout(
                 const revision = extractRevision(col.sdkVersion);
                 const x = base + revision;
                 positions.push(x);
-                tickMap.set(x, col.sdkVersion);
+                // For PR builds, include PR number in tick label
+                const label = col.runtimePackVersion === 'custom-build' && col.runtimePR
+                    ? `PR#${col.runtimePR}`
+                    : col.sdkVersion;
+                tickMap.set(x, label);
                 if (x < dailyMin) dailyMin = x;
                 if (x > dailyMax) dailyMax = x;
             }

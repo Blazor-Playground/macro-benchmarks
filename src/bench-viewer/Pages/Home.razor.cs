@@ -209,6 +209,26 @@ public partial class Home : IAsyncDisposable
                     var prevMetrics = JsonSerializer.Deserialize<Dictionary<string, double>>(prevMetricsJson);
                     previousPoint.Metrics = prevMetrics ?? new();
                 }
+                else if (colIndex > 0)
+                {
+                    // First click: fetch adjacent column metrics for delta display
+                    var adjMetricsJson = await ChartInterop.GetPointMetrics(
+                        currentApp, bucket, rowKey, colIndex - 1);
+                    var adjMetrics = JsonSerializer.Deserialize<Dictionary<string, double>>(adjMetricsJson);
+                    if (adjMetrics != null && adjMetrics.Count > 0)
+                    {
+                        var adjColJson = ChartInterop.GetColumnMetadata(bucket, colIndex - 1);
+                        var adjColumn = JsonSerializer.Deserialize<ColumnInfo>(adjColJson) ?? new();
+                        previousPoint = new SelectedPointInfo
+                        {
+                            Bucket = bucket,
+                            ColIndex = colIndex - 1,
+                            RowKey = rowKey,
+                            Column = adjColumn,
+                            Metrics = adjMetrics,
+                        };
+                    }
+                }
 
                 selectedPoint = point;
                 StateHasChanged();

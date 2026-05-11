@@ -5,7 +5,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
 
-interface SdkInfo { sdkVersion: string; runtimeGitHash: string; [k: string]: unknown; }
+interface SdkInfo { sdkVersion: string; runtimeGitHash: string;[k: string]: unknown; }
 interface ViewHeader { columns?: SdkInfo[]; apps?: Record<string, string[]>; }
 interface ColumnRef { weekKey: string; colIndex: number; column: SdkInfo; }
 

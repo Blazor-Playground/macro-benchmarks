@@ -3,7 +3,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
 
-interface SdkInfo { sdkVersion: string; [k: string]: unknown; }
+interface SdkInfo { sdkVersion: string;[k: string]: unknown; }
 interface ViewHeader { columns?: SdkInfo[]; apps?: Record<string, string[]>; }
 interface ColumnRef { weekKey: string; colIndex: number; column: SdkInfo; }
 
@@ -135,7 +135,7 @@ async function main() {
     console.log(`Total raw hits: ${allHits.length}`);
     const madZeroCount = allHits.filter(h => h.madZero).length;
     const infSigma = allHits.filter(h => h.sigma === Infinity).length;
-    console.log(`MAD=0: ${madZeroCount} (${(madZeroCount/allHits.length*100).toFixed(1)}%), Infinite σ: ${infSigma}`);
+    console.log(`MAD=0: ${madZeroCount} (${(madZeroCount / allHits.length * 100).toFixed(1)}%), Infinite σ: ${infSigma}`);
 
     // DEDUP: per build, per (app, metric), keep only the rowKey with highest |sigma|
     const dedupHits: Hit[] = [];
@@ -251,7 +251,7 @@ async function main() {
         const madZero = th.filter(h => h.madZero);
         const infReg = madZero.filter(h => h.reg).length;
         const infImp = madZero.filter(h => !h.reg).length;
-        console.log(`  ${mtype.padEnd(16)}: ${madZero.length}/${th.length} MAD=0 (${infReg} reg, ${infImp} imp) = ${(infReg/numBuilds*buildsPerWeek).toFixed(1)} reg/wk, ${(infImp/numBuilds*buildsPerWeek).toFixed(1)} imp/wk`);
+        console.log(`  ${mtype.padEnd(16)}: ${madZero.length}/${th.length} MAD=0 (${infReg} reg, ${infImp} imp) = ${(infReg / numBuilds * buildsPerWeek).toFixed(1)} reg/wk, ${(infImp / numBuilds * buildsPerWeek).toFixed(1)} imp/wk`);
     }
 
     // Separate strategy for MAD=0 vs MAD>0 entries

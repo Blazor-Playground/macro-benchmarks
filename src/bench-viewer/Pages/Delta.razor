@@ -119,10 +119,32 @@
             @if (!string.IsNullOrEmpty(report.Meta.RuntimeGitHash) && !string.IsNullOrEmpty(report.Baseline.RuntimeGitHash)
                 && report.Meta.RuntimeGitHash != report.Baseline.RuntimeGitHash)
             {
-                <div class="mb-3">
+                <div class="mb-2">
                     <a href="https://github.com/dotnet/runtime/compare/@report.Baseline.RuntimeGitHash...@report.Meta.RuntimeGitHash"
                        target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
                         ⇕ Compare runtime commits
+                    </a>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(report.Meta.VmrGitHash) && !string.IsNullOrEmpty(report.Baseline.VmrGitHash)
+                && report.Meta.VmrGitHash != report.Baseline.VmrGitHash)
+            {
+                <div class="mb-2">
+                    <a href="https://github.com/dotnet/dotnet/compare/@report.Baseline.VmrGitHash...@report.Meta.VmrGitHash"
+                       target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
+                        ⇕ Compare SDK (VMR) commits
+                    </a>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(report.Meta.AspnetCoreGitHash) && !string.IsNullOrEmpty(report.Baseline.AspnetCoreGitHash)
+                && report.Meta.AspnetCoreGitHash != report.Baseline.AspnetCoreGitHash)
+            {
+                <div class="mb-3">
+                    <a href="https://github.com/dotnet/aspnetcore/compare/@report.Baseline.AspnetCoreGitHash...@report.Meta.AspnetCoreGitHash"
+                       target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
+                        ⇕ Compare aspnetcore commits
                     </a>
                 </div>
             }
@@ -139,7 +161,7 @@
             @if (SignificantEntries.Count == 0)
             {
                 <div class="text-muted text-center p-4">
-                    No significant changes detected (all within per-metric MAD thresholds over 20-build rolling window).
+                    No changes detected in this build.
                 </div>
             }
             else
@@ -161,7 +183,9 @@
                         <tbody>
                             @foreach (var entry in SignificantEntries)
                             {
-                                var rowClass = entry.Direction == "regression" ? "table-danger" : "table-success";
+                                var rowClass = entry.Significant
+                                    ? (entry.Direction == "regression" ? "table-danger" : "table-success")
+                                    : "";
                                 <tr class="@rowClass">
                                     <td>@entry.App</td>
                                     <td>@MetricInfo.GetDisplay(entry.Metric)</td>
@@ -170,7 +194,7 @@
                                     <td class="text-end">@MetricInfo.FormatValue(entry.Metric, entry.Current)</td>
                                     <td class="text-end fw-bold">@FormatDelta(entry.DeltaPct)</td>
                                     <td class="text-end">@FormatSigma(entry.Sigma)</td>
-                                    <td>@(entry.Direction == "regression" ? "🔴" : "🟢")</td>
+                                    <td>@(entry.Significant ? (entry.Direction == "regression" ? "🔴" : "🟢") : "")</td>
                                 </tr>
                             }
                         </tbody>

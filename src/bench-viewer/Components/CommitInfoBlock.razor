@@ -87,6 +87,15 @@
         </tbody>
     </table>
 
+    @if (Point.Column.IsPrerelease)
+    {
+        <div class="mt-1">
+            <a href="./delta?sdk=@(System.Net.WebUtility.UrlEncode(Point.Column.SdkVersion))" class="small">
+                📊 View Delta Report
+            </a>
+        </div>
+    }
+
     @if (Point.Metrics.Count > 0)
     {
         @if (Expanded)

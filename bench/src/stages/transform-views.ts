@@ -5,6 +5,7 @@ import { type BenchContext, type SdkInfo } from '../context.js';
 import { banner, info, debug } from '../log.js';
 import { ensureBranchCheckout } from '../lib/branch-checkout.js';
 import { isPrerelease, getVersionMajor, compareVersions } from '../lib/version-utils.js';
+import { computeAndWriteDelta } from '../lib/delta.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -58,7 +59,16 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     const viewsDir = join(ctx.repoRoot, 'gh-pages', 'data', 'views');
     const results = await loadResults(ctx);
-    await buildViews(ctx, results, viewsDir);
+    const weekKeys = await buildViews(ctx, results, viewsDir);
+
+    // Compute delta report for preview/daily builds
+    if (ctx.sdkInfo && isPrerelease(ctx.sdkInfo.sdkVersion) && weekKeys.length > 0) {
+        try {
+            await computeAndWriteDelta(viewsDir, ctx.sdkInfo, weekKeys, ctx.verbose);
+        } catch (e) {
+            info(`Delta: failed — ${e instanceof Error ? e.message : e}`);
+        }
+    }
 
     return ctx;
 }
@@ -148,12 +158,12 @@ function requireField(value: unknown, name: string, filename: string): asserts v
 
 // ── Build Views ──────────────────────────────────────────────────────────────
 
-async function buildViews(ctx: BenchContext, allResults: LoadedResult[], viewsDir: string): Promise<void> {
+async function buildViews(ctx: BenchContext, allResults: LoadedResult[], viewsDir: string): Promise<string[]> {
     banner('Build views');
 
     if (allResults.length === 0) {
         info('No results to build views from');
-        return;
+        return [];
     }
 
     // Split results: daily builds (prerelease SDK) vs GA releases (stable SDK)
@@ -220,6 +230,10 @@ async function buildViews(ctx: BenchContext, allResults: LoadedResult[], viewsDi
     }
 
     info(`Views: ${weekKeys.length} weeks, ${releaseKeys.length} releases`);
+
+    // Also include existing weeks from the merged index (for delta lookback)
+    const allWeekKeys = viewIndex.weeks || weekKeys;
+    return allWeekKeys;
 }
 
 // ── Unified Bucket Writer ────────────────────────────────────────────────────

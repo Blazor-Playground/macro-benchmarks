@@ -1,0 +1,182 @@
+@page "/delta"
+@using BenchViewer.Models
+
+<PageTitle>Delta Report — .NET WASM Benchmarks</PageTitle>
+
+<main class="delta-page p-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Delta Report</h4>
+        <a href="./" class="btn btn-sm btn-outline-secondary">← Dashboard</a>
+    </div>
+
+    @if (loading)
+    {
+        <div class="d-flex justify-content-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (noData)
+    {
+        <div class="text-muted p-5 text-center">
+            No delta reports available yet. Delta reports are generated after at least 10 daily builds.
+        </div>
+    }
+    else if (deltaIndex != null)
+    {
+        <div class="mb-3">
+            <label class="form-label small fw-bold" for="delta-select">Select build:</label>
+            <select id="delta-select" class="form-select form-select-sm" style="max-width: 600px;"
+                    value="@selectedFile" @onchange="OnSelectChanged">
+                @foreach (var entry in deltaIndex.Deltas)
+                {
+                    <option value="@entry.File">
+                        @entry.SdkVersion — @FormatDate(entry.BenchmarkDateTime)
+                        @(entry.HasSignificant ? " ⚠" : "")
+                    </option>
+                }
+            </select>
+        </div>
+
+        @if (loadingReport)
+        {
+            <div class="d-flex justify-content-center p-3">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+            </div>
+        }
+        else if (reportError != null)
+        {
+            <div class="alert alert-warning">@reportError</div>
+        }
+        else if (report != null)
+        {
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body small">
+                            <h6 class="card-title">Current Build</h6>
+                            <table class="table table-sm table-borderless mb-0">
+                                <tr>
+                                    <td class="text-muted" style="width:120px">SDK</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(report.Meta.VmrGitHash))
+                                        {
+                                            <a href="https://github.com/dotnet/dotnet/commit/@report.Meta.VmrGitHash" target="_blank" rel="noopener">@report.Meta.SdkVersion</a>
+                                        }
+                                        else
+                                        {
+                                            @report.Meta.SdkVersion
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Runtime</td>
+                                    <td>
+                                        <a href="https://github.com/dotnet/runtime/commit/@report.Meta.RuntimeGitHash" target="_blank" rel="noopener">@report.Meta.RuntimeGitHash[..Math.Min(7, report.Meta.RuntimeGitHash.Length)]</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Date</td>
+                                    <td>@FormatDate(report.Meta.RuntimeCommitDateTime)</td>
+                                </tr>
+                                @if (!string.IsNullOrEmpty(report.Meta.RuntimeCommitMessage))
+                                {
+                                    <tr>
+                                        <td class="text-muted">Commit</td>
+                                        <td class="text-truncate" style="max-width:300px" title="@report.Meta.RuntimeCommitMessage">@report.Meta.RuntimeCommitMessage</td>
+                                    </tr>
+                                }
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body small">
+                            <h6 class="card-title">Baseline</h6>
+                            <table class="table table-sm table-borderless mb-0">
+                                <tr>
+                                    <td class="text-muted" style="width:120px">SDK</td>
+                                    <td>@report.Baseline.SdkVersion</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Runtime</td>
+                                    <td>
+                                        <a href="https://github.com/dotnet/runtime/commit/@report.Baseline.RuntimeGitHash" target="_blank" rel="noopener">@report.Baseline.RuntimeGitHash[..Math.Min(7, report.Baseline.RuntimeGitHash.Length)]</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Date</td>
+                                    <td>@FormatDate(report.Baseline.RuntimeCommitDateTime)</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(report.Meta.RuntimeGitHash) && !string.IsNullOrEmpty(report.Baseline.RuntimeGitHash)
+                && report.Meta.RuntimeGitHash != report.Baseline.RuntimeGitHash)
+            {
+                <div class="mb-3">
+                    <a href="https://github.com/dotnet/runtime/compare/@report.Baseline.RuntimeGitHash...@report.Meta.RuntimeGitHash"
+                       target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
+                        ⇕ Compare runtime commits
+                    </a>
+                </div>
+            }
+
+            <div class="card mb-3">
+                <div class="card-body d-flex gap-4 small">
+                    <span><strong>Total metrics:</strong> @report.Summary.Total</span>
+                    <span><strong>Significant:</strong> @report.Summary.Significant</span>
+                    <span class="text-danger"><strong>Regressions:</strong> @report.Summary.Regressions</span>
+                    <span class="text-success"><strong>Improvements:</strong> @report.Summary.Improvements</span>
+                </div>
+            </div>
+
+            @if (SignificantEntries.Count == 0)
+            {
+                <div class="text-muted text-center p-4">
+                    No significant changes detected (all within per-metric MAD thresholds over 20-build rolling window).
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover small">
+                        <thead class="table-light">
+                            <tr>
+                                <th>App</th>
+                                <th>Metric</th>
+                                <th>Row Key</th>
+                                <th class="text-end">Previous</th>
+                                <th class="text-end">Current</th>
+                                <th class="text-end">Delta</th>
+                                <th class="text-end">σ</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var entry in SignificantEntries)
+                            {
+                                var rowClass = entry.Direction == "regression" ? "table-danger" : "table-success";
+                                <tr class="@rowClass">
+                                    <td>@entry.App</td>
+                                    <td>@MetricInfo.GetDisplay(entry.Metric)</td>
+                                    <td class="text-muted">@entry.RowKey</td>
+                                    <td class="text-end">@MetricInfo.FormatValue(entry.Metric, entry.Previous)</td>
+                                    <td class="text-end">@MetricInfo.FormatValue(entry.Metric, entry.Current)</td>
+                                    <td class="text-end fw-bold">@FormatDelta(entry.DeltaPct)</td>
+                                    <td class="text-end">@FormatSigma(entry.Sigma)</td>
+                                    <td>@(entry.Direction == "regression" ? "🔴" : "🟢")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        }
+    }
+</main>

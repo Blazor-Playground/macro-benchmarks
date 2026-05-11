@@ -54,4 +54,7 @@ public class ColumnInfo
 
     [JsonPropertyName("workloadVersion")]
     public string? WorkloadVersion { get; set; }
+
+    [JsonPropertyName("isPrerelease")]
+    public bool IsPrerelease { get; set; }
 }

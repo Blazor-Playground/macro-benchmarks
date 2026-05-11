@@ -227,12 +227,12 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
 
         // SDK & Runtime
         sdkChannel: values['sdk-channel'] || loaded.sdkChannel || '11.0',
-        sdkVersion: values['sdk-version'],
+        sdkVersion: values['sdk-version'] || loaded.sdkVersion || '',
         runtimes: effectiveRuntimes,
-        runtimePack: values['runtime-pack'],
-        runtimeCommit: values['runtime-commit'],
+        runtimePack: values['runtime-pack'] || loaded.runtimePack || '',
+        runtimeCommit: values['runtime-commit'] || loaded.runtimeCommit || '',
         runtimeRepo: values['runtime-repo'] || loaded.runtimeRepo || 'dotnet/runtime',
-        runtimePR: values['runtime-pr'] || '',
+        runtimePR: values['runtime-pr'] || loaded.runtimePR || '',
         runtimeBuildRequired: loaded.runtimeBuildRequired ?? false,
 
         // Filters

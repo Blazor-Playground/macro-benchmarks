@@ -138,6 +138,15 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         if (ctx.sdkChannel) {
             payload.inputs.sdk_channel = ctx.sdkChannel;
         }
+        if (ctx.runtimeCommit) {
+            payload.inputs.runtime_commit = ctx.runtimeCommit;
+        }
+        if (ctx.runtimeRepo && ctx.runtimeRepo !== 'dotnet/runtime') {
+            payload.inputs.runtime_repo = ctx.runtimeRepo;
+        }
+        if (ctx.runtimePR) {
+            payload.inputs.runtime_pr = ctx.runtimePR;
+        }
 
         const resp = await fetch(url, {
             method: 'POST',

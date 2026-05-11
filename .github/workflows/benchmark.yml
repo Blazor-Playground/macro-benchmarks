@@ -136,7 +136,7 @@ jobs:
         run: |
           cd runtime-src
           ./build.sh mono+libs -os browser -arch wasm -c Release
-          ./build.sh libs.packs -os browser -arch wasm -c Release
+          ./build.sh packs.product -os browser -arch wasm -c Release
 
       - name: Find and extract runtime pack
         id: pack
@@ -188,7 +188,6 @@ jobs:
         run: |
           cd runtime-src
           ./build.sh clr+libs -os browser -arch wasm -c Release
-          ./build.sh libs.packs -os browser -arch wasm -c Release
 
       - name: Find and extract runtime pack
         id: pack

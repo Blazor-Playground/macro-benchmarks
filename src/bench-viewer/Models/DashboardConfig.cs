@@ -7,6 +7,12 @@ public static class DashboardConfig
     public static string GitHubUrl => $"https://github.com/{GitHubRepo}";
     public static string GitHubPagesUrl => $"https://{GitHubRepo.Split('/')[0]}.github.io/{GitHubRepo.Split('/')[1]}";
 
+    // Metrics to skip for all apps
+    public static readonly HashSet<string> SkipMetrics = new()
+    {
+        "semi-walkthrough"
+    };
+
     // Metrics to skip for micro-benchmarks (build/disk not meaningful)
     public static readonly HashSet<string> MicrobenchSkipMetrics = new()
     {

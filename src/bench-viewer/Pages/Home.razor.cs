@@ -266,6 +266,8 @@ public partial class Home : IAsyncDisposable
         var metrics = viewIndex?.Metrics.TryGetValue(app, out var m) == true ? m : new();
         if (app == "micro-benchmarks")
             metrics = metrics.Where(k => !DashboardConfig.MicrobenchSkipMetrics.Contains(k)).ToList();
+
+        metrics = metrics.Where(k => !DashboardConfig.SkipMetrics.Contains(k)).ToList();
         // Sort by preferred order
         metrics.Sort((a, b) =>
         {

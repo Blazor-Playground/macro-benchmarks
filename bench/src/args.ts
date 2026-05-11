@@ -26,7 +26,9 @@ SDK & Runtime:
   --sdk-version <ver>      Exact SDK version (overrides channel)
   --runtime <rt>           Runtime flavor: mono, coreclr, naotllvm (default: mono)
   --runtime-pack <ver>     Specific runtime pack version
-  --runtime-commit <hash>  Specific dotnet/runtime commit hash
+  --runtime-commit <hash>  Specific dotnet/runtime commit hash (builds from source if not in catalog)
+  --runtime-repo <repo>    GitHub repo for runtime fork (default: dotnet/runtime)
+  --runtime-pr <number>    dotnet/runtime PR number — auto-resolves fork repo and head commit
 
 Filters (comma-separated, restrict what gets built/measured):
   --app <list>             App filter (default: all)
@@ -82,6 +84,8 @@ const ARG_OPTIONS = {
     'runtime': { type: 'string' as const, default: 'mono,coreclr' },
     'runtime-pack': { type: 'string' as const, default: '' },
     'runtime-commit': { type: 'string' as const, default: '' },
+    'runtime-repo': { type: 'string' as const, default: '' },
+    'runtime-pr': { type: 'string' as const, default: '' },
 
     // Filters
     'app': { type: 'string' as const, default: '' },
@@ -227,6 +231,9 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
         runtimes: effectiveRuntimes,
         runtimePack: values['runtime-pack'],
         runtimeCommit: values['runtime-commit'],
+        runtimeRepo: values['runtime-repo'] || loaded.runtimeRepo || 'dotnet/runtime',
+        runtimePR: values['runtime-pr'] || '',
+        runtimeBuildRequired: loaded.runtimeBuildRequired ?? false,
 
         // Filters
         apps: effectiveApps,

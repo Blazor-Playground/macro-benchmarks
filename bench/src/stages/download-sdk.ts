@@ -150,6 +150,12 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     // ── Step 2: Install SDK ──────────────────────────────────────────────
     if (!skipInstall) {
+        // Clean any leftover partial SDK directory to avoid dotnet-install.sh
+        // thinking the SDK is already installed (it checks sdk/<version>/ exists)
+        if (existsSync(sdkDir)) {
+            info(`Removing stale SDK directory: ${sdkDir}`);
+            await exec('rm', ['-rf', sdkDir], { label: 'rm stale sdk' });
+        }
         info(`Installing SDK ${sdkInfo.sdkVersion}...`);
         await installSdk(sdkInfo, sdkDir, platform);
         info(`SDK installed to ${sdkDir}`);
@@ -161,20 +167,27 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     // ── Step 4: Runtime pack override ────────────────────────────────────
     let runtimePackDirs: Partial<Record<Runtime, string>> | undefined;
-    const needsPackRestore = sdkInfo.runtimePackVersion !== bundledVersion;
 
-    if (needsPackRestore) {
-        info(`Runtime pack override: ${sdkInfo.runtimePackVersion} (bundled: ${bundledVersion})`);
-        runtimePackDirs = {};
-        for (const runtime of ctx.runtimes) {
-            const packDir = await restoreRuntimePack(
-                dotnetBin, ctx.repoRoot, ctx.artifactsDir, sdkInfo.runtimePackVersion, runtime,
-            );
-            runtimePackDirs[runtime] = packDir;
-            info(`Runtime pack restored for ${runtime}: ${packDir}`);
-        }
+    if (ctx.runtimeBuildRequired) {
+        // Runtime packs will be provided by the build-runtime stage
+        info('Runtime packs will be built from source (build-runtime stage)');
+        runtimePackDirs = ctx.runtimePackDirs;
     } else {
-        info('Runtime pack matches bundled — no override needed');
+        const needsPackRestore = sdkInfo.runtimePackVersion !== bundledVersion;
+
+        if (needsPackRestore) {
+            info(`Runtime pack override: ${sdkInfo.runtimePackVersion} (bundled: ${bundledVersion})`);
+            runtimePackDirs = {};
+            for (const runtime of ctx.runtimes) {
+                const packDir = await restoreRuntimePack(
+                    dotnetBin, ctx.repoRoot, ctx.artifactsDir, sdkInfo.runtimePackVersion, runtime,
+                );
+                runtimePackDirs[runtime] = packDir;
+                info(`Runtime pack restored for ${runtime}: ${packDir}`);
+            }
+        } else {
+            info('Runtime pack matches bundled — no override needed');
+        }
     }
 
     // ── Step 5: Write sdk-info.json ──────────────────────────────────────

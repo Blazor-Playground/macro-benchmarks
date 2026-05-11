@@ -51,6 +51,7 @@ export enum Stage {
     UpdateCache = 'update-cache',
     ResolveSdk = 'resolve-sdk',
     DownloadSdk = 'download-sdk',
+    BuildRuntime = 'build-runtime',
     Build = 'build',
     DeployLatestApp = 'deploy-latest-app',
     Measure = 'measure',

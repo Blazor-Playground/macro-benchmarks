@@ -52,6 +52,8 @@ RUN apt-get update && apt-get install -y \
     libicu-dev libssl-dev zlib1g-dev \
     # Emscripten / wasm-tools workload dependencies
     libatomic1 \
+    # Runtime repo build prerequisites (cmake, clang, etc.)
+    cmake ninja-build clang llvm lld build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 ENV DOTNET_ROOT=/opt/dotnet

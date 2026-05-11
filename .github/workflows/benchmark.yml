@@ -23,6 +23,16 @@ on:
         required: false
         default: ''
         type: string
+      runtime_repo:
+        description: 'GitHub repo for runtime fork (e.g. user/runtime). Default: dotnet/runtime'
+        required: false
+        default: ''
+        type: string
+      runtime_pr:
+        description: 'dotnet/runtime PR number — auto-resolves fork repo and head commit'
+        required: false
+        default: ''
+        type: string
       dry_run:
         description: 'Dry run (run benchmarks but do not publish results)'
         required: false
@@ -46,6 +56,9 @@ jobs:
       sdk-version: ${{ steps.sdk-version.outputs.sdk-version }}
       runtime-commit-date: ${{ steps.sdk-version.outputs.runtime-commit-date }}
       runtime-commit-message: ${{ steps.sdk-version.outputs.runtime-commit-message }}
+      runtime-build-required: ${{ steps.sdk-version.outputs.runtime-build-required }}
+      runtime-commit: ${{ steps.sdk-version.outputs.runtime-commit }}
+      runtime-repo: ${{ steps.sdk-version.outputs.runtime-repo }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -67,6 +80,8 @@ jobs:
             ${{ inputs.sdk_version && format('--sdk-version "{0}"', inputs.sdk_version) || '' }} \
             ${{ inputs.runtime_commit && format('--runtime-commit "{0}"', inputs.runtime_commit) || '' }} \
             ${{ inputs.runtime_pack && format('--runtime-pack "{0}"', inputs.runtime_pack) || '' }} \
+            ${{ inputs.runtime_pr && format('--runtime-pr "{0}"', inputs.runtime_pr) || '' }} \
+            ${{ inputs.runtime_repo && format('--runtime-repo "{0}"', inputs.runtime_repo) || '' }} \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 
       - name: Read SDK version
@@ -76,11 +91,18 @@ jobs:
           SDK_VERSION=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.sdkInfo?.sdkVersion || '')")
           COMMIT_DATE=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.sdkInfo?.runtimeCommitDateTime?.split('T')[0] || '')")
           COMMIT_MSG=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); const m=c.sdkInfo?.runtimeCommitMessage||''; console.log(m.length>60?m.slice(0,60)+'…':m)")
+          RUNTIME_BUILD=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.runtimeBuildRequired ? 'true' : 'false')")
+          RUNTIME_COMMIT=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.runtimeCommit || '')")
+          RUNTIME_REPO=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.runtimeRepo || 'dotnet/runtime')")
           echo "sdk-version=$SDK_VERSION" >> "$GITHUB_OUTPUT"
           echo "runtime-commit-date=$COMMIT_DATE" >> "$GITHUB_OUTPUT"
           echo "runtime-commit-message=$COMMIT_MSG" >> "$GITHUB_OUTPUT"
+          echo "runtime-build-required=$RUNTIME_BUILD" >> "$GITHUB_OUTPUT"
+          echo "runtime-commit=$RUNTIME_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "runtime-repo=$RUNTIME_REPO" >> "$GITHUB_OUTPUT"
           echo "SDK version: $SDK_VERSION" >&2
           echo "Runtime commit: $COMMIT_DATE $COMMIT_MSG" >&2
+          echo "Runtime build required: $RUNTIME_BUILD" >&2
 
       - name: Upload bench context
         uses: actions/upload-artifact@v7
@@ -91,10 +113,121 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  # ── Job 2: Build all apps ──────────────────────────────────────────────────
+  # ── Job 2a: Build Runtime Mono (only when building from source) ─────────────
+  build-runtime-mono:
+    name: Build Runtime (Mono)
+    needs: resolve
+    if: needs.resolve.outputs.runtime-build-required == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 120
+    steps:
+      - name: Clone runtime repo
+        shell: bash
+        run: |
+          git clone --no-checkout --filter=blob:none \
+            "https://github.com/${{ needs.resolve.outputs.runtime-repo }}.git" runtime-src
+          cd runtime-src
+          git checkout ${{ needs.resolve.outputs.runtime-commit }}
+
+      - name: Build Mono browser-wasm
+        shell: bash
+        run: |
+          cd runtime-src
+          ./build.sh mono+libs -os browser -arch wasm -c Release
+          ./build.sh libs.packs -os browser -arch wasm -c Release
+
+      - name: Find and extract runtime pack
+        id: pack
+        shell: bash
+        run: |
+          NUPKG=$(find runtime-src/artifacts/packages/Release/Shipping \
+            -iname 'Microsoft.NETCore.App.Runtime.Mono.browser-wasm.*.nupkg' \
+            -print -quit 2>/dev/null || true)
+          if [ -z "$NUPKG" ]; then
+            NUPKG=$(find runtime-src/artifacts/packages/Release/NonShipping \
+              -iname 'Microsoft.NETCore.App.Runtime.Mono.browser-wasm.*.nupkg' \
+              -print -quit 2>/dev/null || true)
+          fi
+          if [ -z "$NUPKG" ]; then
+            echo "ERROR: Mono runtime pack nupkg not found" >&2
+            exit 1
+          fi
+          echo "Found nupkg: $NUPKG" >&2
+          mkdir -p runtime-pack-mono
+          unzip -o "$NUPKG" -d runtime-pack-mono
+
+      - name: Upload runtime pack
+        uses: actions/upload-artifact@v7
+        with:
+          name: runtime-pack-mono
+          path: runtime-pack-mono/
+          retention-days: 3
+
+  # ── Job 2b: Build Runtime CoreCLR (only when building from source) ─────────
+  build-runtime-coreclr:
+    name: Build Runtime (CoreCLR)
+    needs: resolve
+    if: needs.resolve.outputs.runtime-build-required == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 120
+    steps:
+      - name: Clone runtime repo
+        shell: bash
+        run: |
+          git clone --no-checkout --filter=blob:none \
+            "https://github.com/${{ needs.resolve.outputs.runtime-repo }}.git" runtime-src
+          cd runtime-src
+          git checkout ${{ needs.resolve.outputs.runtime-commit }}
+
+      - name: Build CoreCLR browser-wasm
+        shell: bash
+        run: |
+          cd runtime-src
+          ./build.sh clr+libs -os browser -arch wasm -c Release
+          ./build.sh libs.packs -os browser -arch wasm -c Release
+
+      - name: Find and extract runtime pack
+        id: pack
+        shell: bash
+        run: |
+          NUPKG=$(find runtime-src/artifacts/packages/Release/Shipping \
+            -iname 'Microsoft.NETCore.App.Runtime.browser-wasm.*.nupkg' \
+            ! -iname '*Mono*' \
+            -print -quit 2>/dev/null || true)
+          if [ -z "$NUPKG" ]; then
+            NUPKG=$(find runtime-src/artifacts/packages/Release/NonShipping \
+              -iname 'Microsoft.NETCore.App.Runtime.browser-wasm.*.nupkg' \
+              ! -iname '*Mono*' \
+              -print -quit 2>/dev/null || true)
+          fi
+          if [ -z "$NUPKG" ]; then
+            echo "ERROR: CoreCLR runtime pack nupkg not found" >&2
+            exit 1
+          fi
+          echo "Found nupkg: $NUPKG" >&2
+          mkdir -p runtime-pack-coreclr
+          unzip -o "$NUPKG" -d runtime-pack-coreclr
+
+      - name: Upload runtime pack
+        uses: actions/upload-artifact@v7
+        with:
+          name: runtime-pack-coreclr
+          path: runtime-pack-coreclr/
+          retention-days: 3
+
+  # ── Job 3: Build all apps ──────────────────────────────────────────────────
   build:
     name: Build (${{ needs.resolve.outputs.sdk-version }}, ${{ needs.resolve.outputs.runtime-commit-date }}, ${{ needs.resolve.outputs.runtime-commit-message }})
-    needs: resolve
+    needs: [resolve, build-runtime-mono, build-runtime-coreclr]
+    if: |
+      always()
+      && needs.resolve.result == 'success'
+      && (needs.build-runtime-mono.result == 'success' || needs.build-runtime-mono.result == 'skipped')
+      && (needs.build-runtime-coreclr.result == 'success' || needs.build-runtime-coreclr.result == 'skipped')
     runs-on: ubuntu-latest
     container: ${{ vars.CONTAINER_REGISTRY }}/browser-bench-build:latest
     permissions:
@@ -118,11 +251,25 @@ jobs:
           name: bench-context
           path: ${{ env.ARTIFACTS_DIR }}
 
+      - name: Download Mono runtime pack (if built from source)
+        if: needs.resolve.outputs.runtime-build-required == 'true'
+        uses: actions/download-artifact@v8
+        with:
+          name: runtime-pack-mono
+          path: ${{ env.ARTIFACTS_DIR }}/runtime-pack-mono
+
+      - name: Download CoreCLR runtime pack (if built from source)
+        if: needs.resolve.outputs.runtime-build-required == 'true'
+        uses: actions/download-artifact@v8
+        with:
+          name: runtime-pack-coreclr
+          path: ${{ env.ARTIFACTS_DIR }}/runtime-pack-coreclr
+
       - name: Build all apps
         shell: bash
         run: |
           npx --prefix bench tsx bench/src/main.ts \
-            --stages check-out-tracking,download-sdk,build \
+            --stages check-out-tracking,download-sdk,build-runtime,build \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 

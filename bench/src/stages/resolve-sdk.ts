@@ -4,19 +4,13 @@ import { existsSync } from 'node:fs';
 import { type BenchContext, type SdkInfo } from '../context.js';
 import { banner, info } from '../log.js';
 import { getVersionMajor, populateVersionFields } from '../lib/version-utils.js';
+import { fetchJson, githubHeaders, resolveGitHubToken, GITHUB_API } from '../lib/http.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
 interface TaggedPack {
     entry: SdkInfo;
     source: 'daily' | 'release';
-}
-
-interface ResolvedTarget {
-    /** Pack entry for the runtime being tested */
-    runtimeEntry: TaggedPack;
-    /** Pack entry for the SDK to install (may equal runtimeEntry) */
-    sdkEntry: TaggedPack;
 }
 
 // ── Pack list loading ────────────────────────────────────────────────────────
@@ -52,9 +46,19 @@ async function loadPacks(artifactsDir: string): Promise<TaggedPack[]> {
 
 // ── Target resolution ────────────────────────────────────────────────────────
 
+interface ResolvedTarget {
+    /** Pack entry for the runtime being tested */
+    runtimeEntry: TaggedPack;
+    /** Pack entry for the SDK to install (may equal runtimeEntry) */
+    sdkEntry: TaggedPack;
+    /** True when the runtime commit was NOT found in pack catalogs and must be built from source */
+    runtimeBuildRequired: boolean;
+}
+
 function resolveTarget(ctx: BenchContext, packs: TaggedPack[]): ResolvedTarget {
     let runtimeTarget: TaggedPack | undefined;
     let sdkTarget: TaggedPack | undefined;
+    let runtimeBuildRequired = false;
 
     if (ctx.runtimeCommit && ctx.runtimePack) {
         throw new Error('Cannot specify both --runtime-commit and --runtime-pack');
@@ -66,14 +70,13 @@ function resolveTarget(ctx: BenchContext, packs: TaggedPack[]): ResolvedTarget {
         const hash = ctx.runtimeCommit;
         const matches = packs.filter(p => p.entry.runtimeGitHash.startsWith(hash));
         if (matches.length === 0) {
-            throw new Error(
-                `Runtime commit '${hash}' not found in pack catalogs.\n`
-                + 'Run enumerate stages to refresh:\n'
-                + '  bench --stages enumerate-daily-packs,enumerate-release-packs',
-            );
+            // Commit not in catalog — will build from source
+            info(`Runtime commit '${hash}' not found in pack catalogs — will build from source`);
+            runtimeBuildRequired = true;
+        } else {
+            // First match = latest (lists are sorted newest-first)
+            runtimeTarget = matches[0];
         }
-        // First match = latest (lists are sorted newest-first)
-        runtimeTarget = matches[0];
     }
 
     if (ctx.runtimePack) {
@@ -123,6 +126,76 @@ function resolveTarget(ctx: BenchContext, packs: TaggedPack[]): ResolvedTarget {
     return {
         runtimeEntry: runtimeTarget ?? sdkTarget,
         sdkEntry: sdkTarget,
+        runtimeBuildRequired,
+    };
+}
+
+// ── PR Resolution ────────────────────────────────────────────────────────────
+
+interface GitHubPR {
+    head: {
+        sha: string;
+        ref: string;
+        repo: { full_name: string } | null;
+    };
+    title: string;
+    user: { login: string } | null;
+}
+
+async function resolveRuntimePR(prNumber: string): Promise<{
+    runtimeCommit: string;
+    runtimeRepo: string;
+    branchName: string;
+    prTitle: string;
+    prAuthor: string;
+}> {
+    const token = await resolveGitHubToken();
+    const headers = githubHeaders(token);
+    const pr = await fetchJson<GitHubPR>(
+        `${GITHUB_API}/repos/dotnet/runtime/pulls/${prNumber}`, headers,
+    );
+    if (!pr) {
+        throw new Error(`Could not fetch PR #${prNumber} from dotnet/runtime`);
+    }
+    if (!pr.head.repo) {
+        throw new Error(`PR #${prNumber} head repo is null (fork may have been deleted)`);
+    }
+    return {
+        runtimeCommit: pr.head.sha,
+        runtimeRepo: pr.head.repo.full_name,
+        branchName: pr.head.ref,
+        prTitle: pr.title,
+        prAuthor: pr.user?.login ?? 'unknown',
+    };
+}
+
+// ── Commit metadata fetch ────────────────────────────────────────────────────
+
+interface GitHubCommit {
+    commit: {
+        message: string;
+        author: { name: string; date: string };
+        committer: { date: string };
+    };
+}
+
+async function fetchCommitMetadata(repo: string, sha: string): Promise<{
+    commitDateTime: string;
+    commitAuthor: string;
+    commitMessage: string;
+}> {
+    const token = await resolveGitHubToken();
+    const headers = githubHeaders(token);
+    const data = await fetchJson<GitHubCommit>(
+        `${GITHUB_API}/repos/${repo}/commits/${sha}`, headers,
+    );
+    if (!data) {
+        throw new Error(`Could not fetch commit '${sha}' from ${repo}`);
+    }
+    return {
+        commitDateTime: data.commit.committer.date,
+        commitAuthor: data.commit.author.name,
+        commitMessage: data.commit.message.split('\n')[0],
     };
 }
 
@@ -131,14 +204,72 @@ function resolveTarget(ctx: BenchContext, packs: TaggedPack[]): ResolvedTarget {
 export async function run(ctx: BenchContext): Promise<BenchContext> {
     banner('Resolve SDK');
 
+    // ── Step 0: Resolve --runtime-pr to commit + repo ────────────────────
+    if (ctx.runtimePR) {
+        if (ctx.runtimeCommit) {
+            throw new Error('Cannot specify both --runtime-pr and --runtime-commit');
+        }
+        info(`Resolving PR #${ctx.runtimePR}...`);
+        const pr = await resolveRuntimePR(ctx.runtimePR);
+        info(`PR #${ctx.runtimePR}: ${pr.prTitle}`);
+        info(`  repo: ${pr.runtimeRepo}, branch: ${pr.branchName}`);
+        info(`  head commit: ${pr.runtimeCommit.slice(0, 10)}`);
+        ctx = { ...ctx, runtimeCommit: pr.runtimeCommit, runtimeRepo: pr.runtimeRepo };
+    }
+
     // ── Step 1: Load pack catalogs ───────────────────────────────────────
     const packs = await loadPacks(ctx.artifactsDir);
     info(`Loaded ${packs.length} pack entries`);
 
     // ── Step 2: Resolve target ───────────────────────────────────────────
-    const { runtimeEntry, sdkEntry } = resolveTarget(ctx, packs);
+    const { runtimeEntry, sdkEntry, runtimeBuildRequired } = resolveTarget(ctx, packs);
 
     const sdkVersion = sdkEntry.entry.sdkVersion;
+
+    if (runtimeBuildRequired) {
+        // Commit not in catalog — fetch metadata from GitHub and construct synthetic SdkInfo
+        info(`Fetching commit metadata for ${ctx.runtimeCommit.slice(0, 10)} from ${ctx.runtimeRepo}...`);
+        const commitMeta = await fetchCommitMetadata(ctx.runtimeRepo, ctx.runtimeCommit);
+
+        const sdkInfo: SdkInfo = populateVersionFields({
+            sdkVersion,
+            runtimeGitHash: ctx.runtimeCommit,
+            aspnetCoreGitHash: sdkEntry.entry.aspnetCoreGitHash,
+            sdkGitHash: sdkEntry.entry.sdkGitHash,
+            vmrGitHash: sdkEntry.entry.vmrGitHash,
+            runtimeCommitDateTime: commitMeta.commitDateTime,
+            runtimeCommitAuthor: commitMeta.commitAuthor,
+            runtimeCommitMessage: commitMeta.commitMessage,
+            aspnetCoreCommitDateTime: sdkEntry.entry.aspnetCoreCommitDateTime,
+            aspnetCoreVersion: sdkEntry.entry.aspnetCoreVersion,
+            runtimePackVersion: 'custom-build',
+            workloadVersion: sdkEntry.entry.workloadVersion,
+            bootstrapSdkVersion: sdkEntry.entry.bootstrapSdkVersion,
+            releaseDate: commitMeta.commitDateTime.slice(0, 10),
+        });
+
+        info(`SDK: ${sdkVersion} (${sdkEntry.source}) — runtime will be built from source`);
+        info(`Runtime commit: ${ctx.runtimeCommit.slice(0, 10)} (${commitMeta.commitDateTime})`);
+        info(`Runtime repo: ${ctx.runtimeRepo}`);
+
+        const platform = ctx.platform;
+        const sdkDirName = `${platform}.sdk${sdkVersion}`;
+        const sdkDir = join(ctx.artifactsDir, 'sdks', sdkDirName);
+        const dotnetBin = join(sdkDir, platform === 'windows' ? 'dotnet.exe' : 'dotnet');
+
+        return {
+            ...ctx,
+            sdkDir,
+            dotnetBin,
+            sdkInfo,
+            isLatestDaily: false,
+            runtimeBuildRequired: true,
+            buildLabel: `${sdkVersion}_${ctx.runtimeCommit.slice(0, 10)}`,
+            publishDir: join(ctx.artifactsDir, 'publish'),
+            resultsDir: join(ctx.artifactsDir, 'results'),
+        };
+    }
+
     const runtimePackVersion = runtimeEntry.entry.runtimePackVersion;
 
     info(`SDK: ${sdkVersion} (${sdkEntry.source})`);

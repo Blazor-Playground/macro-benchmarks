@@ -50,6 +50,9 @@ export interface BenchContext {
     sdkVersion: string;
     runtimePack: string;
     runtimeCommit: string;
+    runtimeRepo: string;
+    runtimePR: string;
+    runtimeBuildRequired: boolean;
 
     // ── Filters ──
     apps: App[];

@@ -12,6 +12,8 @@
   "baseline": {
     "sdkVersion": "11.0.100-preview.3.26165.107",
     "runtimeGitHash": "8cf2e90c41f50c41d49698b3e37598f96bff9be0",
+    "aspnetCoreGitHash": "f8410f812a2a76401468a78a4f776586c3af498c",
+    "vmrGitHash": "5ff448a6425ec6980e08b5c9a35e454c8a843c35",
     "runtimeCommitDateTime": "2026-03-14T00:22:22Z",
     "runtimeCommitMessage": "Exclude noisy crypto rules from the repo's CodeQL runs (#125364)",
     "benchmarkDateTime": "2026-04-01T12:49:34.443Z"
@@ -89,20 +91,6 @@
     },
     {
       "app": "blazing-pizza",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/aot/mobile/chrome",
-      "current": 26164464,
-      "previous": 20709972,
-      "deltaPct": 26.34,
-      "rollingMedian": 20672016,
-      "rollingMad": 27538,
-      "sigma": 134.53,
-      "significant": false,
-      "direction": "regression"
-    },
-    {
-      "app": "blazing-pizza",
       "metric": "pizza-walkthrough",
       "metricType": "other",
       "rowKey": "mono/no-workload/desktop/chrome",
@@ -174,7 +162,7 @@
     {
       "app": "empty-blazor",
       "metric": "blazor-cs-to-js-json",
-      "metricType": "other",
+      "metricType": "throughput",
       "rowKey": "mono/dev-loop/desktop/chrome",
       "current": 15563,
       "previous": 15672,
@@ -188,7 +176,7 @@
     {
       "app": "empty-blazor",
       "metric": "blazor-cs-to-js-number",
-      "metricType": "other",
+      "metricType": "throughput",
       "rowKey": "mono/dev-loop/desktop/chrome",
       "current": 22646,
       "previous": 22707,
@@ -202,7 +190,7 @@
     {
       "app": "empty-blazor",
       "metric": "blazor-cs-to-js-string",
-      "metricType": "other",
+      "metricType": "throughput",
       "rowKey": "mono/dev-loop/desktop/chrome",
       "current": 27253,
       "previous": 27045,
@@ -280,20 +268,6 @@
       "rollingMedian": 26994687,
       "rollingMad": 13312,
       "sigma": 0.83,
-      "significant": false,
-      "direction": "improvement"
-    },
-    {
-      "app": "empty-blazor",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/dev-loop/mobile/chrome",
-      "current": 5391152,
-      "previous": 5839176,
-      "deltaPct": -7.67,
-      "rollingMedian": 6110412,
-      "rollingMad": 70956,
-      "sigma": 6.84,
       "significant": false,
       "direction": "improvement"
     },
@@ -421,20 +395,6 @@
       "rollingMad": 277.5,
       "sigma": 2.57,
       "significant": false,
-      "direction": "regression"
-    },
-    {
-      "app": "empty-browser",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/aot/desktop/chrome",
-      "current": 18928716,
-      "previous": 15312620,
-      "deltaPct": 23.62,
-      "rollingMedian": 15311266,
-      "rollingMad": 3422,
-      "sigma": 713.01,
-      "significant": true,
       "direction": "regression"
     },
     {
@@ -593,20 +553,6 @@
     },
     {
       "app": "havit-bootstrap",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/dev-loop/desktop/chrome",
-      "current": 21493204,
-      "previous": 29137204,
-      "deltaPct": -26.23,
-      "rollingMedian": 16439748,
-      "rollingMad": 2702840,
-      "sigma": 1.26,
-      "significant": false,
-      "direction": "improvement"
-    },
-    {
-      "app": "havit-bootstrap",
       "metric": "time-to-create-dotnet-cold",
       "metricType": "timing-memory",
       "rowKey": "mono/dev-loop/desktop/chrome",
@@ -700,7 +646,7 @@
       "rollingMedian": 29.5,
       "rollingMad": 0.5,
       "sigma": 19.56,
-      "significant": false,
+      "significant": true,
       "direction": "regression"
     },
     {
@@ -730,20 +676,6 @@
       "sigma": 17.73,
       "significant": false,
       "direction": "improvement"
-    },
-    {
-      "app": "micro-benchmarks",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/no-reflection-emit/mobile/chrome",
-      "current": 6182984,
-      "previous": 5898624,
-      "deltaPct": 4.82,
-      "rollingMedian": 5895970,
-      "rollingMad": 8578,
-      "sigma": 22.57,
-      "significant": false,
-      "direction": "regression"
     },
     {
       "app": "micro-benchmarks",
@@ -854,20 +786,6 @@
       "rollingMedian": 8974014.5,
       "rollingMad": 13625,
       "sigma": 0.54,
-      "significant": false,
-      "direction": "regression"
-    },
-    {
-      "app": "mud-blazor",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/no-workload/desktop/chrome",
-      "current": 25081393,
-      "previous": 18945009,
-      "deltaPct": 32.39,
-      "rollingMedian": 18838138,
-      "rollingMad": 1807462.5,
-      "sigma": 2.33,
       "significant": false,
       "direction": "regression"
     },
@@ -1027,20 +945,6 @@
     },
     {
       "app": "semi-avalonia",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/aot/mobile/chrome",
-      "current": 31183888,
-      "previous": 52318112,
-      "deltaPct": -40.4,
-      "rollingMedian": 21998054,
-      "rollingMad": 2365528,
-      "sigma": 2.62,
-      "significant": false,
-      "direction": "improvement"
-    },
-    {
-      "app": "semi-avalonia",
       "metric": "semi-walkthrough",
       "metricType": "other",
       "rowKey": "mono/native-relink/desktop/chrome",
@@ -1167,20 +1071,6 @@
     },
     {
       "app": "uno-gallery",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/native-relink/desktop/chrome",
-      "current": 14684369,
-      "previous": 9782979,
-      "deltaPct": 50.1,
-      "rollingMedian": 14467112,
-      "rollingMad": 169213,
-      "sigma": 0.87,
-      "significant": false,
-      "direction": "regression"
-    },
-    {
-      "app": "uno-gallery",
       "metric": "time-to-create-dotnet-cold",
       "metricType": "timing-memory",
       "rowKey": "mono/native-relink/mobile/chrome",
@@ -1265,7 +1155,7 @@
     }
   ],
   "summary": {
-    "total": 89,
+    "total": 81,
     "significant": 3,
     "regressions": 2,
     "improvements": 1

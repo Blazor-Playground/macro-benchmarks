@@ -12,6 +12,8 @@
   "baseline": {
     "sdkVersion": "11.0.100-preview.3.26166.106",
     "runtimeGitHash": "c38f37a3a1c39ca921fe156d472990d259977f6f",
+    "aspnetCoreGitHash": "773e0c2b8690e13166da211ca08f8b0507fd9f82",
+    "vmrGitHash": "435654e5061825b16b8a45ae7250cdb849a0ecdd",
     "runtimeCommitDateTime": "2026-03-15T14:23:53Z",
     "runtimeCommitMessage": "Remove unnecessary volatile from fields in Libraries (#125274)",
     "benchmarkDateTime": "2026-03-30T05:39:00.450Z"
@@ -72,20 +74,6 @@
       "sigma": 0.66,
       "significant": false,
       "direction": "regression"
-    },
-    {
-      "app": "blazing-pizza",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/dev-loop/desktop/chrome",
-      "current": 4936396,
-      "previous": 6259076,
-      "deltaPct": -21.13,
-      "rollingMedian": 6206976,
-      "rollingMad": 39480,
-      "sigma": 21.71,
-      "significant": false,
-      "direction": "improvement"
     },
     {
       "app": "blazing-pizza",
@@ -160,7 +148,7 @@
     {
       "app": "empty-blazor",
       "metric": "blazor-cs-to-js-json",
-      "metricType": "other",
+      "metricType": "throughput",
       "rowKey": "mono/dev-loop/desktop/chrome",
       "current": 21231,
       "previous": 12004,
@@ -174,7 +162,7 @@
     {
       "app": "empty-blazor",
       "metric": "blazor-cs-to-js-number",
-      "metricType": "other",
+      "metricType": "throughput",
       "rowKey": "mono/dev-loop/desktop/chrome",
       "current": 36350,
       "previous": 16886,
@@ -188,7 +176,7 @@
     {
       "app": "empty-blazor",
       "metric": "blazor-cs-to-js-string",
-      "metricType": "other",
+      "metricType": "throughput",
       "rowKey": "mono/dev-loop/desktop/chrome",
       "current": 44665,
       "previous": 20789,
@@ -268,20 +256,6 @@
       "sigma": 1,
       "significant": false,
       "direction": "regression"
-    },
-    {
-      "app": "empty-blazor",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/aot/mobile/chrome",
-      "current": 18676460,
-      "previous": 25265960,
-      "deltaPct": -26.08,
-      "rollingMedian": 25217532,
-      "rollingMad": 3400486,
-      "sigma": 1.3,
-      "significant": false,
-      "direction": "improvement"
     },
     {
       "app": "empty-blazor",
@@ -408,20 +382,6 @@
       "sigma": 1.84,
       "significant": false,
       "direction": "improvement"
-    },
-    {
-      "app": "empty-browser",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/no-jiterp/desktop/chrome",
-      "current": 7434212,
-      "previous": 6815324,
-      "deltaPct": 9.08,
-      "rollingMedian": 6815648,
-      "rollingMad": 3394,
-      "sigma": 122.93,
-      "significant": true,
-      "direction": "regression"
     },
     {
       "app": "empty-browser",
@@ -579,20 +539,6 @@
     },
     {
       "app": "havit-bootstrap",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/no-workload/desktop/chrome",
-      "current": 34317511,
-      "previous": 28201789,
-      "deltaPct": 21.69,
-      "rollingMedian": 31265520.5,
-      "rollingMad": 1169227.5,
-      "sigma": 1.76,
-      "significant": false,
-      "direction": "regression"
-    },
-    {
-      "app": "havit-bootstrap",
       "metric": "time-to-create-dotnet-cold",
       "metricType": "timing-memory",
       "rowKey": "mono/aot/mobile/chrome",
@@ -719,20 +665,6 @@
     },
     {
       "app": "micro-benchmarks",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/invariant/mobile/chrome",
-      "current": 5724996,
-      "previous": 6112612,
-      "deltaPct": -6.34,
-      "rollingMedian": 5903080,
-      "rollingMad": 14990,
-      "sigma": 8.01,
-      "significant": false,
-      "direction": "improvement"
-    },
-    {
-      "app": "micro-benchmarks",
       "metric": "time-to-create-dotnet-cold",
       "metricType": "timing-memory",
       "rowKey": "mono/invariant/desktop/chrome",
@@ -742,7 +674,7 @@
       "rollingMedian": 140,
       "rollingMad": 4,
       "sigma": 28.33,
-      "significant": false,
+      "significant": true,
       "direction": "regression"
     },
     {
@@ -826,20 +758,6 @@
       "rollingMedian": 8974014.5,
       "rollingMad": 13027,
       "sigma": 0.15,
-      "significant": false,
-      "direction": "regression"
-    },
-    {
-      "app": "mud-blazor",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/aot/mobile/chrome",
-      "current": 57193064,
-      "previous": 45691416,
-      "deltaPct": 25.17,
-      "rollingMedian": 30972192,
-      "rollingMad": 6523224,
-      "sigma": 2.71,
       "significant": false,
       "direction": "regression"
     },
@@ -999,20 +917,6 @@
     },
     {
       "app": "semi-avalonia",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/native-relink/mobile/chrome",
-      "current": 12308208,
-      "previous": 18243236,
-      "deltaPct": -32.53,
-      "rollingMedian": 13437894,
-      "rollingMad": 831198,
-      "sigma": 0.92,
-      "significant": false,
-      "direction": "improvement"
-    },
-    {
-      "app": "semi-avalonia",
       "metric": "semi-walkthrough",
       "metricType": "other",
       "rowKey": "mono/native-relink/desktop/chrome",
@@ -1139,20 +1043,6 @@
     },
     {
       "app": "uno-gallery",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/native-relink/desktop/chrome",
-      "current": 16567245,
-      "previous": 19472713,
-      "deltaPct": -14.92,
-      "rollingMedian": 14467112,
-      "rollingMad": 198304.5,
-      "sigma": 7.14,
-      "significant": false,
-      "direction": "improvement"
-    },
-    {
-      "app": "uno-gallery",
       "metric": "time-to-create-dotnet-cold",
       "metricType": "timing-memory",
       "rowKey": "mono/native-relink/desktop/chrome",
@@ -1237,7 +1127,7 @@
     }
   ],
   "summary": {
-    "total": 87,
+    "total": 79,
     "significant": 3,
     "regressions": 2,
     "improvements": 1

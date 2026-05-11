@@ -12,6 +12,8 @@
   "baseline": {
     "sdkVersion": "11.0.100-preview.5.26254.103",
     "runtimeGitHash": "013ca46b740c861d66c3f783ada239c669f83c34",
+    "aspnetCoreGitHash": "a80ff304d3a0aad42b2b3182b181e5c6de578002",
+    "vmrGitHash": "423ddd1cabeff54b53750de2d429e6ea121c7fd1",
     "runtimeCommitDateTime": "2026-05-01T00:25:41Z",
     "runtimeCommitMessage": "Split the xarch specific data from register.h into its own file to match other platforms (#127528)",
     "benchmarkDateTime": "2026-05-04T21:57:35.916Z"
@@ -89,20 +91,6 @@
     },
     {
       "app": "blazing-pizza",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/no-workload/desktop/chrome",
-      "current": 7370820,
-      "previous": 6147960,
-      "deltaPct": 19.89,
-      "rollingMedian": 6160200,
-      "rollingMad": 12774,
-      "sigma": 63.92,
-      "significant": true,
-      "direction": "regression"
-    },
-    {
-      "app": "blazing-pizza",
       "metric": "pizza-walkthrough",
       "metricType": "other",
       "rowKey": "mono/aot/desktop/chrome",
@@ -174,7 +162,7 @@
     {
       "app": "empty-blazor",
       "metric": "blazor-cs-to-js-json",
-      "metricType": "other",
+      "metricType": "throughput",
       "rowKey": "mono/dev-loop/desktop/chrome",
       "current": 21308,
       "previous": 12400,
@@ -188,7 +176,7 @@
     {
       "app": "empty-blazor",
       "metric": "blazor-cs-to-js-number",
-      "metricType": "other",
+      "metricType": "throughput",
       "rowKey": "mono/dev-loop/desktop/chrome",
       "current": 38065,
       "previous": 17597,
@@ -202,7 +190,7 @@
     {
       "app": "empty-blazor",
       "metric": "blazor-cs-to-js-string",
-      "metricType": "other",
+      "metricType": "throughput",
       "rowKey": "mono/dev-loop/desktop/chrome",
       "current": 46422,
       "previous": 21678,
@@ -216,7 +204,7 @@
     {
       "app": "empty-blazor",
       "metric": "blazor-js-to-cs-number",
-      "metricType": "other",
+      "metricType": "throughput",
       "rowKey": "coreclr/dev-loop/desktop/chrome",
       "current": 244,
       "previous": 243,
@@ -230,7 +218,7 @@
     {
       "app": "empty-blazor",
       "metric": "blazor-js-to-cs-string",
-      "metricType": "other",
+      "metricType": "throughput",
       "rowKey": "coreclr/dev-loop/desktop/chrome",
       "current": 244,
       "previous": 243,
@@ -310,20 +298,6 @@
       "sigma": 1.94,
       "significant": false,
       "direction": "neutral"
-    },
-    {
-      "app": "empty-blazor",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/no-workload/desktop/chrome",
-      "current": 3219948,
-      "previous": 3219476,
-      "deltaPct": 0.01,
-      "rollingMedian": 3218206,
-      "rollingMad": 164,
-      "sigma": 7.16,
-      "significant": false,
-      "direction": "regression"
     },
     {
       "app": "empty-blazor",
@@ -464,20 +438,6 @@
       "sigma": 10.18,
       "significant": false,
       "direction": "neutral"
-    },
-    {
-      "app": "empty-browser",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/native-relink/mobile/chrome",
-      "current": 7719192,
-      "previous": 6760900,
-      "deltaPct": 14.17,
-      "rollingMedian": 6742238,
-      "rollingMad": 10636,
-      "sigma": 61.95,
-      "significant": false,
-      "direction": "regression"
     },
     {
       "app": "empty-browser",
@@ -635,20 +595,6 @@
     },
     {
       "app": "havit-bootstrap",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/no-workload/mobile/chrome",
-      "current": 22652392,
-      "previous": 22638876,
-      "deltaPct": 0.06,
-      "rollingMedian": 17688880,
-      "rollingMad": 2370966,
-      "sigma": 1.41,
-      "significant": false,
-      "direction": "regression"
-    },
-    {
-      "app": "havit-bootstrap",
       "metric": "time-to-create-dotnet-cold",
       "metricType": "timing-memory",
       "rowKey": "mono/aot/mobile/chrome",
@@ -756,7 +702,7 @@
       "rollingMedian": 1676978,
       "rollingMad": 20647.5,
       "sigma": 9.14,
-      "significant": false,
+      "significant": true,
       "direction": "regression"
     },
     {
@@ -772,20 +718,6 @@
       "sigma": 13.74,
       "significant": false,
       "direction": "improvement"
-    },
-    {
-      "app": "micro-benchmarks",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/invariant/desktop/chrome",
-      "current": 6228508,
-      "previous": 5922032,
-      "deltaPct": 5.18,
-      "rollingMedian": 5915530,
-      "rollingMad": 32536,
-      "sigma": 6.49,
-      "significant": false,
-      "direction": "regression"
     },
     {
       "app": "micro-benchmarks",
@@ -898,20 +830,6 @@
       "sigma": 0.43,
       "significant": false,
       "direction": "regression"
-    },
-    {
-      "app": "mud-blazor",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/no-workload/desktop/chrome",
-      "current": 4603017,
-      "previous": 4637060,
-      "deltaPct": -0.73,
-      "rollingMedian": 4633646,
-      "rollingMad": 3230,
-      "sigma": 6.4,
-      "significant": false,
-      "direction": "improvement"
     },
     {
       "app": "mud-blazor",
@@ -1069,20 +987,6 @@
     },
     {
       "app": "semi-avalonia",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/aot/desktop/chrome",
-      "current": 101564804,
-      "previous": 126742028,
-      "deltaPct": -19.86,
-      "rollingMedian": 124768494,
-      "rollingMad": 2893096,
-      "sigma": 5.41,
-      "significant": false,
-      "direction": "improvement"
-    },
-    {
-      "app": "semi-avalonia",
       "metric": "semi-walkthrough",
       "metricType": "other",
       "rowKey": "mono/aot/desktop/chrome",
@@ -1209,20 +1113,6 @@
     },
     {
       "app": "uno-gallery",
-      "metric": "memory-peak",
-      "metricType": "timing-memory",
-      "rowKey": "mono/native-relink/mobile/chrome",
-      "current": 14499612,
-      "previous": 13453916,
-      "deltaPct": 7.77,
-      "rollingMedian": 12197910,
-      "rollingMad": 1258490,
-      "sigma": 1.23,
-      "significant": false,
-      "direction": "regression"
-    },
-    {
-      "app": "uno-gallery",
       "metric": "time-to-create-dotnet-cold",
       "metricType": "timing-memory",
       "rowKey": "mono/native-relink/desktop/firefox",
@@ -1307,7 +1197,7 @@
     }
   ],
   "summary": {
-    "total": 92,
+    "total": 84,
     "significant": 3,
     "regressions": 2,
     "improvements": 1

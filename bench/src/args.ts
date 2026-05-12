@@ -30,6 +30,11 @@ SDK & Runtime:
   --runtime-repo <repo>    GitHub repo for runtime fork (default: dotnet/runtime)
   --runtime-pr <number>    dotnet/runtime PR number — auto-resolves fork repo and head commit
 
+ASP.NET Core:
+  --aspnetcore-commit <hash>  Specific dotnet/aspnetcore commit hash (builds from source)
+  --aspnetcore-pr <number>    dotnet/aspnetcore PR number — auto-resolves fork repo and head commit
+  --aspnetcore-repo <repo>    GitHub repo for aspnetcore fork (default: dotnet/aspnetcore)
+
 Filters (comma-separated, restrict what gets built/measured):
   --app <list>             App filter (default: all)
                            Valid: ${ALL_APPS.join(', ')}
@@ -86,6 +91,11 @@ const ARG_OPTIONS = {
     'runtime-commit': { type: 'string' as const, default: '' },
     'runtime-repo': { type: 'string' as const, default: '' },
     'runtime-pr': { type: 'string' as const, default: '' },
+
+    // ASP.NET Core
+    'aspnetcore-commit': { type: 'string' as const, default: '' },
+    'aspnetcore-pr': { type: 'string' as const, default: '' },
+    'aspnetcore-repo': { type: 'string' as const, default: '' },
 
     // Filters
     'app': { type: 'string' as const, default: '' },
@@ -234,6 +244,14 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
         runtimeRepo: values['runtime-repo'] || loaded.runtimeRepo || 'dotnet/runtime',
         runtimePR: values['runtime-pr'] || loaded.runtimePR || '',
         runtimeBuildRequired: loaded.runtimeBuildRequired ?? false,
+
+        // ASP.NET Core
+        aspnetCoreCommit: values['aspnetcore-commit'] || loaded.aspnetCoreCommit || '',
+        aspnetCorePR: values['aspnetcore-pr'] || loaded.aspnetCorePR || '',
+        aspnetCoreRepo: values['aspnetcore-repo'] || loaded.aspnetCoreRepo || 'dotnet/aspnetcore',
+        aspnetCoreBuildRequired: loaded.aspnetCoreBuildRequired ?? false,
+        aspnetCorePackagesDir: loaded.aspnetCorePackagesDir,
+        aspnetCorePackageVersion: loaded.aspnetCorePackageVersion,
 
         // Filters
         apps: effectiveApps,

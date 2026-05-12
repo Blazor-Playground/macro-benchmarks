@@ -33,6 +33,21 @@ on:
         required: false
         default: ''
         type: string
+      aspnetcore_commit:
+        description: 'Specific dotnet/aspnetcore commit hash (builds from source)'
+        required: false
+        default: ''
+        type: string
+      aspnetcore_pr:
+        description: 'dotnet/aspnetcore PR number — auto-resolves fork repo and head commit'
+        required: false
+        default: ''
+        type: string
+      aspnetcore_repo:
+        description: 'GitHub repo for aspnetcore fork (e.g. user/aspnetcore). Default: dotnet/aspnetcore'
+        required: false
+        default: ''
+        type: string
       dry_run:
         description: 'Dry run (run benchmarks but do not publish results)'
         required: false
@@ -59,6 +74,9 @@ jobs:
       runtime-build-required: ${{ steps.sdk-version.outputs.runtime-build-required }}
       runtime-commit: ${{ steps.sdk-version.outputs.runtime-commit }}
       runtime-repo: ${{ steps.sdk-version.outputs.runtime-repo }}
+      aspnetcore-build-required: ${{ steps.sdk-version.outputs.aspnetcore-build-required }}
+      aspnetcore-commit: ${{ steps.sdk-version.outputs.aspnetcore-commit }}
+      aspnetcore-repo: ${{ steps.sdk-version.outputs.aspnetcore-repo }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -82,6 +100,9 @@ jobs:
             ${{ inputs.runtime_pack && format('--runtime-pack "{0}"', inputs.runtime_pack) || '' }} \
             ${{ inputs.runtime_pr && format('--runtime-pr "{0}"', inputs.runtime_pr) || '' }} \
             ${{ inputs.runtime_repo && format('--runtime-repo "{0}"', inputs.runtime_repo) || '' }} \
+            ${{ inputs.aspnetcore_commit && format('--aspnetcore-commit "{0}"', inputs.aspnetcore_commit) || '' }} \
+            ${{ inputs.aspnetcore_pr && format('--aspnetcore-pr "{0}"', inputs.aspnetcore_pr) || '' }} \
+            ${{ inputs.aspnetcore_repo && format('--aspnetcore-repo "{0}"', inputs.aspnetcore_repo) || '' }} \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 
       - name: Read SDK version
@@ -94,15 +115,22 @@ jobs:
           RUNTIME_BUILD=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.runtimeBuildRequired ? 'true' : 'false')")
           RUNTIME_COMMIT=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.runtimeCommit || '')")
           RUNTIME_REPO=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.runtimeRepo || 'dotnet/runtime')")
+          ASPNETCORE_BUILD=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.aspnetCoreBuildRequired ? 'true' : 'false')")
+          ASPNETCORE_COMMIT=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.aspnetCoreCommit || '')")
+          ASPNETCORE_REPO=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.aspnetCoreRepo || 'dotnet/aspnetcore')")
           echo "sdk-version=$SDK_VERSION" >> "$GITHUB_OUTPUT"
           echo "runtime-commit-date=$COMMIT_DATE" >> "$GITHUB_OUTPUT"
           echo "runtime-commit-message=$COMMIT_MSG" >> "$GITHUB_OUTPUT"
           echo "runtime-build-required=$RUNTIME_BUILD" >> "$GITHUB_OUTPUT"
           echo "runtime-commit=$RUNTIME_COMMIT" >> "$GITHUB_OUTPUT"
           echo "runtime-repo=$RUNTIME_REPO" >> "$GITHUB_OUTPUT"
+          echo "aspnetcore-build-required=$ASPNETCORE_BUILD" >> "$GITHUB_OUTPUT"
+          echo "aspnetcore-commit=$ASPNETCORE_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "aspnetcore-repo=$ASPNETCORE_REPO" >> "$GITHUB_OUTPUT"
           echo "SDK version: $SDK_VERSION" >&2
           echo "Runtime commit: $COMMIT_DATE $COMMIT_MSG" >&2
           echo "Runtime build required: $RUNTIME_BUILD" >&2
+          echo "ASP.NET Core build required: $ASPNETCORE_BUILD" >&2
 
       - name: Upload bench context
         uses: actions/upload-artifact@v7
@@ -218,15 +246,64 @@ jobs:
           path: runtime-pack-coreclr/
           retention-days: 3
 
+  # ── Job 2c: Build ASP.NET Core (only when building from source) ─────────────
+  build-aspnetcore:
+    name: Build ASP.NET Core
+    needs: resolve
+    if: needs.resolve.outputs.aspnetcore-build-required == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 120
+    steps:
+      - name: Clone aspnetcore repo
+        shell: bash
+        run: |
+          git clone --no-checkout --filter=blob:none \
+            "https://github.com/${{ needs.resolve.outputs.aspnetcore-repo }}.git" aspnetcore-src
+          cd aspnetcore-src
+          git checkout ${{ needs.resolve.outputs.aspnetcore-commit }}
+          git submodule update --init --recursive
+
+      - name: Restore
+        shell: bash
+        run: |
+          cd aspnetcore-src
+          ./restore.sh
+
+      - name: Build
+        shell: bash
+        run: |
+          cd aspnetcore-src
+          source activate.sh
+          ./eng/build.sh -NoBuildNative -NoBuildJava -NoBuildInstallers -c Release -bl
+
+      - name: Collect packages
+        shell: bash
+        run: |
+          mkdir -p aspnetcore-packages
+          cp aspnetcore-src/artifacts/packages/Release/Shipping/*.nupkg aspnetcore-packages/ 2>/dev/null || true
+          cp aspnetcore-src/artifacts/packages/Release/NonShipping/*.nupkg aspnetcore-packages/ 2>/dev/null || true
+          echo "Collected $(ls aspnetcore-packages/*.nupkg 2>/dev/null | wc -l) packages" >&2
+          ls aspnetcore-packages/ | head -20 >&2
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v7
+        with:
+          name: aspnetcore-packages
+          path: aspnetcore-packages/
+          retention-days: 3
+
   # ── Job 3: Build all apps ──────────────────────────────────────────────────
   build:
     name: Build (${{ needs.resolve.outputs.sdk-version }}, ${{ needs.resolve.outputs.runtime-commit-date }}, ${{ needs.resolve.outputs.runtime-commit-message }})
-    needs: [resolve, build-runtime-mono, build-runtime-coreclr]
+    needs: [resolve, build-runtime-mono, build-runtime-coreclr, build-aspnetcore]
     if: |
       always()
       && needs.resolve.result == 'success'
       && (needs.build-runtime-mono.result == 'success' || needs.build-runtime-mono.result == 'skipped')
       && (needs.build-runtime-coreclr.result == 'success' || needs.build-runtime-coreclr.result == 'skipped')
+      && (needs.build-aspnetcore.result == 'success' || needs.build-aspnetcore.result == 'skipped')
     runs-on: ubuntu-latest
     container: ${{ vars.CONTAINER_REGISTRY }}/browser-bench-build:latest
     permissions:
@@ -264,11 +341,18 @@ jobs:
           name: runtime-pack-coreclr
           path: ${{ env.ARTIFACTS_DIR }}/runtime-pack-coreclr
 
+      - name: Download ASP.NET Core packages (if built from source)
+        if: needs.resolve.outputs.aspnetcore-build-required == 'true'
+        uses: actions/download-artifact@v8
+        with:
+          name: aspnetcore-packages
+          path: ${{ env.ARTIFACTS_DIR }}/aspnetcore-packages
+
       - name: Build all apps
         shell: bash
         run: |
           npx --prefix bench tsx bench/src/main.ts \
-            --stages check-out-tracking,download-sdk,build-runtime,build \
+            --stages check-out-tracking,download-sdk,build-runtime,build-aspnetcore,build \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 

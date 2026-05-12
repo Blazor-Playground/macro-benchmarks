@@ -55,6 +55,14 @@ export interface BenchContext {
     runtimePR: string;
     runtimeBuildRequired: boolean;
 
+    // ── ASP.NET Core ──
+    aspnetCoreCommit: string;
+    aspnetCorePR: string;
+    aspnetCoreRepo: string;
+    aspnetCoreBuildRequired: boolean;
+    aspnetCorePackagesDir?: string;
+    aspnetCorePackageVersion?: string;
+
     // ── Filters ──
     apps: App[];
     presets: Preset[];

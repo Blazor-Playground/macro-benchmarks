@@ -19,6 +19,22 @@
         <Message Text="Overriding runtime pack with: $(RuntimePackDir)" Importance="High" />
     </Target>
 
+    <!--
+      Override the ASP.NET Core shared framework with a custom-built one.
+      Set /p:MicrosoftAspNetCoreVersion=<version> and add a NuGet source pointing
+      to the directory containing the built packages.
+      The version override in versions.props is sufficient for NuGet packages.
+      This target handles the shared framework ref pack override.
+    -->
+    <Target Name="UpdateAspNetCoreRefPack" AfterTargets="ResolveFrameworkReferences"
+            Condition="'$(AspNetCoreRefPackDir)' != ''">
+        <ItemGroup>
+            <ResolvedFrameworkReference PackageDirectory="$(AspNetCoreRefPackDir)"
+                                        Condition="'%(ResolvedFrameworkReference.RuntimeFrameworkName)' == 'Microsoft.AspNetCore.App'" />
+        </ItemGroup>
+        <Message Text="Overriding ASP.NET Core ref pack with: $(AspNetCoreRefPackDir)" Importance="High" />
+    </Target>
+
     <Target Name="RenameFingerprinting" AfterTargets="ComputeAndCopyFilesToPublishDirectory">
         <PropertyGroup>
             <_PublishedIndexHtml>$(PublishDir)\wwwroot\index.html</_PublishedIndexHtml>

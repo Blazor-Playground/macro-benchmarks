@@ -96,6 +96,10 @@ function getRestoreArgs(
     if (ctx.runtimePackDirs?.[runtime]) {
         args.push(`/p:RuntimePackDir=${ctx.runtimePackDirs[runtime]}`);
     }
+    if (ctx.aspnetCorePackagesDir) {
+        args.push(`/p:RestoreAdditionalProjectSources=${ctx.aspnetCorePackagesDir}`);
+        args.push(`/p:MicrosoftAspNetCoreVersion=${ctx.aspnetCorePackageVersion}`);
+    }
     if (app === App.UnoGallery) {
         args.push(`/p:TargetFramework=net${ctx.sdkInfo.major}.0-browserwasm`);
     }
@@ -132,6 +136,9 @@ function getPublishArgs(
     );
     if (ctx.runtimePackDirs?.[runtime]) {
         args.push(`/p:RuntimePackDir=${ctx.runtimePackDirs[runtime]}`);
+    }
+    if (ctx.aspnetCorePackagesDir) {
+        args.push(`/p:MicrosoftAspNetCoreVersion=${ctx.aspnetCorePackageVersion}`);
     }
     return args;
 }

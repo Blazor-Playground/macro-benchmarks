@@ -52,6 +52,7 @@ export enum Stage {
     ResolveSdk = 'resolve-sdk',
     DownloadSdk = 'download-sdk',
     BuildRuntime = 'build-runtime',
+    BuildAspNetCore = 'build-aspnetcore',
     Build = 'build',
     DeployLatestApp = 'deploy-latest-app',
     Measure = 'measure',

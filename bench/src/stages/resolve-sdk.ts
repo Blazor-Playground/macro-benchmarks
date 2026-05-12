@@ -169,6 +169,33 @@ async function resolveRuntimePR(prNumber: string): Promise<{
     };
 }
 
+async function resolveAspNetCorePR(prNumber: string): Promise<{
+    aspnetCoreCommit: string;
+    aspnetCoreRepo: string;
+    branchName: string;
+    prTitle: string;
+    prAuthor: string;
+}> {
+    const token = await resolveGitHubToken();
+    const headers = githubHeaders(token);
+    const pr = await fetchJson<GitHubPR>(
+        `${GITHUB_API}/repos/dotnet/aspnetcore/pulls/${prNumber}`, headers,
+    );
+    if (!pr) {
+        throw new Error(`Could not fetch PR #${prNumber} from dotnet/aspnetcore`);
+    }
+    if (!pr.head.repo) {
+        throw new Error(`PR #${prNumber} head repo is null (fork may have been deleted)`);
+    }
+    return {
+        aspnetCoreCommit: pr.head.sha,
+        aspnetCoreRepo: pr.head.repo.full_name,
+        branchName: pr.head.ref,
+        prTitle: pr.title,
+        prAuthor: pr.user?.login ?? 'unknown',
+    };
+}
+
 // ── Commit metadata fetch ────────────────────────────────────────────────────
 
 interface GitHubCommit {
@@ -217,6 +244,25 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         ctx = { ...ctx, runtimeCommit: pr.runtimeCommit, runtimeRepo: pr.runtimeRepo };
     }
 
+    // ── Step 0b: Resolve --aspnetcore-pr to commit + repo ────────────────
+    if (ctx.aspnetCorePR) {
+        if (ctx.aspnetCoreCommit) {
+            throw new Error('Cannot specify both --aspnetcore-pr and --aspnetcore-commit');
+        }
+        info(`Resolving ASP.NET Core PR #${ctx.aspnetCorePR}...`);
+        const pr = await resolveAspNetCorePR(ctx.aspnetCorePR);
+        info(`PR #${ctx.aspnetCorePR}: ${pr.prTitle}`);
+        info(`  repo: ${pr.aspnetCoreRepo}, branch: ${pr.branchName}`);
+        info(`  head commit: ${pr.aspnetCoreCommit.slice(0, 10)}`);
+        ctx = { ...ctx, aspnetCoreCommit: pr.aspnetCoreCommit, aspnetCoreRepo: pr.aspnetCoreRepo };
+    }
+
+    // ── Step 0c: Mark aspnetcore build required ──────────────────────────
+    if (ctx.aspnetCoreCommit) {
+        info(`ASP.NET Core commit specified: ${ctx.aspnetCoreCommit.slice(0, 10)} — will build from source`);
+        ctx = { ...ctx, aspnetCoreBuildRequired: true };
+    }
+
     // ── Step 1: Load pack catalogs ───────────────────────────────────────
     const packs = await loadPacks(ctx.artifactsDir);
     info(`Loaded ${packs.length} pack entries`);
@@ -234,7 +280,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         const sdkInfo: SdkInfo = populateVersionFields({
             sdkVersion,
             runtimeGitHash: ctx.runtimeCommit,
-            aspnetCoreGitHash: sdkEntry.entry.aspnetCoreGitHash,
+            aspnetCoreGitHash: ctx.aspnetCoreCommit || sdkEntry.entry.aspnetCoreGitHash,
             sdkGitHash: sdkEntry.entry.sdkGitHash,
             vmrGitHash: sdkEntry.entry.vmrGitHash,
             runtimeCommitDateTime: commitMeta.commitDateTime,
@@ -258,6 +304,11 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         const sdkDir = join(ctx.artifactsDir, 'sdks', sdkDirName);
         const dotnetBin = join(sdkDir, platform === 'windows' ? 'dotnet.exe' : 'dotnet');
 
+        let buildLabel = `${sdkVersion}_rt-${ctx.runtimeCommit.slice(0, 10)}`;
+        if (ctx.aspnetCoreBuildRequired) {
+            buildLabel += `_aspnet-${ctx.aspnetCoreCommit.slice(0, 10)}`;
+        }
+
         return {
             ...ctx,
             sdkDir,
@@ -265,7 +316,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
             sdkInfo,
             isLatestDaily: false,
             runtimeBuildRequired: true,
-            buildLabel: `${sdkVersion}_${ctx.runtimeCommit.slice(0, 10)}`,
+            buildLabel,
             publishDir: join(ctx.artifactsDir, 'publish'),
             resultsDir: join(ctx.artifactsDir, 'results'),
         };
@@ -281,7 +332,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const sdkInfo: SdkInfo = populateVersionFields({
         sdkVersion,
         runtimeGitHash: runtimeEntry.entry.runtimeGitHash,
-        aspnetCoreGitHash: sdkEntry.entry.aspnetCoreGitHash,
+        aspnetCoreGitHash: ctx.aspnetCoreCommit || sdkEntry.entry.aspnetCoreGitHash,
         sdkGitHash: sdkEntry.entry.sdkGitHash,
         vmrGitHash: sdkEntry.entry.vmrGitHash,
         runtimeCommitDateTime: runtimeEntry.entry.runtimeCommitDateTime,
@@ -316,13 +367,18 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const dotnetBin = join(sdkDir, platform === 'windows' ? 'dotnet.exe' : 'dotnet');
 
     // ── Step 6: Update context ───────────────────────────────────────────
+    let buildLabel = sdkVersion;
+    if (ctx.aspnetCoreBuildRequired) {
+        buildLabel += `_aspnet-${ctx.aspnetCoreCommit.slice(0, 10)}`;
+    }
+
     return {
         ...ctx,
         sdkDir,
         dotnetBin,
         sdkInfo,
         isLatestDaily,
-        buildLabel: sdkVersion,
+        buildLabel,
         publishDir: join(ctx.artifactsDir, 'publish'),
         resultsDir: join(ctx.artifactsDir, 'results'),
     };

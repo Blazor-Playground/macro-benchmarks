@@ -33,7 +33,7 @@ export async function ensureBranchCheckout(repoRoot: string, branch: string, loc
         info(`${localDir}/ exists — pulling latest`);
 
         // sparse checkout ignored for existing checkouts
-
+        await exec('git', ['config', '--global', '--add', 'safe.directory', dir], { throwOnError: false });
         await exec('git', ['-C', dir, 'pull'], { throwOnError: false });
     } else {
         info(`${localDir}/ not found — cloning ${branch} branch`);

@@ -351,15 +351,34 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
             await ensureTransitiveDeps(packagesDir);
 
             // Detect version from a known package
-            const probe = nupkgs.find(f =>
+            let packageVersion: string | undefined;
+            const probeWebAssembly = nupkgs.find(f =>
                 f.toLowerCase().startsWith('microsoft.aspnetcore.components.webassembly.')
                 && !f.toLowerCase().includes('devserver'),
             );
-            let packageVersion = 'custom-build';
-            if (probe) {
+            if (probeWebAssembly) {
                 packageVersion = parseVersionFromNupkg(
-                    join(packagesDir, probe),
+                    join(packagesDir, probeWebAssembly),
                     'Microsoft.AspNetCore.Components.WebAssembly',
+                );
+            }
+            // Fallback: detect version from App.Ref package (CI builds only produce runtime packs)
+            if (!packageVersion) {
+                const probeRef = nupkgs.find(f =>
+                    f.toLowerCase().startsWith('microsoft.aspnetcore.app.ref.')
+                    && !f.toLowerCase().includes('.symbols.'),
+                );
+                if (probeRef) {
+                    packageVersion = parseVersionFromNupkg(
+                        join(packagesDir, probeRef),
+                        'Microsoft.AspNetCore.App.Ref',
+                    );
+                }
+            }
+            if (!packageVersion) {
+                throw new Error(
+                    'Could not detect ASP.NET Core package version from pre-built packages.\n'
+                    + `Files in ${packagesDir}: ${nupkgs.join(', ')}`,
                 );
             }
 
@@ -398,12 +417,31 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     // ── Step 5: Detect version ───────────────────────────────────────────
     const shippingDir = join(cloneDir, 'artifacts', 'packages', 'Release', 'Shipping');
-    const probeNupkg = await findNupkg(shippingDir, 'Microsoft.AspNetCore.Components.WebAssembly');
-    let packageVersion = 'custom-build';
+    let probeNupkg = await findNupkg(shippingDir, 'Microsoft.AspNetCore.Components.WebAssembly');
+    let packageVersion: string | undefined;
     if (probeNupkg) {
         packageVersion = parseVersionFromNupkg(probeNupkg, 'Microsoft.AspNetCore.Components.WebAssembly');
-        info(`Built ASP.NET Core package version: ${packageVersion}`);
     }
+    if (!packageVersion) {
+        if (existsSync(shippingDir)) {
+            const shippingFiles = await readdir(shippingDir);
+            const refPkg = shippingFiles.find(f =>
+                f.toLowerCase().startsWith('microsoft.aspnetcore.app.ref.')
+                && f.endsWith('.nupkg')
+                && !f.toLowerCase().includes('.symbols.'),
+            );
+            if (refPkg) {
+                packageVersion = parseVersionFromNupkg(join(shippingDir, refPkg), 'Microsoft.AspNetCore.App.Ref');
+            }
+        }
+    }
+    if (!packageVersion) {
+        throw new Error(
+            'Could not detect ASP.NET Core package version from built packages.\n'
+            + `Searched: ${shippingDir}`,
+        );
+    }
+    info(`Built ASP.NET Core package version: ${packageVersion}`);
 
     // ── Step 6: Update context ───────────────────────────────────────────
     return {

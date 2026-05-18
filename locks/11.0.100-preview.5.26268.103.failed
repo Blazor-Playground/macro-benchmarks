@@ -1,0 +1,87 @@
+{
+  "failedAt": "2026-05-18T15:56:16.363Z",
+  "ciRunId": "26042592717",
+  "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26042592717",
+  "failures": [
+    {
+      "target": "empty-blazor/dev-loop",
+      "errorLines": []
+    },
+    {
+      "target": "empty-blazor/no-workload",
+      "errorLines": []
+    },
+    {
+      "target": "blazing-pizza/dev-loop",
+      "errorLines": []
+    },
+    {
+      "target": "blazing-pizza/no-workload",
+      "errorLines": []
+    },
+    {
+      "target": "havit-bootstrap/dev-loop",
+      "errorLines": []
+    },
+    {
+      "target": "havit-bootstrap/no-workload",
+      "errorLines": []
+    },
+    {
+      "target": "mud-blazor/dev-loop",
+      "errorLines": []
+    },
+    {
+      "target": "mud-blazor/no-workload",
+      "errorLines": []
+    },
+    {
+      "target": "empty-blazor/dev-loop",
+      "errorLines": []
+    },
+    {
+      "target": "empty-blazor/no-workload",
+      "errorLines": []
+    },
+    {
+      "target": "blazing-pizza/dev-loop",
+      "errorLines": []
+    },
+    {
+      "target": "blazing-pizza/no-workload",
+      "errorLines": []
+    },
+    {
+      "target": "havit-bootstrap/dev-loop",
+      "errorLines": []
+    },
+    {
+      "target": "havit-bootstrap/no-workload",
+      "errorLines": []
+    },
+    {
+      "target": "mud-blazor/dev-loop",
+      "errorLines": []
+    },
+    {
+      "target": "mud-blazor/no-workload",
+      "errorLines": []
+    },
+    {
+      "target": "empty-blazor/aot",
+      "errorLines": []
+    },
+    {
+      "target": "blazing-pizza/aot",
+      "errorLines": []
+    },
+    {
+      "target": "havit-bootstrap/aot",
+      "errorLines": []
+    },
+    {
+      "target": "mud-blazor/aot",
+      "errorLines": []
+    }
+  ]
+}

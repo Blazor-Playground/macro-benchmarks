@@ -415,7 +415,11 @@ jobs:
   measure:
     name: Measure ${{ matrix.app }}/${{ matrix.preset }}/${{ matrix.runtime }}
     needs: [resolve, build]
-    if: needs.build.outputs.matrix != '[]' && needs.build.outputs.matrix != ''
+    if: |
+      !cancelled()
+      && needs.build.result == 'success'
+      && needs.build.outputs.matrix != '[]'
+      && needs.build.outputs.matrix != ''
     runs-on: ubuntu-latest
     container:
       image: ${{ vars.CONTAINER_REGISTRY }}/browser-bench-measure:latest

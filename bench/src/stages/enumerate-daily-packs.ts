@@ -122,7 +122,7 @@ async function resolveVersion(
         fetchJson<{ commit: { message: string; author: { name: string }; committer: { date: string } } }>(
             `${GITHUB_API}/repos/dotnet/runtime/commits/${rtRepo.commitSha}`, ghHeaders,
         ),
-        fetchJson<{ commit: { committer: { date: string } } }>(
+        fetchJson<{ commit: { message: string; author: { name: string }; committer: { date: string } } }>(
             `${GITHUB_API}/repos/dotnet/aspnetcore/commits/${aspRepo.commitSha}`, ghHeaders,
         ),
     ]);
@@ -156,6 +156,8 @@ async function resolveVersion(
         runtimeCommitAuthor: rtCommit.commit.author.name,
         runtimeCommitMessage: rtCommit.commit.message.split('\n')[0],
         aspnetCoreCommitDateTime: aspCommit.commit.committer.date,
+        aspnetCoreCommitAuthor: aspCommit.commit.author.name,
+        aspnetCoreCommitMessage: aspCommit.commit.message.split('\n')[0],
         aspnetCoreVersion: pc.aspnetcore.version,
         runtimePackVersion,
         workloadVersion: runtimePackVersion,

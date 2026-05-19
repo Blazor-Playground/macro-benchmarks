@@ -19,10 +19,14 @@ export interface SdkInfo {
     runtimeCommitAuthor: string;
     runtimeCommitMessage: string;
     aspnetCoreCommitDateTime: string;
+    aspnetCoreCommitAuthor: string;
+    aspnetCoreCommitMessage: string;
     aspnetCoreVersion: string;
     runtimePackVersion: string;
+    isRuntimeCustomBuild?: boolean;
     runtimePR?: string;
     aspnetCorePR?: string;
+    isAspnetCoreCustomBuild?: boolean;
     workloadVersion: string;
     bootstrapSdkVersion: string;
     releaseDate: string;

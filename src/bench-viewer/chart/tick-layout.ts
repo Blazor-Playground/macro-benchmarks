@@ -48,9 +48,9 @@ export function computeTickLayout(
                 const x = base + revision;
                 positions.push(x);
                 // For PR builds, include PR number in tick label
-                const label = col.runtimePackVersion === 'custom-build' && col.runtimePR
+                const label = col.isRuntimeCustomBuild && col.runtimePR
                     ? `PR#${col.runtimePR} rnt`
-                    : col.aspnetCorePR
+                    : col.isAspnetCoreCustomBuild && col.aspnetCorePR
                         ? `PR#${col.aspnetCorePR} asp`
                         : col.sdkVersion;
                 tickMap.set(x, label);

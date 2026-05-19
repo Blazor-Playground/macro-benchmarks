@@ -46,11 +46,29 @@ public class ColumnInfo
     [JsonPropertyName("aspnetCoreCommitDateTime")]
     public string? AspnetCoreCommitDateTime { get; set; }
 
+    [JsonPropertyName("aspnetCoreCommitAuthor")]
+    public string? AspnetCoreCommitAuthor { get; set; }
+
+    [JsonPropertyName("aspnetCoreCommitMessage")]
+    public string? AspnetCoreCommitMessage { get; set; }
+
     [JsonPropertyName("aspnetCoreVersion")]
     public string? AspnetCoreVersion { get; set; }
 
     [JsonPropertyName("runtimePackVersion")]
     public string? RuntimePackVersion { get; set; }
+
+    [JsonPropertyName("isRuntimeCustomBuild")]
+    public bool IsRuntimeCustomBuild { get; set; }
+
+    [JsonPropertyName("runtimePR")]
+    public string? RuntimePR { get; set; }
+
+    [JsonPropertyName("aspnetCorePR")]
+    public string? AspnetCorePR { get; set; }
+
+    [JsonPropertyName("isAspnetCoreCustomBuild")]
+    public bool IsAspnetCoreCustomBuild { get; set; }
 
     [JsonPropertyName("workloadVersion")]
     public string? WorkloadVersion { get; set; }

@@ -35,7 +35,7 @@ interface ColumnRef {
 }
 
 function isCustomBuild(col: SdkInfo): boolean {
-    return col.runtimePackVersion === 'custom-build';
+    return !!col.isRuntimeCustomBuild || !!col.isAspnetCoreCustomBuild;
 }
 
 interface DeltaEntry {

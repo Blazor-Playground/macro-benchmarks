@@ -118,10 +118,15 @@ export function createChart(canvas: HTMLCanvasElement, metric: string, mergedDat
                             if (!col) return '';
                             const lines: string[] = [];
                             lines.push(`SDK: ${col.sdkVersion}`);
-                            if (col.runtimePackVersion === 'custom-build') {
-                                lines.push(`Runtime: ${col.runtimeGitHash.substring(0, 7)} (PR build)`);
+                            if (col.isRuntimeCustomBuild && col.runtimePR) {
+                                lines.push(`Runtime: PR#${col.runtimePR} (${col.runtimeGitHash.substring(0, 7)})`);
                             } else {
                                 lines.push(`Runtime: ${col.runtimeGitHash.substring(0, 7)}`);
+                            }
+                            if (col.isAspnetCoreCustomBuild && col.aspnetCorePR) {
+                                lines.push(`ASP.NET: PR#${col.aspnetCorePR} (${col.aspnetCoreGitHash?.substring(0, 7)})`);
+                            } else if (col.aspnetCoreGitHash) {
+                                lines.push(`ASP.NET: ${col.aspnetCoreGitHash.substring(0, 7)}`);
                             }
                             return lines.join('\n');
                         },

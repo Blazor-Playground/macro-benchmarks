@@ -4,7 +4,11 @@
 <div class="commit-info-block mb-2">
     <div class="mb-1">
         <div class="commit-heading">
-            @if (!string.IsNullOrEmpty(Point.Column.RuntimeCommitMessage))
+            @if (Point.Column.IsAspnetCoreCustomBuild && !string.IsNullOrEmpty(Point.Column.AspnetCoreCommitMessage))
+            {
+                @TruncateMessage(Point.Column.AspnetCoreCommitMessage, 80)
+            }
+            else if (!string.IsNullOrEmpty(Point.Column.RuntimeCommitMessage))
             {
                 @TruncateMessage(Point.Column.RuntimeCommitMessage, 80)
             }
@@ -21,7 +25,14 @@
                 <td class="commit-label">Date</td>
                 <td class="py-0">@Point.FormattedDate</td>
             </tr>
-            @if (!string.IsNullOrEmpty(Point.Column.RuntimeCommitAuthor))
+            @if (Point.Column.IsAspnetCoreCustomBuild && !string.IsNullOrEmpty(Point.Column.AspnetCoreCommitAuthor))
+            {
+                <tr>
+                    <td class="commit-label">Author</td>
+                    <td class="py-0">@Point.Column.AspnetCoreCommitAuthor</td>
+                </tr>
+            }
+            else if (!string.IsNullOrEmpty(Point.Column.RuntimeCommitAuthor))
             {
                 <tr>
                     <td class="commit-label">Author</td>
@@ -50,7 +61,11 @@
                 <tr>
                     <td class="commit-label">Runtime Pack</td>
                     <td class="commit-value-break">
-                        @if (!string.IsNullOrEmpty(Point.Column.RuntimeGitHash))
+                        @if (Point.Column.IsRuntimeCustomBuild && !string.IsNullOrEmpty(Point.Column.RuntimePR))
+                        {
+                            <a href="https://github.com/dotnet/runtime/pull/@Point.Column.RuntimePR" target="_blank" rel="noopener">PR#@Point.Column.RuntimePR</a>
+                        }
+                        else if (!string.IsNullOrEmpty(Point.Column.RuntimeGitHash))
                         {
                             <a href="https://github.com/dotnet/runtime/commit/@Point.Column.RuntimeGitHash" target="_blank" rel="noopener">@Point.Column.RuntimePackVersion</a>
                         }
@@ -66,7 +81,11 @@
                 <tr>
                     <td class="commit-label">ASP.NET Core</td>
                     <td class="commit-value-break">
-                        @if (!string.IsNullOrEmpty(Point.Column.AspnetCoreGitHash))
+                        @if (Point.Column.IsAspnetCoreCustomBuild && !string.IsNullOrEmpty(Point.Column.AspnetCorePR))
+                        {
+                            <a href="https://github.com/dotnet/aspnetcore/pull/@Point.Column.AspnetCorePR" target="_blank" rel="noopener">PR#@Point.Column.AspnetCorePR</a>
+                        }
+                        else if (!string.IsNullOrEmpty(Point.Column.AspnetCoreGitHash))
                         {
                             <a href="https://github.com/dotnet/aspnetcore/commit/@Point.Column.AspnetCoreGitHash" target="_blank" rel="noopener">@Point.Column.AspnetCoreVersion</a>
                         }

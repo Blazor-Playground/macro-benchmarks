@@ -51,14 +51,11 @@ interface ResolvedTarget {
     runtimeEntry: TaggedPack;
     /** Pack entry for the SDK to install (may equal runtimeEntry) */
     sdkEntry: TaggedPack;
-    /** True when the runtime commit was NOT found in pack catalogs and must be built from source */
-    runtimeBuildRequired: boolean;
 }
 
 function resolveTarget(ctx: BenchContext, packs: TaggedPack[]): ResolvedTarget {
     let runtimeTarget: TaggedPack | undefined;
     let sdkTarget: TaggedPack | undefined;
-    let runtimeBuildRequired = false;
 
     if (ctx.runtimeCommit && ctx.runtimePack) {
         throw new Error('Cannot specify both --runtime-commit and --runtime-pack');
@@ -71,8 +68,7 @@ function resolveTarget(ctx: BenchContext, packs: TaggedPack[]): ResolvedTarget {
         const matches = packs.filter(p => p.entry.runtimeGitHash.startsWith(hash));
         if (matches.length === 0) {
             // Commit not in catalog — will build from source
-            info(`Runtime commit '${hash}' not found in pack catalogs — will build from source`);
-            runtimeBuildRequired = true;
+            info(`Runtime commit '${hash}' not found in pack catalogs`);
         } else {
             // First match = latest (lists are sorted newest-first)
             runtimeTarget = matches[0];
@@ -126,7 +122,6 @@ function resolveTarget(ctx: BenchContext, packs: TaggedPack[]): ResolvedTarget {
     return {
         runtimeEntry: runtimeTarget ?? sdkTarget,
         sdkEntry: sdkTarget,
-        runtimeBuildRequired,
     };
 }
 
@@ -257,10 +252,22 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         ctx = { ...ctx, aspnetCoreCommit: pr.aspnetCoreCommit, aspnetCoreRepo: pr.aspnetCoreRepo };
     }
 
-    // ── Step 0c: Mark aspnetcore build required ──────────────────────────
+    // ── Step 0c: Mark runtime build required ─────────────────────────────
+    let runtimeMeta: { commitDateTime: string; commitAuthor: string; commitMessage: string } | undefined;
+    if (ctx.runtimeCommit) {
+        info(`Runtime commit specified: ${ctx.runtimeCommit.slice(0, 10)} — will build from source`);
+        ctx = { ...ctx, runtimeBuildRequired: true };
+        info(`Fetching runtime commit metadata for ${ctx.runtimeCommit.slice(0, 10)} from ${ctx.runtimeRepo}...`);
+        runtimeMeta = await fetchCommitMetadata(ctx.runtimeRepo, ctx.runtimeCommit);
+    }
+
+    // ── Step 0d: Mark aspnetcore build required ──────────────────────────
+    let aspnetCoreMeta: { commitDateTime: string; commitAuthor: string; commitMessage: string } | undefined;
     if (ctx.aspnetCoreCommit) {
         info(`ASP.NET Core commit specified: ${ctx.aspnetCoreCommit.slice(0, 10)} — will build from source`);
         ctx = { ...ctx, aspnetCoreBuildRequired: true };
+        info(`Fetching ASP.NET Core commit metadata for ${ctx.aspnetCoreCommit.slice(0, 10)} from ${ctx.aspnetCoreRepo}...`);
+        aspnetCoreMeta = await fetchCommitMetadata(ctx.aspnetCoreRepo, ctx.aspnetCoreCommit);
     }
 
     // ── Step 1: Load pack catalogs ───────────────────────────────────────
@@ -268,95 +275,49 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     info(`Loaded ${packs.length} pack entries`);
 
     // ── Step 2: Resolve target ───────────────────────────────────────────
-    const { runtimeEntry, sdkEntry, runtimeBuildRequired } = resolveTarget(ctx, packs);
+    const { runtimeEntry, sdkEntry } = resolveTarget(ctx, packs);
 
     const sdkVersion = sdkEntry.entry.sdkVersion;
-
-    if (runtimeBuildRequired) {
-        // Commit not in catalog — fetch metadata from GitHub and construct synthetic SdkInfo
-        info(`Fetching commit metadata for ${ctx.runtimeCommit.slice(0, 10)} from ${ctx.runtimeRepo}...`);
-        const commitMeta = await fetchCommitMetadata(ctx.runtimeRepo, ctx.runtimeCommit);
-
-        const sdkInfo: SdkInfo = populateVersionFields({
-            sdkVersion,
-            runtimeGitHash: ctx.runtimeCommit,
-            aspnetCoreGitHash: ctx.aspnetCoreCommit || sdkEntry.entry.aspnetCoreGitHash,
-            sdkGitHash: sdkEntry.entry.sdkGitHash,
-            vmrGitHash: sdkEntry.entry.vmrGitHash,
-            runtimeCommitDateTime: commitMeta.commitDateTime,
-            runtimeCommitAuthor: commitMeta.commitAuthor,
-            runtimeCommitMessage: commitMeta.commitMessage,
-            aspnetCoreCommitDateTime: sdkEntry.entry.aspnetCoreCommitDateTime,
-            aspnetCoreVersion: sdkEntry.entry.aspnetCoreVersion,
-            runtimePackVersion: 'custom-build',
-            runtimePR: ctx.runtimePR || undefined,
-            aspnetCorePR: ctx.aspnetCorePR || undefined,
-            workloadVersion: sdkEntry.entry.workloadVersion,
-            bootstrapSdkVersion: sdkEntry.entry.bootstrapSdkVersion,
-            releaseDate: commitMeta.commitDateTime.slice(0, 10),
-        });
-
-        info(`SDK: ${sdkVersion} (${sdkEntry.source}) — runtime will be built from source`);
-        info(`Runtime commit: ${ctx.runtimeCommit.slice(0, 10)} (${commitMeta.commitDateTime})`);
-        info(`Runtime repo: ${ctx.runtimeRepo}`);
-
-        const platform = ctx.platform;
-        const sdkDirName = `${platform}.sdk${sdkVersion}`;
-        const sdkDir = join(ctx.artifactsDir, 'sdks', sdkDirName);
-        const dotnetBin = join(sdkDir, platform === 'windows' ? 'dotnet.exe' : 'dotnet');
-
-        let buildLabel = `${sdkVersion}_rt-${ctx.runtimeCommit.slice(0, 10)}`;
-        if (ctx.aspnetCoreBuildRequired) {
-            buildLabel += `_aspnet-${ctx.aspnetCoreCommit.slice(0, 10)}`;
-        }
-
-        return {
-            ...ctx,
-            sdkDir,
-            dotnetBin,
-            sdkInfo,
-            isLatestDaily: false,
-            runtimeBuildRequired: true,
-            buildLabel,
-            publishDir: join(ctx.artifactsDir, 'publish'),
-            resultsDir: join(ctx.artifactsDir, 'results'),
-        };
-    }
-
-    const runtimePackVersion = runtimeEntry.entry.runtimePackVersion;
-
-    info(`SDK: ${sdkVersion} (${sdkEntry.source})`);
-    info(`Runtime pack: ${runtimePackVersion}`);
-    info(`Runtime commit: ${runtimeEntry.entry.runtimeGitHash.slice(0, 10)}`);
 
     // ── Step 3: Build SdkInfo ────────────────────────────────────────────
     const sdkInfo: SdkInfo = populateVersionFields({
         sdkVersion,
-        runtimeGitHash: runtimeEntry.entry.runtimeGitHash,
+        runtimeGitHash: ctx.runtimeBuildRequired ? ctx.runtimeCommit : runtimeEntry.entry.runtimeGitHash,
         aspnetCoreGitHash: ctx.aspnetCoreCommit || sdkEntry.entry.aspnetCoreGitHash,
         sdkGitHash: sdkEntry.entry.sdkGitHash,
         vmrGitHash: sdkEntry.entry.vmrGitHash,
-        runtimeCommitDateTime: runtimeEntry.entry.runtimeCommitDateTime,
-        runtimeCommitAuthor: runtimeEntry.entry.runtimeCommitAuthor,
-        runtimeCommitMessage: runtimeEntry.entry.runtimeCommitMessage,
-        aspnetCoreCommitDateTime: sdkEntry.entry.aspnetCoreCommitDateTime,
+        runtimeCommitDateTime: runtimeMeta?.commitDateTime || runtimeEntry.entry.runtimeCommitDateTime,
+        runtimeCommitAuthor: runtimeMeta?.commitAuthor || runtimeEntry.entry.runtimeCommitAuthor,
+        runtimeCommitMessage: runtimeMeta?.commitMessage || runtimeEntry.entry.runtimeCommitMessage,
+        aspnetCoreCommitDateTime: aspnetCoreMeta?.commitDateTime || sdkEntry.entry.aspnetCoreCommitDateTime,
+        aspnetCoreCommitAuthor: aspnetCoreMeta?.commitAuthor || sdkEntry.entry.aspnetCoreCommitAuthor,
+        aspnetCoreCommitMessage: aspnetCoreMeta?.commitMessage || sdkEntry.entry.aspnetCoreCommitMessage,
         aspnetCoreVersion: sdkEntry.entry.aspnetCoreVersion,
-        runtimePackVersion,
+        runtimePackVersion: ctx.runtimeBuildRequired ? sdkEntry.entry.runtimePackVersion : runtimeEntry.entry.runtimePackVersion,
+        isRuntimeCustomBuild: ctx.runtimeBuildRequired || undefined,
         runtimePR: ctx.runtimePR || undefined,
         aspnetCorePR: ctx.aspnetCorePR || undefined,
+        isAspnetCoreCustomBuild: ctx.aspnetCoreBuildRequired || undefined,
         workloadVersion: sdkEntry.entry.workloadVersion,
         bootstrapSdkVersion: sdkEntry.entry.bootstrapSdkVersion,
-        releaseDate: sdkEntry.entry.releaseDate,
+        releaseDate: runtimeMeta?.commitDateTime.slice(0, 10) || sdkEntry.entry.releaseDate,
     });
 
-    info(`Resolved SDK info: ${sdkVersion}`);
+    info(`SDK: ${sdkVersion} (${sdkEntry.source})`);
+    if (ctx.runtimeBuildRequired) {
+        info(`Runtime will be built from source: ${ctx.runtimeCommit.slice(0, 10)} (${ctx.runtimeRepo})`);
+    } else {
+        info(`Runtime pack: ${sdkInfo.runtimePackVersion}`);
+    }
+    info(`Runtime commit: ${sdkInfo.runtimeGitHash.slice(0, 10)}`);
 
     // ── Step 4: Detect if this is the latest daily build ─────────────────
     const latestDaily = packs.find(p =>
         p.source === 'daily'
         && getVersionMajor(p.entry.sdkVersion) === sdkInfo.major,
     );
-    const isLatestDaily = sdkEntry.source === 'daily'
+    const isLatestDaily = !ctx.runtimeBuildRequired
+        && sdkEntry.source === 'daily'
         && !!latestDaily
         && latestDaily.entry.sdkVersion === sdkVersion;
     if (isLatestDaily) {
@@ -369,8 +330,11 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const sdkDir = join(ctx.artifactsDir, 'sdks', sdkDirName);
     const dotnetBin = join(sdkDir, platform === 'windows' ? 'dotnet.exe' : 'dotnet');
 
-    // ── Step 6: Update context ───────────────────────────────────────────
+    // ── Step 6: Build label ──────────────────────────────────────────────
     let buildLabel = sdkVersion;
+    if (ctx.runtimeBuildRequired) {
+        buildLabel += `_rt-${ctx.runtimeCommit.slice(0, 10)}`;
+    }
     if (ctx.aspnetCoreBuildRequired) {
         buildLabel += `_aspnet-${ctx.aspnetCoreCommit.slice(0, 10)}`;
     }

@@ -247,15 +247,17 @@ async function writeBucketView(
 ): Promise<void> {
     await mkdir(dir, { recursive: true });
 
+    const weekKey = (col: SdkInfo) => {
+        let key = col.vmrGitHash;
+        if (col.isRuntimeCustomBuild) key += `_rt_${col.runtimeGitHash}`;
+        if (col.isAspnetCoreCustomBuild) key += `_asp_${col.aspnetCoreGitHash}`;
+        return key;
+    };
     const columnKey = type === 'week'
-        ? (r: LoadedResult) => r.runtimePackVersion === 'custom-build'
-            ? `${r.vmrGitHash}_${r.runtimeGitHash}`
-            : r.vmrGitHash
+        ? (r: LoadedResult) => weekKey(r)
         : (r: LoadedResult) => r.sdkVersion;
     const getColumnId = type === 'week'
-        ? (column: SdkInfo) => column.runtimePackVersion === 'custom-build'
-            ? `${column.vmrGitHash}_${column.runtimeGitHash}`
-            : column.vmrGitHash
+        ? (column: SdkInfo) => weekKey(column)
         : (column: SdkInfo) => column.sdkVersion;
 
     // Deduplicate columns

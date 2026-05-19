@@ -192,7 +192,7 @@ async function resolveRelease(
         fetchJson<{ commit: { message: string; author: { name: string }; committer: { date: string } } }>(
             `${GITHUB_API}/repos/dotnet/runtime/commits/${runtimeGitHash}`, ghHeaders,
         ),
-        fetchJson<{ commit: { committer: { date: string } } }>(
+        fetchJson<{ commit: { message: string; author: { name: string }; committer: { date: string } } }>(
             `${GITHUB_API}/repos/dotnet/aspnetcore/commits/${aspnetCoreGitHash}`, ghHeaders,
         ),
     ]);
@@ -227,6 +227,8 @@ async function resolveRelease(
         runtimeCommitAuthor: rtCommit.commit.author.name,
         runtimeCommitMessage: rtCommit.commit.message.split('\n')[0],
         aspnetCoreCommitDateTime: aspCommit.commit.committer.date,
+        aspnetCoreCommitAuthor: aspCommit.commit.author.name,
+        aspnetCoreCommitMessage: aspCommit.commit.message.split('\n')[0],
         aspnetCoreVersion: pc.aspnetcore.version,
         runtimePackVersion: runtimeVersion,
         workloadVersion: runtimeVersion,

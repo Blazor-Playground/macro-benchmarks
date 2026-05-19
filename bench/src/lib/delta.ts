@@ -87,7 +87,7 @@ interface ColumnRef {
 }
 
 function isCustomBuild(col: ColumnData): boolean {
-    return col.runtimePackVersion === 'custom-build';
+    return !!col.isRuntimeCustomBuild || !!col.isAspnetCoreCustomBuild;
 }
 
 // ── Metric direction & classification ────────────────────────────────────────

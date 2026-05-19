@@ -49,8 +49,10 @@ export function computeTickLayout(
                 positions.push(x);
                 // For PR builds, include PR number in tick label
                 const label = col.runtimePackVersion === 'custom-build' && col.runtimePR
-                    ? `PR#${col.runtimePR}`
-                    : col.sdkVersion;
+                    ? `PR#${col.runtimePR} rnt`
+                    : col.aspnetCorePR
+                        ? `PR#${col.aspnetCorePR} asp`
+                        : col.sdkVersion;
                 tickMap.set(x, label);
                 if (x < dailyMin) dailyMin = x;
                 if (x > dailyMax) dailyMax = x;

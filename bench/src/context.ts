@@ -22,6 +22,7 @@ export interface SdkInfo {
     aspnetCoreVersion: string;
     runtimePackVersion: string;
     runtimePR?: string;
+    aspnetCorePR?: string;
     workloadVersion: string;
     bootstrapSdkVersion: string;
     releaseDate: string;

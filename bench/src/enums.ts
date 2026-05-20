@@ -97,6 +97,8 @@ export enum MetricKey {
     BlazorCounterHeavyServer = 'blazor-counter-heavy-server',
     BlazorVirtualScrollHeavyWasm = 'blazor-virtualscroll-heavy-wasm',
     BlazorVirtualScrollHeavyServer = 'blazor-virtualscroll-heavy-server',
+    BlazorParamsCountWasm = 'blazor-params-count-wasm',
+    BlazorParamsCountServer = 'blazor-params-count-server',
     JsInteropOps = 'js-interop-ops',
     JsonParseOps = 'json-parse-ops',
     ExceptionOps = 'exception-ops',

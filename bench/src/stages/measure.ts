@@ -32,6 +32,7 @@ import { runSemiWalkthrough } from '../lib/semi-walkthrough.js';
 import {
     runCounterHeavyWasm, runCounterHeavyServer,
     runVirtualScrollHeavyWasm, runVirtualScrollHeavyServer,
+    runParamsCountWasm, runParamsCountServer,
     runBlazorPerfJsToCsNumber, runBlazorPerfJsToCsString, runBlazorPerfJsToCsJson,
     runBlazorPerfCsToJsNumber, runBlazorPerfCsToJsString, runBlazorPerfCsToJsJson,
 } from '../lib/blazor-perf-bench.js';
@@ -235,6 +236,7 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
     // blazor-perf: WASM-only benchmarks first (need healthy server for JS module imports)
     { app: A.BlazorPerf, metric: MetricKey.BlazorCounterHeavyWasm, fn: runCounterHeavyWasm as WalkthroughFn, runs: 1 },
     { app: A.BlazorPerf, metric: MetricKey.BlazorVirtualScrollHeavyWasm, fn: runVirtualScrollHeavyWasm as WalkthroughFn, runs: 1 },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountWasm, fn: runParamsCountWasm as WalkthroughFn, runs: 1 },
     { app: A.BlazorPerf, metric: MetricKey.BlazorJsToCsNumber, fn: runBlazorPerfJsToCsNumber as WalkthroughFn, runs: 1 },
     { app: A.BlazorPerf, metric: MetricKey.BlazorJsToCsString, fn: runBlazorPerfJsToCsString as WalkthroughFn, runs: 1 },
     { app: A.BlazorPerf, metric: MetricKey.BlazorJsToCsJson, fn: runBlazorPerfJsToCsJson as WalkthroughFn, runs: 1 },
@@ -245,6 +247,7 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
     // blazor-perf: Server-mode benchmarks LAST (SignalR circuits can starve Kestrel thread pool on close)
     { app: A.BlazorPerf, metric: MetricKey.BlazorCounterHeavyServer, fn: runCounterHeavyServer as WalkthroughFn, runs: 1 },
     { app: A.BlazorPerf, metric: MetricKey.BlazorVirtualScrollHeavyServer, fn: runVirtualScrollHeavyServer as WalkthroughFn, runs: 1 },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountServer, fn: runParamsCountServer as WalkthroughFn, runs: 1 },
 ];
 
 const INTERNAL_KEYS = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;

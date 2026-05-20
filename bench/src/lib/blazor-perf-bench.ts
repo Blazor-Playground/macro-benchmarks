@@ -59,6 +59,23 @@ export async function runVirtualScrollHeavyServer(opts: WalkthroughOpts<Playwrig
     return runMeasuredBenchmark(opts, '/virtualscroll-heavy-server', 'VirtualScroll Heavy Server');
 }
 
+// ── Parameters Count Benchmark ───────────────────────────────────────────────
+
+/**
+ * Runs the Parameters Count benchmark (WASM mode).
+ * 10,000 components × 10 string parameters — measures SetParametersAsync overhead.
+ */
+export async function runParamsCountWasm(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    return runMeasuredBenchmark(opts, '/params-count-wasm', 'Params Count WASM');
+}
+
+/**
+ * Runs the Parameters Count benchmark (Server mode).
+ */
+export async function runParamsCountServer(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    return runMeasuredBenchmark(opts, '/params-count-server', 'Params Count Server');
+}
+
 // ── Interop Benchmarks (migrated from empty-blazor) ──────────────────────────
 
 async function runInteropBench(

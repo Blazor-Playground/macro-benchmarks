@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-05-20T12:25:30.270Z",
+  "lastUpdated": "2026-05-20T14:43:48.794Z",
   "activeRelease": "net11",
   "releases": [
     "net8",
@@ -24,6 +24,7 @@
     "empty-blazor",
     "empty-browser",
     "havit-bootstrap",
+    "igniteui-light",
     "micro-benchmarks",
     "mud-blazor",
     "semi-avalonia",
@@ -152,6 +153,22 @@
       "download-size-warm",
       "memory-peak",
       "semi-walkthrough",
+      "server-requests-cold",
+      "server-requests-warm",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ],
+    "igniteui-light": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-cold",
+      "download-size-warm",
+      "igniteui-walkthrough",
+      "memory-peak",
       "server-requests-cold",
       "server-requests-warm",
       "time-to-create-dotnet-cold",

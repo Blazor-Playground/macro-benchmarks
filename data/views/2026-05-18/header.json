@@ -126,9 +126,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-05-20T08:35:45.361Z",
-      "ciRunId": "26148285142",
-      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26148285142"
+      "benchmarkDateTime": "2026-05-20T13:39:10.056Z",
+      "ciRunId": "26162399139",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26162399139"
     }
   ],
   "apps": {
@@ -195,6 +195,22 @@
       "download-size-cold",
       "download-size-warm",
       "havit-walkthrough",
+      "memory-peak",
+      "server-requests-cold",
+      "server-requests-warm",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ],
+    "igniteui-light": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-cold",
+      "download-size-warm",
+      "igniteui-walkthrough",
       "memory-peak",
       "server-requests-cold",
       "server-requests-warm",

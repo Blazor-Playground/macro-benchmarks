@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>$(BenchmarkTargetFramework)</TargetFramework>
+    <DashName>blazor-perf-client</DashName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- WASM client always uses Mono regardless of server RuntimeFlavor -->
+    <UseMonoRuntime>true</UseMonoRuntime>
+    <!-- Disable fingerprinting: MapStaticAssets() broken in this preview -->
+    <WasmFingerprintAssets>false</WasmFingerprintAssets>
+    <BlazorFingerprintBlazorJs>false</BlazorFingerprintBlazorJs>
+  </PropertyGroup>
+
+  <!-- Remove fingerprint patterns inherited from Directory.Build.props -->
+  <ItemGroup>
+    <StaticWebAssetFingerprintPattern Remove="JS" />
+    <StaticWebAssetFingerprintPattern Remove="MJS" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="$(MicrosoftAspNetCoreVersion)" />
+  </ItemGroup>
+
+</Project>

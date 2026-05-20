@@ -33,6 +33,7 @@ export enum Profile {
 export enum App {
     EmptyBrowser = 'empty-browser',
     EmptyBlazor = 'empty-blazor',
+    BlazorPerf = 'blazor-perf',
     BlazingPizza = 'blazing-pizza',
     HavitBootstrap = 'havit-bootstrap',
     MicroBenchmarks = 'micro-benchmarks',
@@ -92,6 +93,10 @@ export enum MetricKey {
     BlazorCsToJsNumber = 'blazor-cs-to-js-number',
     BlazorCsToJsString = 'blazor-cs-to-js-string',
     BlazorCsToJsJson = 'blazor-cs-to-js-json',
+    BlazorCounterHeavyWasm = 'blazor-counter-heavy-wasm',
+    BlazorCounterHeavyServer = 'blazor-counter-heavy-server',
+    BlazorVirtualScrollHeavyWasm = 'blazor-virtualscroll-heavy-wasm',
+    BlazorVirtualScrollHeavyServer = 'blazor-virtualscroll-heavy-server',
     JsInteropOps = 'js-interop-ops',
     JsonParseOps = 'json-parse-ops',
     ExceptionOps = 'exception-ops',
@@ -106,12 +111,17 @@ export interface AppConfig {
     internal: boolean;
     /** Only runs with Mono runtime (no CoreCLR support) */
     monoOnly: boolean;
+    /** App hosts its own Kestrel server (don't use static file server) */
+    selfHosted?: boolean;
+    /** Relative path from src/<app>/ to the .csproj file (default: auto-detect in directory) */
+    projectPath?: string;
 }
 
 export const APP_CONFIG: Record<App, AppConfig> = {
     [App.EmptyBrowser]: { browserOnly: false, internal: false, monoOnly: false },
     [App.MicroBenchmarks]: { browserOnly: false, internal: true, monoOnly: false },
     [App.EmptyBlazor]: { browserOnly: true, internal: false, monoOnly: false },
+    [App.BlazorPerf]: { browserOnly: true, internal: false, monoOnly: false, selfHosted: true, projectPath: 'BlazorPerf/BlazorPerf.csproj' },
     [App.BlazingPizza]: { browserOnly: true, internal: false, monoOnly: false },
     [App.HavitBootstrap]: { browserOnly: true, internal: false, monoOnly: false },
     [App.MudBlazor]: { browserOnly: true, internal: false, monoOnly: false },
@@ -138,7 +148,7 @@ export const MONO_ONLY_PRESETS = new Set<Preset>([
 ]);
 
 /** Apps that use Blazor (DOM-dependent, no CLI engine support). */
-export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazingPizza, App.HavitBootstrap, App.BenchViewer, App.MudBlazor, App.IgniteUILight]);
+export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazorPerf, App.BlazingPizza, App.HavitBootstrap, App.BenchViewer, App.MudBlazor, App.IgniteUILight]);
 export const BLAZOR_REDUCED_PRESETS = new Set<Preset>([Preset.DevLoop, Preset.NoWorkload, Preset.Aot]);
 
 export const NON_BLAZOR_APPS = new Set<App>([App.UnoGallery, App.SemiAvalonia]);

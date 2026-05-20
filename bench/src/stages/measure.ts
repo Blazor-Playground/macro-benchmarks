@@ -29,7 +29,13 @@ import { runMudWalkthrough } from '../lib/mud-walkthrough.js';
 import { runIgniteUIWalkthrough } from '../lib/igniteui-walkthrough.js';
 import { runUnoWalkthrough } from '../lib/uno-walkthrough.js';
 import { runSemiWalkthrough } from '../lib/semi-walkthrough.js';
-import { runBlazorCounter, runBlazorVirtualScroll, runBlazorJsToCsNumber, runBlazorJsToCsString, runBlazorJsToCsJson, runBlazorCsToJsNumber, runBlazorCsToJsString, runBlazorCsToJsJson } from '../lib/blazor-bench.js';
+import {
+    runCounterHeavyWasm, runCounterHeavyServer,
+    runVirtualScrollHeavyWasm, runVirtualScrollHeavyServer,
+    runBlazorPerfJsToCsNumber, runBlazorPerfJsToCsString, runBlazorPerfJsToCsJson,
+    runBlazorPerfCsToJsNumber, runBlazorPerfCsToJsString, runBlazorPerfCsToJsJson,
+} from '../lib/blazor-perf-bench.js';
+import { startKestrelServer, type KestrelServer } from '../lib/kestrel-launcher.js';
 import { type WalkthroughOpts } from '../lib/walkthrough-types.js';
 import { type SampleStats, computeStats, formatStats, sortedMedian, sortedIQM } from '../lib/stats.js';
 import type { CDPSession, Page, BrowserContext, Browser } from 'playwright';
@@ -225,14 +231,20 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
     { app: A.IgniteUILight, metric: MetricKey.IgniteUIWalkthrough, fn: runIgniteUIWalkthrough as WalkthroughFn },
     { app: A.UnoGallery, metric: MetricKey.UnoWalkthrough, fn: runUnoWalkthrough as WalkthroughFn },
     // { app: A.SemiAvalonia, metric: MetricKey.SemiWalkthrough, fn: runSemiWalkthrough as WalkthroughFn },
-    { app: A.EmptyBlazor, metric: MetricKey.CounterPerSecond, fn: runBlazorCounter as WalkthroughFn, runs: 1 },
-    { app: A.EmptyBlazor, metric: MetricKey.VirtualScrollPerSecond, fn: runBlazorVirtualScroll as WalkthroughFn, runs: 1 },
-    { app: A.EmptyBlazor, metric: MetricKey.BlazorJsToCsNumber, fn: runBlazorJsToCsNumber as WalkthroughFn, runs: 1 },
-    { app: A.EmptyBlazor, metric: MetricKey.BlazorJsToCsString, fn: runBlazorJsToCsString as WalkthroughFn, runs: 1 },
-    { app: A.EmptyBlazor, metric: MetricKey.BlazorJsToCsJson, fn: runBlazorJsToCsJson as WalkthroughFn, runs: 1 },
-    { app: A.EmptyBlazor, metric: MetricKey.BlazorCsToJsNumber, fn: runBlazorCsToJsNumber as WalkthroughFn, runs: 1 },
-    { app: A.EmptyBlazor, metric: MetricKey.BlazorCsToJsString, fn: runBlazorCsToJsString as WalkthroughFn, runs: 1 },
-    { app: A.EmptyBlazor, metric: MetricKey.BlazorCsToJsJson, fn: runBlazorCsToJsJson as WalkthroughFn, runs: 1 },
+
+    // blazor-perf: WASM-only benchmarks first (need healthy server for JS module imports)
+    { app: A.BlazorPerf, metric: MetricKey.BlazorCounterHeavyWasm, fn: runCounterHeavyWasm as WalkthroughFn, runs: 1 },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorVirtualScrollHeavyWasm, fn: runVirtualScrollHeavyWasm as WalkthroughFn, runs: 1 },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorJsToCsNumber, fn: runBlazorPerfJsToCsNumber as WalkthroughFn, runs: 1 },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorJsToCsString, fn: runBlazorPerfJsToCsString as WalkthroughFn, runs: 1 },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorJsToCsJson, fn: runBlazorPerfJsToCsJson as WalkthroughFn, runs: 1 },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorCsToJsNumber, fn: runBlazorPerfCsToJsNumber as WalkthroughFn, runs: 1 },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorCsToJsString, fn: runBlazorPerfCsToJsString as WalkthroughFn, runs: 1 },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorCsToJsJson, fn: runBlazorPerfCsToJsJson as WalkthroughFn, runs: 1 },
+
+    // blazor-perf: Server-mode benchmarks LAST (SignalR circuits can starve Kestrel thread pool on close)
+    { app: A.BlazorPerf, metric: MetricKey.BlazorCounterHeavyServer, fn: runCounterHeavyServer as WalkthroughFn, runs: 1 },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorVirtualScrollHeavyServer, fn: runVirtualScrollHeavyServer as WalkthroughFn, runs: 1 },
 ];
 
 const INTERNAL_KEYS = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;
@@ -649,7 +661,7 @@ async function runBrowserSession(
     timeout: number,
     verbose: boolean,
     dryRun: boolean,
-    srv: StaticServer,
+    srv: StaticServer | null,
     deadlineAt: number,
 ): Promise<MetricsResult> {
     const context = await browser.newContext();
@@ -670,7 +682,7 @@ async function runBrowserSession(
     }
 
     // Cold load (first one uses the main context)
-    srv.resetRequestCount();
+    if (srv) srv.resetRequestCount();
     if (verbose) debug(`Cold load: navigating to ${pageUrl}`);
     await page.goto(pageUrl, { timeout, waitUntil: 'load' });
     if (verbose) debug(`Cold load: page loaded, waiting for bench_complete...`);
@@ -680,7 +692,7 @@ async function runBrowserSession(
 
     // Snapshot cold download size and request count (single load, not accumulated)
     const coldDownloadSize = cdp ? cdp.resetDownloadSize() : null;
-    const coldRequestCount = srv.resetRequestCount();
+    const coldRequestCount = srv ? srv.resetRequestCount() : 0;
     if (verbose) {
         if (coldDownloadSize != null) debug(`Cold download size: ${coldDownloadSize} bytes`);
         debug(`Cold server requests: ${coldRequestCount}`);
@@ -703,7 +715,7 @@ async function runBrowserSession(
     }
 
     const warmResult = !isInternal
-        ? await runWarmLoads(page, warmRuns, timeout, verbose, cdp, srv)
+        ? await runWarmLoads(page, warmRuns, timeout, verbose, cdp, srv ?? undefined)
         : { timings: emptyTimingArrays(), downloadSizes: [] as number[], requestCounts: [] as number[] };
     const warmArrays = warmResult.timings;
 
@@ -822,11 +834,21 @@ async function measureBrowser(
     const timeout = ctx.timeout;
     const maxRetries = ctx.retries;
 
-    const srv = await startStaticServer(webRoot);
-    const pageUrl = `http://127.0.0.1:${srv.port}/`;
+    const isSelfHosted = APP_CONFIG[entry.app].selfHosted;
+    let srv: StaticServer | null = null;
+    let kestrel: KestrelServer | null = null;
+    let pageUrl: string;
+
+    if (isSelfHosted) {
+        kestrel = await startKestrelServer(entry.publishDir, ctx.dotnetBin);
+        pageUrl = kestrel.url + '/';
+    } else {
+        srv = await startStaticServer(webRoot);
+        pageUrl = `http://127.0.0.1:${srv.port}/`;
+    }
     info(`    Serving on ${pageUrl}`);
     if (ctx.verbose) {
-        debug(`Browser: ${engine}, CDP: ${useCDP}, warmRuns: ${warmRuns}, timeout: ${timeout}ms, retries: ${maxRetries}`);
+        debug(`Browser: ${engine}, CDP: ${useCDP}, warmRuns: ${warmRuns}, timeout: ${timeout}ms, retries: ${maxRetries}, selfHosted: ${!!isSelfHosted}`);
     }
 
     let lastError: Error | null = null;
@@ -875,7 +897,8 @@ async function measureBrowser(
 
         throw lastError ?? new Error('All attempts failed');
     } finally {
-        await srv.close();
+        if (srv) await srv.close();
+        if (kestrel) await kestrel.close();
     }
 }
 

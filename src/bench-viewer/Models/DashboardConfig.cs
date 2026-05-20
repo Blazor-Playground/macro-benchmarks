@@ -24,7 +24,7 @@ public static class DashboardConfig
     // Preferred app display order
     public static readonly List<string> AppOrder = new()
     {
-        "blazing-pizza", "havit-bootstrap", "mud-blazor", "igniteui-light", "empty-blazor",
+        "blazing-pizza", "havit-bootstrap", "mud-blazor", "igniteui-light", "blazor-perf", "empty-blazor",
         "semi-avalonia", "uno-gallery",
         "empty-browser", "empty-browser",
         "micro-benchmarks",
@@ -35,6 +35,9 @@ public static class DashboardConfig
     public static readonly List<string> MetricOrder = new()
     {
         "pizza-walkthrough", "havit-walkthrough", "mud-walkthrough", "igniteui-walkthrough", "semi-walkthrough", "uno-walkthrough",
+        "blazor-counter-heavy-wasm", "blazor-counter-heavy-server", "blazor-virtualscroll-heavy-wasm", "blazor-virtualscroll-heavy-server",
+        "blazor-js-to-cs-number", "blazor-js-to-cs-string", "blazor-js-to-cs-json",
+        "blazor-cs-to-js-number", "blazor-cs-to-js-string", "blazor-cs-to-js-json",
         "json-parse-ops", "js-interop-ops", "exception-ops",
         "time-to-reach-managed-cold", "time-to-reach-managed-warm",
         "time-to-create-dotnet-cold", "time-to-create-dotnet-warm",
@@ -48,6 +51,6 @@ public static class DashboardConfig
     // Apps that are Blazor-based (cannot run in v8/node CLI engines)
     public static readonly HashSet<string> BlazorApps = new()
     {
-        "empty-blazor", "blazing-pizza", "havit-bootstrap", "bench-viewer", "mud-blazor", "igniteui-light"
+        "empty-blazor", "blazing-pizza", "havit-bootstrap", "bench-viewer", "mud-blazor", "igniteui-light", "blazor-perf"
     };
 }

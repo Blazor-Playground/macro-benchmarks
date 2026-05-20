@@ -1,0 +1,25 @@
+@page "/counter-heavy-wasm"
+@rendermode InteractiveWebAssembly
+@inherits MeasuredComponentBase
+
+<h1>Counter Heavy (WASM)</h1>
+<p data-testid="counter-value">Count: @counter</p>
+
+@for (int i = 0; i < 5000; i++)
+{
+    <ChildCell Value="@GetCellValue(i)" />
+}
+
+@code {
+    private int counter = 0;
+
+    protected override void MutateState()
+    {
+        counter++;
+    }
+
+    private string GetCellValue(int index)
+    {
+        return $"{counter}-{index}";
+    }
+}

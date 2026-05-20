@@ -38,6 +38,10 @@ export const METRICS: Record<MetricKey, MetricInfo> = {
     [MetricKey.BlazorCsToJsNumber]: { displayName: 'CS→JS Number/sec', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.BlazorCsToJsString]: { displayName: 'CS→JS String/sec', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.BlazorCsToJsJson]: { displayName: 'CS→JS JSON/sec', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.BlazorCounterHeavyWasm]: { displayName: 'Counter Heavy (WASM)', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.BlazorCounterHeavyServer]: { displayName: 'Counter Heavy (Server)', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.BlazorVirtualScrollHeavyWasm]: { displayName: 'VirtualScroll Heavy (WASM)', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.BlazorVirtualScrollHeavyServer]: { displayName: 'VirtualScroll Heavy (Server)', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.JsInteropOps]: { displayName: 'JS Interop', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.JsonParseOps]: { displayName: 'JSON Parse', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.ExceptionOps]: { displayName: 'Exception Handling', unit: 'ops/sec', category: 'throughput' },
@@ -73,6 +77,10 @@ export const EXTERNAL_METRICS: MetricKey[] = [
     MetricKey.BlazorCsToJsNumber,
     MetricKey.BlazorCsToJsString,
     MetricKey.BlazorCsToJsJson,
+    MetricKey.BlazorCounterHeavyWasm,
+    MetricKey.BlazorCounterHeavyServer,
+    MetricKey.BlazorVirtualScrollHeavyWasm,
+    MetricKey.BlazorVirtualScrollHeavyServer,
 ];
 
 export const INTERNAL_METRICS: MetricKey[] = [

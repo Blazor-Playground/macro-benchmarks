@@ -1,0 +1,31 @@
+@page "/list"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>List Demo</PageTitle>
+
+<h3>List</h3>
+
+<IgbList>
+    <IgbListHeader>Contacts</IgbListHeader>
+    @foreach (var contact in Contacts)
+    {
+        <IgbListItem>
+            <IgbAvatar slot="start" Shape="@AvatarShape.Circle">@contact.Initials</IgbAvatar>
+            <span slot="title">@contact.Name</span>
+            <span slot="subtitle">@contact.Phone</span>
+        </IgbListItem>
+    }
+</IgbList>
+
+@code {
+    record ContactItem(string Name, string Phone, string Initials);
+
+    List<ContactItem> Contacts { get; } = new()
+    {
+        new("Alice Johnson", "+1 555-0101", "AJ"),
+        new("Bob Smith", "+1 555-0102", "BS"),
+        new("Charlie Brown", "+1 555-0103", "CB"),
+        new("Diana Prince", "+1 555-0104", "DP"),
+        new("Eve Davis", "+1 555-0105", "ED")
+    };
+}

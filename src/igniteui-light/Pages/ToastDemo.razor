@@ -1,0 +1,17 @@
+@page "/toast"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Toast Demo</PageTitle>
+
+<h3>Toast</h3>
+
+<IgbButton Variant="@ButtonVariant.Contained" @onclick="ShowToast">Show Toast</IgbButton>
+
+<IgbToast @ref="ToastRef" DisplayTime="4000">
+    Operation completed successfully.
+</IgbToast>
+
+@code {
+    IgbToast ToastRef { get; set; } = default!;
+    async Task ShowToast() => await ToastRef.ShowAsync();
+}

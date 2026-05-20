@@ -1,0 +1,37 @@
+@page "/combo"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Combo Box Demo</PageTitle>
+
+<h3>Combo Box</h3>
+
+<IgbCombo T="string"
+          Data="Cities"
+          ValueKey="Id"
+          DisplayKey="Name"
+          Label="Select Cities"
+          Placeholder="Pick a city" />
+
+<IgbCombo T="string"
+          Data="Cities"
+          ValueKey="Id"
+          DisplayKey="Name"
+          Label="Single Select"
+          SingleSelect="true"
+          Placeholder="Pick one city" />
+
+@code {
+    private List<CityItem> Cities { get; set; } = new()
+    {
+        new("1", "New York"),
+        new("2", "London"),
+        new("3", "Tokyo"),
+        new("4", "Paris"),
+        new("5", "Berlin"),
+        new("6", "Sydney"),
+        new("7", "Toronto"),
+        new("8", "Mumbai")
+    };
+
+    record CityItem(string Id, string Name);
+}

@@ -12,6 +12,7 @@ Daily performance tracking for .NET WebAssembly in browsers. Automatically build
 | **micro-benchmarks** | JS↔C# interop, JSON parsing, and exception-handling ops/sec |
 | **havit-bootstrap** | Havit Blazor Bootstrap component library |
 | **mud-blazor** | MUD Blazor Material Design component library |
+| **igniteui-light** | Infragistics FOSS component library |
 
 ## Pipeline stages
 

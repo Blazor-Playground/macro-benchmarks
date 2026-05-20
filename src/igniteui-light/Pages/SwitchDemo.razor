@@ -1,0 +1,18 @@
+@page "/switch"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Switch Demo</PageTitle>
+
+<h3>Switch</h3>
+
+<IgbSwitch @bind-Checked="IsDarkMode">Dark Mode</IgbSwitch>
+<IgbSwitch @bind-Checked="Notifications">Enable Notifications</IgbSwitch>
+<IgbSwitch Disabled="true">Disabled</IgbSwitch>
+
+<p>Dark Mode: @IsDarkMode</p>
+<p>Notifications: @Notifications</p>
+
+@code {
+    bool IsDarkMode { get; set; }
+    bool Notifications { get; set; } = true;
+}

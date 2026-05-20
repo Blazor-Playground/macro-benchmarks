@@ -1,0 +1,20 @@
+@page "/button"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Button Demo</PageTitle>
+
+<h3>Button</h3>
+
+<IgbButton Variant="@ButtonVariant.Contained">Contained</IgbButton>
+<IgbButton Variant="@ButtonVariant.Outlined">Outlined</IgbButton>
+<IgbButton Variant="@ButtonVariant.Flat">Flat</IgbButton>
+<IgbButton Variant="@ButtonVariant.Fab">FAB</IgbButton>
+<IgbButton Variant="@ButtonVariant.Contained" Disabled="true">Disabled</IgbButton>
+
+<h4>Button Group</h4>
+
+<IgbButtonGroup Selection="ButtonGroupSelection.Single">
+    <IgbToggleButton Value="left">Left</IgbToggleButton>
+    <IgbToggleButton Value="center" Selected="true">Center</IgbToggleButton>
+    <IgbToggleButton Value="right">Right</IgbToggleButton>
+</IgbButtonGroup>

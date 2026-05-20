@@ -40,6 +40,7 @@ export enum App {
     UnoGallery = 'uno-gallery',
     MudBlazor = 'mud-blazor',
     SemiAvalonia = 'semi-avalonia',
+    IgniteUILight = 'igniteui-light',
 }
 
 export enum Stage {
@@ -80,6 +81,7 @@ export enum MetricKey {
     PizzaWalkthrough = 'pizza-walkthrough',
     HavitWalkthrough = 'havit-walkthrough',
     MudWalkthrough = 'mud-walkthrough',
+    IgniteUIWalkthrough = 'igniteui-walkthrough',
     UnoWalkthrough = 'uno-walkthrough',
     SemiWalkthrough = 'semi-walkthrough',
     CounterPerSecond = 'counter-per-second',
@@ -113,6 +115,7 @@ export const APP_CONFIG: Record<App, AppConfig> = {
     [App.BlazingPizza]: { browserOnly: true, internal: false, monoOnly: false },
     [App.HavitBootstrap]: { browserOnly: true, internal: false, monoOnly: false },
     [App.MudBlazor]: { browserOnly: true, internal: false, monoOnly: false },
+    [App.IgniteUILight]: { browserOnly: true, internal: false, monoOnly: false },
 
     // mono only
     [App.BenchViewer]: { browserOnly: true, internal: false, monoOnly: true },
@@ -219,6 +222,9 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     }
     if (app === App.SemiAvalonia && ctx.sdkInfo.major < 10) {
         return `SemiAvalonia app '${app}' does not build with SDK versions below 10.0.0`;
+    }
+    if (app === App.IgniteUILight && ctx.sdkInfo.major < 10) {
+        return `Ignite UI Light app '${app}' does not build with SDK versions below 10.0.0`;
     }
     return null;
 }

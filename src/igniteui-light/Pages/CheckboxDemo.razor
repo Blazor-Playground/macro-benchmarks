@@ -1,0 +1,19 @@
+@page "/checkbox"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Checkbox Demo</PageTitle>
+
+<h3>Checkbox</h3>
+
+<IgbCheckbox @bind-Checked="IsSubscribed">Subscribe to newsletter</IgbCheckbox>
+<IgbCheckbox @bind-Checked="AcceptTerms">Accept terms and conditions</IgbCheckbox>
+<IgbCheckbox Disabled="true" Checked="true">Disabled checked</IgbCheckbox>
+<IgbCheckbox Indeterminate="true">Indeterminate</IgbCheckbox>
+
+<p>Subscribed: @IsSubscribed</p>
+<p>Terms accepted: @AcceptTerms</p>
+
+@code {
+    bool IsSubscribed { get; set; }
+    bool AcceptTerms { get; set; }
+}

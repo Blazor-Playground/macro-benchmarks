@@ -1,0 +1,17 @@
+@page "/dropdown"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Dropdown Demo</PageTitle>
+
+<h3>Dropdown</h3>
+
+<div>
+    <IgbDropdown>
+        <IgbButton slot="target">Options</IgbButton>
+        <IgbDropdownHeader>Actions</IgbDropdownHeader>
+        <IgbDropdownItem Value="edit">Edit</IgbDropdownItem>
+        <IgbDropdownItem Value="copy">Copy</IgbDropdownItem>
+        <IgbDropdownItem Value="delete">Delete</IgbDropdownItem>
+        <IgbDropdownItem Value="disabled" Disabled="true">Archive</IgbDropdownItem>
+    </IgbDropdown>
+</div>

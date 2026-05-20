@@ -1,0 +1,30 @@
+@page "/dialog"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Dialog Demo</PageTitle>
+
+<h3>Dialog</h3>
+
+<IgbButton Variant="@ButtonVariant.Contained" @onclick="OpenDialog">Open Dialog</IgbButton>
+
+<IgbDialog @ref="ConfirmDialog" Title="Confirm Action">
+    <p>Are you sure you want to proceed with this action?</p>
+    <IgbButton slot="footer" Variant="@ButtonVariant.Flat" @onclick="CloseDialog">Cancel</IgbButton>
+    <IgbButton slot="footer" Variant="@ButtonVariant.Contained" @onclick="ConfirmAction">Confirm</IgbButton>
+</IgbDialog>
+
+<p>@Message</p>
+
+@code {
+    IgbDialog ConfirmDialog { get; set; } = default!;
+    string Message { get; set; } = "";
+
+    async Task OpenDialog() => await ConfirmDialog.ShowAsync();
+    async Task CloseDialog() => await ConfirmDialog.HideAsync();
+
+    async Task ConfirmAction()
+    {
+        Message = "Action confirmed!";
+        await ConfirmDialog.HideAsync();
+    }
+}

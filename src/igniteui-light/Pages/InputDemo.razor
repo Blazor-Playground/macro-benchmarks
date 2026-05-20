@@ -1,0 +1,21 @@
+@page "/input"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Input Demo</PageTitle>
+
+<h3>Input</h3>
+
+<IgbInput @bind-Value="TextValue" Label="Text Input" Placeholder="Enter text..." />
+<IgbInput @bind-Value="EmailValue" Label="Email" DisplayType="InputType.Email" Placeholder="user@example.com" />
+<IgbInput @bind-Value="PasswordValue" Label="Password" DisplayType="InputType.Password" />
+<IgbInput Label="Disabled" Disabled="true" Value="Cannot edit" />
+<IgbInput Label="Required" Required="true" Placeholder="This field is required" />
+
+<p>Text: @TextValue</p>
+<p>Email: @EmailValue</p>
+
+@code {
+    string TextValue { get; set; } = "Hello World";
+    string EmailValue { get; set; } = "";
+    string PasswordValue { get; set; } = "";
+}

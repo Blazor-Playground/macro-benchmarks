@@ -1,0 +1,20 @@
+@page "/radio"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Radio Demo</PageTitle>
+
+<h3>Radio / Radio Group</h3>
+
+<IgbRadioGroup Alignment="@ContentOrientation.Vertical" Name="plan">
+    <IgbRadio Value="basic">Basic</IgbRadio>
+    <IgbRadio Value="pro">Pro</IgbRadio>
+    <IgbRadio Value="enterprise">Enterprise</IgbRadio>
+</IgbRadioGroup>
+
+<h4>Horizontal</h4>
+
+<IgbRadioGroup Alignment="@ContentOrientation.Horizontal" Name="color">
+    <IgbRadio Value="red">Red</IgbRadio>
+    <IgbRadio Value="green">Green</IgbRadio>
+    <IgbRadio Value="blue">Blue</IgbRadio>
+</IgbRadioGroup>

@@ -1,0 +1,16 @@
+@page "/textarea"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Textarea Demo</PageTitle>
+
+<h3>Textarea</h3>
+
+<IgbTextarea @bind-Value="TextValue" Label="Description" Placeholder="Enter a description..." Rows="4" />
+<IgbTextarea Label="Read Only" Readonly="true" Value="This content is read-only and cannot be edited." Rows="3" />
+<IgbTextarea Label="Disabled" Disabled="true" Value="Disabled textarea" Rows="2" />
+
+<p>Value: @TextValue</p>
+
+@code {
+    string TextValue { get; set; } = "";
+}

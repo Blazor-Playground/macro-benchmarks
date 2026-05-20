@@ -46,6 +46,8 @@
     <SemiAvaloniaTreeDataGridVersion>11.2.0</SemiAvaloniaTreeDataGridVersion>
     <CommunityToolkitMvvmVersion>8.4.0</CommunityToolkitMvvmVersion>
     <IrihiAvaloniaSharedVersion>0.3.1</IrihiAvaloniaSharedVersion>
-    <MicrosoftDotNetILCompilerLLVMVersion>10.0.0-rc.1.26117.1</MicrosoftDotNetILCompilerLLVMVersion>
+    <MicrosoftDotNetILCompilerLLVMVersion>0.0.1.0</MicrosoftDotNetILCompilerLLVMVersion>
+    <IgniteUIBlazorLiteVersion>0.0.1.0</IgniteUIBlazorLiteVersion>
+    <IgniteUIBlazorGridLiteVersion>0.7.1.0</IgniteUIBlazorGridLiteVersion>
   </PropertyGroup>
 </Project>

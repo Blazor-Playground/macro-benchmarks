@@ -26,6 +26,7 @@
     <ProjectReference Include="micro-benchmarks\MicroBenchmarks.csproj" />
     <ProjectReference Include="uno-gallery\Uno.Gallery.csproj" />
     <ProjectReference Include="semi-avalonia\SemiAvalonia.csproj" />
+    <ProjectReference Include="igniteui-light\IgniteuiLight.csproj" />
   </ItemGroup>
 
 </Project>

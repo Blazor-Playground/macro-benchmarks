@@ -1,0 +1,21 @@
+@page "/banner"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Banner Demo</PageTitle>
+
+<h3>Banner</h3>
+
+<IgbButton Variant="@ButtonVariant.Contained" @onclick="ShowBanner">Show Banner</IgbButton>
+
+<IgbBanner @ref="BannerRef">
+    You are currently offline. Some features may not be available.
+    <IgbButton slot="actions" @onclick="DismissBanner">Dismiss</IgbButton>
+    <IgbButton slot="actions" @onclick="Retry">Retry</IgbButton>
+</IgbBanner>
+
+@code {
+    IgbBanner BannerRef { get; set; } = default!;
+    async Task ShowBanner() => await BannerRef.ShowAsync();
+    async Task DismissBanner() => await BannerRef.HideAsync();
+    async Task Retry() => await BannerRef.HideAsync();
+}

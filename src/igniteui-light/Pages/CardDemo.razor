@@ -1,0 +1,35 @@
+@page "/card"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Card Demo</PageTitle>
+
+<h3>Card</h3>
+
+<IgbCard style="width: 350px;">
+    <IgbCardHeader>
+        <h3 slot="title">Jane Doe</h3>
+        <span slot="subtitle">Software Engineer</span>
+    </IgbCardHeader>
+    <IgbCardContent>
+        <p>Passionate about building high-performance web applications with Blazor and .NET.</p>
+    </IgbCardContent>
+    <IgbCardActions>
+        <IgbButton slot="start" Variant="@ButtonVariant.Flat">View Profile</IgbButton>
+        <IgbButton slot="start" Variant="@ButtonVariant.Flat">Message</IgbButton>
+    </IgbCardActions>
+</IgbCard>
+
+<br />
+
+<IgbCard style="width: 350px;">
+    <IgbCardHeader>
+        <h3 slot="title">Project Update</h3>
+        <span slot="subtitle">2 hours ago</span>
+    </IgbCardHeader>
+    <IgbCardContent>
+        <p>The latest release includes performance improvements and bug fixes for the data grid component.</p>
+    </IgbCardContent>
+    <IgbCardActions>
+        <IgbButton slot="start" Variant="@ButtonVariant.Flat">Read More</IgbButton>
+    </IgbCardActions>
+</IgbCard>

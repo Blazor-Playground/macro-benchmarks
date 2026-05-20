@@ -81,6 +81,7 @@ export const METRIC_DISPLAY: Record<string, string> = {
     'pizza-walkthrough': 'Blazing Pizza Walkthrough',
     'havit-walkthrough': 'Havit Bootstrap Walkthrough',
     'mud-walkthrough': 'MudBlazor Walkthrough',
+    'igniteui-walkthrough': 'Ignite Walkthrough',
     'uno-walkthrough': 'Uno Gallery Walkthrough',
     'semi-walkthrough': 'Semi Avalonia Walkthrough',
     'counter-per-second': 'Counter clicks/sec',

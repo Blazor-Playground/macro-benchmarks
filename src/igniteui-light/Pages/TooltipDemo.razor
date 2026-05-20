@@ -1,0 +1,25 @@
+@page "/tooltip"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Tooltip Demo</PageTitle>
+
+<h3>Tooltip</h3>
+
+<IgbButton id="tooltip-target-1">Hover me (Top)</IgbButton>
+<IgbTooltip Anchor="tooltip-target-1" Placement="@PopoverPlacement.Top">
+    Tooltip on top
+</IgbTooltip>
+
+<br /><br />
+
+<IgbButton id="tooltip-target-2">Hover me (Bottom)</IgbButton>
+<IgbTooltip Anchor="tooltip-target-2" Placement="@PopoverPlacement.Bottom">
+    Tooltip on bottom
+</IgbTooltip>
+
+<br /><br />
+
+<IgbButton id="tooltip-target-3">Hover me (Right)</IgbButton>
+<IgbTooltip Anchor="tooltip-target-3" Placement="@PopoverPlacement.Right">
+    Tooltip on the right
+</IgbTooltip>

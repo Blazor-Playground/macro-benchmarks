@@ -1,0 +1,22 @@
+@page "/expansionpanel"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Expansion Panel Demo</PageTitle>
+
+<h3>Expansion Panel</h3>
+
+<IgbExpansionPanel>
+    <span slot="title">Details</span>
+    <span slot="subtitle">Click to see more</span>
+    <p>Expanded content here. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+</IgbExpansionPanel>
+
+<IgbExpansionPanel Open="true">
+    <span slot="title">Initially Open</span>
+    <p>This panel starts in the expanded state.</p>
+</IgbExpansionPanel>
+
+<IgbExpansionPanel Disabled="true">
+    <span slot="title">Disabled Panel</span>
+    <p>This content is not accessible.</p>
+</IgbExpansionPanel>

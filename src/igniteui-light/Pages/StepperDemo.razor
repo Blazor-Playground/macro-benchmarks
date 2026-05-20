@@ -1,0 +1,32 @@
+@page "/stepper"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Stepper Demo</PageTitle>
+
+<h3>Stepper</h3>
+
+<IgbStepper @ref="StepperRef" Linear="true" Orientation="StepperOrientation.Horizontal">
+    <IgbStep>
+        <span slot="title">Personal Info</span>
+        <IgbInput Label="Name" Placeholder="Enter your name" />
+    </IgbStep>
+    <IgbStep>
+        <span slot="title">Address</span>
+        <IgbInput Label="Street" Placeholder="Enter street address" />
+    </IgbStep>
+    <IgbStep>
+        <span slot="title">Confirm</span>
+        <p>Review and confirm your information.</p>
+    </IgbStep>
+</IgbStepper>
+
+<div style="margin-top: 16px;">
+    <IgbButton Variant="@ButtonVariant.Outlined" @onclick="GoPrev">Previous</IgbButton>
+    <IgbButton Variant="@ButtonVariant.Contained" @onclick="GoNext">Next</IgbButton>
+</div>
+
+@code {
+    IgbStepper StepperRef { get; set; } = default!;
+    void GoNext() => StepperRef.Next();
+    void GoPrev() => StepperRef.Prev();
+}

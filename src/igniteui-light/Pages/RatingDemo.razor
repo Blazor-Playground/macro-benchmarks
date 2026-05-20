@@ -1,0 +1,22 @@
+@page "/rating"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Rating Demo</PageTitle>
+
+<h3>Rating</h3>
+
+<IgbRating @bind-Value="StarRating" Max="5" />
+<p>Rating: @StarRating</p>
+
+<h4>Half Stars</h4>
+<IgbRating Value="3.5" Max="5" Step="0.5" />
+
+<h4>Read Only</h4>
+<IgbRating Value="4" Max="5" Readonly="true" />
+
+<h4>Disabled</h4>
+<IgbRating Value="2" Max="5" Disabled="true" />
+
+@code {
+    double StarRating { get; set; } = 3;
+}

@@ -1,0 +1,23 @@
+@page "/accordion"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Accordion Demo</PageTitle>
+
+<h3>Accordion</h3>
+
+<IgbAccordion SingleExpand="true">
+    <IgbExpansionPanel>
+        <span slot="title">Section 1</span>
+        <span slot="subtitle">Click to expand</span>
+        <p>Content for section 1. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+    </IgbExpansionPanel>
+    <IgbExpansionPanel Open="true">
+        <span slot="title">Section 2</span>
+        <span slot="subtitle">Initially expanded</span>
+        <p>Content for section 2. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+    </IgbExpansionPanel>
+    <IgbExpansionPanel>
+        <span slot="title">Section 3</span>
+        <p>Content for section 3. Ut enim ad minim veniam, quis nostrud exercitation.</p>
+    </IgbExpansionPanel>
+</IgbAccordion>

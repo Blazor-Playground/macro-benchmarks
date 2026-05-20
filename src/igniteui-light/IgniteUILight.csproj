@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>$(BenchmarkTargetFramework)</TargetFramework>
+    <DashName>igniteui-light</DashName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="$(MicrosoftAspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="$(MicrosoftAspNetCoreVersion)" PrivateAssets="all" Condition="'$(MicrosoftAspNetCoreVersion)' == '$(BundledNETCoreAppPackageVersion)'" />
+    <PackageReference Include="IgniteUI.Blazor.Lite" Version="$(IgniteUIBlazorLiteVersion)" />
+    <PackageReference Include="IgniteUI.Blazor.GridLite" Version="$(IgniteUIBlazorGridLiteVersion)" />
+  </ItemGroup>
+
+</Project>

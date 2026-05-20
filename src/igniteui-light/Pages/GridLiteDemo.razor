@@ -1,0 +1,37 @@
+@page "/gridlite"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Grid Lite Demo</PageTitle>
+
+<h3>Grid Lite</h3>
+
+<IgbGridLite TItem="Employee" Data="@Employees" style="height: 400px;">
+    <IgbGridLiteColumn Field="@nameof(Employee.Id)" Header="ID" DataType="GridLiteColumnDataType.Number" Width="80px" Sortable />
+    <IgbGridLiteColumn Field="@nameof(Employee.Name)" Header="Name" DataType="GridLiteColumnDataType.String" Sortable Filterable Resizable />
+    <IgbGridLiteColumn Field="@nameof(Employee.Department)" Header="Department" DataType="GridLiteColumnDataType.String" Sortable Filterable />
+    <IgbGridLiteColumn Field="@nameof(Employee.Salary)" Header="Salary" DataType="GridLiteColumnDataType.Number" Width="120px" Sortable />
+    <IgbGridLiteColumn Field="@nameof(Employee.HireDate)" Header="Hire Date" DataType="GridLiteColumnDataType.Date" Sortable />
+    <IgbGridLiteColumn Field="@nameof(Employee.IsActive)" Header="Active" DataType="GridLiteColumnDataType.Boolean" />
+</IgbGridLite>
+
+@code {
+    public class Employee
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public string Department { get; set; } = "";
+        public decimal Salary { get; set; }
+        public DateTime HireDate { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    List<Employee> Employees { get; set; } = Enumerable.Range(1, 50).Select(i => new Employee
+    {
+        Id = i,
+        Name = $"Employee {i}",
+        Department = i % 3 == 0 ? "Engineering" : i % 3 == 1 ? "Marketing" : "Sales",
+        Salary = 50000 + (i * 1000),
+        HireDate = DateTime.Today.AddDays(-i * 30),
+        IsActive = i % 4 != 0
+    }).ToList();
+}

@@ -1,0 +1,12 @@
+@page "/daterangepicker"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Date Range Picker Demo</PageTitle>
+
+<h3>Date Range Picker</h3>
+
+<IgbDateRangePicker @ref="RangePicker" />
+
+@code {
+    IgbDateRangePicker RangePicker { get; set; } = default!;
+}

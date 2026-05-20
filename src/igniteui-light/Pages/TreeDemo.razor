@@ -1,0 +1,22 @@
+@page "/tree"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Tree Demo</PageTitle>
+
+<h3>Tree</h3>
+
+<IgbTree Selection="TreeSelection.Multiple">
+    <IgbTreeItem Expanded="true" Label="Documents">
+        <IgbTreeItem Label="Report.docx" />
+        <IgbTreeItem Label="Notes.txt" />
+        <IgbTreeItem Label="Presentation.pptx" />
+    </IgbTreeItem>
+    <IgbTreeItem Label="Downloads">
+        <IgbTreeItem Label="archive.zip" />
+        <IgbTreeItem Label="installer.exe" />
+    </IgbTreeItem>
+    <IgbTreeItem Label="Pictures">
+        <IgbTreeItem Label="vacation.jpg" />
+        <IgbTreeItem Label="family.png" />
+    </IgbTreeItem>
+</IgbTree>

@@ -1,0 +1,17 @@
+@page "/snackbar"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Snackbar Demo</PageTitle>
+
+<h3>Snackbar</h3>
+
+<IgbButton Variant="@ButtonVariant.Contained" @onclick="ShowSnackbar">Show Snackbar</IgbButton>
+
+<IgbSnackbar @ref="Snack" DisplayTime="3000" ActionText="Undo">
+    Changes saved successfully.
+</IgbSnackbar>
+
+@code {
+    IgbSnackbar Snack { get; set; } = default!;
+    async Task ShowSnackbar() => await Snack.ShowAsync();
+}

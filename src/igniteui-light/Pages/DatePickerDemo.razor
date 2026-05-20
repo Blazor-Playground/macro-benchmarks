@@ -1,0 +1,15 @@
+@page "/datepicker"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Date Picker Demo</PageTitle>
+
+<h3>Date Picker</h3>
+
+<IgbDatePicker @ref="Picker" Value="@SelectedDate" />
+
+<p>Selected: @SelectedDate.ToShortDateString()</p>
+
+@code {
+    IgbDatePicker Picker { get; set; } = default!;
+    DateTime SelectedDate { get; set; } = DateTime.Today;
+}

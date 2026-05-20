@@ -1,0 +1,27 @@
+@page "/select"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Select Demo</PageTitle>
+
+<h3>Select</h3>
+
+<IgbSelect Label="Fruit" Placeholder="Choose a fruit">
+    <IgbSelectItem Value="apple">Apple</IgbSelectItem>
+    <IgbSelectItem Value="orange">Orange</IgbSelectItem>
+    <IgbSelectItem Value="banana">Banana</IgbSelectItem>
+    <IgbSelectItem Value="grape">Grape</IgbSelectItem>
+    <IgbSelectItem Value="mango">Mango</IgbSelectItem>
+</IgbSelect>
+
+<IgbSelect Label="With Groups" Placeholder="Select an item">
+    <IgbSelectHeader>Fruits</IgbSelectHeader>
+    <IgbSelectItem Value="apple">Apple</IgbSelectItem>
+    <IgbSelectItem Value="banana">Banana</IgbSelectItem>
+    <IgbSelectHeader>Vegetables</IgbSelectHeader>
+    <IgbSelectItem Value="carrot">Carrot</IgbSelectItem>
+    <IgbSelectItem Value="broccoli">Broccoli</IgbSelectItem>
+</IgbSelect>
+
+<IgbSelect Label="Disabled" Disabled="true" Placeholder="Cannot select">
+    <IgbSelectItem Value="none">None</IgbSelectItem>
+</IgbSelect>

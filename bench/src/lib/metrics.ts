@@ -27,6 +27,7 @@ export const METRICS: Record<MetricKey, MetricInfo> = {
     [MetricKey.PizzaWalkthrough]: { displayName: 'Pizza Walkthrough', unit: 'ms', category: 'time' },
     [MetricKey.HavitWalkthrough]: { displayName: 'Havit Walkthrough', unit: 'ms', category: 'time' },
     [MetricKey.MudWalkthrough]: { displayName: 'Mud Walkthrough', unit: 'ms', category: 'time' },
+    [MetricKey.IgniteUIWalkthrough]: { displayName: 'IgniteUI Walkthrough', unit: 'ms', category: 'time' },
     [MetricKey.UnoWalkthrough]: { displayName: 'Uno Walkthrough', unit: 'ms', category: 'time' },
     [MetricKey.SemiWalkthrough]: { displayName: 'Semi Avalonia Walkthrough', unit: 'ms', category: 'time' },
     [MetricKey.CounterPerSecond]: { displayName: 'Counter Clicks/sec', unit: 'ops/sec', category: 'throughput' },

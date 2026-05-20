@@ -40,7 +40,7 @@ Comma-separated lists that restrict which combinations get built and measured.
 
 | Flag | Valid values |
 |------|-------------|
-| `--app <list>` | empty-browser, empty-blazor, blazing-pizza, havit-bootstrap, mud-blazor, micro-benchmarks, uno-gallery |
+| `--app <list>` | empty-browser, empty-blazor, blazing-pizza, havit-bootstrap, mud-blazor, micro-benchmarks, uno-gallery, igniteui-light |
 | `--preset <list>` | dev-loop, no-workload, native-relink, aot, no-jiterp, invariant, no-reflection-emit |
 | `--engine <list>` | chrome, firefox, v8, node |
 | `--profile <list>` | desktop, mobile |

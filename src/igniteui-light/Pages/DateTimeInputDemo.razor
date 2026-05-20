@@ -1,0 +1,16 @@
+@page "/datetimeinput"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Date Time Input Demo</PageTitle>
+
+<h3>Date Time Input</h3>
+
+<IgbDateTimeInput @bind-Value="SelectedDateTime"
+                  InputFormat="MM/dd/yyyy HH:mm"
+                  SpinLoop="true" />
+
+<p>Value: @SelectedDateTime</p>
+
+@code {
+    DateTime? SelectedDateTime { get; set; } = DateTime.Now;
+}

@@ -62,6 +62,7 @@ export const EXTERNAL_METRICS: MetricKey[] = [
     MetricKey.PizzaWalkthrough,
     MetricKey.HavitWalkthrough,
     MetricKey.MudWalkthrough,
+    MetricKey.IgniteUIWalkthrough,
     MetricKey.UnoWalkthrough,
     MetricKey.SemiWalkthrough,
     MetricKey.CounterPerSecond,

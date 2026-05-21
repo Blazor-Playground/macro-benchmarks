@@ -238,6 +238,192 @@ export async function runTooManyComponentsHtmlRenderer(opts: WalkthroughOpts<Pla
     return runHtmlRendererBench(opts, 'too-many-components', 'Too Many Components HtmlRenderer');
 }
 
+// ── SSR Stress Benchmarks (100 concurrent HTTP requests) ─────────────────────
+
+/**
+ * Fires N concurrent fetch() requests in parallel (via Promise.all), then
+ * measures total requests completed per second across all concurrent streams.
+ */
+async function runSsrStressBench(
+    opts: WalkthroughOpts<PlaywrightPage>,
+    path: string,
+    label: string,
+    concurrency: number = 100,
+): Promise<number> {
+    const { url, timeout, verbose = false, durationMs = 60_000 } = opts;
+    const benchMs = Math.min(durationMs, 30_000);
+    const benchUrl = new URL(path, url).href;
+
+    debug(`[blazor-perf:${label}] measuring SSR stress: ${concurrency} concurrent fetchers at ${benchUrl} for ${benchMs}ms`);
+
+    // Warmup: 3 sequential requests to prime the server
+    for (let i = 0; i < 3; i++) {
+        const resp = await fetch(benchUrl);
+        await resp.text();
+    }
+
+    // Launch N concurrent fetch loops, each running for benchMs duration
+    const results = await Promise.all(
+        Array.from({ length: concurrency }, async () => {
+            let count = 0;
+            const start = performance.now();
+            while (performance.now() - start < benchMs) {
+                const resp = await fetch(benchUrl);
+                await resp.text();
+                count++;
+            }
+            return count;
+        }),
+    );
+
+    const totalCount = results.reduce((sum, c) => sum + c, 0);
+    const opsPerSec = totalCount * 1000 / benchMs;
+
+    debug(`[blazor-perf:${label}] result: ${opsPerSec.toFixed(2)} requests/sec (${totalCount} total across ${concurrency} workers in ${benchMs}ms)`);
+    return opsPerSec;
+}
+
+export async function runParamsCountSsrStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    return runSsrStressBench(opts, '/params-count-ssr', 'Params Count SSR ×100', 100);
+}
+
+export async function runTooManyComponentsSsrStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    return runSsrStressBench(opts, '/too-many-components-ssr', 'Too Many Components SSR ×100', 100);
+}
+
+// ── HtmlRenderer Stress Benchmarks (100 parallel in-process renders) ─────────
+
+/**
+ * Calls the /api/bench/html-render-stress endpoint which runs Task.WhenAll
+ * of N parallel HtmlRenderer instances, returning aggregate renders/sec.
+ */
+async function runHtmlRendererStressBench(
+    opts: WalkthroughOpts<PlaywrightPage>,
+    scenario: string,
+    label: string,
+    parallel: number = 100,
+): Promise<number> {
+    const { url, timeout, verbose = false, durationMs = 60_000 } = opts;
+    const benchMs = Math.min(durationMs, 30_000);
+    const benchUrl = new URL(
+        `/api/bench/html-render-stress?scenario=${encodeURIComponent(scenario)}&durationMs=${benchMs}&parallel=${parallel}`,
+        url,
+    ).href;
+
+    debug(`[blazor-perf:${label}] calling HtmlRenderer stress endpoint (${parallel} parallel) for ${benchMs}ms`);
+
+    const resp = await fetch(benchUrl);
+    if (!resp.ok) {
+        throw new Error(`HtmlRenderer stress API returned ${resp.status}: ${await resp.text()}`);
+    }
+    const result = await resp.json() as { rendersPerSec: number; totalCount: number; parallel: number; maxElapsedMs: number };
+
+    debug(`[blazor-perf:${label}] result: ${result.rendersPerSec.toFixed(2)} renders/sec (${result.totalCount} total across ${result.parallel} tasks in ${result.maxElapsedMs}ms)`);
+    return result.rendersPerSec;
+}
+
+export async function runParamsCountHtmlRendererStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    return runHtmlRendererStressBench(opts, 'params-count', 'Params Count HtmlRenderer ×10', 10);
+}
+
+export async function runTooManyComponentsHtmlRendererStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    return runHtmlRendererStressBench(opts, 'too-many-components', 'Too Many Components HtmlRenderer ×10', 10);
+}
+
+// ── Interactive Server Stress Benchmarks (25 concurrent SignalR circuits) ─────
+
+/**
+ * Opens 25 iframes on a single Playwright page, each hosting a Blazor Server circuit.
+ * Waits for all to become ready, then triggers benchmarks simultaneously via
+ * direct iframe contentWindow access (same-origin). Reports aggregate renders/sec.
+ */
+async function runServerStressBench(
+    opts: WalkthroughOpts<PlaywrightPage>,
+    path: string,
+    label: string,
+    sessions: number = 25,
+): Promise<number> {
+    const { page: _page, url, timeout, verbose = false, durationMs = 60_000 } = opts;
+    const page = _page!;
+    const benchDurationMs = Math.min(durationMs, 30_000);
+    const benchUrl = new URL(path, url).href;
+
+    debug(`[blazor-perf:${label}] creating ${sessions} iframes at ${benchUrl}`);
+
+    // Navigate to a lightweight page on the same origin to host iframes
+    await page.goto(url, { timeout, waitUntil: 'load' });
+
+    // Create iframes and wait for all Blazor circuits to boot
+    const allReady = await page.evaluate(
+        async (args: unknown) => {
+            const { benchUrl, sessions, timeout } = args as { benchUrl: string; sessions: number; timeout: number };
+            const container = document.createElement('div');
+            document.body.appendChild(container);
+
+            const iframes: HTMLIFrameElement[] = [];
+            for (let i = 0; i < sessions; i++) {
+                const iframe = document.createElement('iframe');
+                iframe.src = benchUrl;
+                iframe.style.width = '400px';
+                iframe.style.height = '300px';
+                container.appendChild(iframe);
+                iframes.push(iframe);
+            }
+
+            // Poll until all iframes have blazorPerf.benchComponent registered
+            const start = Date.now();
+            while (Date.now() - start < timeout) {
+                const ready = iframes.every(iframe => {
+                    try {
+                        const win = iframe.contentWindow as unknown as Record<string, unknown> | null;
+                        const bp = win?.['blazorPerf'] as Record<string, unknown> | undefined;
+                        return !!bp?.['benchComponent'];
+                    } catch { return false; }
+                });
+                if (ready) return true;
+                await new Promise(r => setTimeout(r, 500));
+            }
+            return false;
+        },
+        { benchUrl, sessions, timeout },
+    );
+
+    if (!allReady) {
+        throw new Error(`[blazor-perf:${label}] Not all ${sessions} iframes became ready within timeout`);
+    }
+
+    debug(`[blazor-perf:${label}] all ${sessions} circuits ready, triggering simultaneous benchmark for ${benchDurationMs}ms`);
+
+    // Trigger all benchmarks simultaneously via Promise.all
+    const totalOpsPerSec = await page.evaluate(
+        async (args: unknown) => {
+            const { sessions, benchDurationMs } = args as { sessions: number; benchDurationMs: number };
+            const iframes = document.querySelectorAll('iframe');
+            const promises = Array.from(iframes).slice(0, sessions).map(async (iframe) => {
+                const win = iframe.contentWindow as unknown as Record<string, unknown>;
+                const bp = win['blazorPerf'] as Record<string, unknown>;
+                const component = bp['benchComponent'] as { invokeMethodAsync: (name: string, ...args: unknown[]) => Promise<number> };
+                return await component.invokeMethodAsync('RunBenchmark', benchDurationMs);
+            });
+            const results = await Promise.all(promises);
+            // Sum all renders/sec across all circuits
+            return results.reduce((sum, r) => sum + r, 0);
+        },
+        { sessions, benchDurationMs },
+    );
+
+    debug(`[blazor-perf:${label}] result: ${totalOpsPerSec.toFixed(2)} aggregate renders/sec across ${sessions} circuits`);
+    return totalOpsPerSec;
+}
+
+export async function runParamsCountServerStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    return runServerStressBench(opts, '/params-count-server', 'Params Count Server ×25', 25);
+}
+
+export async function runTooManyComponentsServerStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    return runServerStressBench(opts, '/too-many-components-server', 'Too Many Components Server ×25', 25);
+}
+
 // ── Shared Measured Benchmark Runner ─────────────────────────────────────────
 
 /**

@@ -38,6 +38,9 @@ import {
     runBlazorPerfCsToJsNumber, runBlazorPerfCsToJsString, runBlazorPerfCsToJsJson,
     runParamsCountSsr, runTooManyComponentsSsr,
     runParamsCountHtmlRenderer, runTooManyComponentsHtmlRenderer,
+    runParamsCountSsrStress, runTooManyComponentsSsrStress,
+    runParamsCountHtmlRendererStress, runTooManyComponentsHtmlRendererStress,
+    runParamsCountServerStress, runTooManyComponentsServerStress,
 } from '../lib/blazor-perf-bench.js';
 import { startKestrelServer, type KestrelServer } from '../lib/kestrel-launcher.js';
 import { type WalkthroughOpts } from '../lib/walkthrough-types.js';
@@ -228,7 +231,7 @@ function mergeTimingArrays(target: TimingArrays, source: TimingArrays): void {
 // Walkthrough dispatch table — Chrome + desktop only
 type WalkthroughFn = (opts: WalkthroughOpts<Page>) => Promise<number>;
 
-const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: number; selfNav?: boolean; noBrowser?: boolean }[] = [
+const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: number; selfNav?: boolean; noBrowser?: boolean; coreclrOnly?: boolean }[] = [
     { app: A.BlazingPizza, metric: MetricKey.PizzaWalkthrough, fn: runPizzaWalkthrough as WalkthroughFn },
     { app: A.HavitBootstrap, metric: MetricKey.HavitWalkthrough, fn: runHavitWalkthrough as WalkthroughFn },
     { app: A.MudBlazor, metric: MetricKey.MudWalkthrough, fn: runMudWalkthrough as WalkthroughFn },
@@ -249,18 +252,32 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
     { app: A.BlazorPerf, metric: MetricKey.BlazorCsToJsJson, fn: runBlazorPerfCsToJsJson as WalkthroughFn, runs: 1, selfNav: true },
 
     // blazor-perf: Server-mode benchmarks LAST (SignalR circuits can starve Kestrel thread pool on close)
-    { app: A.BlazorPerf, metric: MetricKey.BlazorCounterHeavyServer, fn: runCounterHeavyServer as WalkthroughFn, runs: 1, selfNav: true },
-    { app: A.BlazorPerf, metric: MetricKey.BlazorVirtualScrollHeavyServer, fn: runVirtualScrollHeavyServer as WalkthroughFn, runs: 1, selfNav: true },
-    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountServer, fn: runParamsCountServer as WalkthroughFn, runs: 1, selfNav: true },
-    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsServer, fn: runTooManyComponentsServer as WalkthroughFn, runs: 1, selfNav: true },
+    // These run on the host CLR (always CoreCLR) regardless of WASM runtime setting
+    { app: A.BlazorPerf, metric: MetricKey.BlazorCounterHeavyServer, fn: runCounterHeavyServer as WalkthroughFn, runs: 1, selfNav: true, coreclrOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorVirtualScrollHeavyServer, fn: runVirtualScrollHeavyServer as WalkthroughFn, runs: 1, selfNav: true, coreclrOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountServer, fn: runParamsCountServer as WalkthroughFn, runs: 1, selfNav: true, coreclrOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsServer, fn: runTooManyComponentsServer as WalkthroughFn, runs: 1, selfNav: true, coreclrOnly: true },
 
     // blazor-perf: SSR benchmarks (HTTP-only, no browser needed)
-    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountSsr, fn: runParamsCountSsr as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true },
-    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsSsr, fn: runTooManyComponentsSsr as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true },
+    // Server-side rendering always uses the host CLR (CoreCLR)
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountSsr, fn: runParamsCountSsr as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true, coreclrOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsSsr, fn: runTooManyComponentsSsr as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true, coreclrOnly: true },
 
     // blazor-perf: HtmlRenderer benchmarks (in-process rendering via API, no browser needed)
-    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountHtmlRenderer, fn: runParamsCountHtmlRenderer as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true },
-    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsHtmlRenderer, fn: runTooManyComponentsHtmlRenderer as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountHtmlRenderer, fn: runParamsCountHtmlRenderer as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true, coreclrOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsHtmlRenderer, fn: runTooManyComponentsHtmlRenderer as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true, coreclrOnly: true },
+
+    // blazor-perf: Stress benchmarks — SSR ×100 concurrent fetches (no browser needed)
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountSsrStress, fn: runParamsCountSsrStress as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true, coreclrOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsSsrStress, fn: runTooManyComponentsSsrStress as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true, coreclrOnly: true },
+
+    // blazor-perf: Stress benchmarks — HtmlRenderer ×10 parallel renders (no browser needed)
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountHtmlRendererStress, fn: runParamsCountHtmlRendererStress as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true, coreclrOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsHtmlRendererStress, fn: runTooManyComponentsHtmlRendererStress as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true, coreclrOnly: true },
+
+    // blazor-perf: Stress benchmarks — Interactive Server ×25 iframes (needs browser)
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountServerStress, fn: runParamsCountServerStress as WalkthroughFn, runs: 1, selfNav: true, coreclrOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsServerStress, fn: runTooManyComponentsServerStress as WalkthroughFn, runs: 1, selfNav: true, coreclrOnly: true },
 ];
 
 const INTERNAL_KEYS = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;
@@ -581,7 +598,7 @@ async function runWalkthroughs(
     const defaultRuns = warmRuns > 1 ? warmRuns * 4 : 1;
     // Walkthroughs are Chrome-only + desktop-only (CDP required for reliable timing)
     if (profile !== 'desktop' || engine !== E.Chrome) return empty;
-    const matches = WALKTHROUGHS.filter(w => w.app === entry.app);
+    const matches = WALKTHROUGHS.filter(w => w.app === entry.app && (!w.coreclrOnly || entry.runtime === R.CoreCLR));
     if (matches.length === 0) return empty;
 
     const durationMs = dryRun ? 5_000 : 60_000;

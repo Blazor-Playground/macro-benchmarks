@@ -67,7 +67,7 @@ For **SSR**, **HtmlRenderer**, and **Interactive Server** modes, we add a parall
 | Mode | Stress Driver | Approach |
 |------|--------------|----------|
 | **SSR ×100** | Node.js `fetch` | 100 concurrent HTTP requests fired via `Promise.all` after barrier, measure requests/sec. **Validated**: Node.js `maxSockets` defaults to `Infinity`; no client-side throttling. |
-| **HtmlRenderer ×100** | In-process C# | Server-side endpoint runs `Task.WhenAll` of 100 parallel `RenderComponentAsync` calls, reports renders/sec via HTTP response |
+| **HtmlRenderer ×10** | In-process C# | Server-side endpoint runs `Task.WhenAll` of 10 parallel `RenderComponentAsync` calls, reports renders/sec via HTTP response (100 causes thread pool starvation) |
 | **Interactive Server ×25** | Playwright iframes | 25 iframes load and signal ready, then all triggered simultaneously via `postMessage` broadcast |
 
 #### Interactive Server ×25: Synchronized Iframe Approach
@@ -165,14 +165,14 @@ sequenceDiagram
 | `blazor-params-count-ssr` | Params Count (SSR) | ops/sec | throughput |
 | `blazor-params-count-ssr-stress` | Params Count (SSR ×100) | ops/sec | throughput |
 | `blazor-params-count-htmlrenderer` | Params Count (HtmlRenderer) | ops/sec | throughput |
-| `blazor-params-count-htmlrenderer-stress` | Params Count (HtmlRenderer ×100) | ops/sec | throughput |
+| `blazor-params-count-htmlrenderer-stress` | Params Count (HtmlRenderer ×10) | ops/sec | throughput |
 | `blazor-too-many-components-wasm` | Many Components (WASM) | ops/sec | throughput |
 | `blazor-too-many-components-server` | Many Components (Server) | ops/sec | throughput |
 | `blazor-too-many-components-server-stress` | Many Components (Server ×25) | ops/sec | throughput |
 | `blazor-too-many-components-ssr` | Many Components (SSR) | ops/sec | throughput |
 | `blazor-too-many-components-ssr-stress` | Many Components (SSR ×100) | ops/sec | throughput |
 | `blazor-too-many-components-htmlrenderer` | Many Components (HtmlRenderer) | ops/sec | throughput |
-| `blazor-too-many-components-htmlrenderer-stress` | Many Components (HtmlRenderer ×100) | ops/sec | throughput |
+| `blazor-too-many-components-htmlrenderer-stress` | Many Components (HtmlRenderer ×10) | ops/sec | throughput |
 
 Migrated metrics (redesigned, new keys — old `empty-blazor` keys deprecated):
 - `blazor-counter-heavy` — Counter Heavy (5k child components per render), renders/sec
@@ -216,12 +216,20 @@ Migrated metrics (redesigned, new keys — old `empty-blazor` keys deprecated):
 5. Add `HtmlRenderer` endpoint: `POST /api/bench/render?scenario=params-count` — runs `HtmlRenderer.RenderComponentAsync` in-process, returns render time
 6. Update Kestrel launcher to handle SignalR
 
-### Phase 5: Multi-threaded Stress
+### Phase 5: Multi-threaded Stress ✅
 1. SSR stress: TypeScript fires 100 concurrent `fetch()` via `Promise.all` to SSR endpoint, reports aggregate requests/sec
-2. HtmlRenderer stress: `POST /api/bench/render-stress?scenario=params-count&parallel=100` — server runs `Task.WhenAll` of 100 renders, reports renders/sec
+2. HtmlRenderer stress: `GET /api/bench/html-render-stress?scenario=...&parallel=10` — server runs `Task.WhenAll` of 10 renders, reports renders/sec (reduced from 100 due to `Dispatcher.InvokeAsync` thread pool starvation at high parallelism)
 3. Interactive Server stress: Single Playwright page with 25 iframes, synchronized start via `postMessage` barrier, aggregate ops/sec across all circuits
 4. Add new stress metric keys
-5. Session count configurable via `--stress-sessions` flag (default 100 for SSR/HtmlRenderer, 25 for Interactive Server)
+5. `ThreadPool.SetMinThreads(200, 200)` added to Program.cs as safety net
+
+**Validated results (mono / coreclr):**
+- SSR ×100 Params Count: 2654 / 2875 req/s
+- SSR ×100 Too Many Components: 274 / 319 req/s
+- HtmlRenderer ×10 Params Count: 8772 / 8609 renders/s
+- HtmlRenderer ×10 Too Many Components: 1134 / 1305 renders/s
+- Server ×25 Params Count: 561 / 557 renders/s
+- Server ×25 Too Many Components: 134 / 129 renders/s
 
 ### Phase 6: Dashboard + CI
 1. Add `blazor-perf` tab in bench-viewer

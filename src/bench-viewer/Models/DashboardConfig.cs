@@ -37,6 +37,7 @@ public static class DashboardConfig
         "pizza-walkthrough", "havit-walkthrough", "mud-walkthrough", "igniteui-walkthrough", "semi-walkthrough", "uno-walkthrough",
         "blazor-counter-heavy-wasm", "blazor-counter-heavy-server", "blazor-virtualscroll-heavy-wasm", "blazor-virtualscroll-heavy-server",
         "blazor-params-count-wasm", "blazor-params-count-server",
+        "blazor-too-many-components-wasm", "blazor-too-many-components-server",
         "blazor-js-to-cs-number", "blazor-js-to-cs-string", "blazor-js-to-cs-json",
         "blazor-cs-to-js-number", "blazor-cs-to-js-string", "blazor-cs-to-js-json",
         "json-parse-ops", "js-interop-ops", "exception-ops",

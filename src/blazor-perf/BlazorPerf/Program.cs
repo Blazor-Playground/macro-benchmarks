@@ -6,6 +6,13 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
+// Aggressively dispose disconnected circuits to prevent blocking subsequent connections
+builder.Services.AddServerSideBlazor(options =>
+{
+    options.DisconnectedCircuitMaxRetained = 0;
+    options.DisconnectedCircuitRetentionPeriod = TimeSpan.Zero;
+});
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

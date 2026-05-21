@@ -76,6 +76,23 @@ export async function runParamsCountServer(opts: WalkthroughOpts<PlaywrightPage>
     return runMeasuredBenchmark(opts, '/params-count-server', 'Params Count Server');
 }
 
+// ── Too Many Components Benchmark ────────────────────────────────────────────
+
+/**
+ * Runs the Too Many Components benchmark (WASM mode).
+ * 1,000 rows × 3 TableCells with child content — measures component tree diff overhead.
+ */
+export async function runTooManyComponentsWasm(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    return runMeasuredBenchmark(opts, '/too-many-components-wasm', 'Too Many Components WASM');
+}
+
+/**
+ * Runs the Too Many Components benchmark (Server mode).
+ */
+export async function runTooManyComponentsServer(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    return runMeasuredBenchmark(opts, '/too-many-components-server', 'Too Many Components Server');
+}
+
 // ── Interop Benchmarks (migrated from empty-blazor) ──────────────────────────
 
 async function runInteropBench(
@@ -159,6 +176,7 @@ async function runMeasuredBenchmark(
     debug(`[blazor-perf:${label}] navigating to ${benchUrl}`);
     // Use 'load' instead of 'networkidle' — Blazor's SignalR WebSocket prevents networkidle
     await page.goto(benchUrl, { timeout, waitUntil: 'load' });
+    debug(`[blazor-perf:${label}] page loaded, waiting for WASM boot + component registration...`);
 
     // Wait for the component to register itself via JSInterop
     // Debug builds with large unlinked assemblies can take >30s to boot WASM

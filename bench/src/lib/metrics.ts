@@ -44,6 +44,8 @@ export const METRICS: Record<MetricKey, MetricInfo> = {
     [MetricKey.BlazorVirtualScrollHeavyServer]: { displayName: 'VirtualScroll Heavy (Server)', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.BlazorParamsCountWasm]: { displayName: 'Params Count (WASM)', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.BlazorParamsCountServer]: { displayName: 'Params Count (Server)', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.BlazorTooManyComponentsWasm]: { displayName: 'Many Components (WASM)', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.BlazorTooManyComponentsServer]: { displayName: 'Many Components (Server)', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.JsInteropOps]: { displayName: 'JS Interop', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.JsonParseOps]: { displayName: 'JSON Parse', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.ExceptionOps]: { displayName: 'Exception Handling', unit: 'ops/sec', category: 'throughput' },

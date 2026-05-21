@@ -77,6 +77,12 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         if (!ctx.presets.includes(entry.preset)) continue;
         if (!ctx.runtimes.includes(entry.runtime)) continue;
 
+        // Deadline check: stop scheduling new measurements if we're running out of time
+        if (deadlineAt > 0 && Date.now() > deadlineAt) {
+            err(`⚠ DEADLINE reached — skipping remaining measurements`);
+            break;
+        }
+
         const skipReason = shouldSkipMeasurement(entry.runtime, entry.app, entry.preset, ctx);
         if (skipReason) {
             info(`Skipping ${entry.app}/${entry.preset}: ${skipReason}`);

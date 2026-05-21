@@ -248,6 +248,7 @@ async function runSsrBench(
     // Warmup: 3 requests discarded
     for (let i = 0; i < 3; i++) {
         const resp = await fetch(benchUrl);
+        if (!resp.ok) throw new Error(`[blazor-perf:${label}] warmup failed: HTTP ${resp.status}`);
         await resp.text();
     }
 
@@ -255,6 +256,7 @@ async function runSsrBench(
     const start = performance.now();
     while (performance.now() - start < benchMs) {
         const resp = await fetch(benchUrl);
+        if (!resp.ok) throw new Error(`[blazor-perf:${label}] request failed: HTTP ${resp.status}`);
         await resp.text(); // consume body to ensure full render completes
         count++;
     }
@@ -329,6 +331,7 @@ async function runSsrStressBench(
     // Warmup: 3 sequential requests to prime the server
     for (let i = 0; i < 3; i++) {
         const resp = await fetch(benchUrl);
+        if (!resp.ok) throw new Error(`[blazor-perf:${label}] warmup failed: HTTP ${resp.status}`);
         await resp.text();
     }
 
@@ -336,18 +339,29 @@ async function runSsrStressBench(
     const otelBefore = await fetchOtelSnapshot(url);
 
     // Launch N concurrent fetch loops, each running for benchMs duration
+    let fetchErrors = 0;
     const results = await Promise.all(
         Array.from({ length: concurrency }, async () => {
             let count = 0;
             const start = performance.now();
             while (performance.now() - start < benchMs) {
-                const resp = await fetch(benchUrl);
-                await resp.text();
-                count++;
+                try {
+                    const resp = await fetch(benchUrl);
+                    if (!resp.ok) { fetchErrors++; break; }
+                    await resp.text();
+                    count++;
+                } catch (e) {
+                    fetchErrors++;
+                    debug(`[blazor-perf:${label}] fetch error in worker: ${e}`);
+                    break;
+                }
             }
             return count;
         }),
     );
+    if (fetchErrors > 0) {
+        debug(`[blazor-perf:${label}] ${fetchErrors} workers encountered errors`);
+    }
 
     // Capture OTEL snapshot after stress
     const otelAfter = await fetchOtelSnapshot(url);

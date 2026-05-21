@@ -460,6 +460,19 @@ jobs:
           name: all-builds
           path: ${{ env.ARTIFACTS_DIR }}/publish
 
+      - name: Validate downloaded artifacts
+        shell: bash
+        run: |
+          if [ ! -f "${ARTIFACTS_DIR}/bench-context.json" ]; then
+            echo "::error::bench-context.json not found after artifact download"
+            exit 1
+          fi
+          if [ ! -d "${ARTIFACTS_DIR}/publish" ] || [ -z "$(ls -A "${ARTIFACTS_DIR}/publish")" ]; then
+            echo "::error::Build artifacts directory is empty or missing"
+            exit 1
+          fi
+          echo "Artifacts validated: context and publish dir present"
+
       - name: Run measurements
         shell: bash
         run: |

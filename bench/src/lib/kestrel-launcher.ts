@@ -65,11 +65,16 @@ export async function startKestrelServer(publishDir: string, dotnetBin?: string)
 
     // Drain stdout/stderr — capture last lines for diagnostics on crash
     const stderrChunks: string[] = [];
+    let stderrLen = 0;
     proc.stdout?.resume();
     proc.stderr?.on('data', (chunk: Buffer) => {
-        stderrChunks.push(chunk.toString());
+        const str = chunk.toString();
+        stderrChunks.push(str);
+        stderrLen += str.length;
         // Keep only last 4KB
-        while (stderrChunks.join('').length > 4096) stderrChunks.shift();
+        while (stderrLen > 4096 && stderrChunks.length > 1) {
+            stderrLen -= stderrChunks.shift()!.length;
+        }
     });
 
     // Wait for the server to start listening
@@ -77,23 +82,24 @@ export async function startKestrelServer(publishDir: string, dotnetBin?: string)
 
     debug(`Kestrel started on ${url} (pid=${proc.pid})`);
 
+    let closed = false;
     return {
         port,
         url,
         close: async () => {
-            if (proc.exitCode === null) {
-                proc.kill('SIGTERM');
-                await new Promise<void>((resolve) => {
-                    const timeout = setTimeout(() => {
-                        proc.kill('SIGKILL');
-                        resolve();
-                    }, 5000);
-                    proc.on('exit', () => {
-                        clearTimeout(timeout);
-                        resolve();
-                    });
+            if (closed || proc.exitCode !== null) return;
+            closed = true;
+            proc.kill('SIGTERM');
+            await new Promise<void>((resolve) => {
+                const timeout = setTimeout(() => {
+                    proc.kill('SIGKILL');
+                    resolve();
+                }, 5000);
+                proc.on('exit', () => {
+                    clearTimeout(timeout);
+                    resolve();
                 });
-            }
+            });
         },
     };
 }

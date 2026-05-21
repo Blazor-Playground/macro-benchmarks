@@ -36,8 +36,10 @@ public static class DashboardConfig
     {
         "pizza-walkthrough", "havit-walkthrough", "mud-walkthrough", "igniteui-walkthrough", "semi-walkthrough", "uno-walkthrough",
         "blazor-counter-heavy-wasm", "blazor-counter-heavy-server", "blazor-virtualscroll-heavy-wasm", "blazor-virtualscroll-heavy-server",
-        "blazor-params-count-wasm", "blazor-params-count-server",
-        "blazor-too-many-components-wasm", "blazor-too-many-components-server",
+        "blazor-params-count-wasm", "blazor-params-count-server", "blazor-params-count-ssr", "blazor-params-count-htmlrenderer",
+        "blazor-params-count-ssr-stress", "blazor-params-count-htmlrenderer-stress", "blazor-params-count-server-stress",
+        "blazor-too-many-components-wasm", "blazor-too-many-components-server", "blazor-too-many-components-ssr", "blazor-too-many-components-htmlrenderer",
+        "blazor-too-many-components-ssr-stress", "blazor-too-many-components-htmlrenderer-stress", "blazor-too-many-components-server-stress",
         "blazor-js-to-cs-number", "blazor-js-to-cs-string", "blazor-js-to-cs-json",
         "blazor-cs-to-js-number", "blazor-cs-to-js-string", "blazor-cs-to-js-json",
         "json-parse-ops", "js-interop-ops", "exception-ops",

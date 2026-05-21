@@ -11,7 +11,7 @@
  */
 
 import { debug } from '../log.js';
-import { type WalkthroughOpts } from './walkthrough-types.js';
+import { type WalkthroughOpts, type WalkthroughWithOtel } from './walkthrough-types.js';
 
 // Minimal Playwright Page type surface
 type PlaywrightPage = {
@@ -22,6 +22,76 @@ type PlaywrightPage = {
     on(event: string, handler: (...args: unknown[]) => void): void;
     off(event: string, handler: (...args: unknown[]) => void): void;
 };
+
+// ── OTEL Server Metrics Helpers ──────────────────────────────────────────────
+
+/** Counter keys we extract from the /api/bench/metrics snapshot. */
+const OTEL_COUNTER_MAP: Record<string, string> = {
+    'System.Runtime/gc-heap-size': 'heap-mb',
+    'System.Runtime/gen-0-gc-count': 'gc-gen0',
+    'System.Runtime/gen-1-gc-count': 'gc-gen1',
+    'System.Runtime/gen-2-gc-count': 'gc-gen2',
+    'System.Runtime/time-in-gc': 'gc-pause-pct',
+    'System.Runtime/alloc-rate': 'alloc-rate',
+    'System.Runtime/monitor-lock-contention-count': 'lock-contentions',
+    'System.Runtime/threadpool-thread-count': 'threadpool-threads',
+    'System.Runtime/threadpool-queue-length': 'threadpool-queue',
+    'System.Runtime/cpu-usage': 'cpu-pct',
+    'System.Runtime/working-set': 'working-set-mb',
+};
+
+type OtelSnapshot = Record<string, number>;
+
+/**
+ * Fetches the current OTEL EventCounter snapshot from the Kestrel host.
+ * Returns a simplified map of counter names to values.
+ */
+async function fetchOtelSnapshot(baseUrl: string): Promise<OtelSnapshot> {
+    try {
+        const resp = await fetch(new URL('/api/bench/metrics', baseUrl).href);
+        if (!resp.ok) return {};
+        const raw = await resp.json() as Record<string, number>;
+        const snapshot: OtelSnapshot = {};
+        for (const [rawKey, shortKey] of Object.entries(OTEL_COUNTER_MAP)) {
+            if (rawKey in raw) {
+                snapshot[shortKey] = raw[rawKey];
+            }
+        }
+        return snapshot;
+    } catch {
+        return {};
+    }
+}
+
+/**
+ * Compute deltas between two OTEL snapshots.
+ * For cumulative counters (gc-gen0, lock-contentions, etc.) returns the difference.
+ * For gauge counters (cpu-pct, gc-pause-pct, threadpool-threads) returns the "after" value.
+ */
+function computeOtelDeltas(before: OtelSnapshot, after: OtelSnapshot): Record<string, number> {
+    const CUMULATIVE = new Set(['gc-gen0', 'gc-gen1', 'gc-gen2', 'lock-contentions']);
+    const MB_KEYS = new Set(['heap-mb', 'working-set-mb']);
+    const deltas: Record<string, number> = {};
+
+    for (const key of Object.keys(after)) {
+        const afterVal = after[key];
+        const beforeVal = before[key] ?? 0;
+
+        if (CUMULATIVE.has(key)) {
+            deltas[key] = afterVal - beforeVal;
+        } else if (MB_KEYS.has(key)) {
+            // Convert bytes to MB for readability
+            deltas[key] = Math.round(afterVal / (1024 * 1024) * 10) / 10;
+        } else if (key === 'alloc-rate') {
+            // alloc-rate is bytes/sec, convert to MB/sec
+            deltas[key] = Math.round(afterVal / (1024 * 1024) * 10) / 10;
+        } else {
+            // Gauge: use the "after" value (represents state during/after the run)
+            deltas[key] = Math.round(afterVal * 100) / 100;
+        }
+    }
+    return deltas;
+}
 
 // ── Counter Heavy Benchmark ──────────────────────────────────────────────────
 
@@ -249,7 +319,7 @@ async function runSsrStressBench(
     path: string,
     label: string,
     concurrency: number = 100,
-): Promise<number> {
+): Promise<WalkthroughWithOtel> {
     const { url, timeout, verbose = false, durationMs = 60_000 } = opts;
     const benchMs = Math.min(durationMs, 30_000);
     const benchUrl = new URL(path, url).href;
@@ -261,6 +331,9 @@ async function runSsrStressBench(
         const resp = await fetch(benchUrl);
         await resp.text();
     }
+
+    // Capture OTEL snapshot before stress
+    const otelBefore = await fetchOtelSnapshot(url);
 
     // Launch N concurrent fetch loops, each running for benchMs duration
     const results = await Promise.all(
@@ -276,18 +349,25 @@ async function runSsrStressBench(
         }),
     );
 
+    // Capture OTEL snapshot after stress
+    const otelAfter = await fetchOtelSnapshot(url);
+    const otel = computeOtelDeltas(otelBefore, otelAfter);
+
     const totalCount = results.reduce((sum, c) => sum + c, 0);
     const opsPerSec = totalCount * 1000 / benchMs;
 
     debug(`[blazor-perf:${label}] result: ${opsPerSec.toFixed(2)} requests/sec (${totalCount} total across ${concurrency} workers in ${benchMs}ms)`);
-    return opsPerSec;
+    if (Object.keys(otel).length > 0) {
+        debug(`[blazor-perf:${label}] OTEL: ${JSON.stringify(otel)}`);
+    }
+    return { value: opsPerSec, otel };
 }
 
-export async function runParamsCountSsrStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+export async function runParamsCountSsrStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<WalkthroughWithOtel> {
     return runSsrStressBench(opts, '/params-count-ssr', 'Params Count SSR ×100', 100);
 }
 
-export async function runTooManyComponentsSsrStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+export async function runTooManyComponentsSsrStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<WalkthroughWithOtel> {
     return runSsrStressBench(opts, '/too-many-components-ssr', 'Too Many Components SSR ×100', 100);
 }
 
@@ -302,7 +382,7 @@ async function runHtmlRendererStressBench(
     scenario: string,
     label: string,
     parallel: number = 100,
-): Promise<number> {
+): Promise<WalkthroughWithOtel> {
     const { url, timeout, verbose = false, durationMs = 60_000 } = opts;
     const benchMs = Math.min(durationMs, 30_000);
     const benchUrl = new URL(
@@ -312,21 +392,31 @@ async function runHtmlRendererStressBench(
 
     debug(`[blazor-perf:${label}] calling HtmlRenderer stress endpoint (${parallel} parallel) for ${benchMs}ms`);
 
+    // Capture OTEL snapshot before stress
+    const otelBefore = await fetchOtelSnapshot(url);
+
     const resp = await fetch(benchUrl);
     if (!resp.ok) {
         throw new Error(`HtmlRenderer stress API returned ${resp.status}: ${await resp.text()}`);
     }
     const result = await resp.json() as { rendersPerSec: number; totalCount: number; parallel: number; maxElapsedMs: number };
 
+    // Capture OTEL snapshot after stress
+    const otelAfter = await fetchOtelSnapshot(url);
+    const otel = computeOtelDeltas(otelBefore, otelAfter);
+
     debug(`[blazor-perf:${label}] result: ${result.rendersPerSec.toFixed(2)} renders/sec (${result.totalCount} total across ${result.parallel} tasks in ${result.maxElapsedMs}ms)`);
-    return result.rendersPerSec;
+    if (Object.keys(otel).length > 0) {
+        debug(`[blazor-perf:${label}] OTEL: ${JSON.stringify(otel)}`);
+    }
+    return { value: result.rendersPerSec, otel };
 }
 
-export async function runParamsCountHtmlRendererStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+export async function runParamsCountHtmlRendererStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<WalkthroughWithOtel> {
     return runHtmlRendererStressBench(opts, 'params-count', 'Params Count HtmlRenderer ×10', 10);
 }
 
-export async function runTooManyComponentsHtmlRendererStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+export async function runTooManyComponentsHtmlRendererStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<WalkthroughWithOtel> {
     return runHtmlRendererStressBench(opts, 'too-many-components', 'Too Many Components HtmlRenderer ×10', 10);
 }
 
@@ -342,7 +432,7 @@ async function runServerStressBench(
     path: string,
     label: string,
     sessions: number = 25,
-): Promise<number> {
+): Promise<WalkthroughWithOtel> {
     const { page: _page, url, timeout, verbose = false, durationMs = 60_000 } = opts;
     const page = _page!;
     const benchDurationMs = Math.min(durationMs, 30_000);
@@ -394,6 +484,9 @@ async function runServerStressBench(
 
     debug(`[blazor-perf:${label}] all ${sessions} circuits ready, triggering simultaneous benchmark for ${benchDurationMs}ms`);
 
+    // Capture OTEL snapshot before stress
+    const otelBefore = await fetchOtelSnapshot(url);
+
     // Trigger all benchmarks simultaneously via Promise.all
     const totalOpsPerSec = await page.evaluate(
         async (args: unknown) => {
@@ -412,15 +505,22 @@ async function runServerStressBench(
         { sessions, benchDurationMs },
     );
 
+    // Capture OTEL snapshot after stress
+    const otelAfter = await fetchOtelSnapshot(url);
+    const otel = computeOtelDeltas(otelBefore, otelAfter);
+
     debug(`[blazor-perf:${label}] result: ${totalOpsPerSec.toFixed(2)} aggregate renders/sec across ${sessions} circuits`);
-    return totalOpsPerSec;
+    if (Object.keys(otel).length > 0) {
+        debug(`[blazor-perf:${label}] OTEL: ${JSON.stringify(otel)}`);
+    }
+    return { value: totalOpsPerSec, otel };
 }
 
-export async function runParamsCountServerStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+export async function runParamsCountServerStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<WalkthroughWithOtel> {
     return runServerStressBench(opts, '/params-count-server', 'Params Count Server ×25', 25);
 }
 
-export async function runTooManyComponentsServerStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+export async function runTooManyComponentsServerStress(opts: WalkthroughOpts<PlaywrightPage>): Promise<WalkthroughWithOtel> {
     return runServerStressBench(opts, '/too-many-components-server', 'Too Many Components Server ×25', 25);
 }
 

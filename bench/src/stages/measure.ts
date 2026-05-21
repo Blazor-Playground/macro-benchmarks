@@ -43,7 +43,7 @@ import {
     runParamsCountServerStress, runTooManyComponentsServerStress,
 } from '../lib/blazor-perf-bench.js';
 import { startKestrelServer, type KestrelServer } from '../lib/kestrel-launcher.js';
-import { type WalkthroughOpts } from '../lib/walkthrough-types.js';
+import { type WalkthroughOpts, type WalkthroughResult as WalkthroughFnReturn, hasOtel } from '../lib/walkthrough-types.js';
 import { type SampleStats, computeStats, formatStats, sortedMedian, sortedIQM } from '../lib/stats.js';
 import type { CDPSession, Page, BrowserContext, Browser } from 'playwright';
 
@@ -229,7 +229,7 @@ function mergeTimingArrays(target: TimingArrays, source: TimingArrays): void {
 }
 
 // Walkthrough dispatch table — Chrome + desktop only
-type WalkthroughFn = (opts: WalkthroughOpts<Page>) => Promise<number>;
+type WalkthroughFn = (opts: WalkthroughOpts<Page>) => Promise<WalkthroughFnReturn>;
 
 const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: number; selfNav?: boolean; noBrowser?: boolean; coreclrOnly?: boolean }[] = [
     { app: A.BlazingPizza, metric: MetricKey.PizzaWalkthrough, fn: runPizzaWalkthrough as WalkthroughFn },
@@ -647,9 +647,19 @@ async function runWalkthroughs(
             }
             try {
                 if (verbose) debug(`${wt.metric} ${i + 1}/${runs}...`);
-                const t = await wt.fn({ page: wtPage, url: currentUrl, timeout, verbose, durationMs });
+                const rawResult = await wt.fn({ page: wtPage, url: currentUrl, timeout, verbose, durationMs });
+                const t = hasOtel(rawResult) ? rawResult.value : rawResult;
                 times.push(t);
                 if (verbose) debug(`${wt.metric} ${i + 1}/${runs}: ${t}`);
+
+                // Collect OTEL server-side metrics from stress benchmarks
+                if (hasOtel(rawResult)) {
+                    for (const [otelKey, otelVal] of Object.entries(rawResult.otel)) {
+                        const derivedKey = `${wt.metric}-otel-${otelKey}` as MetricKey;
+                        // For OTEL metrics, store the latest value (stress runs only once)
+                        allMetrics[derivedKey] = Math.round(otelVal * 100) / 100;
+                    }
+                }
 
                 // Sample JS heap and WASM linear memory after each walkthrough run
                 if (cdp && wtPage) {

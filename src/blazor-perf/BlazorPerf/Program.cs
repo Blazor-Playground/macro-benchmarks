@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using BlazorPerf;
 using BlazorPerf.Client.Pages;
 using BlazorPerf.Client.Shared;
 using Microsoft.AspNetCore.Components;
@@ -6,6 +7,9 @@ using Microsoft.AspNetCore.Components.Web;
 
 // Ensure thread pool can handle high parallelism in stress endpoints (100+ concurrent HtmlRenderer dispatchers)
 ThreadPool.SetMinThreads(200, 200);
+
+// Start collecting EventCounters for OTEL metrics endpoint
+var otelCollector = new EventCounterCollector();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -116,6 +120,13 @@ app.MapGet("/api/bench/html-render-stress", async (string scenario, int duration
     var rendersPerSec = totalCount * 1000.0 / maxElapsed;
 
     return Results.Json(new { rendersPerSec, totalCount, parallel, maxElapsedMs = maxElapsed });
+});
+
+// OTEL metrics endpoint — returns current EventCounter values as a JSON snapshot.
+// TypeScript bench CLI polls this before/after stress windows to compute deltas.
+app.MapGet("/api/bench/metrics", () =>
+{
+    return Results.Json(otelCollector.GetSnapshot());
 });
 
 app.Run();

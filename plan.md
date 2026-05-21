@@ -231,14 +231,15 @@ Migrated metrics (redesigned, new keys — old `empty-blazor` keys deprecated):
 - Server ×25 Params Count: 561 / 557 renders/s
 - Server ×25 Too Many Components: 134 / 129 renders/s
 
-### Phase 6: Dashboard + CI
-1. Add `blazor-perf` tab in bench-viewer
-2. Update `transform-views` to handle new metrics
-3. Update CI workflow matrix to include `blazor-perf`
-4. Remove empty-blazor throughput metrics from viewer (or mark deprecated)
-5. Note: `blazor-perf` is never deployed to GH pages (unlike other apps)
+### Phase 6: Dashboard + CI ✅
+1. ✅ `blazor-perf` tab in bench-viewer — already in `DashboardConfig.AppOrder` and `BlazorApps`
+2. ✅ `transform-views` auto-discovers metrics from result files — no changes needed
+3. ✅ CI workflow uses dynamic matrix from `build-manifest.json` — blazor-perf included automatically
+4. ✅ Added all rendering metric definitions to `MetricInfo.cs` (20 metrics: counter-heavy, virtualscroll-heavy, params-count, too-many-components across WASM/Server/SSR/HtmlRenderer + stress variants)
+5. ✅ Added SSR/HtmlRenderer/stress metric keys to `DashboardConfig.MetricOrder`
+6. Note: `blazor-perf` is never deployed to GH pages (unlike other apps); empty-blazor throughput metrics left as-is (still useful for basic WASM load timing)
 
-### Phase 7: OTEL Server-Side Metrics Collection
+### Phase 7: OTEL Server-Side Metrics Collection ✅
 Collect .NET runtime and ASP.NET Core performance counters from the Kestrel host during stress runs. Report alongside throughput numbers to correlate rendering perf with server health.
 
 **Metrics to collect:**
@@ -275,6 +276,14 @@ Collect .NET runtime and ASP.NET Core performance counters from the Kestrel host
 - **Lock contention** → Is the Blazor circuit/renderer hub contending on shared state?
 - **Thread pool saturation** → Are we starving the thread pool with 100 concurrent renders?
 - **Memory growth** → Does per-circuit state leak under sustained load?
+
+**Implementation (completed):**
+1. ✅ `EventCounterCollector.cs` — `EventListener` subclass capturing `System.Runtime`, `Microsoft.AspNetCore.Hosting`, `Microsoft-AspNetCore-Server-Kestrel` counters at 1s interval
+2. ✅ `/api/bench/metrics` endpoint — returns `Dictionary<string, double>` as JSON
+3. ✅ `fetchOtelSnapshot()` + `computeOtelDeltas()` in `blazor-perf-bench.ts` — fetches before/after stress, computes meaningful deltas (cumulative counters: delta; gauges: after value; sizes: MB conversion)
+4. ✅ All 6 stress walkthroughs return `WalkthroughWithOtel` — `measure.ts` stores as `{stress-key}-otel-{counter}` dynamic metric keys
+5. ✅ `MetricInfo.cs` dynamic OTEL display — parses `-otel-` suffix pattern, shows e.g. "Params Count (SSR ×100) · GC Gen0"
+6. ✅ 11 counters tracked: heap-mb, gc-gen0/1/2, gc-pause-pct, alloc-rate, lock-contentions, threadpool-threads, threadpool-queue, cpu-pct, working-set-mb
 
 ---
 

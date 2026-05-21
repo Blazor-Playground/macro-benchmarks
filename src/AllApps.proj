@@ -27,7 +27,7 @@
     <ProjectReference Include="uno-gallery\Uno.Gallery.csproj" />
     <ProjectReference Include="semi-avalonia\SemiAvalonia.csproj" />
     <ProjectReference Include="igniteui-light\IgniteuiLight.csproj" />
-    <ProjectReference Include="blazor-perf\BlazorPerf\BlazorPerf.csproj" />
+    <ProjectReference Include="blazor-perf\BlazorPerf.Client\BlazorPerf.Client.csproj" />
   </ItemGroup>
 
 </Project>

@@ -17,7 +17,7 @@ import { banner, info } from '../log.js';
 export async function run(ctx: BenchContext): Promise<BenchContext> {
     banner('Deploy Latest App');
 
-    if (!ctx.isLatestDaily) {
+    if (!ctx.isLatestDaily && ctx.isCI) {
         info('Skipping deploy-latest-app — not the latest daily build');
         return ctx;
     }

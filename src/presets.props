@@ -25,6 +25,7 @@
 
     <EnableAggressiveTrimming>false</EnableAggressiveTrimming>
     <PublishTrimmed>false</PublishTrimmed>
+    <UsingBrowserRuntimeWorkload>false</UsingBrowserRuntimeWorkload>
   </PropertyGroup>
 
   <!-- Preset NoWorkload -->
@@ -34,6 +35,7 @@
 
     <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
     <PublishTrimmed>true</PublishTrimmed>
+    <UsingBrowserRuntimeWorkload>false</UsingBrowserRuntimeWorkload>
   </PropertyGroup>
 
   <!-- Preset NativeRelink -->

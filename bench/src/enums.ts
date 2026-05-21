@@ -174,6 +174,9 @@ export function shouldSkipDeployment(runtime: Runtime, app: App, preset: Preset,
     if (build) {
         return build;
     }
+    if (APP_CONFIG[app].kestrelHosted) {
+        return `Kestrel-hosted app '${app}' cannot be deployed as static site`;
+    }
     if (runtime === Runtime.CoreCLR) {
         return `We deploy only Mono for now`;
     }

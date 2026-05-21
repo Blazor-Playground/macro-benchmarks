@@ -27,7 +27,7 @@ public static class DashboardConfig
         "blazing-pizza", "havit-bootstrap", "mud-blazor", "igniteui-light", "blazor-perf", "empty-blazor",
         "semi-avalonia", "uno-gallery",
         "empty-browser", "empty-browser",
-        "micro-benchmarks",
+        "micro-benchmarks", "blazor-perf",
         "bench-viewer", 
     };
 

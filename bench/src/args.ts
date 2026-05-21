@@ -210,7 +210,7 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
     const effectiveApps = apps.length > 0 ? apps
         : dryRun
             ? [App.MicroBenchmarks]
-            : [App.EmptyBrowser, App.MicroBenchmarks, App.EmptyBlazor, App.BlazingPizza, App.HavitBootstrap, App.MudBlazor, App.SemiAvalonia, App.UnoGallery, App.IgniteUILight];
+            : [App.EmptyBrowser, App.MicroBenchmarks, App.EmptyBlazor, App.BlazingPizza, App.HavitBootstrap, App.MudBlazor, App.SemiAvalonia, App.UnoGallery, App.IgniteUILight, App.BlazorPerf];
     const effectivePresets = presets.length > 0 ? presets
         : dryRun
             ? [Preset.DevLoop]

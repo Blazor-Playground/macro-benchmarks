@@ -921,12 +921,12 @@ async function measureBrowser(
     const timeout = ctx.timeout;
     const maxRetries = ctx.retries;
 
-    const isSelfHosted = APP_CONFIG[entry.app].selfHosted;
+    const isKestrelHosted = APP_CONFIG[entry.app].kestrelHosted;
     let srv: StaticServer | null = null;
     let kestrel: KestrelServer | null = null;
     let pageUrl: string;
 
-    if (isSelfHosted) {
+    if (isKestrelHosted) {
         kestrel = await startKestrelServer(entry.publishDir, ctx.dotnetBin);
         pageUrl = kestrel.url + '/';
     } else {
@@ -935,12 +935,12 @@ async function measureBrowser(
     }
     info(`    Serving on ${pageUrl}`);
     if (ctx.verbose) {
-        debug(`Browser: ${engine}, CDP: ${useCDP}, warmRuns: ${warmRuns}, timeout: ${timeout}ms, retries: ${maxRetries}, selfHosted: ${!!isSelfHosted}`);
+        debug(`Browser: ${engine}, CDP: ${useCDP}, warmRuns: ${warmRuns}, timeout: ${timeout}ms, retries: ${maxRetries}, kestrelHosted: ${!!isKestrelHosted}`);
     }
 
-    // For self-hosted apps, provide a function that restarts the server between walkthroughs
+    // For Kestrel-hosted apps, provide a function that restarts the server between walkthroughs
     // to avoid Kestrel/Blazor state accumulation that hangs subsequent WASM boots.
-    const restartServer: (() => Promise<string>) | null = isSelfHosted ? async () => {
+    const restartServer: (() => Promise<string>) | null = isKestrelHosted ? async () => {
         if (kestrel) {
             await kestrel.close();
             kestrel = null;

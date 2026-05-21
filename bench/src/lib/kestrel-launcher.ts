@@ -39,8 +39,8 @@ async function findExecutable(publishDir: string): Promise<string> {
  * Returns once the server is listening.
  */
 export async function startKestrelServer(publishDir: string, dotnetBin?: string): Promise<KestrelServer> {
-    // Use a random high port to avoid conflicts
-    const port = 5000 + Math.floor(Math.random() * 60000);
+    // Use a random high port (above ephemeral range start) to avoid conflicts
+    const port = 10000 + Math.floor(Math.random() * 50000);
     const url = `http://127.0.0.1:${port}`;
     const execPath = await findExecutable(publishDir);
 
@@ -63,12 +63,17 @@ export async function startKestrelServer(publishDir: string, dotnetBin?: string)
         proc = spawn(execPath, [], { env, cwd: publishDir, stdio: ['ignore', 'pipe', 'pipe'] });
     }
 
-    // Drain stdout/stderr to prevent pipe buffer from filling up and blocking Kestrel
+    // Drain stdout/stderr — capture last lines for diagnostics on crash
+    const stderrChunks: string[] = [];
     proc.stdout?.resume();
-    proc.stderr?.resume();
+    proc.stderr?.on('data', (chunk: Buffer) => {
+        stderrChunks.push(chunk.toString());
+        // Keep only last 4KB
+        while (stderrChunks.join('').length > 4096) stderrChunks.shift();
+    });
 
     // Wait for the server to start listening
-    await waitForServer(url, proc, 30_000);
+    await waitForServer(url, proc, 30_000, stderrChunks);
 
     debug(`Kestrel started on ${url} (pid=${proc.pid})`);
 
@@ -96,14 +101,16 @@ export async function startKestrelServer(publishDir: string, dotnetBin?: string)
 /**
  * Poll the server URL until it responds or timeout expires.
  */
-async function waitForServer(url: string, proc: ChildProcess, timeoutMs: number): Promise<void> {
+async function waitForServer(url: string, proc: ChildProcess, timeoutMs: number, stderrChunks: string[]): Promise<void> {
     const start = Date.now();
     const healthUrl = url + '/';
 
     while (Date.now() - start < timeoutMs) {
         // Check if process died
         if (proc.exitCode !== null) {
-            throw new Error(`Kestrel process exited with code ${proc.exitCode} before becoming ready`);
+            const stderr = stderrChunks.join('').trim();
+            const detail = stderr ? `\nstderr: ${stderr}` : '';
+            throw new Error(`Kestrel process exited with code ${proc.exitCode} before becoming ready${detail}`);
         }
 
         try {

@@ -36,6 +36,8 @@ import {
     runTooManyComponentsWasm, runTooManyComponentsServer,
     runBlazorPerfJsToCsNumber, runBlazorPerfJsToCsString, runBlazorPerfJsToCsJson,
     runBlazorPerfCsToJsNumber, runBlazorPerfCsToJsString, runBlazorPerfCsToJsJson,
+    runParamsCountSsr, runTooManyComponentsSsr,
+    runParamsCountHtmlRenderer, runTooManyComponentsHtmlRenderer,
 } from '../lib/blazor-perf-bench.js';
 import { startKestrelServer, type KestrelServer } from '../lib/kestrel-launcher.js';
 import { type WalkthroughOpts } from '../lib/walkthrough-types.js';
@@ -226,7 +228,7 @@ function mergeTimingArrays(target: TimingArrays, source: TimingArrays): void {
 // Walkthrough dispatch table — Chrome + desktop only
 type WalkthroughFn = (opts: WalkthroughOpts<Page>) => Promise<number>;
 
-const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: number; selfNav?: boolean }[] = [
+const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: number; selfNav?: boolean; noBrowser?: boolean }[] = [
     { app: A.BlazingPizza, metric: MetricKey.PizzaWalkthrough, fn: runPizzaWalkthrough as WalkthroughFn },
     { app: A.HavitBootstrap, metric: MetricKey.HavitWalkthrough, fn: runHavitWalkthrough as WalkthroughFn },
     { app: A.MudBlazor, metric: MetricKey.MudWalkthrough, fn: runMudWalkthrough as WalkthroughFn },
@@ -251,6 +253,14 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
     { app: A.BlazorPerf, metric: MetricKey.BlazorVirtualScrollHeavyServer, fn: runVirtualScrollHeavyServer as WalkthroughFn, runs: 1, selfNav: true },
     { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountServer, fn: runParamsCountServer as WalkthroughFn, runs: 1, selfNav: true },
     { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsServer, fn: runTooManyComponentsServer as WalkthroughFn, runs: 1, selfNav: true },
+
+    // blazor-perf: SSR benchmarks (HTTP-only, no browser needed)
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountSsr, fn: runParamsCountSsr as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsSsr, fn: runTooManyComponentsSsr as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true },
+
+    // blazor-perf: HtmlRenderer benchmarks (in-process rendering via API, no browser needed)
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountHtmlRenderer, fn: runParamsCountHtmlRenderer as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsHtmlRenderer, fn: runTooManyComponentsHtmlRenderer as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true },
 ];
 
 const INTERNAL_KEYS = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;
@@ -599,17 +609,19 @@ async function runWalkthroughs(
             const iterStart = performance.now();
             // selfNav walkthroughs get a fresh browser + server to provide full isolation
             let wtBrowser: Browser | null = null;
-            let wtCtx: BrowserContext;
-            let wtPage;
+            let wtCtx: BrowserContext | null = null;
+            let wtPage: Page | null = null;
             if (wt.selfNav) {
                 // Restart Kestrel to avoid server-side state accumulation
                 // (SignalR/circuit/thread-pool exhaustion after multiple WASM boots)
                 if (restartServer) {
                     currentUrl = await restartServer();
                 }
-                wtBrowser = await launchBrowser();
-                wtCtx = await wtBrowser.newContext();
-                wtPage = await wtCtx.newPage();
+                if (!wt.noBrowser) {
+                    wtBrowser = await launchBrowser();
+                    wtCtx = await wtBrowser.newContext();
+                    wtPage = await wtCtx.newPage();
+                }
             } else {
                 wtCtx = context;
                 wtPage = await wtCtx.newPage();
@@ -623,7 +635,7 @@ async function runWalkthroughs(
                 if (verbose) debug(`${wt.metric} ${i + 1}/${runs}: ${t}`);
 
                 // Sample JS heap and WASM linear memory after each walkthrough run
-                if (cdp) {
+                if (cdp && wtPage) {
                     try {
                         const perfMetrics = await cdp.client.send('Performance.getMetrics');
                         const heapUsed = perfMetrics.metrics.find(
@@ -632,16 +644,18 @@ async function runWalkthroughs(
                         if (heapUsed) jsHeapSamples.push(heapUsed.value);
                     } catch { /* ignore */ }
                 }
-                try {
-                    const wasmBytes = await wtPage.evaluate(
-                        () => (globalThis as any).getDotnetRuntime(0)?.Module?.HEAPU8?.byteLength ?? null,
-                    );
-                    if (wasmBytes != null) wasmMemorySamples.push(wasmBytes);
-                } catch { /* ignore */ }
+                if (wtPage) {
+                    try {
+                        const wasmBytes = await wtPage.evaluate(
+                            () => (globalThis as any).getDotnetRuntime(0)?.Module?.HEAPU8?.byteLength ?? null,
+                        );
+                        if (wasmBytes != null) wasmMemorySamples.push(wasmBytes);
+                    } catch { /* ignore */ }
+                }
             } finally {
-                await wtPage.close();
+                if (wtPage) await wtPage.close();
                 if (wt.selfNav) {
-                    await wtCtx.close();
+                    if (wtCtx) await wtCtx.close();
                     if (wtBrowser) await wtBrowser.close();
                 }
                 await sleep(200);

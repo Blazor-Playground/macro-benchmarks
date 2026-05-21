@@ -100,7 +100,8 @@ async function runInteropBench(
     fnName: string,
     label: string,
 ): Promise<number> {
-    const { page, url, timeout, verbose = false, durationMs = 60_000 } = opts;
+    const { page: _page, url, timeout, verbose = false, durationMs = 60_000 } = opts;
+    const page = _page!;
     const benchMs = Math.round(durationMs / 2);
     const weatherUrl = new URL('/weather', url).href;
 
@@ -157,6 +158,86 @@ export async function runBlazorPerfCsToJsJson(opts: WalkthroughOpts<PlaywrightPa
     return runInteropBench(opts, 'benchCsToJsJson', 'CS→JS JSON');
 }
 
+// ── SSR Benchmarks (HTTP-based timing, no browser needed) ────────────────────
+
+/**
+ * Runs the SSR benchmark for a given path by firing HTTP GETs in a loop and
+ * measuring requests/sec. Each request triggers a full server-side render.
+ */
+async function runSsrBench(
+    opts: WalkthroughOpts<PlaywrightPage>,
+    path: string,
+    label: string,
+): Promise<number> {
+    const { url, timeout, verbose = false, durationMs = 60_000 } = opts;
+    const benchMs = Math.min(durationMs, 30_000);
+    const benchUrl = new URL(path, url).href;
+
+    debug(`[blazor-perf:${label}] measuring SSR renders/sec at ${benchUrl} for ${benchMs}ms`);
+
+    // Warmup: 3 requests discarded
+    for (let i = 0; i < 3; i++) {
+        const resp = await fetch(benchUrl);
+        await resp.text();
+    }
+
+    let count = 0;
+    const start = performance.now();
+    while (performance.now() - start < benchMs) {
+        const resp = await fetch(benchUrl);
+        await resp.text(); // consume body to ensure full render completes
+        count++;
+    }
+    const elapsed = performance.now() - start;
+    const opsPerSec = count * 1000 / elapsed;
+
+    debug(`[blazor-perf:${label}] result: ${opsPerSec.toFixed(2)} renders/sec (${count} renders in ${Math.round(elapsed)}ms)`);
+    return opsPerSec;
+}
+
+export async function runParamsCountSsr(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    return runSsrBench(opts, '/params-count-ssr', 'Params Count SSR');
+}
+
+export async function runTooManyComponentsSsr(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    return runSsrBench(opts, '/too-many-components-ssr', 'Too Many Components SSR');
+}
+
+// ── HtmlRenderer Benchmarks (in-process rendering via API endpoint) ──────────
+
+/**
+ * Calls the /api/bench/html-render endpoint which runs HtmlRenderer.RenderComponentAsync
+ * in a loop in-process, returning renders/sec.
+ */
+async function runHtmlRendererBench(
+    opts: WalkthroughOpts<PlaywrightPage>,
+    scenario: string,
+    label: string,
+): Promise<number> {
+    const { url, timeout, verbose = false, durationMs = 60_000 } = opts;
+    const benchMs = Math.min(durationMs, 30_000);
+    const benchUrl = new URL(`/api/bench/html-render?scenario=${encodeURIComponent(scenario)}&durationMs=${benchMs}`, url).href;
+
+    debug(`[blazor-perf:${label}] calling HtmlRenderer endpoint for ${benchMs}ms`);
+
+    const resp = await fetch(benchUrl);
+    if (!resp.ok) {
+        throw new Error(`HtmlRenderer API returned ${resp.status}: ${await resp.text()}`);
+    }
+    const result = await resp.json() as { rendersPerSec: number; count: number; elapsedMs: number };
+
+    debug(`[blazor-perf:${label}] result: ${result.rendersPerSec.toFixed(2)} renders/sec (${result.count} renders in ${result.elapsedMs}ms)`);
+    return result.rendersPerSec;
+}
+
+export async function runParamsCountHtmlRenderer(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    return runHtmlRendererBench(opts, 'params-count', 'Params Count HtmlRenderer');
+}
+
+export async function runTooManyComponentsHtmlRenderer(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
+    return runHtmlRendererBench(opts, 'too-many-components', 'Too Many Components HtmlRenderer');
+}
+
 // ── Shared Measured Benchmark Runner ─────────────────────────────────────────
 
 /**
@@ -169,9 +250,10 @@ async function runMeasuredBenchmark(
     path: string,
     label: string,
 ): Promise<number> {
-    const { page, url, timeout, verbose = false, durationMs = 60_000 } = opts;
-    const benchUrl = new URL(path, url).href;
+    const { page: _page, url, timeout, verbose = false, durationMs = 60_000 } = opts;
+    const page = _page!;
     const benchDurationMs = Math.min(durationMs, 30_000); // Cap at 30s per run
+    const benchUrl = new URL(path, url).href;
 
     debug(`[blazor-perf:${label}] navigating to ${benchUrl}`);
     // Use 'load' instead of 'networkidle' — Blazor's SignalR WebSocket prevents networkidle

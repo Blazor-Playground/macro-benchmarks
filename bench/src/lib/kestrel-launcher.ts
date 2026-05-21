@@ -63,6 +63,10 @@ export async function startKestrelServer(publishDir: string, dotnetBin?: string)
         proc = spawn(execPath, [], { env, cwd: publishDir, stdio: ['ignore', 'pipe', 'pipe'] });
     }
 
+    // Drain stdout/stderr to prevent pipe buffer from filling up and blocking Kestrel
+    proc.stdout?.resume();
+    proc.stderr?.resume();
+
     // Wait for the server to start listening
     await waitForServer(url, proc, 30_000);
 

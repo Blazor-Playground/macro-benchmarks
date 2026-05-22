@@ -32,7 +32,9 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
+#if NET9_0_OR_GREATER
 app.MapStaticAssets();
+#endif
 app.UseAntiforgery();
 
 app.MapRazorComponents<BlazorPerf.Components.App>()

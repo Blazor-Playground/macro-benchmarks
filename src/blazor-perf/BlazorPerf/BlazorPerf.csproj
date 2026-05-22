@@ -7,6 +7,25 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <!-- Exclude the original App.razor (just a placeholder comment now) -->
+  <ItemGroup>
+    <Content Remove="Components\App.razor" />
+  </ItemGroup>
+
+  <!-- NET9+: use App.net9.razor as App.razor, exclude App.net8.razor -->
+  <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))">
+    <Content Remove="Components\App.net8.razor" />
+    <Content Remove="Components\App.net9.razor" />
+    <Content Include="Components\App.net9.razor" Link="Components\App.razor" />
+  </ItemGroup>
+
+  <!-- NET8 and below: use App.net8.razor as App.razor, exclude App.net9.razor -->
+  <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))">
+    <Content Remove="Components\App.net9.razor" />
+    <Content Remove="Components\App.net8.razor" />
+    <Content Include="Components\App.net8.razor" Link="Components\App.razor" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\BlazorPerf.Client\BlazorPerf.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="$(MicrosoftAspNetCoreVersion)" />

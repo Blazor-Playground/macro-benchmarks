@@ -21,14 +21,21 @@ async function findExecutable(publishDir: string): Promise<string> {
     const isWindows = platform() === 'win32';
     const entries = await readdir(publishDir);
 
-    // Look for an .exe on Windows, or a file matching the project name on Linux
     if (isWindows) {
-        const exe = entries.find(f => f.endsWith('.exe') && !f.includes('.dll'));
+        // Self-contained or framework-dependent: look for .exe
+        const exe = entries.find(f => f.endsWith('.exe') && !f.startsWith('createdump'));
         if (exe) return join(publishDir, exe);
+    } else {
+        // Self-contained on Linux: native executable (no extension) with a matching .dll
+        for (const entry of entries) {
+            if (!entry.includes('.') && entries.includes(entry + '.dll')) {
+                return join(publishDir, entry);
+            }
+        }
     }
 
-    // On Linux, look for the main DLL and run with dotnet
-    const dll = entries.find(f => f === 'BlazorPerf.dll');
+    // Fall back to DLL (framework-dependent on Linux)
+    const dll = entries.find(f => f.endsWith('.dll') && !f.startsWith('Microsoft.') && !f.startsWith('System.'));
     if (dll) return join(publishDir, dll);
 
     throw new Error(`No executable found in ${publishDir}`);

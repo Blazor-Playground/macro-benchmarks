@@ -107,6 +107,11 @@ function getRestoreArgs(
     if (app === App.UnoGallery) {
         args.push(`/p:TargetFramework=net${ctx.sdkInfo.major}.0-browserwasm`);
     }
+    // Kestrel-hosted apps are published self-contained; restore needs the RID too
+    if (APP_CONFIG[app].kestrelHosted) {
+        const rid = ctx.platform === 'windows' ? 'win-x64' : ctx.platform === 'darwin' ? 'osx-x64' : 'linux-x64';
+        args.push('-r', rid);
+    }
     return args;
 }
 
@@ -126,6 +131,11 @@ function getPublishArgs(
     ];
     if (app === App.UnoGallery) {
         args.push('--framework', `net${ctx.sdkInfo.major}.0-browserwasm`);
+    }
+    // Kestrel-hosted apps must be self-contained so the measure container can run them without the SDK
+    if (APP_CONFIG[app].kestrelHosted) {
+        const rid = ctx.platform === 'windows' ? 'win-x64' : ctx.platform === 'darwin' ? 'osx-x64' : 'linux-x64';
+        args.push('--self-contained', '-r', rid);
     }
     args.push(
         `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,

@@ -122,8 +122,12 @@ function getPublishArgs(
     const effectiveRuntime = (app === App.BlazorPerf && runtime === R.CoreCLR && ctx.sdkInfo.major < 11) ? R.Mono : runtime;
     const args = [
         appDir,
-        '--no-restore',
     ];
+    // Kestrel-hosted apps do their own restore during publish (the Blazor SDK strips
+    // RuntimeIdentifier from the WASM client only during publish, not standalone restore)
+    if (!APP_CONFIG[app].kestrelHosted) {
+        args.push('--no-restore');
+    }
     if (app === App.UnoGallery) {
         args.push('--framework', `net${ctx.sdkInfo.major}.0-browserwasm`);
     }
@@ -149,6 +153,7 @@ function getPublishArgs(
         args.push(`/p:RuntimePackDir=${ctx.runtimePackDirs[effectiveRuntime]}`);
     }
     if (ctx.aspnetCorePackagesDir) {
+        args.push(`/p:RestoreAdditionalProjectSources=${ctx.aspnetCorePackagesDir}`);
         args.push(`/p:MicrosoftAspNetCoreVersion=${ctx.aspnetCorePackageVersion}`);
     }
     return args;
@@ -188,10 +193,12 @@ async function buildPhase(
 
                     const publishArgs = getPublishArgs(ctx, appDir, runtime, app, preset, publishDir);
 
-                    // Uno.Gallery uses Uno.Sdk with complex build targets (Resizetizer, ShellTask)
-                    // that break when restore and publish are split. Run publish with implicit restore.
-                    const restoreArgs = getRestoreArgs(ctx, appDir, runtime, app, preset);
-                    await dotnetRestore(ctx.dotnetBin!, restoreArgs, { cwd: ctx.repoRoot, env: dotnetEnv });
+                    // Kestrel-hosted apps do restore as part of publish (Blazor SDK strips RID from client only during publish).
+                    // Uno.Gallery uses Uno.Sdk with complex build targets that also need implicit restore.
+                    if (!APP_CONFIG[app].kestrelHosted) {
+                        const restoreArgs = getRestoreArgs(ctx, appDir, runtime, app, preset);
+                        await dotnetRestore(ctx.dotnetBin!, restoreArgs, { cwd: ctx.repoRoot, env: dotnetEnv });
+                    }
 
                     const startTime = performance.now();
                     await dotnetPublish(ctx.dotnetBin!, publishArgs, { cwd: ctx.repoRoot, env: dotnetEnv });

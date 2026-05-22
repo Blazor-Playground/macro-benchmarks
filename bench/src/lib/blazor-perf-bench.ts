@@ -292,7 +292,7 @@ async function runHtmlRendererBench(
 
     debug(`[blazor-perf:${label}] calling HtmlRenderer endpoint for ${benchMs}ms`);
 
-    const resp = await fetch(benchUrl);
+    const resp = await fetch(benchUrl, { signal: AbortSignal.timeout(benchMs + timeout) });
     if (!resp.ok) {
         throw new Error(`HtmlRenderer API returned ${resp.status}: ${await resp.text()}`);
     }
@@ -409,7 +409,8 @@ async function runHtmlRendererStressBench(
     // Capture OTEL snapshot before stress
     const otelBefore = await fetchOtelSnapshot(url);
 
-    const resp = await fetch(benchUrl);
+    // Timeout must account for JIT warmup of parallel tasks on cold process
+    const resp = await fetch(benchUrl, { signal: AbortSignal.timeout(benchMs + timeout) });
     if (!resp.ok) {
         throw new Error(`HtmlRenderer stress API returned ${resp.status}: ${await resp.text()}`);
     }

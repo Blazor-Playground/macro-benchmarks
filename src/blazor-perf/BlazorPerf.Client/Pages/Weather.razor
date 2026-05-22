@@ -22,7 +22,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                <Virtualize ItemsProvider="LoadForecasts" Context="forecast" OverscanCount="2">
+                <Virtualize ItemsProvider="LoadForecasts" Context="forecast" OverscanCount="2" ItemComparer="WeatherForecastComparer.Instance">
                     <tr>
                         <td>@forecast.Date.ToShortDateString()</td>
                         <td>@forecast.TemperatureC</td>
@@ -167,5 +167,12 @@ else
         public int TemperatureC { get; set; }
         public string? Summary { get; set; }
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
+
+    private sealed class WeatherForecastComparer : IEqualityComparer<WeatherForecast>
+    {
+        public static readonly WeatherForecastComparer Instance = new();
+        public bool Equals(WeatherForecast? x, WeatherForecast? y) => x?.Date == y?.Date;
+        public int GetHashCode(WeatherForecast obj) => obj.Date.GetHashCode();
     }
 }

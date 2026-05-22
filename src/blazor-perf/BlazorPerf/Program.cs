@@ -51,25 +51,33 @@ app.MapGet("/api/bench/html-render", async (string scenario, int durationMs) =>
         _ => throw new ArgumentException($"Unknown scenario: {scenario}")
     };
 
-    await using var renderer = new HtmlRenderer(app.Services, app.Services.GetRequiredService<ILoggerFactory>());
+    var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
     // Warmup: 3 renders discarded
-    for (int i = 0; i < 3; i++)
+    await using (var warmup = new HtmlRenderer(app.Services, loggerFactory))
     {
-        await renderer.Dispatcher.InvokeAsync(async () =>
+        for (int i = 0; i < 3; i++)
         {
-            await renderer.RenderComponentAsync(componentType);
-        });
+            await warmup.Dispatcher.InvokeAsync(async () =>
+            {
+                await warmup.RenderComponentAsync(componentType);
+            });
+        }
     }
 
     var count = 0;
     var sw = Stopwatch.StartNew();
+    // Recycle HtmlRenderer every 20 renders to prevent unbounded component accumulation
     while (sw.ElapsedMilliseconds < durationMs)
     {
-        await renderer.Dispatcher.InvokeAsync(async () =>
+        await using var renderer = new HtmlRenderer(app.Services, loggerFactory);
+        for (int batch = 0; batch < 20 && sw.ElapsedMilliseconds < durationMs; batch++)
         {
-            await renderer.RenderComponentAsync(componentType);
-        });
-        count++;
+            await renderer.Dispatcher.InvokeAsync(async () =>
+            {
+                await renderer.RenderComponentAsync(componentType);
+            });
+            count++;
+        }
     }
     sw.Stop();
 
@@ -90,25 +98,36 @@ app.MapGet("/api/bench/html-render-stress", async (string scenario, int duration
 
     parallel = Math.Clamp(parallel, 1, 200);
 
-    // Each task gets its own HtmlRenderer and renders in a loop for durationMs.
+    var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+
+    // Sequential warmup to JIT all paths before parallel execution
+    await using (var warmup = new HtmlRenderer(app.Services, loggerFactory))
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            await warmup.Dispatcher.InvokeAsync(async () =>
+            {
+                await warmup.RenderComponentAsync(componentType);
+            });
+        }
+    }
+
+    // Each task recycles its HtmlRenderer every 20 renders to prevent unbounded memory growth.
     var tasks = Enumerable.Range(0, parallel).Select(async _ =>
     {
-        await using var renderer = new HtmlRenderer(app.Services, app.Services.GetRequiredService<ILoggerFactory>());
-        // Warmup: 1 render
-        await renderer.Dispatcher.InvokeAsync(async () =>
-        {
-            await renderer.RenderComponentAsync(componentType);
-        });
-
         var count = 0;
         var sw = Stopwatch.StartNew();
         while (sw.ElapsedMilliseconds < durationMs)
         {
-            await renderer.Dispatcher.InvokeAsync(async () =>
+            await using var renderer = new HtmlRenderer(app.Services, loggerFactory);
+            for (int batch = 0; batch < 20 && sw.ElapsedMilliseconds < durationMs; batch++)
             {
-                await renderer.RenderComponentAsync(componentType);
-            });
-            count++;
+                await renderer.Dispatcher.InvokeAsync(async () =>
+                {
+                    await renderer.RenderComponentAsync(componentType);
+                });
+                count++;
+            }
         }
         sw.Stop();
         return (count, sw.ElapsedMilliseconds);

@@ -36,10 +36,27 @@ async function findExecutable(publishDir: string): Promise<string> {
 
 /**
  * Start a Kestrel server from a published Blazor Web App.
- * Returns once the server is listening.
+ * Returns once the server is listening. Retries with a different port on bind failures.
  */
 export async function startKestrelServer(publishDir: string, dotnetBin?: string): Promise<KestrelServer> {
-    // Use a random high port (above ephemeral range start) to avoid conflicts
+    const maxAttempts = 5;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        try {
+            return await tryStartKestrel(publishDir, dotnetBin);
+        } catch (e: any) {
+            const isPortConflict = e?.message?.includes('exited with code') && attempt < maxAttempts - 1;
+            if (isPortConflict) {
+                debug(`Kestrel bind failed (attempt ${attempt + 1}/${maxAttempts}), retrying with different port...`);
+                continue;
+            }
+            throw e;
+        }
+    }
+    throw new Error(`Kestrel failed to start after ${maxAttempts} attempts`);
+}
+
+async function tryStartKestrel(publishDir: string, dotnetBin?: string): Promise<KestrelServer> {
+    // Use a random high port; avoid low ephemeral range where Hyper-V reserves blocks
     const port = 10000 + Math.floor(Math.random() * 50000);
     const url = `http://127.0.0.1:${port}`;
     const execPath = await findExecutable(publishDir);

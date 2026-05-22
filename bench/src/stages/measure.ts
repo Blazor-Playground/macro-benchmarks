@@ -236,7 +236,7 @@ function mergeTimingArrays(target: TimingArrays, source: TimingArrays): void {
 // Walkthrough dispatch table — Chrome + desktop only
 type WalkthroughFn = (opts: WalkthroughOpts<Page>) => Promise<WalkthroughFnReturn>;
 
-const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: number; selfNav?: boolean; noBrowser?: boolean; coreclrOnly?: boolean }[] = [
+const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: number; selfNav?: boolean; noBrowser?: boolean; coreclrOnly?: boolean; wasmOnly?: boolean }[] = [
     { app: A.BlazingPizza, metric: MetricKey.PizzaWalkthrough, fn: runPizzaWalkthrough as WalkthroughFn },
     { app: A.HavitBootstrap, metric: MetricKey.HavitWalkthrough, fn: runHavitWalkthrough as WalkthroughFn },
     { app: A.MudBlazor, metric: MetricKey.MudWalkthrough, fn: runMudWalkthrough as WalkthroughFn },
@@ -245,15 +245,15 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
     // { app: A.SemiAvalonia, metric: MetricKey.SemiWalkthrough, fn: runSemiWalkthrough as WalkthroughFn },
 
     // blazor-perf: WASM-only benchmarks first (need healthy server for JS module imports)
-    { app: A.BlazorPerf, metric: MetricKey.BlazorCounterHeavyWasm, fn: runCounterHeavyWasm as WalkthroughFn, runs: 1, selfNav: true },
-    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountWasm, fn: runParamsCountWasm as WalkthroughFn, runs: 1, selfNav: true },
-    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsWasm, fn: runTooManyComponentsWasm as WalkthroughFn, runs: 1, selfNav: true },
-    { app: A.BlazorPerf, metric: MetricKey.BlazorJsToCsNumber, fn: runBlazorPerfJsToCsNumber as WalkthroughFn, runs: 1, selfNav: true },
-    { app: A.BlazorPerf, metric: MetricKey.BlazorJsToCsString, fn: runBlazorPerfJsToCsString as WalkthroughFn, runs: 1, selfNav: true },
-    { app: A.BlazorPerf, metric: MetricKey.BlazorJsToCsJson, fn: runBlazorPerfJsToCsJson as WalkthroughFn, runs: 1, selfNav: true },
-    { app: A.BlazorPerf, metric: MetricKey.BlazorCsToJsNumber, fn: runBlazorPerfCsToJsNumber as WalkthroughFn, runs: 1, selfNav: true },
-    { app: A.BlazorPerf, metric: MetricKey.BlazorCsToJsString, fn: runBlazorPerfCsToJsString as WalkthroughFn, runs: 1, selfNav: true },
-    { app: A.BlazorPerf, metric: MetricKey.BlazorCsToJsJson, fn: runBlazorPerfCsToJsJson as WalkthroughFn, runs: 1, selfNav: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorCounterHeavyWasm, fn: runCounterHeavyWasm as WalkthroughFn, runs: 1, selfNav: true, wasmOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountWasm, fn: runParamsCountWasm as WalkthroughFn, runs: 1, selfNav: true, wasmOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsWasm, fn: runTooManyComponentsWasm as WalkthroughFn, runs: 1, selfNav: true, wasmOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorJsToCsNumber, fn: runBlazorPerfJsToCsNumber as WalkthroughFn, runs: 1, selfNav: true, wasmOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorJsToCsString, fn: runBlazorPerfJsToCsString as WalkthroughFn, runs: 1, selfNav: true, wasmOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorJsToCsJson, fn: runBlazorPerfJsToCsJson as WalkthroughFn, runs: 1, selfNav: true, wasmOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorCsToJsNumber, fn: runBlazorPerfCsToJsNumber as WalkthroughFn, runs: 1, selfNav: true, wasmOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorCsToJsString, fn: runBlazorPerfCsToJsString as WalkthroughFn, runs: 1, selfNav: true, wasmOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorCsToJsJson, fn: runBlazorPerfCsToJsJson as WalkthroughFn, runs: 1, selfNav: true, wasmOnly: true },
 
     // blazor-perf: Server-mode benchmarks LAST (SignalR circuits can starve Kestrel thread pool on close)
     // These run on the host CLR (always CoreCLR) regardless of WASM runtime setting
@@ -596,12 +596,19 @@ async function runWalkthroughs(
     cdp: CDPState | null,
     deadlineAt: number,
     restartServer: (() => Promise<string>) | null,
+    sdkMajor: number,
 ): Promise<WalkthroughResult> {
     const empty: WalkthroughResult = { metrics: {}, sampleCounts: {}, jsHeapSamples: [], wasmMemorySamples: [] };
     const defaultRuns = warmRuns > 1 ? warmRuns * 4 : 1;
     // Walkthroughs are Chrome-only + desktop-only (CDP required for reliable timing)
     if (profile !== 'desktop' || engine !== E.Chrome) return empty;
-    const matches = WALKTHROUGHS.filter(w => w.app === entry.app && (!w.coreclrOnly || entry.runtime === R.CoreCLR));
+    // Filter: coreclrOnly needs coreclr runtime; wasmOnly needs coreclr WASM support (SDK >= 11)
+    const hasCoreclrWasm = entry.runtime === R.CoreCLR && sdkMajor >= 11;
+    const matches = WALKTHROUGHS.filter(w =>
+        w.app === entry.app
+        && (!w.coreclrOnly || entry.runtime === R.CoreCLR)
+        && (!w.wasmOnly || entry.runtime !== R.CoreCLR || hasCoreclrWasm)
+    );
     if (matches.length === 0) return empty;
 
     const durationMs = dryRun ? 5_000 : 60_000;
@@ -738,6 +745,7 @@ async function runBrowserSession(
     srv: StaticServer | null,
     deadlineAt: number,
     restartServer: (() => Promise<string>) | null,
+    sdkMajor: number,
 ): Promise<MetricsResult> {
     const context = await browser.newContext();
     const page = await context.newPage();
@@ -825,7 +833,7 @@ async function runBrowserSession(
 
     // Walkthroughs (external apps only)
     const walkthroughResult = !isInternal
-        ? await runWalkthroughs(context, launchBrowser, pageUrl, entry, engine, profile, warmRuns, timeout, verbose, dryRun, allSelfNav ? null : cdp, deadlineAt, restartServer)
+        ? await runWalkthroughs(context, launchBrowser, pageUrl, entry, engine, profile, warmRuns, timeout, verbose, dryRun, allSelfNav ? null : cdp, deadlineAt, restartServer, sdkMajor)
         : { metrics: {}, sampleCounts: {}, jsHeapSamples: [] as number[], wasmMemorySamples: [] as number[] };
     const walkthroughMetrics = walkthroughResult.metrics;
     const walkthroughSampleCounts = walkthroughResult.sampleCounts;
@@ -983,7 +991,7 @@ async function measureBrowser(
                     browser, launchBrowser, pageUrl, entry, engine, profile,
                     compileTime, fileSizes, isInternal, useCDP,
                     warmRuns, timeout, ctx.verbose, ctx.dryRun, srv,
-                    deadlineAt, restartServer,
+                    deadlineAt, restartServer, ctx.sdkInfo.major,
                 );
                 await sleep(100);
                 try { await browser.close(); } catch { /* already closed for allSelfNav */ }

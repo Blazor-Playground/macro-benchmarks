@@ -86,16 +86,19 @@ function getRestoreArgs(
     app: App,
     preset: Preset,
 ): string[] {
+    // blazor-perf: on older SDKs without CoreCLR WASM runtime, build the Client with Mono WASM
+    // (server-side always runs on CoreCLR regardless of this flag)
+    const effectiveRuntime = (app === App.BlazorPerf && runtime === R.CoreCLR && ctx.sdkInfo.major < 11) ? R.Mono : runtime;
     const args = [
         appDir,
         `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,
-        ...getRuntimeProps(runtime),
+        ...getRuntimeProps(effectiveRuntime),
         `/p:BuildLabel=${ctx.buildLabel}`,
         '/p:MSBuildDisableTaskHost=true',
         '-m:1',
     ];
-    if (ctx.runtimePackDirs?.[runtime]) {
-        args.push(`/p:RuntimePackDir=${ctx.runtimePackDirs[runtime]}`);
+    if (ctx.runtimePackDirs?.[effectiveRuntime]) {
+        args.push(`/p:RuntimePackDir=${ctx.runtimePackDirs[effectiveRuntime]}`);
     }
     if (ctx.aspnetCorePackagesDir) {
         args.push(`/p:RestoreAdditionalProjectSources=${ctx.aspnetCorePackagesDir}`);
@@ -115,6 +118,8 @@ function getPublishArgs(
     preset: Preset,
     publishDir: string,
 ): string[] {
+    // blazor-perf: on older SDKs without CoreCLR WASM runtime, build the Client with Mono WASM
+    const effectiveRuntime = (app === App.BlazorPerf && runtime === R.CoreCLR && ctx.sdkInfo.major < 11) ? R.Mono : runtime;
     const args = [
         appDir,
         '--no-restore',
@@ -125,7 +130,7 @@ function getPublishArgs(
     args.push(
         `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,
         '-c', PRESET_CONFIG[preset],
-        ...getRuntimeProps(runtime),
+        ...getRuntimeProps(effectiveRuntime),
         `/p:BuildLabel=${ctx.buildLabel!}`,
         ...(ctx.repo ? [`/p:GitHubRepo=${ctx.repo}`] : []),
         '/p:MSBuildDisableTaskHost=true',
@@ -135,8 +140,8 @@ function getPublishArgs(
         `-bl:${publishDir}/publish.binlog`,
         '-o', publishDir,
     );
-    if (ctx.runtimePackDirs?.[runtime]) {
-        args.push(`/p:RuntimePackDir=${ctx.runtimePackDirs[runtime]}`);
+    if (ctx.runtimePackDirs?.[effectiveRuntime]) {
+        args.push(`/p:RuntimePackDir=${ctx.runtimePackDirs[effectiveRuntime]}`);
     }
     if (ctx.aspnetCorePackagesDir) {
         args.push(`/p:MicrosoftAspNetCoreVersion=${ctx.aspnetCorePackageVersion}`);

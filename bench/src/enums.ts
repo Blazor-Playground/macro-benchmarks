@@ -204,7 +204,7 @@ export function shouldSkipMeasurement(runtime: Runtime, app: App, preset: Preset
  * or null if the combination is valid.
  */
 export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx: BenchContext): string | null {
-    if (runtime === Runtime.CoreCLR && ctx.sdkInfo.major < 11) {
+    if (runtime === Runtime.CoreCLR && ctx.sdkInfo.major < 11 && app !== App.BlazorPerf) {
         return `CoreCLR runtime does not build with SDK versions below 11.0.0`;
     }
     if (runtime === Runtime.CoreCLR && ctx.sdkInfo.major == 11 && ctx.sdkInfo.isPrerelease && ctx.sdkInfo.sdkVersion.includes('preview.3')) {

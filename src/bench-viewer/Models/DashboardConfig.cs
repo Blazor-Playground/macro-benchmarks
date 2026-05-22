@@ -35,7 +35,7 @@ public static class DashboardConfig
     public static readonly List<string> MetricOrder = new()
     {
         "pizza-walkthrough", "havit-walkthrough", "mud-walkthrough", "igniteui-walkthrough", "semi-walkthrough", "uno-walkthrough",
-        "blazor-counter-heavy-wasm", "blazor-counter-heavy-server", "blazor-virtualscroll-heavy-wasm", "blazor-virtualscroll-heavy-server",
+        "blazor-counter-heavy-wasm", "blazor-counter-heavy-server",
         "blazor-params-count-wasm", "blazor-params-count-server", "blazor-params-count-ssr", "blazor-params-count-htmlrenderer",
         "blazor-params-count-ssr-stress", "blazor-params-count-htmlrenderer-stress", "blazor-params-count-server-stress",
         "blazor-too-many-components-wasm", "blazor-too-many-components-server", "blazor-too-many-components-ssr", "blazor-too-many-components-htmlrenderer",

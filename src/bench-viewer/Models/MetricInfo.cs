@@ -46,8 +46,6 @@ public class MetricInfo
         ["blazor-cs-to-js-json"] = new("blazor-cs-to-js-json", "Blazor CS→JS JSON", "ops/sec", "throughput"),
         ["blazor-counter-heavy-wasm"] = new("blazor-counter-heavy-wasm", "Counter Heavy (WASM)", "ops/sec", "throughput"),
         ["blazor-counter-heavy-server"] = new("blazor-counter-heavy-server", "Counter Heavy (Server)", "ops/sec", "throughput"),
-        ["blazor-virtualscroll-heavy-wasm"] = new("blazor-virtualscroll-heavy-wasm", "VirtualScroll Heavy (WASM)", "ops/sec", "throughput"),
-        ["blazor-virtualscroll-heavy-server"] = new("blazor-virtualscroll-heavy-server", "VirtualScroll Heavy (Server)", "ops/sec", "throughput"),
         ["blazor-params-count-wasm"] = new("blazor-params-count-wasm", "Params Count (WASM)", "ops/sec", "throughput"),
         ["blazor-params-count-server"] = new("blazor-params-count-server", "Params Count (Server)", "ops/sec", "throughput"),
         ["blazor-params-count-ssr"] = new("blazor-params-count-ssr", "Params Count (SSR)", "ops/sec", "throughput"),

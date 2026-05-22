@@ -4,9 +4,6 @@
  * Counter Heavy: Triggers StateHasChanged loop rendering 5000 child components.
  *   Returns renders/sec measured by C# Stopwatch via JSInterop.
  *
- * VirtualScroll Heavy: Scrolls a Virtualize grid with 10k items.
- *   Returns renders/sec measured by C# Stopwatch via JSInterop.
- *
  * Interop benchmarks: Same as empty-blazor (JS↔CS calls), migrated here.
  */
 
@@ -125,22 +122,6 @@ export async function runCounterHeavyWasm(opts: WalkthroughOpts<PlaywrightPage>)
  */
 export async function runCounterHeavyServer(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
     return runMeasuredBenchmark(opts, '/counter-heavy-server', 'Counter Heavy Server');
-}
-
-// ── VirtualScroll Heavy Benchmark ────────────────────────────────────────────
-
-/**
- * Runs the VirtualScroll Heavy benchmark (WASM mode).
- */
-export async function runVirtualScrollHeavyWasm(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
-    return runMeasuredBenchmark(opts, '/virtualscroll-heavy-wasm', 'VirtualScroll Heavy WASM');
-}
-
-/**
- * Runs the VirtualScroll Heavy benchmark (Server mode).
- */
-export async function runVirtualScrollHeavyServer(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
-    return runMeasuredBenchmark(opts, '/virtualscroll-heavy-server', 'VirtualScroll Heavy Server');
 }
 
 // ── Parameters Count Benchmark ───────────────────────────────────────────────

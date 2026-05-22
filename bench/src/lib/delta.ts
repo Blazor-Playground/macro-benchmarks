@@ -94,11 +94,10 @@ function isCustomBuild(col: ColumnData): boolean {
 
 const HIGHER_IS_BETTER = new Set([
     'js-interop-ops', 'json-parse-ops', 'exception-ops',
-    'counter-per-second', 'virtual-scroll-per-second',
+    'counter-per-second',
     'blazor-js-to-cs-number', 'blazor-js-to-cs-string', 'blazor-js-to-cs-json',
     'blazor-cs-to-js-number', 'blazor-cs-to-js-string', 'blazor-cs-to-js-json',
     'blazor-counter-heavy-wasm', 'blazor-counter-heavy-server',
-    'blazor-virtualscroll-heavy-wasm', 'blazor-virtualscroll-heavy-server',
     'blazor-params-count-wasm', 'blazor-params-count-server',
     'blazor-too-many-components-wasm', 'blazor-too-many-components-server',
     'blazor-params-count-ssr', 'blazor-too-many-components-ssr',

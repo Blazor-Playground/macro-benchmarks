@@ -31,7 +31,6 @@ import { runUnoWalkthrough } from '../lib/uno-walkthrough.js';
 import { runSemiWalkthrough } from '../lib/semi-walkthrough.js';
 import {
     runCounterHeavyWasm, runCounterHeavyServer,
-    runVirtualScrollHeavyWasm, runVirtualScrollHeavyServer,
     runParamsCountWasm, runParamsCountServer,
     runTooManyComponentsWasm, runTooManyComponentsServer,
     runBlazorPerfJsToCsNumber, runBlazorPerfJsToCsString, runBlazorPerfJsToCsJson,
@@ -247,7 +246,6 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
 
     // blazor-perf: WASM-only benchmarks first (need healthy server for JS module imports)
     { app: A.BlazorPerf, metric: MetricKey.BlazorCounterHeavyWasm, fn: runCounterHeavyWasm as WalkthroughFn, runs: 1, selfNav: true },
-    { app: A.BlazorPerf, metric: MetricKey.BlazorVirtualScrollHeavyWasm, fn: runVirtualScrollHeavyWasm as WalkthroughFn, runs: 1, selfNav: true },
     { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountWasm, fn: runParamsCountWasm as WalkthroughFn, runs: 1, selfNav: true },
     { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsWasm, fn: runTooManyComponentsWasm as WalkthroughFn, runs: 1, selfNav: true },
     { app: A.BlazorPerf, metric: MetricKey.BlazorJsToCsNumber, fn: runBlazorPerfJsToCsNumber as WalkthroughFn, runs: 1, selfNav: true },
@@ -260,7 +258,6 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
     // blazor-perf: Server-mode benchmarks LAST (SignalR circuits can starve Kestrel thread pool on close)
     // These run on the host CLR (always CoreCLR) regardless of WASM runtime setting
     { app: A.BlazorPerf, metric: MetricKey.BlazorCounterHeavyServer, fn: runCounterHeavyServer as WalkthroughFn, runs: 1, selfNav: true, coreclrOnly: true },
-    { app: A.BlazorPerf, metric: MetricKey.BlazorVirtualScrollHeavyServer, fn: runVirtualScrollHeavyServer as WalkthroughFn, runs: 1, selfNav: true, coreclrOnly: true },
     { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountServer, fn: runParamsCountServer as WalkthroughFn, runs: 1, selfNav: true, coreclrOnly: true },
     { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsServer, fn: runTooManyComponentsServer as WalkthroughFn, runs: 1, selfNav: true, coreclrOnly: true },
 

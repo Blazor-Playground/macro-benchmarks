@@ -31,7 +31,6 @@ export const METRICS: Record<MetricKey, MetricInfo> = {
     [MetricKey.UnoWalkthrough]: { displayName: 'Uno Walkthrough', unit: 'ms', category: 'time' },
     [MetricKey.SemiWalkthrough]: { displayName: 'Semi Avalonia Walkthrough', unit: 'ms', category: 'time' },
     [MetricKey.CounterPerSecond]: { displayName: 'Counter Clicks/sec', unit: 'ops/sec', category: 'throughput' },
-    [MetricKey.VirtualScrollPerSecond]: { displayName: 'Virtual Scroll/sec', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.BlazorJsToCsNumber]: { displayName: 'JS→CS Number/sec', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.BlazorJsToCsString]: { displayName: 'JS→CS String/sec', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.BlazorJsToCsJson]: { displayName: 'JS→CS JSON/sec', unit: 'ops/sec', category: 'throughput' },
@@ -40,8 +39,6 @@ export const METRICS: Record<MetricKey, MetricInfo> = {
     [MetricKey.BlazorCsToJsJson]: { displayName: 'CS→JS JSON/sec', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.BlazorCounterHeavyWasm]: { displayName: 'Counter Heavy (WASM)', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.BlazorCounterHeavyServer]: { displayName: 'Counter Heavy (Server)', unit: 'ops/sec', category: 'throughput' },
-    [MetricKey.BlazorVirtualScrollHeavyWasm]: { displayName: 'VirtualScroll Heavy (WASM)', unit: 'ops/sec', category: 'throughput' },
-    [MetricKey.BlazorVirtualScrollHeavyServer]: { displayName: 'VirtualScroll Heavy (Server)', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.BlazorParamsCountWasm]: { displayName: 'Params Count (WASM)', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.BlazorParamsCountServer]: { displayName: 'Params Count (Server)', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.BlazorTooManyComponentsWasm]: { displayName: 'Many Components (WASM)', unit: 'ops/sec', category: 'throughput' },
@@ -84,7 +81,6 @@ export const EXTERNAL_METRICS: MetricKey[] = [
     MetricKey.UnoWalkthrough,
     MetricKey.SemiWalkthrough,
     MetricKey.CounterPerSecond,
-    MetricKey.VirtualScrollPerSecond,
     MetricKey.BlazorJsToCsNumber,
     MetricKey.BlazorJsToCsString,
     MetricKey.BlazorJsToCsJson,
@@ -93,8 +89,6 @@ export const EXTERNAL_METRICS: MetricKey[] = [
     MetricKey.BlazorCsToJsJson,
     MetricKey.BlazorCounterHeavyWasm,
     MetricKey.BlazorCounterHeavyServer,
-    MetricKey.BlazorVirtualScrollHeavyWasm,
-    MetricKey.BlazorVirtualScrollHeavyServer,
 ];
 
 export const INTERNAL_METRICS: MetricKey[] = [

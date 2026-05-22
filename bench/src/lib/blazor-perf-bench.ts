@@ -43,6 +43,20 @@ const OTEL_COUNTER_MAP: Record<string, string> = {
 type OtelSnapshot = Record<string, number>;
 
 /**
+ * Resets OTEL counters and forces full GC on the server.
+ * Call before each stress scenario, then wait for counters to settle.
+ */
+async function resetOtelBaseline(baseUrl: string): Promise<void> {
+    try {
+        await fetch(new URL('/api/bench/reset', baseUrl).href, { method: 'POST' });
+        // Wait 2s for EventCounters to report a fresh interval after reset
+        await new Promise(resolve => setTimeout(resolve, 2000));
+    } catch {
+        // Non-fatal: OTEL is best-effort
+    }
+}
+
+/**
  * Fetches the current OTEL EventCounter snapshot from the Kestrel host.
  * Returns a simplified map of counter names to values.
  */
@@ -335,6 +349,9 @@ async function runSsrStressBench(
         await resp.text();
     }
 
+    // Reset OTEL counters and force GC before stress measurement
+    await resetOtelBaseline(url);
+
     // Capture OTEL snapshot before stress
     const otelBefore = await fetchOtelSnapshot(url);
 
@@ -405,6 +422,18 @@ async function runHtmlRendererStressBench(
     ).href;
 
     debug(`[blazor-perf:${label}] calling HtmlRenderer stress endpoint (${parallel} parallel) for ${benchMs}ms`);
+
+    // Warmup: single render to JIT all paths before resetting counters
+    const warmupUrl = new URL(
+        `/api/bench/html-render?scenario=${encodeURIComponent(scenario)}&durationMs=1000`,
+        url,
+    ).href;
+    const warmupResp = await fetch(warmupUrl, { signal: AbortSignal.timeout(timeout) });
+    if (!warmupResp.ok) debug(`[blazor-perf:${label}] warmup call failed: ${warmupResp.status}`);
+    else await warmupResp.text();
+
+    // Reset OTEL counters and force GC before stress measurement
+    await resetOtelBaseline(url);
 
     // Capture OTEL snapshot before stress
     const otelBefore = await fetchOtelSnapshot(url);
@@ -498,6 +527,9 @@ async function runServerStressBench(
     }
 
     debug(`[blazor-perf:${label}] all ${sessions} circuits ready, triggering simultaneous benchmark for ${benchDurationMs}ms`);
+
+    // Reset OTEL counters and force GC before stress measurement
+    await resetOtelBaseline(url);
 
     // Capture OTEL snapshot before stress
     const otelBefore = await fetchOtelSnapshot(url);

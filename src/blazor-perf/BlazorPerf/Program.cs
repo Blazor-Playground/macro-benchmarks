@@ -148,4 +148,19 @@ app.MapGet("/api/bench/metrics", () =>
     return Results.Json(otelCollector.GetSnapshot());
 });
 
+// Reset endpoint — forces full GC and clears counter baseline before each stress scenario.
+// Call this, wait ~2s for counters to settle, then take "before" snapshot.
+app.MapPost("/api/bench/reset", () =>
+{
+    // Force full GC to clear residual allocations from previous test
+    GC.Collect(2, GCCollectionMode.Aggressive, blocking: true, compacting: true);
+    GC.WaitForPendingFinalizers();
+    GC.Collect(2, GCCollectionMode.Aggressive, blocking: true, compacting: true);
+
+    // Clear accumulated counter values so next snapshot starts fresh
+    otelCollector.Reset();
+
+    return Results.Ok(new { reset = true });
+});
+
 app.Run();

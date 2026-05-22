@@ -1,29 +1,12 @@
-﻿<Router AppAssembly="typeof(Program).Assembly" OnNavigateAsync="OnNavigate">
+<Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
     <NotFound>
-        <LayoutView Layout="@typeof(Layout.MainLayout)">
-            <p>Page not found.</p>
+        <PageTitle>Not found</PageTitle>
+        <LayoutView Layout="typeof(Layout.MainLayout)">
+            <p role="alert">Sorry, there's nothing at this address.</p>
         </LayoutView>
     </NotFound>
 </Router>
-
-@code {
-    private void OnNavigate(Microsoft.AspNetCore.Components.Routing.NavigationContext context)
-    {
-        Console.WriteLine($"Navigating to: {context.Path}");
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-        SetManagedReady();
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        Console.WriteLine($"App rendered after navigation. FirstRender: {firstRender}");
-    }
-}

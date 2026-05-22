@@ -78,7 +78,6 @@ const MAX_IMPROVEMENTS_PER_BUILD = 1;
 
 const HIGHER_IS_BETTER = new Set([
     'js-interop-ops', 'json-parse-ops', 'exception-ops',
-    'counter-per-second', 'virtual-scroll-per-second',
     'blazor-js-to-cs-number', 'blazor-js-to-cs-string', 'blazor-js-to-cs-json',
     'blazor-cs-to-js-number', 'blazor-cs-to-js-string', 'blazor-cs-to-js-json',
 ]);

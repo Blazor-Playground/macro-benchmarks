@@ -1,0 +1,29 @@
+@page "/too-many-components-server"
+@rendermode InteractiveServer
+@inherits MeasuredComponentBase
+
+<h1>Too Many Components (Server)</h1>
+<p data-testid="render-count">Renders: @renderCount</p>
+
+<table style="display:none">
+<tbody>
+@for (int i = 0; i < 1000; i++)
+{
+    var row = i;
+    <TableRow>
+        <TableCell><span>@renderCount-@row-A</span></TableCell>
+        <TableCell><span>@renderCount-@row-B</span></TableCell>
+        <TableCell><span>@renderCount-@row-C</span></TableCell>
+    </TableRow>
+}
+</tbody>
+</table>
+
+@code {
+    private int renderCount = 0;
+
+    protected override void MutateState()
+    {
+        renderCount++;
+    }
+}

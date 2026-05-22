@@ -6,6 +6,7 @@ import {
     type Preset, type Runtime,
     App,
     Runtime as R,
+    APP_CONFIG,
     NON_WORKLOAD_PRESETS,
     PRESET_MAP, PRESET_CONFIG,
     shouldSkipBuild,
@@ -156,7 +157,10 @@ async function buildPhase(
 
     for (const runtime of ctx.runtimes) {
         for (const app of ctx.apps) {
-            const appDir = join(ctx.repoRoot, 'src', app);
+            const appBase = join(ctx.repoRoot, 'src', app);
+            const appDir = APP_CONFIG[app].projectPath
+                ? join(appBase, APP_CONFIG[app].projectPath!)
+                : appBase;
             for (const preset of presets) {
                 const skipReason = shouldSkipBuild(runtime, app, preset, ctx);
                 if (skipReason) {

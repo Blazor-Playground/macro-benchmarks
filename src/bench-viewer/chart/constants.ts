@@ -49,7 +49,6 @@ export const METRIC_UNITS: Record<string, string> = {
     'mud-walkthrough': 'ms',
     'uno-walkthrough': 'ms',
     'semi-walkthrough': 'ms',
-    'counter-per-second': 'ops/sec',
     'blazor-js-to-cs-number': 'ops/sec',
     'blazor-js-to-cs-string': 'ops/sec',
     'blazor-js-to-cs-json': 'ops/sec',
@@ -83,7 +82,6 @@ export const METRIC_DISPLAY: Record<string, string> = {
     'igniteui-walkthrough': 'Ignite Walkthrough',
     'uno-walkthrough': 'Uno Gallery Walkthrough',
     'semi-walkthrough': 'Semi Avalonia Walkthrough',
-    'counter-per-second': 'Counter clicks/sec',
 
     'blazor-js-to-cs-number': 'Blazor JS\u2192CS Number/sec',
     'blazor-js-to-cs-string': 'Blazor JS\u2192CS String/sec',
@@ -104,7 +102,6 @@ export const BUILD_METRICS = new Set([
 // Walkthrough metrics are only collected for chrome/desktop
 export const WALKTHROUGH_METRICS = new Set([
     'pizza-walkthrough', 'havit-walkthrough', 'mud-walkthrough', 'uno-walkthrough', 'semi-walkthrough',
-    'counter-per-second',
     'blazor-js-to-cs-number', 'blazor-js-to-cs-string', 'blazor-js-to-cs-json',
     'blazor-cs-to-js-number', 'blazor-cs-to-js-string', 'blazor-cs-to-js-json',
 ]);

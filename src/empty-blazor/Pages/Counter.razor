@@ -4,9 +4,9 @@
 
 <h1>Counter</h1>
 
-<p role="status" data-testid="counter-value">Current count: @currentCount</p>
+<p role="status">Current count: @currentCount</p>
 
-<button class="btn btn-primary" data-testid="counter-button" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 
 @code {
     private int currentCount = 0;
@@ -14,10 +14,5 @@
     private void IncrementCount()
     {
         currentCount++;
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        Console.WriteLine($"Counter component rendered. Current count: {currentCount}");
     }
 }

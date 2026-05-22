@@ -85,7 +85,6 @@ export enum MetricKey {
     IgniteUIWalkthrough = 'igniteui-walkthrough',
     UnoWalkthrough = 'uno-walkthrough',
     SemiWalkthrough = 'semi-walkthrough',
-    CounterPerSecond = 'counter-per-second',
     BlazorJsToCsNumber = 'blazor-js-to-cs-number',
     BlazorJsToCsString = 'blazor-js-to-cs-string',
     BlazorJsToCsJson = 'blazor-js-to-cs-json',

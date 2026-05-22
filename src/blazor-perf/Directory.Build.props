@@ -1,0 +1,5 @@
+<Project>
+  <!-- Block inheritance of presets.props/runtimes.props from src\Directory.Build.props.
+       Import only versions.props so both sub-projects see version variables. -->
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., 'Directory.Build.props'))\versions.props" />
+</Project>

@@ -1,11 +1,10 @@
-import { mkdir, readdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import { existsSync } from 'node:fs';
 import { type BenchContext } from '../context.js';
 import { Runtime } from '../enums.js';
 import { exec } from '../exec.js';
-import { banner, info, err } from '../log.js';
-
+import { banner, info, err } from '../log.js';import { findNupkg, parseVersionFromNupkg } from '../lib/package-utils.js';
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const MONO_RUNTIME_PACK_GLOB = 'Microsoft.NETCore.App.Runtime.Mono.browser-wasm';
@@ -25,18 +24,6 @@ function getExtractDir(artifactsDir: string, flavor: 'mono' | 'coreclr'): string
     return join(artifactsDir, `runtime-pack-${flavor}`);
 }
 
-async function findNupkg(dir: string, prefix: string): Promise<string | null> {
-    if (!existsSync(dir)) return null;
-    const files = await readdir(dir);
-    const match = files.find(f => f.toLowerCase().startsWith(prefix.toLowerCase()) && f.endsWith('.nupkg'));
-    return match ? join(dir, match) : null;
-}
-
-function parseVersionFromNupkg(nupkgPath: string, prefix: string): string {
-    const filename = basename(nupkgPath, '.nupkg');
-    // e.g. "Microsoft.NETCore.App.Runtime.Mono.browser-wasm.11.0.0-dev" → "11.0.0-dev"
-    return filename.slice(prefix.length + 1); // +1 for the dot separator
-}
 
 // ── Clone ────────────────────────────────────────────────────────────────────
 

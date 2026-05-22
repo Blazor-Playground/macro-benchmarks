@@ -1,10 +1,12 @@
 import { mkdir, readdir, cp, writeFile } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import { existsSync } from 'node:fs';
+import { crc32 } from 'node:zlib';
 import { type BenchContext } from '../context.js';
 import { exec } from '../exec.js';
 import { execSync } from 'node:child_process';
 import { banner, info, err } from '../log.js';
+import { findNupkg, parseVersionFromNupkg } from '../lib/package-utils.js';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -20,18 +22,6 @@ function getPackagesDir(artifactsDir: string): string {
     return join(artifactsDir, PACKAGES_DIR_NAME);
 }
 
-async function findNupkg(dir: string, prefix: string): Promise<string | null> {
-    if (!existsSync(dir)) return null;
-    const files = await readdir(dir);
-    const match = files.find(f => f.toLowerCase().startsWith(prefix.toLowerCase()) && f.endsWith('.nupkg'));
-    return match ? join(dir, match) : null;
-}
-
-function parseVersionFromNupkg(nupkgPath: string, prefix: string): string {
-    const filename = basename(nupkgPath, '.nupkg');
-    // e.g. "Microsoft.AspNetCore.Components.WebAssembly.11.0.0-preview.5.26xxx.yy" → "11.0.0-preview.5.26xxx.yy"
-    return filename.slice(prefix.length + 1); // +1 for the dot separator
-}
 
 // ── Clone ────────────────────────────────────────────────────────────────────
 
@@ -248,12 +238,12 @@ async function createStubNupkg(outputDir: string, id: string, version: string): 
 
 /**
  * Write a minimal ZIP file containing a single text entry.
- * Pure Node.js implementation — no external dependencies needed.
+ * Uses Node.js built-in zlib.crc32 for correctness.
  */
 async function writeMinimalZip(zipPath: string, entryName: string, content: string): Promise<void> {
     const data = Buffer.from(content, 'utf-8');
     const nameBytes = Buffer.from(entryName, 'utf-8');
-    const crc = crc32(data);
+    const crcValue = crc32(data);
 
     // Local file header
     const localHeader = Buffer.alloc(30 + nameBytes.length);
@@ -263,7 +253,7 @@ async function writeMinimalZip(zipPath: string, entryName: string, content: stri
     localHeader.writeUInt16LE(0, 8);           // compression (store)
     localHeader.writeUInt16LE(0, 10);          // mod time
     localHeader.writeUInt16LE(0, 12);          // mod date
-    localHeader.writeUInt32LE(crc, 14);        // crc32
+    localHeader.writeUInt32LE(crcValue, 14);   // crc32
     localHeader.writeUInt32LE(data.length, 18); // compressed size
     localHeader.writeUInt32LE(data.length, 22); // uncompressed size
     localHeader.writeUInt16LE(nameBytes.length, 26); // filename length
@@ -279,7 +269,7 @@ async function writeMinimalZip(zipPath: string, entryName: string, content: stri
     cdEntry.writeUInt16LE(0, 10);             // compression
     cdEntry.writeUInt16LE(0, 12);             // mod time
     cdEntry.writeUInt16LE(0, 14);             // mod date
-    cdEntry.writeUInt32LE(crc, 16);           // crc32
+    cdEntry.writeUInt32LE(crcValue, 16);        // crc32
     cdEntry.writeUInt32LE(data.length, 20);   // compressed size
     cdEntry.writeUInt32LE(data.length, 24);   // uncompressed size
     cdEntry.writeUInt16LE(nameBytes.length, 28); // filename length
@@ -306,18 +296,6 @@ async function writeMinimalZip(zipPath: string, entryName: string, content: stri
     eocd.writeUInt16LE(0, 20);                 // comment length
 
     await writeFile(zipPath, Buffer.concat([localHeader, data, cdEntry, eocd]));
-}
-
-/** Compute CRC-32 for a buffer. */
-function crc32(buf: Buffer): number {
-    let crc = 0xFFFFFFFF;
-    for (let i = 0; i < buf.length; i++) {
-        crc ^= buf[i];
-        for (let j = 0; j < 8; j++) {
-            crc = (crc >>> 1) ^ (crc & 1 ? 0xEDB88320 : 0);
-        }
-    }
-    return (crc ^ 0xFFFFFFFF) >>> 0;
 }
 
 // ── Stage Entry Point ────────────────────────────────────────────────────────

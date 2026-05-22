@@ -29,8 +29,20 @@ import { runMudWalkthrough } from '../lib/mud-walkthrough.js';
 import { runIgniteUIWalkthrough } from '../lib/igniteui-walkthrough.js';
 import { runUnoWalkthrough } from '../lib/uno-walkthrough.js';
 import { runSemiWalkthrough } from '../lib/semi-walkthrough.js';
-import { runBlazorCounter, runBlazorVirtualScroll, runBlazorJsToCsNumber, runBlazorJsToCsString, runBlazorJsToCsJson, runBlazorCsToJsNumber, runBlazorCsToJsString, runBlazorCsToJsJson } from '../lib/blazor-bench.js';
-import { type WalkthroughOpts } from '../lib/walkthrough-types.js';
+import {
+    runCounterHeavyWasm, runCounterHeavyServer,
+    runParamsCountWasm, runParamsCountServer,
+    runTooManyComponentsWasm, runTooManyComponentsServer,
+    runBlazorPerfJsToCsNumber, runBlazorPerfJsToCsString, runBlazorPerfJsToCsJson,
+    runBlazorPerfCsToJsNumber, runBlazorPerfCsToJsString, runBlazorPerfCsToJsJson,
+    runParamsCountSsr, runTooManyComponentsSsr,
+    runParamsCountHtmlRenderer, runTooManyComponentsHtmlRenderer,
+    runParamsCountSsrStress, runTooManyComponentsSsrStress,
+    runParamsCountHtmlRendererStress, runTooManyComponentsHtmlRendererStress,
+    runParamsCountServerStress, runTooManyComponentsServerStress,
+} from '../lib/blazor-perf-bench.js';
+import { startKestrelServer, type KestrelServer } from '../lib/kestrel-launcher.js';
+import { type WalkthroughOpts, type WalkthroughResult as WalkthroughFnReturn, hasOtel } from '../lib/walkthrough-types.js';
 import { type SampleStats, computeStats, formatStats, sortedMedian, sortedIQM } from '../lib/stats.js';
 import type { CDPSession, Page, BrowserContext, Browser } from 'playwright';
 
@@ -63,6 +75,12 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         if (!ctx.apps.includes(entry.app)) continue;
         if (!ctx.presets.includes(entry.preset)) continue;
         if (!ctx.runtimes.includes(entry.runtime)) continue;
+
+        // Deadline check: stop scheduling new measurements if we're running out of time
+        if (deadlineAt > 0 && Date.now() > deadlineAt) {
+            err(`⚠ DEADLINE reached — skipping remaining measurements`);
+            break;
+        }
 
         const skipReason = shouldSkipMeasurement(entry.runtime, entry.app, entry.preset, ctx);
         if (skipReason) {
@@ -216,23 +234,53 @@ function mergeTimingArrays(target: TimingArrays, source: TimingArrays): void {
 }
 
 // Walkthrough dispatch table — Chrome + desktop only
-type WalkthroughFn = (opts: WalkthroughOpts<Page>) => Promise<number>;
+type WalkthroughFn = (opts: WalkthroughOpts<Page>) => Promise<WalkthroughFnReturn>;
 
-const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: number }[] = [
+const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: number; selfNav?: boolean; noBrowser?: boolean; coreclrOnly?: boolean }[] = [
     { app: A.BlazingPizza, metric: MetricKey.PizzaWalkthrough, fn: runPizzaWalkthrough as WalkthroughFn },
     { app: A.HavitBootstrap, metric: MetricKey.HavitWalkthrough, fn: runHavitWalkthrough as WalkthroughFn },
     { app: A.MudBlazor, metric: MetricKey.MudWalkthrough, fn: runMudWalkthrough as WalkthroughFn },
     { app: A.IgniteUILight, metric: MetricKey.IgniteUIWalkthrough, fn: runIgniteUIWalkthrough as WalkthroughFn },
     { app: A.UnoGallery, metric: MetricKey.UnoWalkthrough, fn: runUnoWalkthrough as WalkthroughFn },
     // { app: A.SemiAvalonia, metric: MetricKey.SemiWalkthrough, fn: runSemiWalkthrough as WalkthroughFn },
-    { app: A.EmptyBlazor, metric: MetricKey.CounterPerSecond, fn: runBlazorCounter as WalkthroughFn, runs: 1 },
-    { app: A.EmptyBlazor, metric: MetricKey.VirtualScrollPerSecond, fn: runBlazorVirtualScroll as WalkthroughFn, runs: 1 },
-    { app: A.EmptyBlazor, metric: MetricKey.BlazorJsToCsNumber, fn: runBlazorJsToCsNumber as WalkthroughFn, runs: 1 },
-    { app: A.EmptyBlazor, metric: MetricKey.BlazorJsToCsString, fn: runBlazorJsToCsString as WalkthroughFn, runs: 1 },
-    { app: A.EmptyBlazor, metric: MetricKey.BlazorJsToCsJson, fn: runBlazorJsToCsJson as WalkthroughFn, runs: 1 },
-    { app: A.EmptyBlazor, metric: MetricKey.BlazorCsToJsNumber, fn: runBlazorCsToJsNumber as WalkthroughFn, runs: 1 },
-    { app: A.EmptyBlazor, metric: MetricKey.BlazorCsToJsString, fn: runBlazorCsToJsString as WalkthroughFn, runs: 1 },
-    { app: A.EmptyBlazor, metric: MetricKey.BlazorCsToJsJson, fn: runBlazorCsToJsJson as WalkthroughFn, runs: 1 },
+
+    // blazor-perf: WASM-only benchmarks first (need healthy server for JS module imports)
+    { app: A.BlazorPerf, metric: MetricKey.BlazorCounterHeavyWasm, fn: runCounterHeavyWasm as WalkthroughFn, runs: 1, selfNav: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountWasm, fn: runParamsCountWasm as WalkthroughFn, runs: 1, selfNav: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsWasm, fn: runTooManyComponentsWasm as WalkthroughFn, runs: 1, selfNav: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorJsToCsNumber, fn: runBlazorPerfJsToCsNumber as WalkthroughFn, runs: 1, selfNav: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorJsToCsString, fn: runBlazorPerfJsToCsString as WalkthroughFn, runs: 1, selfNav: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorJsToCsJson, fn: runBlazorPerfJsToCsJson as WalkthroughFn, runs: 1, selfNav: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorCsToJsNumber, fn: runBlazorPerfCsToJsNumber as WalkthroughFn, runs: 1, selfNav: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorCsToJsString, fn: runBlazorPerfCsToJsString as WalkthroughFn, runs: 1, selfNav: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorCsToJsJson, fn: runBlazorPerfCsToJsJson as WalkthroughFn, runs: 1, selfNav: true },
+
+    // blazor-perf: Server-mode benchmarks LAST (SignalR circuits can starve Kestrel thread pool on close)
+    // These run on the host CLR (always CoreCLR) regardless of WASM runtime setting
+    { app: A.BlazorPerf, metric: MetricKey.BlazorCounterHeavyServer, fn: runCounterHeavyServer as WalkthroughFn, runs: 1, selfNav: true, coreclrOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountServer, fn: runParamsCountServer as WalkthroughFn, runs: 1, selfNav: true, coreclrOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsServer, fn: runTooManyComponentsServer as WalkthroughFn, runs: 1, selfNav: true, coreclrOnly: true },
+
+    // blazor-perf: SSR benchmarks (HTTP-only, no browser needed)
+    // Server-side rendering always uses the host CLR (CoreCLR)
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountSsr, fn: runParamsCountSsr as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true, coreclrOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsSsr, fn: runTooManyComponentsSsr as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true, coreclrOnly: true },
+
+    // blazor-perf: HtmlRenderer benchmarks (in-process rendering via API, no browser needed)
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountHtmlRenderer, fn: runParamsCountHtmlRenderer as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true, coreclrOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsHtmlRenderer, fn: runTooManyComponentsHtmlRenderer as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true, coreclrOnly: true },
+
+    // blazor-perf: Stress benchmarks — SSR ×100 concurrent fetches (no browser needed)
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountSsrStress, fn: runParamsCountSsrStress as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true, coreclrOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsSsrStress, fn: runTooManyComponentsSsrStress as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true, coreclrOnly: true },
+
+    // blazor-perf: Stress benchmarks — HtmlRenderer ×10 parallel renders (no browser needed)
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountHtmlRendererStress, fn: runParamsCountHtmlRendererStress as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true, coreclrOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsHtmlRendererStress, fn: runTooManyComponentsHtmlRendererStress as WalkthroughFn, runs: 1, selfNav: true, noBrowser: true, coreclrOnly: true },
+
+    // blazor-perf: Stress benchmarks — Interactive Server ×25 iframes (needs browser)
+    { app: A.BlazorPerf, metric: MetricKey.BlazorParamsCountServerStress, fn: runParamsCountServerStress as WalkthroughFn, runs: 1, selfNav: true, coreclrOnly: true },
+    { app: A.BlazorPerf, metric: MetricKey.BlazorTooManyComponentsServerStress, fn: runTooManyComponentsServerStress as WalkthroughFn, runs: 1, selfNav: true, coreclrOnly: true },
 ];
 
 const INTERNAL_KEYS = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;
@@ -536,6 +584,7 @@ interface WalkthroughResult {
 
 async function runWalkthroughs(
     context: BrowserContext,
+    launchBrowser: () => Promise<Browser>,
     pageUrl: string,
     entry: BuildManifestEntry,
     engine: Engine,
@@ -546,12 +595,13 @@ async function runWalkthroughs(
     dryRun: boolean,
     cdp: CDPState | null,
     deadlineAt: number,
+    restartServer: (() => Promise<string>) | null,
 ): Promise<WalkthroughResult> {
     const empty: WalkthroughResult = { metrics: {}, sampleCounts: {}, jsHeapSamples: [], wasmMemorySamples: [] };
     const defaultRuns = warmRuns > 1 ? warmRuns * 4 : 1;
     // Walkthroughs are Chrome-only + desktop-only (CDP required for reliable timing)
     if (profile !== 'desktop' || engine !== E.Chrome) return empty;
-    const matches = WALKTHROUGHS.filter(w => w.app === entry.app);
+    const matches = WALKTHROUGHS.filter(w => w.app === entry.app && (!w.coreclrOnly || entry.runtime === R.CoreCLR));
     if (matches.length === 0) return empty;
 
     const durationMs = dryRun ? 5_000 : 60_000;
@@ -559,6 +609,7 @@ async function runWalkthroughs(
     const allSampleCounts: Partial<Record<MetricKey, number>> = {};
     const jsHeapSamples: number[] = [];
     const wasmMemorySamples: number[] = [];
+    let currentUrl = pageUrl;
 
     for (const wt of matches) {
         const runs = wt.runs ?? defaultRuns;
@@ -576,17 +627,45 @@ async function runWalkthroughs(
                 }
             }
             const iterStart = performance.now();
-            const wtPage = await context.newPage();
-            await wtPage.goto(pageUrl, { timeout, waitUntil: 'load' });
-            await waitForBenchComplete(wtPage, timeout);
+            // selfNav walkthroughs get a fresh browser + server to provide full isolation
+            let wtBrowser: Browser | null = null;
+            let wtCtx: BrowserContext | null = null;
+            let wtPage: Page | null = null;
+            if (wt.selfNav) {
+                // Restart Kestrel to avoid server-side state accumulation
+                // (SignalR/circuit/thread-pool exhaustion after multiple WASM boots)
+                if (restartServer) {
+                    currentUrl = await restartServer();
+                }
+                if (!wt.noBrowser) {
+                    wtBrowser = await launchBrowser();
+                    wtCtx = await wtBrowser.newContext();
+                    wtPage = await wtCtx.newPage();
+                }
+            } else {
+                wtCtx = context;
+                wtPage = await wtCtx.newPage();
+                await wtPage.goto(currentUrl, { timeout, waitUntil: 'load' });
+                await waitForBenchComplete(wtPage, timeout);
+            }
             try {
                 if (verbose) debug(`${wt.metric} ${i + 1}/${runs}...`);
-                const t = await wt.fn({ page: wtPage, url: pageUrl, timeout, verbose, durationMs });
+                const rawResult = await wt.fn({ page: wtPage, url: currentUrl, timeout, verbose, durationMs });
+                const t = hasOtel(rawResult) ? rawResult.value : rawResult;
                 times.push(t);
                 if (verbose) debug(`${wt.metric} ${i + 1}/${runs}: ${t}`);
 
+                // Collect OTEL server-side metrics from stress benchmarks
+                if (hasOtel(rawResult)) {
+                    for (const [otelKey, otelVal] of Object.entries(rawResult.otel)) {
+                        const derivedKey = `${wt.metric}-otel-${otelKey}` as MetricKey;
+                        // For OTEL metrics, store the latest value (stress runs only once)
+                        allMetrics[derivedKey] = Math.round(otelVal * 100) / 100;
+                    }
+                }
+
                 // Sample JS heap and WASM linear memory after each walkthrough run
-                if (cdp) {
+                if (cdp && wtPage) {
                     try {
                         const perfMetrics = await cdp.client.send('Performance.getMetrics');
                         const heapUsed = perfMetrics.metrics.find(
@@ -595,14 +674,20 @@ async function runWalkthroughs(
                         if (heapUsed) jsHeapSamples.push(heapUsed.value);
                     } catch { /* ignore */ }
                 }
-                try {
-                    const wasmBytes = await wtPage.evaluate(
-                        () => (globalThis as any).getDotnetRuntime(0)?.Module?.HEAPU8?.byteLength ?? null,
-                    );
-                    if (wasmBytes != null) wasmMemorySamples.push(wasmBytes);
-                } catch { /* ignore */ }
+                if (wtPage) {
+                    try {
+                        const wasmBytes = await wtPage.evaluate(
+                            () => (globalThis as any).getDotnetRuntime(0)?.Module?.HEAPU8?.byteLength ?? null,
+                        );
+                        if (wasmBytes != null) wasmMemorySamples.push(wasmBytes);
+                    } catch { /* ignore */ }
+                }
             } finally {
-                await wtPage.close();
+                if (wtPage) await wtPage.close();
+                if (wt.selfNav) {
+                    if (wtCtx) await wtCtx.close();
+                    if (wtBrowser) await wtBrowser.close();
+                }
                 await sleep(200);
                 const iterMs = performance.now() - iterStart;
                 if (iterMs > maxIterationMs) maxIterationMs = iterMs;
@@ -637,6 +722,7 @@ async function runWalkthroughs(
 // (#9) Extracted from measureBrowser — handles a single browser session
 async function runBrowserSession(
     browser: Browser,
+    launchBrowser: () => Promise<Browser>,
     pageUrl: string,
     entry: BuildManifestEntry,
     engine: Engine,
@@ -649,8 +735,9 @@ async function runBrowserSession(
     timeout: number,
     verbose: boolean,
     dryRun: boolean,
-    srv: StaticServer,
+    srv: StaticServer | null,
     deadlineAt: number,
+    restartServer: (() => Promise<string>) | null,
 ): Promise<MetricsResult> {
     const context = await browser.newContext();
     const page = await context.newPage();
@@ -670,7 +757,7 @@ async function runBrowserSession(
     }
 
     // Cold load (first one uses the main context)
-    srv.resetRequestCount();
+    if (srv) srv.resetRequestCount();
     if (verbose) debug(`Cold load: navigating to ${pageUrl}`);
     await page.goto(pageUrl, { timeout, waitUntil: 'load' });
     if (verbose) debug(`Cold load: page loaded, waiting for bench_complete...`);
@@ -680,7 +767,7 @@ async function runBrowserSession(
 
     // Snapshot cold download size and request count (single load, not accumulated)
     const coldDownloadSize = cdp ? cdp.resetDownloadSize() : null;
-    const coldRequestCount = srv.resetRequestCount();
+    const coldRequestCount = srv ? srv.resetRequestCount() : 0;
     if (verbose) {
         if (coldDownloadSize != null) debug(`Cold download size: ${coldDownloadSize} bytes`);
         debug(`Cold server requests: ${coldRequestCount}`);
@@ -703,7 +790,7 @@ async function runBrowserSession(
     }
 
     const warmResult = !isInternal
-        ? await runWarmLoads(page, warmRuns, timeout, verbose, cdp, srv)
+        ? await runWarmLoads(page, warmRuns, timeout, verbose, cdp, srv ?? undefined)
         : { timings: emptyTimingArrays(), downloadSizes: [] as number[], requestCounts: [] as number[] };
     const warmArrays = warmResult.timings;
 
@@ -723,9 +810,22 @@ async function runBrowserSession(
     const allWasmMem = coldArrays.wasmMemory.concat(warmArrays.wasmMemory);
     const wasmMemorySize = allWasmMem.length > 0 ? Math.max(...allWasmMem) : null;
 
+    // For external apps, close the main browser before walkthroughs since selfNav
+    // walkthroughs each get their own fresh browser + Kestrel instance.
+    const appWalkthroughs = WALKTHROUGHS.filter(w => w.app === entry.app);
+    const allSelfNav = appWalkthroughs.length > 0 && appWalkthroughs.every(w => w.selfNav);
+    if (!isInternal && allSelfNav) {
+        if (cdp) await cdp.stopMemorySampling();
+        await sleep(100);
+        await page.close();
+        await context.close();
+        await browser.close();
+        await sleep(400);
+    }
+
     // Walkthroughs (external apps only)
     const walkthroughResult = !isInternal
-        ? await runWalkthroughs(context, pageUrl, entry, engine, profile, warmRuns, timeout, verbose, dryRun, cdp, deadlineAt)
+        ? await runWalkthroughs(context, launchBrowser, pageUrl, entry, engine, profile, warmRuns, timeout, verbose, dryRun, allSelfNav ? null : cdp, deadlineAt, restartServer)
         : { metrics: {}, sampleCounts: {}, jsHeapSamples: [] as number[], wasmMemorySamples: [] as number[] };
     const walkthroughMetrics = walkthroughResult.metrics;
     const walkthroughSampleCounts = walkthroughResult.sampleCounts;
@@ -751,17 +851,19 @@ async function runBrowserSession(
         );
     }
 
-    // Stop memory sampling + settle
-    if (cdp) {
-        await cdp.stopMemorySampling();
-    }
+    // Stop memory sampling + settle (only if not already closed above)
+    if (!allSelfNav || isInternal) {
+        if (cdp) {
+            await cdp.stopMemorySampling();
+        }
 
-    if (verbose) debug(`Closing browser context...`);
-    await sleep(100);
-    await page.close();
-    await context.close();
-    await sleep(400);
-    if (verbose) debug(`Cleanup complete`);
+        if (verbose) debug(`Closing browser context...`);
+        await sleep(100);
+        await page.close();
+        await context.close();
+        await sleep(400);
+        if (verbose) debug(`Cleanup complete`);
+    }
 
     // Assemble metrics
     if (isInternal) {
@@ -822,12 +924,35 @@ async function measureBrowser(
     const timeout = ctx.timeout;
     const maxRetries = ctx.retries;
 
-    const srv = await startStaticServer(webRoot);
-    const pageUrl = `http://127.0.0.1:${srv.port}/`;
+    const isKestrelHosted = APP_CONFIG[entry.app].kestrelHosted;
+    let srv: StaticServer | null = null;
+    let kestrel: KestrelServer | null = null;
+    let pageUrl: string;
+
+    if (isKestrelHosted) {
+        kestrel = await startKestrelServer(entry.publishDir, ctx.dotnetBin);
+        pageUrl = kestrel.url + '/';
+    } else {
+        srv = await startStaticServer(webRoot);
+        pageUrl = `http://127.0.0.1:${srv.port}/`;
+    }
     info(`    Serving on ${pageUrl}`);
     if (ctx.verbose) {
-        debug(`Browser: ${engine}, CDP: ${useCDP}, warmRuns: ${warmRuns}, timeout: ${timeout}ms, retries: ${maxRetries}`);
+        debug(`Browser: ${engine}, CDP: ${useCDP}, warmRuns: ${warmRuns}, timeout: ${timeout}ms, retries: ${maxRetries}, kestrelHosted: ${!!isKestrelHosted}`);
     }
+
+    // For Kestrel-hosted apps, provide a function that restarts the server between walkthroughs
+    // to avoid Kestrel/Blazor state accumulation that hangs subsequent WASM boots.
+    const restartServer: (() => Promise<string>) | null = isKestrelHosted ? async () => {
+        if (kestrel) {
+            await kestrel.close();
+            kestrel = null;
+        }
+        kestrel = await startKestrelServer(entry.publishDir, ctx.dotnetBin);
+        pageUrl = kestrel.url + '/';
+        if (ctx.verbose) debug(`Kestrel restarted on ${pageUrl}`);
+        return pageUrl;
+    } : null;
 
     let lastError: Error | null = null;
 
@@ -837,29 +962,31 @@ async function measureBrowser(
 
             if (ctx.verbose) debug(`Launching browser (headless=${ctx.headless})...`);
             const isChromium = engine !== E.Firefox;
-            const browser = await browserType.launch({
+            const launchArgs = isChromium && ctx.headless ? [
+                '--enable-unsafe-swiftshader',
+                '--use-gl=angle',
+                '--use-angle=swiftshader',
+                '--disable-gpu-vsync',
+                '--disable-frame-rate-limit',
+                '--enable-webgl',
+                '--ignore-gpu-blocklist',
+                '--no-sandbox',
+                '--disable-dev-shm-usage',
+            ] : undefined;
+            const launchBrowser = () => browserType.launch({
                 headless: ctx.headless,
-                args: isChromium && ctx.headless ? [
-                    '--enable-unsafe-swiftshader',
-                    '--use-gl=angle',
-                    '--use-angle=swiftshader',
-                    '--disable-gpu-vsync',
-                    '--disable-frame-rate-limit',
-                    '--enable-webgl',
-                    '--ignore-gpu-blocklist',
-                    '--no-sandbox',
-                    '--disable-dev-shm-usage',
-                ] : undefined,
+                args: launchArgs,
             });
+            const browser = await launchBrowser();
             try {
                 const result = await runBrowserSession(
-                    browser, pageUrl, entry, engine, profile,
+                    browser, launchBrowser, pageUrl, entry, engine, profile,
                     compileTime, fileSizes, isInternal, useCDP,
                     warmRuns, timeout, ctx.verbose, ctx.dryRun, srv,
-                    deadlineAt,
+                    deadlineAt, restartServer,
                 );
                 await sleep(100);
-                await browser.close();
+                try { await browser.close(); } catch { /* already closed for allSelfNav */ }
                 await sleep(400);
                 return result;
             } catch (e) {
@@ -875,7 +1002,8 @@ async function measureBrowser(
 
         throw lastError ?? new Error('All attempts failed');
     } finally {
-        await srv.close();
+        if (srv) await srv.close();
+        if (kestrel) await kestrel.close();
     }
 }
 

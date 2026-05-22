@@ -1,0 +1,15 @@
+@page "/params-count-ssr"
+@using BlazorPerf.Client.Shared
+
+<h1>Parameters Count (SSR)</h1>
+<p data-testid="render-count">Renders: 1</p>
+
+<div style="overflow:hidden;height:0">
+@for (int i = 0; i < 5000; i++)
+{
+    var val = $"ssr-{i}";
+    <TableCell_ManyParameters
+        Param1="@val" Param2="@val" Param3="@val" Param4="@val" Param5="@val"
+        Param6="@val" Param7="@val" Param8="@val" Param9="@val" Param10="@val" />
+}
+</div>

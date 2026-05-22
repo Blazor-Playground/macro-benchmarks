@@ -15,5 +15,9 @@ playwright-report/
 gh-pages/
 tracking/
 dist/
+!src/igniteui-light/wwwroot/lib/bootstrap/dist/
 src/bench-viewer/wwwroot/chart/*.js
 .playwright-mcp
+
+# System files
+.DS_Store

@@ -247,7 +247,7 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
         return `SemiAvalonia app '${app}' does not build with SDK versions below 10.0.0`;
     }
     if (app === App.IgniteUILight && ctx.sdkInfo.major < 8) {
-        return `Ignite UI Light app '${app}' does not build with SDK versions below 10.0.0`;
+        return `Ignite UI Light app '${app}' does not build with SDK versions below 8.0.0`;
     }
     return null;
 }

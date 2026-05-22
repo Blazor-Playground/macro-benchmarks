@@ -8,3 +8,5 @@ tracking
 bench
 node_modules
 src/bench-viewer/wwwroot/chart
+!lib/bootstrap/dist/
+!apps/igniteui-light/lib/bootstrap/dist 

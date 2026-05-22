@@ -62,7 +62,7 @@ jobs:
   resolve:
     name: Resolve (${{ inputs.sdk_version || 'latest' }})
     runs-on: ubuntu-latest
-    container: ${{ vars.CONTAINER_REGISTRY }}/browser-bench-build:latest
+    container: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io/blazor-playground/macro-benchmarks' }}/browser-bench-build:latest
     permissions:
       contents: write
       packages: read
@@ -305,7 +305,7 @@ jobs:
       && (needs.build-runtime-coreclr.result == 'success' || needs.build-runtime-coreclr.result == 'skipped')
       && (needs.build-aspnetcore.result == 'success' || needs.build-aspnetcore.result == 'skipped')
     runs-on: ubuntu-latest
-    container: ${{ vars.CONTAINER_REGISTRY }}/browser-bench-build:latest
+    container: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io/blazor-playground/macro-benchmarks' }}/browser-bench-build:latest
     permissions:
       contents: write
       packages: read
@@ -422,7 +422,7 @@ jobs:
       && needs.build.outputs.matrix != ''
     runs-on: ubuntu-latest
     container:
-      image: ${{ vars.CONTAINER_REGISTRY }}/browser-bench-measure:latest
+      image: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io/blazor-playground/macro-benchmarks' }}/browser-bench-measure:latest
       options: --user 1001
     timeout-minutes: 60
     strategy:
@@ -503,7 +503,7 @@ jobs:
     needs: [resolve, build, measure]
     if: always() && needs.measure.result == 'success'
     runs-on: ubuntu-latest
-    container: ${{ vars.CONTAINER_REGISTRY }}/browser-bench-build:latest
+    container: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io/blazor-playground/macro-benchmarks' }}/browser-bench-build:latest
     permissions:
       contents: write
       packages: read
@@ -568,7 +568,7 @@ jobs:
     needs: [resolve, aggregate]
     if: always() && needs.aggregate.result == 'success'
     runs-on: ubuntu-latest
-    container: ${{ vars.CONTAINER_REGISTRY }}/browser-bench-build:latest
+    container: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io/blazor-playground/macro-benchmarks' }}/browser-bench-build:latest
     permissions:
       contents: write
       actions: write

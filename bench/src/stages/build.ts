@@ -107,11 +107,6 @@ function getRestoreArgs(
     if (app === App.UnoGallery) {
         args.push(`/p:TargetFramework=net${ctx.sdkInfo.major}.0-browserwasm`);
     }
-    // Kestrel-hosted apps are published self-contained; restore needs the RID too
-    if (APP_CONFIG[app].kestrelHosted) {
-        const rid = ctx.platform === 'windows' ? 'win-x64' : ctx.platform === 'darwin' ? 'osx-x64' : 'linux-x64';
-        args.push('-r', rid);
-    }
     return args;
 }
 

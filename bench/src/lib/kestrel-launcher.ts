@@ -5,7 +5,7 @@
 import { spawn, ChildProcess } from 'node:child_process';
 import { join, dirname } from 'node:path';
 import { platform } from 'node:os';
-import { readdir } from 'node:fs/promises';
+import { readdir, chmod } from 'node:fs/promises';
 import { debug } from '../log.js';
 
 export interface KestrelServer {
@@ -83,7 +83,10 @@ async function tryStartKestrel(publishDir: string, dotnetBin?: string): Promise<
         const dotnet = dotnetBin || 'dotnet';
         proc = spawn(dotnet, [execPath], { env, cwd: publishDir, stdio: ['ignore', 'pipe', 'pipe'] });
     } else {
-        // Self-contained executable
+        // Self-contained executable — ensure it has execute permission (lost during artifact transfer)
+        if (platform() !== 'win32') {
+            await chmod(execPath, 0o755);
+        }
         proc = spawn(execPath, [], { env, cwd: publishDir, stdio: ['ignore', 'pipe', 'pipe'] });
     }
 

@@ -1,0 +1,47 @@
+{
+  "failedAt": "2026-05-22T15:29:10.581Z",
+  "ciRunId": "26295144493",
+  "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26295144493",
+  "failures": [
+    {
+      "target": "blazor-perf/dev-loop",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/Components/App.razor(12,19): error CS0103: The name 'Assets' does not exist in the current context [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/BlazorPerf.csproj]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/Components/App.razor(13,19): error CS0103: The name 'Assets' does not exist in the current context [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/BlazorPerf.csproj]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/Program.cs(35,5): error CS1061: 'WebApplication' does not contain a definition for 'MapStaticAssets' and no accessible extension method 'MapStaticAssets' accepting a first argument of type 'WebApplication' could be found (are you missing a using directive or an assembly reference?) [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/BlazorPerf.csproj]"
+      ]
+    },
+    {
+      "target": "blazor-perf/no-workload",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/Components/App.razor(12,19): error CS0103: The name 'Assets' does not exist in the current context [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/BlazorPerf.csproj]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/Components/App.razor(13,19): error CS0103: The name 'Assets' does not exist in the current context [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/BlazorPerf.csproj]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/Program.cs(35,5): error CS1061: 'WebApplication' does not contain a definition for 'MapStaticAssets' and no accessible extension method 'MapStaticAssets' accepting a first argument of type 'WebApplication' could be found (are you missing a using directive or an assembly reference?) [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/BlazorPerf.csproj]"
+      ]
+    },
+    {
+      "target": "blazor-perf/dev-loop",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/Components/App.razor(12,19): error CS0103: The name 'Assets' does not exist in the current context [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/BlazorPerf.csproj]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/Components/App.razor(13,19): error CS0103: The name 'Assets' does not exist in the current context [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/BlazorPerf.csproj]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/Program.cs(35,5): error CS1061: 'WebApplication' does not contain a definition for 'MapStaticAssets' and no accessible extension method 'MapStaticAssets' accepting a first argument of type 'WebApplication' could be found (are you missing a using directive or an assembly reference?) [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/BlazorPerf.csproj]"
+      ]
+    },
+    {
+      "target": "blazor-perf/no-workload",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/Components/App.razor(12,19): error CS0103: The name 'Assets' does not exist in the current context [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/BlazorPerf.csproj]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/Components/App.razor(13,19): error CS0103: The name 'Assets' does not exist in the current context [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/BlazorPerf.csproj]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/Program.cs(35,5): error CS1061: 'WebApplication' does not contain a definition for 'MapStaticAssets' and no accessible extension method 'MapStaticAssets' accepting a first argument of type 'WebApplication' could be found (are you missing a using directive or an assembly reference?) [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/BlazorPerf.csproj]"
+      ]
+    },
+    {
+      "target": "blazor-perf/aot",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/Components/App.razor(12,19): error CS0103: The name 'Assets' does not exist in the current context [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/BlazorPerf.csproj]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/Components/App.razor(13,19): error CS0103: The name 'Assets' does not exist in the current context [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/BlazorPerf.csproj]",
+        "/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/Program.cs(35,5): error CS1061: 'WebApplication' does not contain a definition for 'MapStaticAssets' and no accessible extension method 'MapStaticAssets' accepting a first argument of type 'WebApplication' could be found (are you missing a using directive or an assembly reference?) [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf/BlazorPerf.csproj]"
+      ]
+    }
+  ]
+}

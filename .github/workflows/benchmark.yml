@@ -421,6 +421,9 @@ jobs:
       && needs.build.outputs.matrix != '[]'
       && needs.build.outputs.matrix != ''
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
     container:
       image: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io/blazor-playground/macro-benchmarks' }}/browser-bench-measure:latest
       options: --user 1001

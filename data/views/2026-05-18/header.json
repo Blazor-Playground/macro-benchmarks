@@ -233,6 +233,32 @@
       "benchmarkDateTime": "2026-05-23T06:46:14.127Z",
       "ciRunId": "26324670867",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26324670867"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.5.26274.104",
+      "runtimeGitHash": "7da2acb927da6ac7ad636043d6e0362fed3dfde9",
+      "aspnetCoreGitHash": "27c660e6d7cf8639b021d48c4df54b93de84bb50",
+      "sdkGitHash": "0ce3d137f0f6f735ae2bf4952571423fbef1034b",
+      "vmrGitHash": "76e6fea5515beef8e3973ddd13323edcc265ac9f",
+      "runtimeCommitDateTime": "2026-05-23T20:24:06Z",
+      "runtimeCommitAuthor": "Tom McDonald",
+      "runtimeCommitMessage": "Restore E_NOTIMPL fallback in DacDbiInterfaceImpl::GetContext (#128499)",
+      "aspnetCoreCommitDateTime": "2026-05-22T16:47:04Z",
+      "aspnetCoreCommitAuthor": "Chuy Zarate",
+      "aspnetCoreCommitMessage": "Add .cat catalog signing and update .js exclusion comment (#66443)",
+      "aspnetCoreVersion": "11.0.0-preview.5.26274.104",
+      "runtimePackVersion": "11.0.0-preview.5.26274.104",
+      "workloadVersion": "11.0.100-preview.5.26274.104",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
+      "releaseDate": "2026-05-24",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-05-25T09:32:20.201Z",
+      "ciRunId": "26390452744",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26390452744"
     }
   ],
   "apps": {

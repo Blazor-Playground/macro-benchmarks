@@ -1,9 +1,7 @@
 ﻿@inherits LayoutComponentBase
 
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+    <NavMenu @ref="NavMenuRef" />
 
     <main>
         <div class="top-row px-4">
@@ -11,7 +9,9 @@
         </div>
 
         <article id="page-content" class="content px-4">
-            @Body
+            <CascadingValue Value="NavMenuRef">
+                @Body
+            </CascadingValue>
         </article>
     </main>
 </div>
@@ -21,3 +21,7 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    NavMenu? NavMenuRef { get; set; }
+}

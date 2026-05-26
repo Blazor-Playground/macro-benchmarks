@@ -209,7 +209,7 @@
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26303048402"
     },
     {
-      "sdkVersion": "11.0.100-preview.5.26272.116",
+      "sdkVersion": "11.0.100-preview.5.26272.112",
       "runtimeGitHash": "41bb922718740abce190a20adff49b634f408caf",
       "aspnetCoreGitHash": "ea52e90fa35a69f8a3eb30f9628392c64c9d5915",
       "sdkGitHash": "0ce3d137f0f6f735ae2bf4952571423fbef1034b",
@@ -220,9 +220,9 @@
       "aspnetCoreCommitDateTime": "2026-05-21T23:30:20Z",
       "aspnetCoreCommitAuthor": "William Godbe",
       "aspnetCoreCommitMessage": "Run template tests on changes to Version.Details (#66793)",
-      "aspnetCoreVersion": "11.0.0-preview.5.26272.116",
-      "runtimePackVersion": "11.0.0-preview.5.26272.116",
-      "workloadVersion": "11.0.100-preview.5.26272.116",
+      "aspnetCoreVersion": "11.0.0-preview.5.26272.112",
+      "runtimePackVersion": "11.0.0-preview.5.26272.112",
+      "workloadVersion": "11.0.100-preview.5.26272.112",
       "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
       "releaseDate": "2026-05-22",
       "major": 11,
@@ -230,9 +230,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-05-26T20:17:08.733Z",
-      "ciRunId": "26467606047",
-      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26467606047"
+      "benchmarkDateTime": "2026-05-26T21:50:08.623Z",
+      "ciRunId": "26473212830",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26473212830"
     },
     {
       "sdkVersion": "11.0.100-preview.5.26274.104",

@@ -285,6 +285,32 @@
       "benchmarkDateTime": "2026-05-25T14:19:09.071Z",
       "ciRunId": "26401564052",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26401564052"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.5.26276.101",
+      "runtimeGitHash": "d198593b0563cd5364893144acddd454545df392",
+      "aspnetCoreGitHash": "251854361046ac6c92f68d43f8b55cf777e760be",
+      "sdkGitHash": "0ce3d137f0f6f735ae2bf4952571423fbef1034b",
+      "vmrGitHash": "86edbc33ced3593ba31072316b6f1ddbfc2ff3f6",
+      "runtimeCommitDateTime": "2026-05-24T07:37:34Z",
+      "runtimeCommitAuthor": "Jakob Botsch Nielsen",
+      "runtimeCommitMessage": "JIT: Avoid TLS access when restoring async contexts (#127889)",
+      "aspnetCoreCommitDateTime": "2026-05-24T22:02:41Z",
+      "aspnetCoreCommitAuthor": "dotnet-maestro[bot]",
+      "aspnetCoreCommitMessage": "[main] Source code updates from dotnet/dotnet (#66795)",
+      "aspnetCoreVersion": "11.0.0-preview.5.26276.101",
+      "runtimePackVersion": "11.0.0-preview.5.26276.101",
+      "workloadVersion": "11.0.100-preview.5.26276.101",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
+      "releaseDate": "2026-05-26",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-05-26T16:04:12.047Z",
+      "ciRunId": "26454847986",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26454847986"
     }
   ],
   "apps": {

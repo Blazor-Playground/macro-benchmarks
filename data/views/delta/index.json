@@ -1,6 +1,13 @@
 {
   "deltas": [
     {
+      "file": "delta-11.0.100-preview.5.26264.105-06ca675-cbcb47a.json",
+      "sdkVersion": "11.0.100-preview.5.26264.105",
+      "runtimeGitHash": "06ca6751830996c1c815bfdd73a3fb4c8b53d77f",
+      "benchmarkDateTime": "2026-05-27T06:34:51.008Z",
+      "hasSignificant": true
+    },
+    {
       "file": "delta-11.0.100-preview.5.26265.121-06ca675-dda20ca.json",
       "sdkVersion": "11.0.100-preview.5.26265.121",
       "runtimeGitHash": "06ca6751830996c1c815bfdd73a3fb4c8b53d77f",
@@ -145,13 +152,6 @@
       "sdkVersion": "11.0.100-preview.5.26275.101",
       "runtimeGitHash": "7da2acb927da6ac7ad636043d6e0362fed3dfde9",
       "benchmarkDateTime": "2026-05-25T14:19:09.071Z",
-      "hasSignificant": true
-    },
-    {
-      "file": "delta-11.0.100-preview.5.26264.105-06ca675-cbcb47a.json",
-      "sdkVersion": "11.0.100-preview.5.26264.105",
-      "runtimeGitHash": "06ca6751830996c1c815bfdd73a3fb4c8b53d77f",
-      "benchmarkDateTime": "2026-05-21T08:48:19.637Z",
       "hasSignificant": true
     },
     {

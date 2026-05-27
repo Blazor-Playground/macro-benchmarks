@@ -51,6 +51,32 @@
       "benchmarkDateTime": "2026-05-27T10:55:19.840Z",
       "ciRunId": "26499750502",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26499750502"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.6.26277.104",
+      "runtimeGitHash": "5409a36c7e150f380e8d9e77c1c4073d06ce1a85",
+      "aspnetCoreGitHash": "251854361046ac6c92f68d43f8b55cf777e760be",
+      "sdkGitHash": "0ce3d137f0f6f735ae2bf4952571423fbef1034b",
+      "vmrGitHash": "b520ee7cc01690f70d1431951f554c4e0666a69a",
+      "runtimeCommitDateTime": "2026-05-25T22:06:09Z",
+      "runtimeCommitAuthor": "Jan Jones",
+      "runtimeCommitMessage": "Remove RequiresUnsafeAnalyzer and update the fixer (#127768)",
+      "aspnetCoreCommitDateTime": "2026-05-24T22:02:41Z",
+      "aspnetCoreCommitAuthor": "dotnet-maestro[bot]",
+      "aspnetCoreCommitMessage": "[main] Source code updates from dotnet/dotnet (#66795)",
+      "aspnetCoreVersion": "11.0.0-preview.6.26277.104",
+      "runtimePackVersion": "11.0.0-preview.6.26277.104",
+      "workloadVersion": "11.0.100-preview.6.26277.104",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
+      "releaseDate": "2026-05-27",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-05-27T17:36:05.626Z",
+      "ciRunId": "26519370945",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26519370945"
     }
   ],
   "apps": {

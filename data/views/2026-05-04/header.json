@@ -236,9 +236,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-05-20T21:03:41.938Z",
-      "ciRunId": "26186448482",
-      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26186448482"
+      "benchmarkDateTime": "2026-05-27T08:35:33.224Z",
+      "ciRunId": "26495234971",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26495234971"
     },
     {
       "sdkVersion": "11.0.100-preview.5.26264.103",

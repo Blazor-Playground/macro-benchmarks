@@ -103,6 +103,32 @@
       "benchmarkDateTime": "2026-05-28T00:25:28.728Z",
       "ciRunId": "26544034388",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26544034388"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.6.26277.116",
+      "runtimeGitHash": "5341a844e165c7dbdb7d7e9331976bc6993292b0",
+      "aspnetCoreGitHash": "e4591cc8f5e20d8c38f16360282e6e814e865f35",
+      "sdkGitHash": "8ae9944928fb6e9c832b43881a2ddedba29bbcb4",
+      "vmrGitHash": "1616fce88662817fb8b76911fb188b56650859a0",
+      "runtimeCommitDateTime": "2026-05-26T22:52:30Z",
+      "runtimeCommitAuthor": "Andy Ayers",
+      "runtimeCommitMessage": "JIT: generalize cloning conditions slightly (#128532)",
+      "aspnetCoreCommitDateTime": "2026-05-26T19:06:17Z",
+      "aspnetCoreCommitAuthor": "dotnet-maestro[bot]",
+      "aspnetCoreCommitMessage": "Update dependencies from https://dev.azure.com/dnceng/internal/_git/dotnet-optimization build 20260522.1 (#66820)",
+      "aspnetCoreVersion": "11.0.0-preview.6.26277.116",
+      "runtimePackVersion": "11.0.0-preview.6.26277.116",
+      "workloadVersion": "11.0.100-preview.6.26277.116",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
+      "releaseDate": "2026-05-27",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-05-28T07:15:31.474Z",
+      "ciRunId": "26557635278",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26557635278"
     }
   ],
   "apps": {

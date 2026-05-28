@@ -1,3 +1,92 @@
+/* Custom Blazor Purple Palette for Fluent Light Theme */
+:root {
+  --ig-primary-500: #512BD4;
+  --ig-secondary-500: #7C3AED;
+}
+
+/* Custom Nav Drawer Theme - Blazor-style gradient sidebar */
+igc-nav-drawer {
+    --ig-nav-drawer-background: #1a1a2e;
+    --ig-nav-drawer-item-text-color: rgba(255, 255, 255, 0.85);
+    --ig-nav-drawer-item-icon-color: rgba(255, 255, 255, 0.85);
+    --ig-nav-drawer-item-header-text-color: white;
+    --ig-nav-drawer-item-active-background: rgba(255, 255, 255, 0.25);
+    --ig-nav-drawer-item-active-text-color: white;
+    --ig-nav-drawer-item-active-icon-color: white;
+    --ig-nav-drawer-item-hover-background: rgba(255, 255, 255, 0.1);
+    --ig-nav-drawer-item-hover-text-color: white;
+    --ig-nav-drawer-item-hover-icon-color: white;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+}
+
+    igc-nav-drawer::part(base) {
+        height: 100vh;
+        background: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+    }
+
+/* Loading screen */
+.loading-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 40%, #2d1b4e 100%);
+}
+
+.loading-progress {
+    width: 80px;
+    height: 80px;
+}
+
+.loading-track {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-width: 4;
+}
+
+.loading-spinner {
+    transform-origin: 50% 50%;
+    animation: spin 1.2s linear infinite;
+}
+
+.loading-indicator {
+    fill: none;
+    stroke: #7C3AED;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 264;
+    stroke-dashoffset: 180;
+    animation: dash 1.6s ease-in-out infinite;
+    filter: drop-shadow(0 0 6px rgba(124, 58, 237, 0.5));
+}
+
+.loading-progress-text {
+    margin-top: 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.7);
+    animation: pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes dash {
+    0%   { stroke-dashoffset: 240; stroke: #512BD4; }
+    50%  { stroke-dashoffset: 120; stroke: #7C3AED; }
+    100% { stroke-dashoffset: 240; stroke: #512BD4; }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50%      { opacity: 1; }
+}
+
 html, body {
     font-family: var(--ig-font-family);
     color: var(--ig-surface-500-contrast);

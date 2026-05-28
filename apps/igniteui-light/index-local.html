@@ -2,21 +2,21 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>igniteui-light</title>
-  <base href="/" />
-  <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="css/app.css" />
-  <link rel="stylesheet" href="IgniteUILight.styles.css" />
-  <link rel="stylesheet" href="_content/IgniteUI.Blazor/themes/light/bootstrap.css" />
-  <link rel="icon" type="image/png" href="favicon.png" />
-  <script type="importmap">{
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>igniteui-light</title>
+    <base href="/" />
+    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="stylesheet" href="IgniteUILight.styles.css" />
+    <link rel="stylesheet" href="_content/IgniteUI.Blazor/themes/light/fluent.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <script type="importmap">{
   "imports": {
     "./_framework/blazor.webassembly.js": "./_framework/blazor.webassembly.uv9pzyktbz.js",
-    "./_framework/dotnet.js": "./_framework/dotnet.izck1hbl52.js",
-    "./_framework/dotnet.native.js": "./_framework/dotnet.native.eopnp1ndh1.js",
-    "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.mla0l3d5i7.js",
+    "./_framework/dotnet.native.js": "./_framework/dotnet.native.9431j90ghm.js",
+    "./_framework/dotnet.js": "./_framework/dotnet.q6ewyqem5e.js",
+    "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.7w034ph630.js",
     "./lib/bootstrap/dist/js/bootstrap.bundle.js": "./lib/bootstrap/dist/js/bootstrap.bundle.4094rpi4f9.js",
     "./lib/bootstrap/dist/js/bootstrap.bundle.min.js": "./lib/bootstrap/dist/js/bootstrap.bundle.min.hd3gran6i8.js",
     "./lib/bootstrap/dist/js/bootstrap.esm.js": "./lib/bootstrap/dist/js/bootstrap.esm.ltid2c489k.js",
@@ -29,12 +29,12 @@
   "integrity": {
     "./_framework/blazor.webassembly.js": "sha256-SknuOouDE1xYWiWsI6RUs4nM+XTmHtoMyN3lP/GPcU4=",
     "./_framework/blazor.webassembly.uv9pzyktbz.js": "sha256-SknuOouDE1xYWiWsI6RUs4nM+XTmHtoMyN3lP/GPcU4=",
-    "./_framework/dotnet.izck1hbl52.js": "sha256-QgylYI9fl37FqW6Gbz6vvKhAre10co/Vk5ofvGKUZyo=",
-    "./_framework/dotnet.js": "sha256-QgylYI9fl37FqW6Gbz6vvKhAre10co/Vk5ofvGKUZyo=",
-    "./_framework/dotnet.native.eopnp1ndh1.js": "sha256-QhELX7DIVsv8cb3gYQPrc4ZHrzqnz1oOr+U2YTkC82A=",
-    "./_framework/dotnet.native.js": "sha256-QhELX7DIVsv8cb3gYQPrc4ZHrzqnz1oOr+U2YTkC82A=",
-    "./_framework/dotnet.runtime.js": "sha256-VpnsV1pbTWX5dWb0xEa05G7yNfA/RcQxiIgrLmaiAA0=",
-    "./_framework/dotnet.runtime.mla0l3d5i7.js": "sha256-VpnsV1pbTWX5dWb0xEa05G7yNfA/RcQxiIgrLmaiAA0=",
+    "./_framework/dotnet.js": "sha256-0nkMz7LlS7NCIEXkxSl4I1JAjn0H5DOWLD+qFE7Ri5E=",
+    "./_framework/dotnet.native.9431j90ghm.js": "sha256-94Jr0baHcF3rVn8+Y8nHlilCsgyFy0vfXZ54Okbxhgk=",
+    "./_framework/dotnet.native.js": "sha256-94Jr0baHcF3rVn8+Y8nHlilCsgyFy0vfXZ54Okbxhgk=",
+    "./_framework/dotnet.q6ewyqem5e.js": "sha256-0nkMz7LlS7NCIEXkxSl4I1JAjn0H5DOWLD+qFE7Ri5E=",
+    "./_framework/dotnet.runtime.7w034ph630.js": "sha256-Rz9rYes96E1R2WATYAsLMmpIJOy+QRNcuuey9kVkjQc=",
+    "./_framework/dotnet.runtime.js": "sha256-Rz9rYes96E1R2WATYAsLMmpIJOy+QRNcuuey9kVkjQc=",
     "./lib/bootstrap/dist/js/bootstrap.bundle.4094rpi4f9.js": "sha256-bNojyBU9M3Cv/K4YqdKkq4xeaAkchkkS7HXP7554z9Y=",
     "./lib/bootstrap/dist/js/bootstrap.bundle.js": "sha256-bNojyBU9M3Cv/K4YqdKkq4xeaAkchkkS7HXP7554z9Y=",
     "./lib/bootstrap/dist/js/bootstrap.bundle.min.hd3gran6i8.js": "sha256-6zfk2L8R3wCgRbZzpkEi7UYC2bc6fYGIgFfNeqyOWnQ=",
@@ -54,10 +54,20 @@
 </head>
 
 <body class="ig-typography">
-  <div id="app">Loading...</div>
-  <script src="_content/IgniteUI.Blazor/app.bundle.js"></script>
-  <script src="_framework/blazor.webassembly.uv9pzyktbz.js" autostart="false"></script>
-  <script src="main.3ykt5smfn0.mjs" type="module"></script>
+    <div id="app">
+        <div class="loading-screen">
+            <svg class="loading-progress" viewBox="0 0 100 100">
+                <circle class="loading-track" r="42" cx="50" cy="50" />
+                <g class="loading-spinner">
+                    <circle class="loading-indicator" r="42" cx="50" cy="50" />
+                </g>
+            </svg>
+            <div class="loading-progress-text">Loading</div>
+        </div>
+    </div>
+    <script src="_content/IgniteUI.Blazor/app.bundle.js"></script>
+    <script src="_framework/blazor.webassembly.uv9pzyktbz.js" autostart="false"></script>
+    <script src="main.3ykt5smfn0.mjs" type="module"></script>
 </body>
 
 </html>

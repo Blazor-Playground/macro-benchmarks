@@ -1,150 +1,78 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">IgniteUI.Blazor.Lite.Examples</a>
-    </div>
-</div>
+﻿@inject NavigationManager Navigation
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<IgbNavDrawer @ref="DrawerRef" Open="@IsOpen" Position="NavDrawerPosition.Relative">
+    <IgbNavDrawerHeaderItem>IgniteUI Blazor Lite</IgbNavDrawerHeaderItem>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                Home
-            </NavLink>
-        </div>
+    <IgbNavDrawerItem @onclick='() => Navigate("")'>
+        <span slot="content">Home</span>
+    </IgbNavDrawerItem>
 
-        <div class="nav-item px-3 fw-bold mt-2">Form Controls</div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="input">Input</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="textarea">Textarea</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="combo">Combo Box</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="select">Select</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="datepicker">Date Picker</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="daterangepicker">Date Range Picker</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="calendar">Calendar</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="datetimeinput">Date Time Input</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="maskinput">Mask Input</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="checkbox">Checkbox</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="radio">Radio</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="switch">Switch</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="slider">Slider</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="rating">Rating</NavLink>
-        </div>
+    <IgbNavDrawerHeaderItem>Form Controls</IgbNavDrawerHeaderItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("input")'><span slot="content">Input</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("textarea")'><span slot="content">Textarea</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("combo")'><span slot="content">Combo Box</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("select")'><span slot="content">Select</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("datepicker")'><span slot="content">Date Picker</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("daterangepicker")'><span slot="content">Date Range Picker</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("calendar")'><span slot="content">Calendar</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("datetimeinput")'><span slot="content">Date Time Input</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("maskinput")'><span slot="content">Mask Input</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("checkbox")'><span slot="content">Checkbox</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("radio")'><span slot="content">Radio</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("switch")'><span slot="content">Switch</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("slider")'><span slot="content">Slider</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("rating")'><span slot="content">Rating</span></IgbNavDrawerItem>
 
-        <div class="nav-item px-3 fw-bold mt-2">Layout</div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="tabs">Tabs</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="stepper">Stepper</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="accordion">Accordion</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="expansionpanel">Expansion Panel</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="navbar">Navbar</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="navdrawer">Nav Drawer</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="tree">Tree</NavLink>
-        </div>
+    <IgbNavDrawerHeaderItem>Layout</IgbNavDrawerHeaderItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("tabs")'><span slot="content">Tabs</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("stepper")'><span slot="content">Stepper</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("accordion")'><span slot="content">Accordion</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("expansionpanel")'><span slot="content">Expansion Panel</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("navbar")'><span slot="content">Navbar</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("navdrawer")'><span slot="content">Nav Drawer</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("tree")'><span slot="content">Tree</span></IgbNavDrawerItem>
 
-        <div class="nav-item px-3 fw-bold mt-2">Data Display</div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="button">Button</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="icon">Icon</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="card">Card</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="carousel">Carousel</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="list">List</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="avatar">Avatar</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="badge">Badge</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="chip">Chip</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="progress">Progress</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="dropdown">Dropdown</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="tooltip">Tooltip</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="ripple">Ripple</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="divider">Divider</NavLink>
-        </div>
+    <IgbNavDrawerHeaderItem>Data Display</IgbNavDrawerHeaderItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("button")'><span slot="content">Button</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("icon")'><span slot="content">Icon</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("card")'><span slot="content">Card</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("carousel")'><span slot="content">Carousel</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("list")'><span slot="content">List</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("avatar")'><span slot="content">Avatar</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("badge")'><span slot="content">Badge</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("chip")'><span slot="content">Chip</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("progress")'><span slot="content">Progress</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("dropdown")'><span slot="content">Dropdown</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("tooltip")'><span slot="content">Tooltip</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("ripple")'><span slot="content">Ripple</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("divider")'><span slot="content">Divider</span></IgbNavDrawerItem>
 
-        <div class="nav-item px-3 fw-bold mt-2">Feedback</div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="dialog">Dialog</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="snackbar">Snackbar</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="toast">Toast</NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="banner">Banner</NavLink>
-        </div>
+    <IgbNavDrawerHeaderItem>Feedback</IgbNavDrawerHeaderItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("dialog")'><span slot="content">Dialog</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("snackbar")'><span slot="content">Snackbar</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("toast")'><span slot="content">Toast</span></IgbNavDrawerItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("banner")'><span slot="content">Banner</span></IgbNavDrawerItem>
 
-        <div class="nav-item px-3 fw-bold mt-2">Grid</div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="gridlite">Grid Lite</NavLink>
-        </div>
+    <IgbNavDrawerHeaderItem>Grid</IgbNavDrawerHeaderItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("gridlite")'><span slot="content">Grid Lite</span></IgbNavDrawerItem>
 
-        <div class="nav-item px-3 fw-bold mt-2">Layout Managers</div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="tilemanager">Tile Manager</NavLink>
-        </div>
-    </nav>
-</div>
+    <IgbNavDrawerHeaderItem>Layout Managers</IgbNavDrawerHeaderItem>
+    <IgbNavDrawerItem @onclick='() => Navigate("tilemanager")'><span slot="content">Tile Manager</span></IgbNavDrawerItem>
+</IgbNavDrawer>
+
+@code {
+    public IgbNavDrawer DrawerRef { get; set; } = default!;
+    bool IsOpen { get; set; } = true;
+
+    public void Toggle()
+    {
+        IsOpen = !IsOpen;
+        StateHasChanged();
+    }
+
+    void Navigate(string path)
+    {
+        Navigation.NavigateTo(path);
+    }
+}
 

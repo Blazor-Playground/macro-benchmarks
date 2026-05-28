@@ -9,13 +9,23 @@
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="stylesheet" href="IgniteUILight.styles.css" />
-    <link rel="stylesheet" href="_content/IgniteUI.Blazor/themes/light/bootstrap.css" />
+    <link rel="stylesheet" href="_content/IgniteUI.Blazor/themes/light/fluent.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <script type="importmap"></script>
 </head>
 
 <body class="ig-typography">
-    <div id="app">Loading...</div>
+    <div id="app">
+        <div class="loading-screen">
+            <svg class="loading-progress" viewBox="0 0 100 100">
+                <circle class="loading-track" r="42" cx="50" cy="50" />
+                <g class="loading-spinner">
+                    <circle class="loading-indicator" r="42" cx="50" cy="50" />
+                </g>
+            </svg>
+            <div class="loading-progress-text">Loading</div>
+        </div>
+    </div>
     <script src="_content/IgniteUI.Blazor/app.bundle#[.{fingerprint}].js"></script>
     <script src="_framework/blazor.webassembly#[.{fingerprint}].js" autostart="false"></script>
     <script src="main#[.{fingerprint}].mjs" type="module"></script>

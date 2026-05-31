@@ -157,6 +157,32 @@
       "benchmarkDateTime": "2026-05-28T07:15:31.474Z",
       "ciRunId": "26557635278",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26557635278"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.6.26280.103",
+      "runtimeGitHash": "9d4ceae16e8e2763180b5aa10303f929c5d77903",
+      "aspnetCoreGitHash": "3fcf1529b7470268bbaa69e9736c4e489b87b4b8",
+      "sdkGitHash": "3fa6eb6eb5d14adb090cbcb00a998046cd2f4ff4",
+      "vmrGitHash": "f39bff9dea48e7e8c9407e770c94e9245e31e878",
+      "runtimeCommitDateTime": "2026-05-30T00:17:13Z",
+      "runtimeCommitAuthor": "Copilot",
+      "runtimeCommitMessage": "Replace EnumerateModulesInAssembly with combined GetModuleForAssembly; implement in cDAC (#128294)",
+      "aspnetCoreCommitDateTime": "2026-05-29T12:53:33Z",
+      "aspnetCoreCommitAuthor": "dependabot[bot]",
+      "aspnetCoreCommitMessage": "[main] (deps): Bump dotnet/arcade/.github/workflows/backport-base.yml (#66910)",
+      "aspnetCoreVersion": "11.0.0-preview.6.26280.103",
+      "runtimePackVersion": "11.0.0-preview.6.26280.103",
+      "workloadVersion": "11.0.100-preview.6.26280.103",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
+      "releaseDate": "2026-05-30",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-05-31T03:22:24.956Z",
+      "ciRunId": "26700700252",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26700700252"
     }
   ],
   "apps": {

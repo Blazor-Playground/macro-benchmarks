@@ -697,6 +697,16 @@ async function runWalkthroughs(
                         if (wasmBytes != null) wasmMemorySamples.push(wasmBytes);
                     } catch { /* ignore */ }
                 }
+            } catch (e) {
+                // Resilience: a single benchmark that times out or otherwise fails must NOT
+                // discard the whole engine's session. Each blazor-perf benchmark is selfNav
+                // (fresh server + browser per run), so we can record this metric as null and
+                // continue with the next benchmark instead of throwing — which would otherwise
+                // propagate to measureBrowser's retry loop and re-run (and likely re-hang on)
+                // the entire suite from scratch, producing zero data for the engine.
+                const msg = e instanceof Error ? e.message : String(e);
+                err(`⚠ BENCHMARK FAILED: ${wt.metric} ${i + 1}/${runs} — ${msg} (recording null, continuing)`);
+                break;
             } finally {
                 if (wtPage) await wtPage.close();
                 if (wt.selfNav) {
@@ -709,7 +719,7 @@ async function runWalkthroughs(
             }
         }
         if (times.length < runs) {
-            err(`⚠ PARTIAL RESULT: ${wt.metric} completed ${times.length}/${runs} runs (deadline reached)`);
+            err(`⚠ PARTIAL RESULT: ${wt.metric} completed ${times.length}/${runs} runs (failure or deadline)`);
         }
         const iqm = sortedIQM(times);
         const rounded = iqm != null ? Math.round(iqm) : null;

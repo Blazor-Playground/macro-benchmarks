@@ -46,98 +46,37 @@ app.MapRazorComponents<BlazorPerf.Components.App>()
 // Returns renders/sec for a given scenario over a duration window.
 app.MapGet("/api/bench/html-render", async (string scenario, int durationMs) =>
 {
-    Type componentType = scenario switch
-    {
-        "params-count" => typeof(BlazorPerf.Components.Pages.ParametersCountSsr),
-        "too-many-components" => typeof(BlazorPerf.Components.Pages.TooManyComponentsSsr),
-        _ => throw new ArgumentException($"Unknown scenario: {scenario}")
-    };
-
+    var componentType = ResolveComponentType(scenario);
     var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
-    // Warmup: 3 renders discarded
-    await using (var warmup = new HtmlRenderer(app.Services, loggerFactory))
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            await warmup.Dispatcher.InvokeAsync(async () =>
-            {
-                await warmup.RenderComponentAsync(componentType);
-            });
-        }
-    }
 
-    var count = 0;
-    var sw = Stopwatch.StartNew();
-    // Recycle HtmlRenderer every 20 renders to prevent unbounded component accumulation
-    while (sw.ElapsedMilliseconds < durationMs)
-    {
-        await using var renderer = new HtmlRenderer(app.Services, loggerFactory);
-        for (int batch = 0; batch < 20 && sw.ElapsedMilliseconds < durationMs; batch++)
-        {
-            await renderer.Dispatcher.InvokeAsync(async () =>
-            {
-                await renderer.RenderComponentAsync(componentType);
-            });
-            count++;
-        }
-    }
-    sw.Stop();
+    await WarmupAsync(app.Services, loggerFactory, componentType);
+    var (count, elapsedMs) = await RunRenderLoopAsync(app.Services, loggerFactory, componentType, durationMs);
 
-    var rendersPerSec = count * 1000.0 / sw.ElapsedMilliseconds;
-    return Results.Json(new { rendersPerSec, count, elapsedMs = sw.ElapsedMilliseconds });
+    var rendersPerSec = count * 1000.0 / elapsedMs;
+    return Results.Json(new { rendersPerSec, count, elapsedMs });
 });
 
-// HtmlRenderer stress endpoint — runs N parallel renders via Task.WhenAll.
-// Returns aggregate renders/sec across all parallel tasks.
+// HtmlRenderer stress endpoint — runs N render loops concurrently and reports aggregate renders/sec.
 app.MapGet("/api/bench/html-render-stress", async (string scenario, int durationMs, int parallel) =>
 {
-    Type componentType = scenario switch
-    {
-        "params-count" => typeof(BlazorPerf.Components.Pages.ParametersCountSsr),
-        "too-many-components" => typeof(BlazorPerf.Components.Pages.TooManyComponentsSsr),
-        _ => throw new ArgumentException($"Unknown scenario: {scenario}")
-    };
-
+    var componentType = ResolveComponentType(scenario);
     parallel = Math.Clamp(parallel, 1, 200);
-
     var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
 
-    // Sequential warmup to JIT all paths before parallel execution
-    await using (var warmup = new HtmlRenderer(app.Services, loggerFactory))
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            await warmup.Dispatcher.InvokeAsync(async () =>
-            {
-                await warmup.RenderComponentAsync(componentType);
-            });
-        }
-    }
+    await WarmupAsync(app.Services, loggerFactory, componentType);
 
-    // Each task recycles its HtmlRenderer every 20 renders to prevent unbounded memory growth.
-    var tasks = Enumerable.Range(0, parallel).Select(async _ =>
-    {
-        var count = 0;
-        var sw = Stopwatch.StartNew();
-        while (sw.ElapsedMilliseconds < durationMs)
-        {
-            await using var renderer = new HtmlRenderer(app.Services, loggerFactory);
-            for (int batch = 0; batch < 20 && sw.ElapsedMilliseconds < durationMs; batch++)
-            {
-                await renderer.Dispatcher.InvokeAsync(async () =>
-                {
-                    await renderer.RenderComponentAsync(componentType);
-                });
-                count++;
-            }
-        }
-        sw.Stop();
-        return (count, sw.ElapsedMilliseconds);
-    }).ToArray();
+    // Task.Run is REQUIRED for real concurrency. HtmlRenderer.Dispatcher.InvokeAsync runs the render
+    // delegate INLINE on an uncontended dispatcher, so the `await` inside RunRenderLoopAsync never
+    // yields. Without Task.Run, Select(...).ToArray() would run each loop to completion before
+    // starting the next, turning N "parallel" tasks into N sequential ones (N*durationMs total).
+    // Task.Run dispatches each loop onto its own thread-pool thread so they truly overlap.
+    var tasks = Enumerable.Range(0, parallel)
+        .Select(_ => Task.Run(() => RunRenderLoopAsync(app.Services, loggerFactory, componentType, durationMs)))
+        .ToArray();
 
     var results = await Task.WhenAll(tasks);
-    var totalCount = results.Sum(r => r.count);
-    var maxElapsed = results.Max(r => r.ElapsedMilliseconds);
+    var totalCount = results.Sum(r => r.Count);
+    var maxElapsed = results.Max(r => r.ElapsedMs);
     var rendersPerSec = totalCount * 1000.0 / maxElapsed;
 
     return Results.Json(new { rendersPerSec, totalCount, parallel, maxElapsedMs = maxElapsed });
@@ -166,3 +105,46 @@ app.MapPost("/api/bench/reset", () =>
 });
 
 app.Run();
+
+// Maps a scenario name to the component type it renders.
+static Type ResolveComponentType(string scenario) => scenario switch
+{
+    "params-count" => typeof(BlazorPerf.Components.Pages.ParametersCountSsr),
+    "too-many-components" => typeof(BlazorPerf.Components.Pages.TooManyComponentsSsr),
+    _ => throw new ArgumentException($"Unknown scenario: {scenario}")
+};
+
+// Renders a component once on its renderer's dispatcher.
+static Task RenderOnceAsync(HtmlRenderer renderer, Type componentType) =>
+    renderer.Dispatcher.InvokeAsync(async () => await renderer.RenderComponentAsync(componentType));
+
+// Discards a few renders so all JIT/allocation paths are warm before measuring.
+static async Task WarmupAsync(IServiceProvider services, ILoggerFactory loggerFactory, Type componentType)
+{
+    await using var warmup = new HtmlRenderer(services, loggerFactory);
+    for (int i = 0; i < 3; i++)
+    {
+        await RenderOnceAsync(warmup, componentType);
+    }
+}
+
+// Renders in a tight loop until durationMs elapses, recycling the HtmlRenderer every 20 renders to
+// bound the growth of its internal _componentStateById dictionary (it retains every rendered
+// component's state until disposal). Returns the render count and the actual elapsed time.
+static async Task<(int Count, long ElapsedMs)> RunRenderLoopAsync(
+    IServiceProvider services, ILoggerFactory loggerFactory, Type componentType, int durationMs)
+{
+    var count = 0;
+    var sw = Stopwatch.StartNew();
+    while (sw.ElapsedMilliseconds < durationMs)
+    {
+        await using var renderer = new HtmlRenderer(services, loggerFactory);
+        for (int batch = 0; batch < 20 && sw.ElapsedMilliseconds < durationMs; batch++)
+        {
+            await RenderOnceAsync(renderer, componentType);
+            count++;
+        }
+    }
+    sw.Stop();
+    return (count, sw.ElapsedMilliseconds);
+}

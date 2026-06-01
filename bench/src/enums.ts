@@ -121,7 +121,18 @@ export interface AppConfig {
     internal: boolean;
     /** Only runs with Mono runtime (no CoreCLR support) */
     monoOnly: boolean;
-    /** App hosts its own Kestrel server (don't use static file server) */
+    /**
+     * App hosts its own ASP.NET Core Kestrel server instead of being served as a static site.
+     * Effects:
+     *  - build: skips `--no-restore` (the Blazor SDK strips the WASM client's RID only during
+     *    publish, so restore must happen as part of publish) and builds `--self-contained` so the
+     *    measure container can run the server without an installed SDK.
+     *  - measure: starts a real Kestrel process (and restarts it between self-nav walkthroughs)
+     *    instead of the static file server.
+     *  - deploy: cannot be deployed as a static site.
+     * Note: the Kestrel host always runs on CoreCLR regardless of the WASM client runtime; see
+     * `clientRuntimeFor`.
+     */
     kestrelHosted?: boolean;
     /** Relative path from src/<app>/ to the .csproj file (default: auto-detect in directory) */
     projectPath?: string;
@@ -204,10 +215,15 @@ export function shouldSkipMeasurement(runtime: Runtime, app: App, preset: Preset
  * or null if the combination is valid.
  */
 export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx: BenchContext): string | null {
-    if (runtime === Runtime.CoreCLR && ctx.sdkInfo.major < 11 && app !== App.BlazorPerf) {
-        return `CoreCLR runtime does not build with SDK versions below 11.0.0`;
-    }
-    if (runtime === Runtime.CoreCLR && ctx.sdkInfo.major == 11 && ctx.sdkInfo.isPrerelease && ctx.sdkInfo.sdkVersion.includes('preview.3')) {
+    // blazor-perf hosts a CoreCLR Kestrel server, so its server-side metrics ALWAYS run on
+    // CoreCLR — a CoreCLR build must exist even when CoreCLR WASM is unavailable. In that case the
+    // WASM *client* of that build falls back to Mono via clientRuntimeFor() (see build.ts); the
+    // manifest entry keeps runtime=CoreCLR so server metrics attribute correctly. Every other app
+    // genuinely needs CoreCLR WASM, so it is skipped when unavailable.
+    if (runtime === Runtime.CoreCLR && !coreclrWasmAvailable(ctx.sdkInfo) && app !== App.BlazorPerf) {
+        if (ctx.sdkInfo.major < 11) {
+            return `CoreCLR runtime does not build with SDK versions below 11.0.0`;
+        }
         return `CoreCLR runtime does not build with SDK versions below 11 preview.4`;
     }
     if (runtime === Runtime.NativeAOTLLVM && ctx.sdkInfo.major < 11) {
@@ -338,6 +354,34 @@ export function getRuntimesForApp(app: App, filter?: Runtime[]): Runtime[] {
     const config = APP_CONFIG[app];
     const available = config.monoOnly ? [Runtime.Mono] : [...ALL_RUNTIMES];
     return filter ? available.filter(r => filter.includes(r)) : available;
+}
+
+/**
+ * Whether a usable CoreCLR WASM runtime exists for the given SDK.
+ *
+ * CoreCLR WASM did not exist before .NET 11, and net11 preview.3 shipped a broken one (fixed in
+ * preview.4). Everywhere we decide whether the CoreCLR WASM *client* can run, this is the gate.
+ */
+export function coreclrWasmAvailable(sdkInfo: { major: number; isPrerelease: boolean; sdkVersion: string }): boolean {
+    if (sdkInfo.major < 11) return false;
+    if (sdkInfo.major === 11 && sdkInfo.isPrerelease && sdkInfo.sdkVersion.includes('preview.3')) return false;
+    return true;
+}
+
+/**
+ * The WASM client runtime actually compiled for a requested runtime + SDK.
+ *
+ * blazor-perf's Kestrel host is ALWAYS CoreCLR (it produces the server-side metrics), but the
+ * WASM *client* has no usable CoreCLR flavor when `coreclrWasmAvailable` is false (pre-.NET 11 and
+ * net11 preview.3), so a requested CoreCLR client falls back to Mono there. The build manifest
+ * entry still keeps runtime=CoreCLR so server-side metrics are attributed to the coreclr bucket.
+ * For every other app/runtime/SDK the requested runtime is used unchanged.
+ */
+export function clientRuntimeFor(app: App, requested: Runtime, sdkInfo: { major: number; isPrerelease: boolean; sdkVersion: string }): Runtime {
+    if (app === App.BlazorPerf && requested === Runtime.CoreCLR && !coreclrWasmAvailable(sdkInfo)) {
+        return Runtime.Mono;
+    }
+    return requested;
 }
 
 /** Get valid engines for an app, optionally filtered */

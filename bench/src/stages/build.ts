@@ -10,6 +10,7 @@ import {
     NON_WORKLOAD_PRESETS,
     PRESET_MAP, PRESET_CONFIG,
     shouldSkipBuild,
+    clientRuntimeFor,
 } from '../enums.js';
 import { dotnetRestore, dotnetPublish, dotnetWorkloadInstall, dotnetWorkloadList, ExecError } from '../exec.js';
 import { banner, info, err } from '../log.js';
@@ -86,9 +87,9 @@ function getRestoreArgs(
     app: App,
     preset: Preset,
 ): string[] {
-    // blazor-perf: on older SDKs without CoreCLR WASM runtime, build the Client with Mono WASM
+    // blazor-perf: when no usable CoreCLR WASM runtime exists, build the Client with Mono WASM
     // (server-side always runs on CoreCLR regardless of this flag)
-    const effectiveRuntime = (app === App.BlazorPerf && runtime === R.CoreCLR && ctx.sdkInfo.major < 11) ? R.Mono : runtime;
+    const effectiveRuntime = clientRuntimeFor(app, runtime, ctx.sdkInfo);
     const args = [
         appDir,
         `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,
@@ -118,8 +119,8 @@ function getPublishArgs(
     preset: Preset,
     publishDir: string,
 ): string[] {
-    // blazor-perf: on older SDKs without CoreCLR WASM runtime, build the Client with Mono WASM
-    const effectiveRuntime = (app === App.BlazorPerf && runtime === R.CoreCLR && ctx.sdkInfo.major < 11) ? R.Mono : runtime;
+    // blazor-perf: when no usable CoreCLR WASM runtime exists, build the Client with Mono WASM
+    const effectiveRuntime = clientRuntimeFor(app, runtime, ctx.sdkInfo);
     const args = [
         appDir,
     ];

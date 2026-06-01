@@ -5,7 +5,7 @@ import type { Bucket } from './data-fetcher.js';
 import type { TickLayout } from './tick-layout.js';
 import {
     RUNTIME_COLORS, PRESET_DASH, ENGINE_MARKER, PROFILE_LINE_WIDTH,
-    BUILD_METRICS, WALKTHROUGH_METRICS, assert,
+    BUILD_METRICS, WALKTHROUGH_METRICS, isBlazorPerfMetric, assert,
 } from './constants.js';
 
 export interface Filters {
@@ -20,10 +20,16 @@ export function parseRowKey(key: string): { runtime: string; preset: string; pro
     return { runtime, preset, profile, engine };
 }
 
+// blazor-perf metrics (server/wasm benchmarks, including dynamic "...-otel-*" counters) are only
+// collected on chrome/desktop — there is no mobile profile for them — so they render desktop-only.
+function isDesktopOnlyMetric(metric: string): boolean {
+    return BUILD_METRICS.has(metric) || WALKTHROUGH_METRICS.has(metric) || isBlazorPerfMetric(metric);
+}
+
 export function isRowVisible(rowKey: string, filters: Filters, metric: string): boolean {
     const d = parseRowKey(rowKey);
-    // Build-time and walkthrough metrics: only show chrome/desktop (values are identical or only collected there)
-    if (BUILD_METRICS.has(metric) || WALKTHROUGH_METRICS.has(metric)) {
+    // Build-time, walkthrough, and blazor-perf metrics: only show chrome/desktop
+    if (isDesktopOnlyMetric(metric)) {
         if (d.engine !== 'chrome' || d.profile !== 'desktop') return false;
         // Skip engine/profile filters — always display if runtime and preset match
         return filters.runtimes.includes(d.runtime)
@@ -38,8 +44,8 @@ export function isRowVisible(rowKey: string, filters: Filters, metric: string): 
 }
 
 export function formatRowLabel(rowKey: string, metric: string): string {
-    if (BUILD_METRICS.has(metric) || WALKTHROUGH_METRICS.has(metric)) {
-        // Strip redundant /desktop/chrome for build-time, disk-size, and walkthrough metrics
+    if (isDesktopOnlyMetric(metric)) {
+        // Strip redundant /desktop/chrome for build-time, disk-size, walkthrough, and blazor-perf metrics
         const d = parseRowKey(rowKey);
         return `${d.runtime}/${d.preset}`;
     }

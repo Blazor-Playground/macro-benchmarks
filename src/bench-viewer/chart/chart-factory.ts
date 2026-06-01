@@ -1,6 +1,6 @@
 // Chart.js instance creation, configuration, and plugins
 
-import { METRIC_UNITS, METRIC_DISPLAY } from './constants.js';
+import { metricUnit, metricDisplay } from './constants.js';
 import { getCached } from './data-fetcher.js';
 import type { BucketHeader } from './data-fetcher.js';
 import { isRowVisible } from './dataset-builder.js';
@@ -60,8 +60,8 @@ Chart.register(frozenZonePlugin);
 // ── Chart Creation ───────────────────────────────────────────────────────────
 
 export function createChart(canvas: HTMLCanvasElement, metric: string, mergedDatasets: ChartDatasetBase[], filters: Filters, dataBaseUrl: string, pointClickCallback: ((json: string) => void) | null, tickLayout: TickLayout): ChartInstance {
-    const unit = METRIC_UNITS[metric] || '';
-    const displayName = METRIC_DISPLAY[metric] || metric;
+    const unit = metricUnit(metric);
+    const displayName = metricDisplay(metric);
     const { dividerDates, tickMap: tickToSdk } = tickLayout;
 
     // Convert x from number to Date for Chart.js time scale

@@ -10,8 +10,8 @@ import {
     MetricKey,
     getEnginesForApp, getProfilesForEngine,
     shouldSkipMeasurement,
+    coreclrWasmAvailable,
     Preset,
-    getRuntimesForApp,
 } from '../enums.js';
 import { isWindows } from '../exec.js';
 import { banner, info, err, debug } from '../log.js';
@@ -117,46 +117,47 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         }
         const compileTime = entry.compileTimeMs;
 
-        // Engine × profile loop
+        // Engine × profile loop. The runtime is fully determined by `entry.runtime` (the build
+        // manifest already has one entry per runtime), so we must NOT re-iterate runtimes here —
+        // doing so re-measured each entry once per runtime and wrote the result under a mislabeled
+        // filename, letting a copy with the wrong runtime (and null cross-runtime metrics) clobber
+        // the correct file.
         const engines = getEnginesForApp(entry.app, effectiveEngines);
-        const runtimes = getRuntimesForApp(entry.app, effectiveRuntimes);
-        for (const runtime of runtimes) {
-            for (const engine of engines) {
-                const profiles = getProfilesForEngine(engine, effectiveProfiles);
-                for (const profile of profiles) {
-                    totalMeasurements++;
-                    try {
-                        info(`  ${engine}/${profile}`);
+        for (const engine of engines) {
+            const profiles = getProfilesForEngine(engine, effectiveProfiles);
+            for (const profile of profiles) {
+                totalMeasurements++;
+                try {
+                    info(`  ${engine}/${profile}`);
 
-                        let result: MetricsResult;
+                    let result: MetricsResult;
 
-                        if (BROWSER_ENGINES.has(engine)) {
-                            result = await measureBrowser(
-                                engine, profile, entry, webRoot,
-                                compileTime, fileSizes, isInternal, ctx,
-                                deadlineAt,
-                            );
-                        } else {
-                            result = await measureCli(
-                                engine, entry, webRoot,
-                                compileTime, fileSizes, isInternal, ctx,
-                            );
-                        }
-
-                        // Build and write result JSON
-                        const meta = buildMeta(ctx, entry, engine, profile);
-                        const resultJson = buildResultJson(meta, result.metrics, result.sampleCounts);
-                        const filename = buildResultFilename(
-                            ctx.sdkInfo, runtime, entry.preset,
-                            profile, engine, entry.app,
+                    if (BROWSER_ENGINES.has(engine)) {
+                        result = await measureBrowser(
+                            engine, profile, entry, webRoot,
+                            compileTime, fileSizes, isInternal, ctx,
+                            deadlineAt,
                         );
-                        const outPath = join(ctx.resultsDir, filename);
-                        await writeFile(outPath, JSON.stringify(resultJson, null, 2) + '\n');
-                        info(`    → ${filename}`);
-                    } catch (e) {
-                        totalFailures++;
-                        err(`  Failed ${entry.app}/${entry.preset} ${engine}/${profile}: ${e instanceof Error ? e.message : e}`);
+                    } else {
+                        result = await measureCli(
+                            engine, entry, webRoot,
+                            compileTime, fileSizes, isInternal, ctx,
+                        );
                     }
+
+                    // Build and write result JSON
+                    const meta = buildMeta(ctx, entry, engine, profile);
+                    const resultJson = buildResultJson(meta, result.metrics, result.sampleCounts);
+                    const filename = buildResultFilename(
+                        ctx.sdkInfo, entry.runtime, entry.preset,
+                        profile, engine, entry.app,
+                    );
+                    const outPath = join(ctx.resultsDir, filename);
+                    await writeFile(outPath, JSON.stringify(resultJson, null, 2) + '\n');
+                    info(`    → ${filename}`);
+                } catch (e) {
+                    totalFailures++;
+                    err(`  Failed ${entry.app}/${entry.preset} ${engine}/${profile}: ${e instanceof Error ? e.message : e}`);
                 }
             }
         }
@@ -236,6 +237,13 @@ function mergeTimingArrays(target: TimingArrays, source: TimingArrays): void {
 // Walkthrough dispatch table — Chrome + desktop only
 type WalkthroughFn = (opts: WalkthroughOpts<Page>) => Promise<WalkthroughFnReturn>;
 
+// Walkthrough flags:
+//   coreclrOnly — a server-side metric produced by the CoreCLR Kestrel host (Interactive Server,
+//                 SSR, HtmlRenderer, their *-stress variants, OTEL). The host is always CoreCLR,
+//                 so these are emitted only for the coreclr entry to avoid duplicating them onto
+//                 the mono bucket.
+//   wasmOnly    — a WASM client metric. Emitted for the mono client always, and for the coreclr
+//                 client only when CoreCLR WASM exists (SDK >= 11).
 const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: number; selfNav?: boolean; noBrowser?: boolean; coreclrOnly?: boolean; wasmOnly?: boolean }[] = [
     { app: A.BlazingPizza, metric: MetricKey.PizzaWalkthrough, fn: runPizzaWalkthrough as WalkthroughFn },
     { app: A.HavitBootstrap, metric: MetricKey.HavitWalkthrough, fn: runHavitWalkthrough as WalkthroughFn },
@@ -596,14 +604,14 @@ async function runWalkthroughs(
     cdp: CDPState | null,
     deadlineAt: number,
     restartServer: (() => Promise<string>) | null,
-    sdkMajor: number,
+    coreclrWasmReady: boolean,
 ): Promise<WalkthroughResult> {
     const empty: WalkthroughResult = { metrics: {}, sampleCounts: {}, jsHeapSamples: [], wasmMemorySamples: [] };
     const defaultRuns = warmRuns > 1 ? warmRuns * 4 : 1;
     // Walkthroughs are Chrome-only + desktop-only (CDP required for reliable timing)
     if (profile !== 'desktop' || engine !== E.Chrome) return empty;
-    // Filter: coreclrOnly needs coreclr runtime; wasmOnly needs coreclr WASM support (SDK >= 11)
-    const hasCoreclrWasm = entry.runtime === R.CoreCLR && sdkMajor >= 11;
+    // Filter: coreclrOnly needs coreclr runtime; wasmOnly needs a usable CoreCLR WASM runtime
+    const hasCoreclrWasm = entry.runtime === R.CoreCLR && coreclrWasmReady;
     const matches = WALKTHROUGHS.filter(w =>
         w.app === entry.app
         && (!w.coreclrOnly || entry.runtime === R.CoreCLR)
@@ -745,7 +753,7 @@ async function runBrowserSession(
     srv: StaticServer | null,
     deadlineAt: number,
     restartServer: (() => Promise<string>) | null,
-    sdkMajor: number,
+    coreclrWasmReady: boolean,
 ): Promise<MetricsResult> {
     const context = await browser.newContext();
     const page = await context.newPage();
@@ -833,7 +841,7 @@ async function runBrowserSession(
 
     // Walkthroughs (external apps only)
     const walkthroughResult = !isInternal
-        ? await runWalkthroughs(context, launchBrowser, pageUrl, entry, engine, profile, warmRuns, timeout, verbose, dryRun, allSelfNav ? null : cdp, deadlineAt, restartServer, sdkMajor)
+        ? await runWalkthroughs(context, launchBrowser, pageUrl, entry, engine, profile, warmRuns, timeout, verbose, dryRun, allSelfNav ? null : cdp, deadlineAt, restartServer, coreclrWasmReady)
         : { metrics: {}, sampleCounts: {}, jsHeapSamples: [] as number[], wasmMemorySamples: [] as number[] };
     const walkthroughMetrics = walkthroughResult.metrics;
     const walkthroughSampleCounts = walkthroughResult.sampleCounts;
@@ -991,7 +999,7 @@ async function measureBrowser(
                     browser, launchBrowser, pageUrl, entry, engine, profile,
                     compileTime, fileSizes, isInternal, useCDP,
                     warmRuns, timeout, ctx.verbose, ctx.dryRun, srv,
-                    deadlineAt, restartServer, ctx.sdkInfo.major,
+                    deadlineAt, restartServer, coreclrWasmAvailable(ctx.sdkInfo),
                 );
                 await sleep(100);
                 try { await browser.close(); } catch { /* already closed for allSelfNav */ }

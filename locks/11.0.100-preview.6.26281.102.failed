@@ -1,0 +1,11 @@
+{
+  "failedAt": "2026-06-01T18:49:55.108Z",
+  "failures": [
+    {
+      "target": "blazor-perf/dev-loop",
+      "errorLines": [
+        "D:\\macro-benchmarks\\src\\blazor-perf\\BlazorPerf\\Program.cs(150,17): error CS0029: Cannot implicitly convert type 'System.Threading.Tasks.Task' to 'int' [D:\\macro-benchmarks\\src\\blazor-perf\\BlazorPerf\\BlazorPerf.csproj]"
+      ]
+    }
+  ]
+}

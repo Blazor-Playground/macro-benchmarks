@@ -1,0 +1,16 @@
+{
+  "failedAt": "2026-06-01T23:16:34.096Z",
+  "ciRunId": "26784847807",
+  "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26784847807",
+  "failures": [
+    {
+      "target": "empty-browser/dev-loop",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1301: Unable to load the service index for source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-experimental/nuget/v3/index.json.",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1301:   Response status code does not indicate success: 500 (Internal Server Error - Request was blocked due to exceeding usage of resource 'Concurrency' in namespace 'IPAddress'. For more information on why your request was blocked, see the topic \"Rate limits\" on the Microsoft Web site (https://go.microsoft.com/fwlink/?LinkId=823950). (DevOps Activity ID: 525EFC7D-AAE9-4ED3-9891-3475B118AC8E)).",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1301:   Response status code does not indicate success: 500 (Internal Server Error - Request was blocked due to exceeding usage of resource 'Concurrency' in namespace 'IPAddress'. For more information on why your request was blocked, see the topic \"Rate limits\" on the Microsoft Web site (https://go.microsoft.com/fwlink/?LinkId=823950). (DevOps Activity ID: 525EF93A-AAE9-4ED3-9891-3475B118AC8E)).",
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error NU1301:   Response status code does not indicate success: 500 (Internal Server Error - Request was blocked due to exceeding usage of resource 'Concurrency' in namespace 'IPAddress'. For more information on why your request was blocked, see the topic \"Rate limits\" on the Microsoft Web site (https://go.microsoft.com/fwlink/?LinkId=823950). (DevOps Activity ID: 525EC7C5-AAE9-4ED3-9891-3475B118AC8E))."
+      ]
+    }
+  ]
+}

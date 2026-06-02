@@ -404,9 +404,9 @@
       "patch": 314,
       "channel": "9.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-05-26T15:10:57.265Z",
-      "ciRunId": "26452505068",
-      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26452505068"
+      "benchmarkDateTime": "2026-06-02T14:36:57.944Z",
+      "ciRunId": "26823084998",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26823084998"
     }
   ],
   "apps": {
@@ -428,6 +428,7 @@
     ],
     "blazor-perf": [
       "blazor-counter-heavy-server",
+      "blazor-counter-heavy-wasm",
       "blazor-params-count-htmlrenderer",
       "blazor-params-count-htmlrenderer-stress",
       "blazor-params-count-htmlrenderer-stress-otel-alloc-rate",
@@ -467,6 +468,7 @@
       "blazor-params-count-ssr-stress-otel-threadpool-queue",
       "blazor-params-count-ssr-stress-otel-threadpool-threads",
       "blazor-params-count-ssr-stress-otel-working-set-mb",
+      "blazor-params-count-wasm",
       "blazor-too-many-components-htmlrenderer",
       "blazor-too-many-components-htmlrenderer-stress",
       "blazor-too-many-components-htmlrenderer-stress-otel-alloc-rate",
@@ -506,6 +508,7 @@
       "blazor-too-many-components-ssr-stress-otel-threadpool-queue",
       "blazor-too-many-components-ssr-stress-otel-threadpool-threads",
       "blazor-too-many-components-ssr-stress-otel-working-set-mb",
+      "blazor-too-many-components-wasm",
       "compile-time",
       "disk-size-assemblies",
       "disk-size-native",
@@ -513,7 +516,8 @@
       "download-size-warm",
       "memory-peak",
       "time-to-reach-managed-cold",
-      "time-to-reach-managed-warm"
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
     ],
     "empty-blazor": [
       "blazor-cs-to-js-json",

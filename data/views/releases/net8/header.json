@@ -116,9 +116,9 @@
       "patch": 204,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-05-26T23:12:04.726Z",
-      "ciRunId": "26478408569",
-      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26478408569"
+      "benchmarkDateTime": "2026-06-02T19:57:36.763Z",
+      "ciRunId": "26841149876",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26841149876"
     },
     {
       "sdkVersion": "8.0.300",

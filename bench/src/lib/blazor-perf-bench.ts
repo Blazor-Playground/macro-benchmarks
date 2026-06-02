@@ -160,6 +160,15 @@ export async function runTooManyComponentsServer(opts: WalkthroughOpts<Playwrigh
 
 // ── Interop Benchmarks (migrated from empty-blazor) ──────────────────────────
 
+// Upper bound for page navigation + WASM boot + component registration. WASM
+// normally boots in 1-2s (debug builds with large unlinked assemblies can take
+// >30s), so 120s is generous headroom. This is intentionally much smaller than
+// the overall measurement `timeout` (up to 600s in CI): if /weather fails to
+// render, each interop benchmark must fail fast and let the resilience layer
+// record a null and continue. Otherwise 6 interop benchmarks × the full timeout
+// would consume ~60min and trip the 1h job limit, losing ALL blazor-perf data.
+const BOOT_TIMEOUT_MS = 120_000;
+
 async function runInteropBench(
     opts: WalkthroughOpts<PlaywrightPage>,
     fnName: string,
@@ -168,19 +177,19 @@ async function runInteropBench(
     const { page: _page, url, timeout, verbose = false, durationMs = 60_000 } = opts;
     const page = _page!;
     const benchMs = Math.round(durationMs / 2);
+    const bootTimeout = Math.min(timeout, BOOT_TIMEOUT_MS);
     const weatherUrl = new URL('/weather', url).href;
 
     debug(`[blazor-perf:${label}] navigating to ${weatherUrl}`);
-    await page.goto(weatherUrl, { timeout, waitUntil: 'load' });
-    await page.waitForSelector('[data-testid="weather-scroll-container"]', { timeout });
+    await page.goto(weatherUrl, { timeout: bootTimeout, waitUntil: 'load' });
+    await page.waitForSelector('[data-testid="weather-scroll-container"]', { timeout: bootTimeout });
     debug(`[blazor-perf:${label}] selector found, waiting for WASM module...`);
 
     // Wait for JS module to load (Weather.razor.js registers globals)
-    // Use outer timeout — WASM boot + module import may exceed 10s under load
     await page.waitForFunction(
         `typeof globalThis['${fnName}'] === 'function'`,
         null,
-        { timeout },
+        { timeout: bootTimeout },
     );
     debug(`[blazor-perf:${label}] module loaded, globalThis.${fnName} available`);
 
@@ -567,20 +576,22 @@ async function runMeasuredBenchmark(
     const { page: _page, url, timeout, verbose = false, durationMs = 60_000 } = opts;
     const page = _page!;
     const benchDurationMs = Math.min(durationMs, 30_000); // Cap at 30s per run
+    const bootTimeout = Math.min(timeout, BOOT_TIMEOUT_MS);
     const benchUrl = new URL(path, url).href;
 
     debug(`[blazor-perf:${label}] navigating to ${benchUrl}`);
     // Use 'load' instead of 'networkidle' — Blazor's SignalR WebSocket prevents networkidle
-    await page.goto(benchUrl, { timeout, waitUntil: 'load' });
+    await page.goto(benchUrl, { timeout: bootTimeout, waitUntil: 'load' });
     debug(`[blazor-perf:${label}] page loaded, waiting for WASM boot + component registration...`);
 
-    // Wait for the component to register itself via JSInterop
-    // Debug builds with large unlinked assemblies can take >30s to boot WASM
+    // Wait for the component to register itself via JSInterop.
+    // Bounded by BOOT_TIMEOUT_MS so a page that never boots fails fast instead of
+    // consuming the full measurement timeout (see note on BOOT_TIMEOUT_MS).
     await page.waitForFunction(
         () => !!(globalThis as Record<string, unknown>)['blazorPerf']
             && !!((globalThis as Record<string, unknown>)['blazorPerf'] as Record<string, unknown>)['benchComponent'],
         null,
-        { timeout },
+        { timeout: bootTimeout },
     );
 
     debug(`[blazor-perf:${label}] component registered, running benchmark for ${benchDurationMs}ms`);

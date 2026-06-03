@@ -25,6 +25,32 @@
       "benchmarkDateTime": "2026-06-02T19:33:18.666Z",
       "ciRunId": "26838282334",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26838282334"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.6.26302.109",
+      "runtimeGitHash": "41a0abd2e4274ca1e7bae7bc6336c933f90785a2",
+      "aspnetCoreGitHash": "3d3e43a1f4bccaa9947da2cf17170315e5ee572f",
+      "sdkGitHash": "1903390c7f015618a3b2c539bf6b6d93abb594cb",
+      "vmrGitHash": "953380f224e6f6ee72662fdee8b27900adbb29c2",
+      "runtimeCommitDateTime": "2026-06-02T01:52:09Z",
+      "runtimeCommitAuthor": "Copilot",
+      "runtimeCommitMessage": "Serialize VSD DispatchCache unlinking with cache write lock (#128868)",
+      "aspnetCoreCommitDateTime": "2026-06-01T23:26:17Z",
+      "aspnetCoreCommitAuthor": "github-actions[bot]",
+      "aspnetCoreCommitMessage": "Update Microsoft.Windows.CsWin32 from 0.3.269 to 0.3.275 (#66944)",
+      "aspnetCoreVersion": "11.0.0-preview.6.26302.109",
+      "runtimePackVersion": "11.0.0-preview.6.26302.109",
+      "workloadVersion": "11.0.100-preview.6.26302.109",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
+      "releaseDate": "2026-06-02",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-06-03T00:48:32.130Z",
+      "ciRunId": "26854057807",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26854057807"
     }
   ],
   "apps": {

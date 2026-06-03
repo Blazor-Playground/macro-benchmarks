@@ -132,7 +132,7 @@
       "aspnetCoreCommitDateTime": "2025-04-29T18:09:44Z",
       "aspnetCoreVersion": "9.0.5",
       "runtimePackVersion": "9.0.5",
-      "workloadVersion": "9.0.14",
+      "workloadVersion": "9.0.16",
       "bootstrapSdkVersion": "9.0.105",
       "releaseDate": "2025-05-13",
       "major": 9,
@@ -140,9 +140,9 @@
       "patch": 300,
       "channel": "9.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-30T03:26:51.321Z",
-      "ciRunId": "23725536191",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23725536191"
+      "benchmarkDateTime": "2026-06-03T02:49:31.737Z",
+      "ciRunId": "26858728577",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26858728577"
     },
     {
       "sdkVersion": "9.0.301",

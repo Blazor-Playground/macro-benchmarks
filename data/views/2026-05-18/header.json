@@ -412,9 +412,9 @@
       "patch": 100,
       "channel": "11.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-05-26T16:04:12.047Z",
-      "ciRunId": "26454847986",
-      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26454847986"
+      "benchmarkDateTime": "2026-06-03T00:12:54.073Z",
+      "ciRunId": "26851684059",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26851684059"
     }
   ],
   "apps": {

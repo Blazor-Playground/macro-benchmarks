@@ -380,9 +380,9 @@
       "patch": 313,
       "channel": "9.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-05-20T19:11:44.942Z",
-      "ciRunId": "26181490917",
-      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26181490917"
+      "benchmarkDateTime": "2026-06-03T16:49:30.384Z",
+      "ciRunId": "26896029952",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26896029952"
     },
     {
       "sdkVersion": "9.0.314",

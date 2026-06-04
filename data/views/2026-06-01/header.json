@@ -155,6 +155,32 @@
       "benchmarkDateTime": "2026-06-03T23:38:39.895Z",
       "ciRunId": "26916708675",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26916708675"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.6.26303.111",
+      "runtimeGitHash": "518c8cb85a5f52d65be02dbbe8803e2dde7fdfe1",
+      "aspnetCoreGitHash": "2dc6fbf75f56692c29b92a9dd608d032b37b6bad",
+      "sdkGitHash": "d9dffcdbb1c7dbcb11d162a0ca06883bf2a976b6",
+      "vmrGitHash": "272cf6be68b94cffb7572b5286e791be83641bfd",
+      "runtimeCommitDateTime": "2026-06-03T16:17:17Z",
+      "runtimeCommitAuthor": "Alexander Köplinger",
+      "runtimeCommitMessage": "Skip 32-bit time_t openssl detection on linux-bionic arm (#128948)",
+      "aspnetCoreCommitDateTime": "2026-06-02T21:20:18Z",
+      "aspnetCoreCommitAuthor": "William Godbe",
+      "aspnetCoreCommitMessage": "Update Milestones for July (#66987)",
+      "aspnetCoreVersion": "11.0.0-preview.6.26303.111",
+      "runtimePackVersion": "11.0.0-preview.6.26303.111",
+      "workloadVersion": "11.0.100-preview.6.26303.111",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
+      "releaseDate": "2026-06-03",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-06-04T03:54:14.858Z",
+      "ciRunId": "26926506730",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26926506730"
     }
   ],
   "apps": {

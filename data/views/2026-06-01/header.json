@@ -129,6 +129,32 @@
       "benchmarkDateTime": "2026-06-03T17:14:27.641Z",
       "ciRunId": "26897238785",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26897238785"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.5.26303.107",
+      "runtimeGitHash": "bc8418fd7e83a70418b0de32aad0b972dfe9dae5",
+      "aspnetCoreGitHash": "e7bbef4494305f9bc34dba4619fa2bac2e885f5d",
+      "sdkGitHash": "6d4a3524d9f03d63de36cbdb9546ab5f41792ff6",
+      "vmrGitHash": "d4dd04e756dba1292e56dc2f343b1f1fe2d867ec",
+      "runtimeCommitDateTime": "2026-06-02T21:52:28Z",
+      "runtimeCommitAuthor": "Tom McDonald",
+      "runtimeCommitMessage": "Restore E_NOTIMPL fallback in DacDbiInterfaceImpl::GetContext (#128499) (#128920)",
+      "aspnetCoreCommitDateTime": "2026-05-29T15:06:23Z",
+      "aspnetCoreCommitAuthor": "github-actions[bot]",
+      "aspnetCoreCommitMessage": "[release/11.0-preview5] Fix BlazorGateway VS F5 launch (#66836) and E2E manifest task path (#66617) (#66855)",
+      "aspnetCoreVersion": "11.0.0-preview.5.26303.107",
+      "runtimePackVersion": "11.0.0-preview.5.26303.107",
+      "workloadVersion": "11.0.100-preview.5.26303.107",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
+      "releaseDate": "2026-06-03",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-06-03T23:38:39.895Z",
+      "ciRunId": "26916708675",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26916708675"
     }
   ],
   "apps": {

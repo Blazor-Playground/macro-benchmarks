@@ -337,6 +337,32 @@
       "benchmarkDateTime": "2026-06-05T00:22:37.379Z",
       "ciRunId": "26984660062",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/26984660062"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.6.26304.117",
+      "runtimeGitHash": "3b0dd88d6cbd8c1ccdd57f20e831e877f742c9f6",
+      "aspnetCoreGitHash": "775c077e7debb7dea7ba11f730a3c62cb308f8af",
+      "sdkGitHash": "0ec809ad9dac8f04e72a8597e54f06c72fac0f32",
+      "vmrGitHash": "be772ce3f571605cebc70c76a809e4c7e1c1934c",
+      "runtimeCommitDateTime": "2026-06-03T21:38:41Z",
+      "runtimeCommitAuthor": "Copilot",
+      "runtimeCommitMessage": "Initialize *ppv in comhost DllGetClassObject (#128916)",
+      "aspnetCoreCommitDateTime": "2026-06-03T23:52:59Z",
+      "aspnetCoreCommitAuthor": "Damian Edwards",
+      "aspnetCoreCommitMessage": "Add dotnet-user-jwts --file support for file-based apps (#66919)",
+      "aspnetCoreVersion": "11.0.0-preview.6.26304.117",
+      "runtimePackVersion": "11.0.0-preview.6.26304.117",
+      "workloadVersion": "11.0.100-preview.6.26304.117",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
+      "releaseDate": "2026-06-04",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-06-05T09:15:32.621Z",
+      "ciRunId": "27002954121",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/27002954121"
     }
   ],
   "apps": {

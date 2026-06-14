@@ -181,6 +181,32 @@
       "benchmarkDateTime": "2026-06-13T00:23:19.530Z",
       "ciRunId": "27448152228",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/27448152228"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.6.26313.102",
+      "runtimeGitHash": "fdf44471a0f476d8b3a998233562e38e6063e657",
+      "aspnetCoreGitHash": "01c7cc4855bc75d33190ff7b14668a2d26015f43",
+      "sdkGitHash": "5e1a9ca950a41d5ffbf7134be90b8363537cddce",
+      "vmrGitHash": "06787fc66d5364230924d00f2c5c251aeb7a31cd",
+      "runtimeCommitDateTime": "2026-06-09T01:18:12Z",
+      "runtimeCommitAuthor": "Kevin Jones",
+      "runtimeCommitMessage": "Implement X25519 for Android",
+      "aspnetCoreCommitDateTime": "2026-06-09T20:53:46Z",
+      "aspnetCoreCommitAuthor": "Brennan",
+      "aspnetCoreCommitMessage": "Add fuzzing infrastructure for ASP.NET Core (#67022)",
+      "aspnetCoreVersion": "11.0.0-preview.6.26313.102",
+      "runtimePackVersion": "11.0.0-preview.6.26313.102",
+      "workloadVersion": "11.0.100-preview.6.26313.102",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
+      "releaseDate": "2026-06-13",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-06-14T03:44:41.178Z",
+      "ciRunId": "27485937306",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/27485937306"
     }
   ],
   "apps": {

@@ -1,0 +1,313 @@
+{
+  "failedAt": "2026-06-18T12:46:38.205Z",
+  "ciRunId": "27760309643",
+  "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/27760309643",
+  "failures": [
+    {
+      "target": "empty-browser/dev-loop",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "empty-browser/no-workload",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "micro-benchmarks/dev-loop",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "micro-benchmarks/no-workload",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "empty-blazor/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "empty-blazor/no-workload",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "blazing-pizza/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj]"
+      ]
+    },
+    {
+      "target": "blazing-pizza/no-workload",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj]"
+      ]
+    },
+    {
+      "target": "havit-bootstrap/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj]"
+      ]
+    },
+    {
+      "target": "havit-bootstrap/no-workload",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj]"
+      ]
+    },
+    {
+      "target": "mud-blazor/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "mud-blazor/no-workload",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "igniteui-light/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/igniteui-light/IgniteUILight.csproj]"
+      ]
+    },
+    {
+      "target": "igniteui-light/no-workload",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/igniteui-light/IgniteUILight.csproj]"
+      ]
+    },
+    {
+      "target": "blazor-perf/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf.Client/BlazorPerf.Client.csproj]"
+      ]
+    },
+    {
+      "target": "blazor-perf/no-workload",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf.Client/BlazorPerf.Client.csproj]"
+      ]
+    },
+    {
+      "target": "empty-browser/dev-loop",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "empty-browser/no-workload",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "micro-benchmarks/dev-loop",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "micro-benchmarks/no-workload",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "empty-blazor/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "empty-blazor/no-workload",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "blazing-pizza/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj]"
+      ]
+    },
+    {
+      "target": "blazing-pizza/no-workload",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj]"
+      ]
+    },
+    {
+      "target": "havit-bootstrap/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj]"
+      ]
+    },
+    {
+      "target": "havit-bootstrap/no-workload",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj]"
+      ]
+    },
+    {
+      "target": "mud-blazor/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "mud-blazor/no-workload",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "igniteui-light/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/igniteui-light/IgniteUILight.csproj]"
+      ]
+    },
+    {
+      "target": "igniteui-light/no-workload",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/igniteui-light/IgniteUILight.csproj]"
+      ]
+    },
+    {
+      "target": "blazor-perf/dev-loop",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf.Client/BlazorPerf.Client.csproj]"
+      ]
+    },
+    {
+      "target": "blazor-perf/no-workload",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf.Client/BlazorPerf.Client.csproj]"
+      ]
+    },
+    {
+      "target": "empty-browser/aot",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "empty-browser/native-relink",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "empty-browser/no-jiterp",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "empty-browser/invariant",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "empty-browser/no-reflection-emit",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/empty-browser/EmptyBrowser.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "micro-benchmarks/aot",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "micro-benchmarks/native-relink",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "micro-benchmarks/no-jiterp",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "micro-benchmarks/invariant",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "micro-benchmarks/no-reflection-emit",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/micro-benchmarks/MicroBenchmarks.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "empty-blazor/aot",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/empty-blazor/EmptyBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "blazing-pizza/aot",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/blazing-pizza/BlazingPizza.Client.csproj]"
+      ]
+    },
+    {
+      "target": "havit-bootstrap/aot",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/havit-bootstrap/HavitBootstrap.csproj]"
+      ]
+    },
+    {
+      "target": "mud-blazor/aot",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj]"
+      ]
+    },
+    {
+      "target": "semi-avalonia/aot",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/semi-avalonia/SemiAvalonia.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "semi-avalonia/native-relink",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/semi-avalonia/SemiAvalonia.csproj : error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found."
+      ]
+    },
+    {
+      "target": "uno-gallery/native-relink",
+      "errorLines": [
+        "/bench/artifacts/nuget-packages/uno.sdk/6.5.29/Sdk/Sdk.props(66,10): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/uno-gallery/Uno.Gallery.csproj]"
+      ]
+    },
+    {
+      "target": "igniteui-light/aot",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/igniteui-light/IgniteUILight.csproj]"
+      ]
+    },
+    {
+      "target": "blazor-perf/aot",
+      "errorLines": [
+        "/bench/artifacts/sdks/linux.sdk11.0.100-preview.6.26317.109/sdk/11.0.100-preview.6.26317.109/Sdks/Microsoft.NET.Sdk.BlazorWebAssembly/targets/Microsoft.NET.Sdk.BlazorWebAssembly.Current.props(44,11): error MSB4236: The SDK 'Microsoft.NET.Sdk.WebAssembly' specified could not be found. [/__w/macro-benchmarks/macro-benchmarks/src/blazor-perf/BlazorPerf.Client/BlazorPerf.Client.csproj]"
+      ]
+    }
+  ]
+}

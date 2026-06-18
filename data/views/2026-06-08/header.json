@@ -389,6 +389,32 @@
       "benchmarkDateTime": "2026-06-17T10:15:48.468Z",
       "ciRunId": "27677311807",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/27677311807"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.6.26317.104",
+      "runtimeGitHash": "fdf44471a0f476d8b3a998233562e38e6063e657",
+      "aspnetCoreGitHash": "bb68f14e9845eaf65b41c841fa4f29bd704557af",
+      "sdkGitHash": "5e1a9ca950a41d5ffbf7134be90b8363537cddce",
+      "vmrGitHash": "a065c06c0c5f5647d8e312fc70dec3f5ca77b830",
+      "runtimeCommitDateTime": "2026-06-09T01:18:12Z",
+      "runtimeCommitAuthor": "Kevin Jones",
+      "runtimeCommitMessage": "Implement X25519 for Android",
+      "aspnetCoreCommitDateTime": "2026-06-12T00:36:24Z",
+      "aspnetCoreCommitAuthor": "github-actions[bot]",
+      "aspnetCoreCommitMessage": "Unquarantine ServerVirtualizationTest.CanRenderHtmlTable (#67169)",
+      "aspnetCoreVersion": "11.0.0-preview.6.26317.104",
+      "runtimePackVersion": "11.0.0-preview.6.26317.104",
+      "workloadVersion": "11.0.100-preview.6.26317.104",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
+      "releaseDate": "2026-06-17",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-06-18T00:36:15.277Z",
+      "ciRunId": "27725796256",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/27725796256"
     }
   ],
   "apps": {

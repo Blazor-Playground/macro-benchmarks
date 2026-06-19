@@ -103,6 +103,32 @@
       "benchmarkDateTime": "2026-06-19T04:00:50.804Z",
       "ciRunId": "27802227095",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/27802227095"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.6.26318.109",
+      "runtimeGitHash": "d50582a7cd75e8d2beac19c1ca7a009d72c20222",
+      "aspnetCoreGitHash": "bb68f14e9845eaf65b41c841fa4f29bd704557af",
+      "sdkGitHash": "5e1a9ca950a41d5ffbf7134be90b8363537cddce",
+      "vmrGitHash": "2d748ca0a1e035e7b7c5bfb74e944b26a8df654b",
+      "runtimeCommitDateTime": "2026-06-18T04:13:10Z",
+      "runtimeCommitAuthor": "Eduardo Velarde",
+      "runtimeCommitMessage": "Pre-initialize InvariantCulture such that it can be safely used when creating stack traces (#129189)",
+      "aspnetCoreCommitDateTime": "2026-06-12T00:36:24Z",
+      "aspnetCoreCommitAuthor": "github-actions[bot]",
+      "aspnetCoreCommitMessage": "Unquarantine ServerVirtualizationTest.CanRenderHtmlTable (#67169)",
+      "aspnetCoreVersion": "11.0.0-preview.6.26318.109",
+      "runtimePackVersion": "11.0.0-preview.6.26318.109",
+      "workloadVersion": "11.0.100-preview.6.26318.109",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
+      "releaseDate": "2026-06-18",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-06-19T10:11:27.078Z",
+      "ciRunId": "27815947989",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/27815947989"
     }
   ],
   "apps": {

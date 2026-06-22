@@ -207,6 +207,32 @@
       "benchmarkDateTime": "2026-06-22T16:33:54.378Z",
       "ciRunId": "27962966650",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/27962966650"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.6.26322.104",
+      "runtimeGitHash": "ecbe39abe6aa5c1f962126c15aacee97935a32bf",
+      "aspnetCoreGitHash": "bb68f14e9845eaf65b41c841fa4f29bd704557af",
+      "sdkGitHash": "5e1a9ca950a41d5ffbf7134be90b8363537cddce",
+      "vmrGitHash": "4f6d02131fae05b5de421f33e38dc73906ef5aca",
+      "runtimeCommitDateTime": "2026-06-19T01:30:43Z",
+      "runtimeCommitAuthor": "Max Charlamb",
+      "runtimeCommitMessage": "Add ISOSDacInterface17 for StressLog enumeration via cDAC (#129272)",
+      "aspnetCoreCommitDateTime": "2026-06-12T00:36:24Z",
+      "aspnetCoreCommitAuthor": "github-actions[bot]",
+      "aspnetCoreCommitMessage": "Unquarantine ServerVirtualizationTest.CanRenderHtmlTable (#67169)",
+      "aspnetCoreVersion": "11.0.0-preview.6.26322.104",
+      "runtimePackVersion": "11.0.0-preview.6.26322.104",
+      "workloadVersion": "11.0.100-preview.6.26322.104",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
+      "releaseDate": "2026-06-22",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-06-22T23:10:25.949Z",
+      "ciRunId": "27986582635",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/27986582635"
     }
   ],
   "apps": {

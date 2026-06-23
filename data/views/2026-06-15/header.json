@@ -259,6 +259,32 @@
       "benchmarkDateTime": "2026-06-23T03:24:08.022Z",
       "ciRunId": "27996962001",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/27996962001"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.6.26322.111",
+      "runtimeGitHash": "4cb447e6c483c8845a2e91c6c319c7424216b057",
+      "aspnetCoreGitHash": "bb68f14e9845eaf65b41c841fa4f29bd704557af",
+      "sdkGitHash": "5e1a9ca950a41d5ffbf7134be90b8363537cddce",
+      "vmrGitHash": "d8addc1562ad98c7cab19ed654e9caabd1112d87",
+      "runtimeCommitDateTime": "2026-06-21T12:45:10Z",
+      "runtimeCommitAuthor": "Pavel Savara",
+      "runtimeCommitMessage": "[mono] LLVM backend correctness, NaN-safe FP narrow, and test annotations (#129614)",
+      "aspnetCoreCommitDateTime": "2026-06-12T00:36:24Z",
+      "aspnetCoreCommitAuthor": "github-actions[bot]",
+      "aspnetCoreCommitMessage": "Unquarantine ServerVirtualizationTest.CanRenderHtmlTable (#67169)",
+      "aspnetCoreVersion": "11.0.0-preview.6.26322.111",
+      "runtimePackVersion": "11.0.0-preview.6.26322.111",
+      "workloadVersion": "11.0.100-preview.6.26322.111",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
+      "releaseDate": "2026-06-22",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-06-23T12:16:36.026Z",
+      "ciRunId": "28020929117",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/28020929117"
     }
   ],
   "apps": {

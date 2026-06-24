@@ -103,6 +103,32 @@
       "benchmarkDateTime": "2026-06-24T11:57:14.333Z",
       "ciRunId": "28092643022",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/28092643022"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.6.26324.102",
+      "runtimeGitHash": "371731cc1a49d7a711814b6f9cd7cf98393040ce",
+      "aspnetCoreGitHash": "26881cc147dcc4fa7c0c772b839501e5fbf21cdf",
+      "sdkGitHash": "793ebf240206697abae388776b3b8616f636fd30",
+      "vmrGitHash": "1d4910780fe728cf5affade170fe51fc8f96f9fb",
+      "runtimeCommitDateTime": "2026-06-24T01:27:57Z",
+      "runtimeCommitAuthor": "Egor Bogatov",
+      "runtimeCommitMessage": "Fix alignment of 8-byte thread statics on direct TLS path (#129749)",
+      "aspnetCoreCommitDateTime": "2026-06-23T20:48:16Z",
+      "aspnetCoreCommitAuthor": "Copilot",
+      "aspnetCoreCommitMessage": "Add support for cancelling regular hub invocations from client (#64098)",
+      "aspnetCoreVersion": "11.0.0-preview.6.26324.102",
+      "runtimePackVersion": "11.0.0-preview.6.26324.102",
+      "workloadVersion": "11.0.100-preview.6.26324.102",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26302.115",
+      "releaseDate": "2026-06-24",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-06-24T19:01:40.685Z",
+      "ciRunId": "28118160485",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/28118160485"
     }
   ],
   "apps": {

@@ -77,6 +77,32 @@
       "benchmarkDateTime": "2026-06-24T08:49:08.491Z",
       "ciRunId": "28082607893",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/28082607893"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.6.26323.115",
+      "runtimeGitHash": "04c21ab87349c35fdb089b83d68b4c48ad6850bf",
+      "aspnetCoreGitHash": "7c9c01bc83da59ef62638484803c8aa77e0c975e",
+      "sdkGitHash": "793ebf240206697abae388776b3b8616f636fd30",
+      "vmrGitHash": "fb43ff15847a6821ac4f3cb5b2581076124a06df",
+      "runtimeCommitDateTime": "2026-06-23T01:15:15Z",
+      "runtimeCommitAuthor": "Miha Zupan",
+      "runtimeCommitMessage": "Fix compiled/source-generated lazy loop stack unwinding when giving up at max iteration (#129628)",
+      "aspnetCoreCommitDateTime": "2026-06-23T16:04:52Z",
+      "aspnetCoreCommitAuthor": "Roman Konecny",
+      "aspnetCoreCommitMessage": "Reject ASCII control characters in cookie auth return URLs (#66876)",
+      "aspnetCoreVersion": "11.0.0-preview.6.26323.115",
+      "runtimePackVersion": "11.0.0-preview.6.26323.115",
+      "workloadVersion": "11.0.100-preview.6.26323.115",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26302.115",
+      "releaseDate": "2026-06-23",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-06-24T11:57:14.333Z",
+      "ciRunId": "28092643022",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/28092643022"
     }
   ],
   "apps": {

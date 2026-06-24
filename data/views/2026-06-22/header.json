@@ -25,6 +25,32 @@
       "benchmarkDateTime": "2026-06-23T21:08:07.167Z",
       "ciRunId": "28052498169",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/28052498169"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.6.26323.106",
+      "runtimeGitHash": "04c21ab87349c35fdb089b83d68b4c48ad6850bf",
+      "aspnetCoreGitHash": "aa5493528640932601bb82ef3295e4d8ca7e11c5",
+      "sdkGitHash": "5e1a9ca950a41d5ffbf7134be90b8363537cddce",
+      "vmrGitHash": "a3bc9fe168e83785ed89c54c29aea18b80f3838b",
+      "runtimeCommitDateTime": "2026-06-23T01:15:15Z",
+      "runtimeCommitAuthor": "Miha Zupan",
+      "runtimeCommitMessage": "Fix compiled/source-generated lazy loop stack unwinding when giving up at max iteration (#129628)",
+      "aspnetCoreCommitDateTime": "2026-06-15T17:10:49Z",
+      "aspnetCoreCommitAuthor": "dependabot[bot]",
+      "aspnetCoreCommitMessage": "[main] (deps): Bump dotnet/arcade/.github/workflows/backport-base.yml (#67220)",
+      "aspnetCoreVersion": "11.0.0-preview.6.26323.106",
+      "runtimePackVersion": "11.0.0-preview.6.26323.106",
+      "workloadVersion": "11.0.100-preview.6.26323.106",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26227.104",
+      "releaseDate": "2026-06-23",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-06-24T03:15:23.315Z",
+      "ciRunId": "28069998145",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/28069998145"
     }
   ],
   "apps": {

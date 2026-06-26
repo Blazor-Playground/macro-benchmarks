@@ -156,11 +156,20 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         });
         if (!resp.ok) {
             const body = await resp.text().catch(() => '');
-            // Dispatch failed — remove the lock so attempt counter isn't wasted
-            const lockPath = join(trackingDir, LOCK_DIR, `${pack.sdkVersion}.lock`);
-            if (existsSync(lockPath)) await unlink(lockPath);
-            await exec('git', ['-C', trackingDir, 'checkout', '--', `${LOCK_DIR}/`], { throwOnError: false });
-            throw new Error(`Failed to dispatch workflow (${resp.status}): ${body.slice(0, 200)}`);
+            const dispatchError = new Error(`Failed to dispatch workflow (${resp.status}): ${body.slice(0, 200)}`);
+
+            info(`Dispatch failed for ${pack.sdkVersion} — reverting pushed lock`);
+            try {
+                const reverted = await revertLockFile(trackingDir, pack.sdkVersion, ctx);
+                if (!reverted) {
+                    err(`Warning: failed to push lock revert for ${pack.sdkVersion} after dispatch failure`);
+                }
+            } catch (revertError) {
+                const message = revertError instanceof Error ? revertError.message : String(revertError);
+                err(`Warning: failed to revert lock for ${pack.sdkVersion} after dispatch failure: ${message}`);
+            }
+
+            throw dispatchError;
         }
     }
 
@@ -449,6 +458,27 @@ async function pushLockFile(
                 attempt,
             };
             await writeFile(lockAbsPath, JSON.stringify(lockContent, null, 2), 'utf-8');
+        },
+    });
+}
+
+async function revertLockFile(
+    trackingDir: string,
+    sdkVersion: string,
+    ctx: BenchContext,
+): Promise<boolean> {
+    const lockRelPath = join(LOCK_DIR, `${sdkVersion}.lock`);
+    const lockAbsPath = join(trackingDir, lockRelPath);
+
+    return commitAndPushWithRetry({
+        dir: trackingDir,
+        addPaths: [lockRelPath],
+        commitMessage: `Revert lock ${sdkVersion} after failed dispatch`,
+        label: `Revert lock for ${sdkVersion}`,
+        dryRun: ctx.dryRun,
+        maxRetries: MAX_PUSH_RETRIES,
+        applyChanges: async () => {
+            if (existsSync(lockAbsPath)) await unlink(lockAbsPath);
         },
     });
 }

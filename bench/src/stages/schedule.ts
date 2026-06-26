@@ -11,7 +11,8 @@ import { commitAndPushWithRetry } from '../lib/git-push.js';
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const LOCK_DIR = 'locks';
-const LOCK_TTL_MS = 48 * 60 * 60 * 1000; // 48 hours
+const LOCK_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours (build timeout is 180min + queue/measure buffer)
+const MAX_ATTEMPTS = 2; // Mark as failed after this many dispatch attempts
 const MAX_PUSH_RETRIES = 3;
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -155,6 +156,10 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         });
         if (!resp.ok) {
             const body = await resp.text().catch(() => '');
+            // Dispatch failed — remove the lock so attempt counter isn't wasted
+            const lockPath = join(trackingDir, LOCK_DIR, `${pack.sdkVersion}.lock`);
+            if (existsSync(lockPath)) await unlink(lockPath);
+            await exec('git', ['-C', trackingDir, 'checkout', '--', `${LOCK_DIR}/`], { throwOnError: false });
             throw new Error(`Failed to dispatch workflow (${resp.status}): ${body.slice(0, 200)}`);
         }
     }
@@ -246,16 +251,63 @@ async function pushDoneMarker(
     });
 }
 
+/**
+ * Mark an SDK version as permanently failed from the schedule stage
+ * (after exceeding MAX_ATTEMPTS with expired locks).
+ */
+async function markFailedFromSchedule(
+    trackingDir: string,
+    sdkVersion: string,
+    attempts: number,
+    ctx: BenchContext,
+): Promise<void> {
+    const locksDir = join(trackingDir, LOCK_DIR);
+    await mkdir(locksDir, { recursive: true });
+
+    const lockFile = join(locksDir, `${sdkVersion}.lock`);
+    const failedFile = join(locksDir, `${sdkVersion}.failed`);
+
+    const content = {
+        failedAt: new Date().toISOString(),
+        reason: `Expired after ${attempts} dispatch attempts without completing`,
+        failureKind: 'expired-lock',
+        attempts,
+    };
+
+    const pushed = await commitAndPushWithRetry({
+        dir: trackingDir,
+        addPaths: [`${LOCK_DIR}/`],
+        commitMessage: `Failed ${sdkVersion} (${attempts} attempts exhausted)`,
+        label: `Failed marker for ${sdkVersion}`,
+        dryRun: ctx.dryRun,
+        maxRetries: MAX_PUSH_RETRIES,
+        applyChanges: async () => {
+            await writeFile(failedFile, JSON.stringify(content, null, 2) + '\n', 'utf-8');
+            if (existsSync(lockFile)) await unlink(lockFile);
+        },
+    });
+
+    if (!pushed && !ctx.dryRun) {
+        err(`Failed to push .failed marker for ${sdkVersion} — tracking branch push failed`);
+        throw new Error(
+            `Cannot persist .failed marker for ${sdkVersion}. ` +
+            `This SDK has failed ${attempts} attempts but the tracking push failed. ` +
+            `Investigate git push permissions on the tracking branch.`
+        );
+    }
+}
+
 // ── Lock Helpers ─────────────────────────────────────────────────────────────
 
 interface LockFile {
     dispatchedAt: string;
     ciRunId?: string;
+    attempt?: number;
 }
 
 /**
  * Scan tracking/locks/ and return SDK versions with non-expired lock files.
- * Lock files older than LOCK_TTL_MS (48h) are treated as expired (stuck/failed runs).
+ * Lock files older than LOCK_TTL_MS are treated as expired (stuck/failed runs).
  */
 async function buildLockedSet(trackingDir: string, verbose?: boolean): Promise<Set<string>> {
     const locked = new Set<string>();
@@ -296,7 +348,8 @@ async function buildLockedSet(trackingDir: string, verbose?: boolean): Promise<S
 /**
  * Create a lock file locally for the given SDK version.
  * Checks for existing non-expired locks (including from git after a pull).
- * Returns true if the lock was written locally, false if already locked.
+ * If an expired lock has been attempted MAX_ATTEMPTS times, marks it as failed.
+ * Returns true if the lock was written locally, false if already locked or marked failed.
  */
 async function createLockFile(
     trackingDir: string,
@@ -307,6 +360,7 @@ async function createLockFile(
     await mkdir(locksDir, { recursive: true });
 
     const lockFile = join(locksDir, `${sdkVersion}.lock`);
+    let previousAttempt = 0;
 
     // Check if lock already exists locally (from a previous dry-run or pulled from remote)
     if (existsSync(lockFile)) {
@@ -317,18 +371,30 @@ async function createLockFile(
                 info(`Lock already exists for ${sdkVersion} (by run ${existing.ciRunId ?? 'unknown'})`);
                 return false;
             }
-            if (ctx.verbose) debug(`Overwriting expired lock for ${sdkVersion}`);
+            // Expired lock — carry forward the attempt count
+            previousAttempt = existing.attempt ?? 1;
+            if (ctx.verbose) debug(`Expired lock for ${sdkVersion} (attempt ${previousAttempt})`);
         } catch {
             // Malformed lock — overwrite it
         }
     }
 
+    const nextAttempt = previousAttempt + 1;
+
+    // If we've exceeded max attempts, mark as permanently failed
+    if (previousAttempt >= MAX_ATTEMPTS) {
+        info(`SDK ${sdkVersion} has failed ${previousAttempt} attempts — marking as permanently failed`);
+        await markFailedFromSchedule(trackingDir, sdkVersion, previousAttempt, ctx);
+        return false;
+    }
+
     const lockContent: LockFile = {
         dispatchedAt: new Date().toISOString(),
         ciRunId: ctx.ciRunId,
+        attempt: nextAttempt,
     };
     await writeFile(lockFile, JSON.stringify(lockContent, null, 2), 'utf-8');
-    info(`Lock file created for ${sdkVersion}`);
+    info(`Lock file created for ${sdkVersion} (attempt ${nextAttempt}/${MAX_ATTEMPTS})`);
     return true;
 }
 
@@ -370,9 +436,17 @@ async function pushLockFile(
                 }
             }
 
+            // Read the attempt count from the locally-created lock file
+            let attempt = 1;
+            try {
+                const local: LockFile = JSON.parse(await readFile(lockAbsPath, 'utf-8'));
+                attempt = local.attempt ?? 1;
+            } catch { /* use default */ }
+
             const lockContent: LockFile = {
                 dispatchedAt: new Date().toISOString(),
                 ciRunId: ctx.ciRunId,
+                attempt,
             };
             await writeFile(lockAbsPath, JSON.stringify(lockContent, null, 2), 'utf-8');
         },

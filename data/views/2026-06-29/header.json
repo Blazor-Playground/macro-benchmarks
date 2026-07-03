@@ -1,6 +1,32 @@
 {
   "columns": [
     {
+      "sdkVersion": "11.0.100-preview.7.26352.101",
+      "runtimeGitHash": "8edc1cf5f0229b2bfd25445d5baac0ded07f615e",
+      "aspnetCoreGitHash": "2b7a3d5c1757296f038696e208662370edac5368",
+      "sdkGitHash": "3279708b5c92bd1e10c7283a90784c1313d1323b",
+      "vmrGitHash": "63a4c5067116fc0ce06a7a964ef39291f03060fc",
+      "runtimeCommitDateTime": "2026-07-01T00:36:22Z",
+      "runtimeCommitAuthor": "Andy Ayers",
+      "runtimeCommitMessage": "[arm64] Avoid sign-extending TYP_INT register moves (#129864)",
+      "aspnetCoreCommitDateTime": "2026-06-28T03:06:00Z",
+      "aspnetCoreCommitAuthor": "github-actions[bot]",
+      "aspnetCoreCommitMessage": "[test-quarantine] Quarantine RedirectionTest.RedirectEnhancedPostToExternal (#67445)",
+      "aspnetCoreVersion": "11.0.0-preview.7.26352.101",
+      "runtimePackVersion": "11.0.0-preview.7.26352.101",
+      "workloadVersion": "11.0.100-preview.7.26352.101",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26302.115",
+      "releaseDate": "2026-07-02",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-07-03T16:16:15.075Z",
+      "ciRunId": "28669087970",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/28669087970"
+    },
+    {
       "sdkVersion": "11.0.100-preview.7.26352.103",
       "runtimeGitHash": "2ca5bd514647fe0e961dd237dc9af0004479da6f",
       "aspnetCoreGitHash": "0c72963a97b5283bd1c042d3992060e54f5cb6d0",

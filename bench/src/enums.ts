@@ -220,6 +220,9 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     // WASM *client* of that build falls back to Mono via clientRuntimeFor() (see build.ts); the
     // manifest entry keeps runtime=CoreCLR so server metrics attribute correctly. Every other app
     // genuinely needs CoreCLR WASM, so it is skipped when unavailable.
+    if ((app === App.SemiAvalonia || app === App.UnoGallery) && ctx.sdkInfo.major == 11) {
+        return `Needs native parts recompiled for new LLVM https://github.com/unoplatform/uno/issues/23626`;
+    }
     if (runtime === Runtime.CoreCLR && !coreclrWasmAvailable(ctx.sdkInfo) && app !== App.BlazorPerf) {
         if (ctx.sdkInfo.major < 11) {
             return `CoreCLR runtime does not build with SDK versions below 11.0.0`;

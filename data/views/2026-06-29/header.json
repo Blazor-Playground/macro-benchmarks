@@ -1,6 +1,32 @@
 {
   "columns": [
     {
+      "sdkVersion": "11.0.100-preview.7.26352.103",
+      "runtimeGitHash": "2ca5bd514647fe0e961dd237dc9af0004479da6f",
+      "aspnetCoreGitHash": "0c72963a97b5283bd1c042d3992060e54f5cb6d0",
+      "sdkGitHash": "3279708b5c92bd1e10c7283a90784c1313d1323b",
+      "vmrGitHash": "bcaa8d44d57494224d443dba7c1dfed381ad5528",
+      "runtimeCommitDateTime": "2026-07-02T00:34:14Z",
+      "runtimeCommitAuthor": "Egor Bogatov",
+      "runtimeCommitMessage": "Fix x86 codegen non-determinism across host architecture (#130059)",
+      "aspnetCoreCommitDateTime": "2026-07-02T01:08:16Z",
+      "aspnetCoreCommitAuthor": "Levi Broderick",
+      "aspnetCoreCommitMessage": "Reduce unnecessary unsafe usage in AdaptiveCapacityDictionary (#64617)",
+      "aspnetCoreVersion": "11.0.0-preview.7.26352.103",
+      "runtimePackVersion": "11.0.0-preview.7.26352.103",
+      "workloadVersion": "11.0.100-preview.7.26352.103",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26302.115",
+      "releaseDate": "2026-07-02",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-07-03T15:00:23.293Z",
+      "ciRunId": "28665177797",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/28665177797"
+    },
+    {
       "sdkVersion": "11.0.100-preview.7.26352.106",
       "runtimeGitHash": "2ca5bd514647fe0e961dd237dc9af0004479da6f",
       "aspnetCoreGitHash": "fa8126f62f64eaf37292ff1e334ace99bc757bcf",

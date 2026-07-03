@@ -103,6 +103,32 @@
       "benchmarkDateTime": "2026-07-03T14:36:55.491Z",
       "ciRunId": "28664017703",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/28664017703"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.7.26353.101",
+      "runtimeGitHash": "fe5e47348f86013bbe8f3041e56f5208cd632e53",
+      "aspnetCoreGitHash": "8ef91a5c3b5164046c9b21ed3cc21ff03219aafb",
+      "sdkGitHash": "3279708b5c92bd1e10c7283a90784c1313d1323b",
+      "vmrGitHash": "2501c2d375da2c89d9d859ab0306d0d36261a2ca",
+      "runtimeCommitDateTime": "2026-07-02T23:21:29Z",
+      "runtimeCommitAuthor": "Copilot",
+      "runtimeCommitMessage": "JIT: stop treating ManagedThreadId helper as constant/pure (#130006)",
+      "aspnetCoreCommitDateTime": "2026-07-02T18:20:40Z",
+      "aspnetCoreCommitAuthor": "Korolev Dmitry",
+      "aspnetCoreCommitMessage": "Fix eager load of currentKeyRing on resolving IDataProtector  (#67465)",
+      "aspnetCoreVersion": "11.0.0-preview.7.26353.101",
+      "runtimePackVersion": "11.0.0-preview.7.26353.101",
+      "workloadVersion": "11.0.100-preview.7.26353.101",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26302.115",
+      "releaseDate": "2026-07-03",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-07-03T16:53:51.481Z",
+      "ciRunId": "28670914890",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/28670914890"
     }
   ],
   "apps": {

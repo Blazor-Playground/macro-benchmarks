@@ -519,6 +519,32 @@
       "benchmarkDateTime": "2026-07-05T23:52:11.951Z",
       "ciRunId": "28757537231",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/28757537231"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.7.26356.101",
+      "runtimeGitHash": "58dfec78ed8de81f527f428f44d095e37fecb401",
+      "aspnetCoreGitHash": "8ef91a5c3b5164046c9b21ed3cc21ff03219aafb",
+      "sdkGitHash": "3279708b5c92bd1e10c7283a90784c1313d1323b",
+      "vmrGitHash": "3736aa1eaae61c18ba14a21fa0aa31c6d6371721",
+      "runtimeCommitDateTime": "2026-07-03T21:04:38Z",
+      "runtimeCommitAuthor": "Copilot",
+      "runtimeCommitMessage": "Make String.ThrowSubstringArgumentOutOfRange static (#130103)",
+      "aspnetCoreCommitDateTime": "2026-07-02T18:20:40Z",
+      "aspnetCoreCommitAuthor": "Korolev Dmitry",
+      "aspnetCoreCommitMessage": "Fix eager load of currentKeyRing on resolving IDataProtector  (#67465)",
+      "aspnetCoreVersion": "11.0.0-preview.7.26356.101",
+      "runtimePackVersion": "11.0.0-preview.7.26356.101",
+      "workloadVersion": "11.0.100-preview.7.26356.101",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26302.115",
+      "releaseDate": "2026-07-06",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-07-06T16:00:19.244Z",
+      "ciRunId": "28800654805",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/28800654805"
     }
   ],
   "apps": {

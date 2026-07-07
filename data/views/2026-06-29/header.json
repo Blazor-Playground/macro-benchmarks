@@ -623,6 +623,32 @@
       "benchmarkDateTime": "2026-07-07T06:57:58.559Z",
       "ciRunId": "28844955823",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/28844955823"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.7.26357.101",
+      "runtimeGitHash": "8f365c934088b8ae21a4dfce8073da0d3eb22a54",
+      "aspnetCoreGitHash": "026930436484c8ee0062b0ce2568d19bb71986c5",
+      "sdkGitHash": "0cfbeab3f234d989fe69ea9f83cf0a4ddbf69c5e",
+      "vmrGitHash": "80e087c8b2cc246015c7fdb081da6417895ff68c",
+      "runtimeCommitDateTime": "2026-07-05T16:58:39Z",
+      "runtimeCommitAuthor": "Brad Barnich",
+      "runtimeCommitMessage": "Publish GCHandle assignments with release semantics (#130213)",
+      "aspnetCoreCommitDateTime": "2026-07-05T01:41:58Z",
+      "aspnetCoreCommitAuthor": "dependabot[bot]",
+      "aspnetCoreCommitMessage": "[main] (deps): Bump dotnet/arcade/.github/workflows/inter-branch-merge-base.yml (#67582)",
+      "aspnetCoreVersion": "11.0.0-preview.7.26357.101",
+      "runtimePackVersion": "11.0.0-preview.7.26357.101",
+      "workloadVersion": "11.0.100-preview.7.26357.101",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26302.115",
+      "releaseDate": "2026-07-07",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-07-07T17:21:59.692Z",
+      "ciRunId": "28881260534",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/28881260534"
     }
   ],
   "apps": {

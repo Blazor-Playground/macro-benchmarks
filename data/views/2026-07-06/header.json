@@ -77,6 +77,32 @@
       "benchmarkDateTime": "2026-07-08T18:20:02.187Z",
       "ciRunId": "28961886459",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/28961886459"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.7.26358.120",
+      "runtimeGitHash": "fdecb6b73237947d1429b5d3de71edea536b5b53",
+      "aspnetCoreGitHash": "38fefbd2626f57fcd9bbae611e8f1ef6f7b840d4",
+      "sdkGitHash": "e62d6a2bd7172fdccd1125bfd5703290ac1b32df",
+      "vmrGitHash": "c7028b23fb9d8e1f786cc404c6107c53a0d3a2a3",
+      "runtimeCommitDateTime": "2026-07-08T00:55:17Z",
+      "runtimeCommitAuthor": "Jan Vorlicek",
+      "runtimeCommitMessage": "Fix exception native to managed transition frame (#130321)",
+      "aspnetCoreCommitDateTime": "2026-07-07T20:06:08Z",
+      "aspnetCoreCommitAuthor": "dependabot[bot]",
+      "aspnetCoreCommitMessage": "[main] (deps): Bump dotnet/arcade/.github/workflows/inter-branch-merge-base.yml (#67656)",
+      "aspnetCoreVersion": "11.0.0-preview.7.26358.120",
+      "runtimePackVersion": "11.0.0-preview.7.26358.120",
+      "workloadVersion": "11.0.100-preview.7.26358.120",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26302.115",
+      "releaseDate": "2026-07-08",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-07-09T02:48:04.492Z",
+      "ciRunId": "28988206832",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/28988206832"
     }
   ],
   "apps": {

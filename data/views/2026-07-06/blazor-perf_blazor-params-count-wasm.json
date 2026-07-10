@@ -1,1 +1,1 @@
-{"coreclr/dev-loop/desktop/chrome":[13,13,12,13,13,19],"coreclr/no-workload/desktop/chrome":[17,23,17,14,17,22],"mono/aot/desktop/chrome":[310,375,300,482,288,315],"mono/dev-loop/desktop/chrome":[162,124,145,128,127,127],"mono/no-workload/desktop/chrome":[123,128,128,167,128,188]}
+{"coreclr/dev-loop/desktop/chrome":[13,13,12,13,13,19,12],"coreclr/no-workload/desktop/chrome":[17,23,17,14,17,22,21],"mono/aot/desktop/chrome":[310,375,300,482,288,315,304],"mono/dev-loop/desktop/chrome":[162,124,145,128,127,127,128],"mono/no-workload/desktop/chrome":[123,128,128,167,128,188,185]}

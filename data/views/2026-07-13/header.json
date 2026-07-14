@@ -77,6 +77,32 @@
       "benchmarkDateTime": "2026-07-14T14:02:32.010Z",
       "ciRunId": "29334792810",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/29334792810"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.7.26364.105",
+      "runtimeGitHash": "97c5d1f9a9d125ec895d6aafc7822e9c6564d70a",
+      "aspnetCoreGitHash": "0eb7bd1d45a9e11d9ca4b08b1ee938d321b73ede",
+      "sdkGitHash": "c76f7a4aa624478966b1ba01e5fc0eb206a2f0c5",
+      "vmrGitHash": "da120224185d77af10c0e0a554ced0d9f96528da",
+      "runtimeCommitDateTime": "2026-07-14T00:59:47Z",
+      "runtimeCommitAuthor": "Michal Strehovský",
+      "runtimeCommitMessage": "Speed up virtual method resolution in the compiler (#130405)",
+      "aspnetCoreCommitDateTime": "2026-07-14T00:26:15Z",
+      "aspnetCoreCommitAuthor": "William Godbe",
+      "aspnetCoreCommitMessage": "Skip macOS quarantined-test job on PRs (#67767)",
+      "aspnetCoreVersion": "11.0.0-preview.7.26364.105",
+      "runtimePackVersion": "11.0.0-preview.7.26364.105",
+      "workloadVersion": "11.0.100-preview.7.26364.105",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26302.115",
+      "releaseDate": "2026-07-14",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-07-14T19:58:51.839Z",
+      "ciRunId": "29360006381",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/29360006381"
     }
   ],
   "apps": {

@@ -47,7 +47,7 @@
     <CommunityToolkitMvvmVersion>8.4.0</CommunityToolkitMvvmVersion>
     <IrihiAvaloniaSharedVersion>0.3.1</IrihiAvaloniaSharedVersion>
     <MicrosoftDotNetILCompilerLLVMVersion>0.0.1.0</MicrosoftDotNetILCompilerLLVMVersion>
-    <IgniteUIBlazorLiteVersion>0.0.1.0</IgniteUIBlazorLiteVersion>
-    <IgniteUIBlazorGridLiteVersion>0.7.1.0</IgniteUIBlazorGridLiteVersion>
+    <IgniteUIBlazorLiteVersion>0.1.0</IgniteUIBlazorLiteVersion>
+    <IgniteUIBlazorGridLiteVersion>0.9.0</IgniteUIBlazorGridLiteVersion>
   </PropertyGroup>
 </Project>

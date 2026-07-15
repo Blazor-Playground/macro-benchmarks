@@ -1,0 +1,69 @@
+@page "/chat"
+
+<PageTitle>Chat Demo</PageTitle>
+
+<h3>Chat</h3>
+
+<IgbChat style="height: 560px; max-width: 680px;"
+         Messages="@Messages"
+         DraftMessage="@Draft"
+         Options="@Options"
+         MessageCreated="OnMessageCreated" />
+
+@code {
+#pragma warning disable BL0005 // IgbChatMessage/IgbChatOptions are data objects populated in code by design
+
+    IgbChatMessage[] Messages { get; set; } =
+    [
+        new() { Id = "1", Sender = "support", Text = "Hi there! How can we help you today?", Timestamp = Stamp() },
+        new() { Id = "2", Sender = "me", Text = "I have a question about my subscription.", Timestamp = Stamp() },
+        new() { Id = "3", Sender = "support", Text = "Sure — ask away, or pick one of the quick replies below.", Timestamp = Stamp() }
+    ];
+
+    IgbChatOptions Options { get; set; } = BuildOptions(isTyping: false);
+
+    IgbChatDraftMessage Draft { get; set; } = EmptyDraft();
+
+    static IgbChatDraftMessage EmptyDraft() => new() { Text = "", Attachments = [] };
+
+    static IgbChatOptions BuildOptions(bool isTyping) => new()
+    {
+        CurrentUserId = "me",
+        HeaderText = "Support Chat",
+        InputPlaceholder = "Type a message...",
+        Suggestions = ["Track my order", "Update payment method", "Talk to an agent"],
+        IsTyping = isTyping
+    };
+
+    static string Stamp() => DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString();
+
+    async Task OnMessageCreated(IgbChatMessageEventArgs args)
+    {
+        if (args.Detail is null)
+        {
+            return;
+        }
+
+        Messages = [.. Messages, args.Detail];
+        Draft = EmptyDraft();
+        Options = BuildOptions(isTyping: true);
+        StateHasChanged();
+
+        await Task.Delay(1200);
+
+        Options = BuildOptions(isTyping: false);
+        Messages =
+        [
+            .. Messages,
+            new IgbChatMessage
+            {
+                Id = Guid.NewGuid().ToString(),
+                Sender = "support",
+                Text = $"Thanks! We received your message: \"{args.Detail.Text}\". An agent will follow up shortly.",
+                Timestamp = Stamp()
+            }
+        ];
+    }
+
+#pragma warning restore BL0005
+}

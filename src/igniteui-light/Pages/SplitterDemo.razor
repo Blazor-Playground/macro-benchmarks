@@ -1,0 +1,44 @@
+@page "/splitter"
+
+<PageTitle>Splitter Demo</PageTitle>
+
+<h3>Splitter</h3>
+
+<IgbSplitter @ref="SplitterRef" style="height: 300px;"
+             StartSize="30%" StartMinSize="150px" EndMinSize="200px"
+             ResizeEnd="OnResizeEnd">
+    <div slot="start" style="padding: 16px;">
+        <h4>Navigation</h4>
+        <p>Drag the bar, use the keyboard, or collapse this pane with the buttons on the bar.</p>
+    </div>
+    <div slot="end" style="padding: 16px;">
+        <h4>Content</h4>
+        <p>Main content area.</p>
+    </div>
+</IgbSplitter>
+
+<p>@SizeMessage</p>
+
+<IgbButton Variant="@ButtonVariant.Contained" @onclick="ToggleStartPane">Toggle Start Pane</IgbButton>
+
+<h4>Nested Splitters</h4>
+
+<IgbSplitter Orientation="SplitterOrientation.Vertical" style="height: 400px;">
+    <div slot="start" style="padding: 16px;">Top pane</div>
+    <IgbSplitter slot="end">
+        <div slot="start" style="padding: 16px;">Bottom start pane</div>
+        <div slot="end" style="padding: 16px;">Bottom end pane</div>
+    </IgbSplitter>
+</IgbSplitter>
+
+@code {
+    IgbSplitter SplitterRef { get; set; } = default!;
+    string SizeMessage { get; set; } = "Resize the panes to see their sizes.";
+
+    async Task ToggleStartPane() => await SplitterRef.ToggleAsync(PanePosition.Start);
+
+    void OnResizeEnd(IgbSplitterResizeEventArgs args)
+    {
+        SizeMessage = $"Start pane: {args.Detail.StartPanelSize:0}px, End pane: {args.Detail.EndPanelSize:0}px";
+    }
+}

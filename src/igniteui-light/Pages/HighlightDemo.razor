@@ -1,0 +1,77 @@
+@page "/highlight"
+
+<PageTitle>Highlight Demo</PageTitle>
+
+<h3>Highlight</h3>
+
+<div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+    <IgbInput Label="Search" Placeholder="Type to highlight..."
+              @bind-Value="SearchText" @bind-Value:after="UpdateMatchesAsync" />
+    <IgbSwitch @bind-Checked="CaseSensitive" @bind-Checked:after="UpdateMatchesAsync">Case sensitive</IgbSwitch>
+    <IgbButton Variant="@ButtonVariant.Outlined" @onclick="GoPrevious">Previous</IgbButton>
+    <IgbButton Variant="@ButtonVariant.Outlined" @onclick="GoNext">Next</IgbButton>
+    <span>@MatchMessage</span>
+</div>
+
+<IgbHighlight @ref="HighlightRef" SearchText="@SearchText" CaseSensitive="CaseSensitive">
+    <p>
+        The highlight component provides efficient searching and highlighting of text.
+        It uses the native CSS Custom Highlight API to highlight matched text without
+        modifying the DOM.
+    </p>
+    <p>
+        Type in the search box above to highlight matches in this text. Use the Previous
+        and Next buttons to navigate between matches — the active match scrolls into view
+        automatically. Toggle the switch to make the search case sensitive.
+    </p>
+    <p>
+        Highlight works across multiple elements, so a search for a common word will
+        highlight every occurrence in every paragraph inside the component.
+    </p>
+</IgbHighlight>
+
+@code {
+    IgbHighlight HighlightRef { get; set; } = default!;
+    string SearchText { get; set; } = "highlight";
+    bool CaseSensitive { get; set; }
+    int Total { get; set; }
+    int Current { get; set; }
+
+    string MatchMessage => Total > 0
+        ? $"Match {Current + 1} of {Total}"
+        : string.IsNullOrEmpty(SearchText) ? "" : "No matches";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await UpdateMatchesAsync();
+            StateHasChanged();
+        }
+    }
+
+    async Task UpdateMatchesAsync()
+    {
+        await Task.Delay(100);
+        Total = (int)await HighlightRef.GetSizeAsync();
+        Current = (int)await HighlightRef.GetCurrentAsync();
+    }
+
+    async Task GoNext()
+    {
+        await HighlightRef.NextAsync(new IgbHighlightNavigation());
+        await RefreshPositionAsync();
+    }
+
+    async Task GoPrevious()
+    {
+        await HighlightRef.PreviousAsync(new IgbHighlightNavigation());
+        await RefreshPositionAsync();
+    }
+
+    async Task RefreshPositionAsync()
+    {
+        Total = (int)await HighlightRef.GetSizeAsync();
+        Current = (int)await HighlightRef.GetCurrentAsync();
+    }
+}

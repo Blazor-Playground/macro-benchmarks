@@ -155,6 +155,32 @@
       "benchmarkDateTime": "2026-07-15T08:46:47.300Z",
       "ciRunId": "29398493308",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/29398493308"
+    },
+    {
+      "sdkVersion": "11.0.100-preview.7.26365.108",
+      "runtimeGitHash": "dbb2178288bb4e1e8f1fde3958be3bd75573c459",
+      "aspnetCoreGitHash": "cf0ae5e828233a520c8d7d435db130e24b8dc2aa",
+      "sdkGitHash": "8354130f586605d200fde85353c80d974c0327f8",
+      "vmrGitHash": "e78e1a0ec9b8e29e8ad452bea15cd19cad00ba32",
+      "runtimeCommitDateTime": "2026-07-15T05:55:08Z",
+      "runtimeCommitAuthor": "dotnet-maestro[bot]",
+      "runtimeCommitMessage": "[main] Source code updates from dotnet/dotnet (#130631)",
+      "aspnetCoreCommitDateTime": "2026-07-14T17:19:47Z",
+      "aspnetCoreCommitAuthor": "github-actions[bot]",
+      "aspnetCoreCommitMessage": "[test-quarantine] Unquarantine IIS NewShim ShutdownTests (dotnet/runtime#126925) (#67753)",
+      "aspnetCoreVersion": "11.0.0-preview.7.26365.108",
+      "runtimePackVersion": "11.0.0-preview.7.26365.108",
+      "workloadVersion": "11.0.100-preview.7.26365.108",
+      "bootstrapSdkVersion": "11.0.100-preview.5.26302.115",
+      "releaseDate": "2026-07-15",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-07-15T21:48:55.162Z",
+      "ciRunId": "29449627769",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/29449627769"
     }
   ],
   "apps": {

@@ -103,6 +103,32 @@
       "benchmarkDateTime": "2026-07-29T12:41:13.054Z",
       "ciRunId": "30449223302",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/30449223302"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.1.26379.102",
+      "runtimeGitHash": "f8cf526f300e471f20d9899ba89bec84fdcea753",
+      "aspnetCoreGitHash": "b23361138c31f0a08726a4e83e8b24324680088d",
+      "sdkGitHash": "1d4d9266732cfe4220c2137058d4281c12226212",
+      "vmrGitHash": "813f634ceb016018f5acc9bd3c2b16e17dff4686",
+      "runtimeCommitDateTime": "2026-07-28T01:03:25Z",
+      "runtimeCommitAuthor": "Rachel Jarvi",
+      "runtimeCommitMessage": "Fix EnC static field address cDAC API (#131443)",
+      "aspnetCoreCommitDateTime": "2026-07-28T23:33:51Z",
+      "aspnetCoreCommitAuthor": "William Godbe",
+      "aspnetCoreCommitMessage": "Harden input and output restrictions for test-quarantine workflow (#68074)",
+      "aspnetCoreVersion": "11.0.0-rc.1.26379.102",
+      "runtimePackVersion": "11.0.0-rc.1.26379.102",
+      "workloadVersion": "11.0.100-rc.1.26379.102",
+      "bootstrapSdkVersion": "11.0.100-preview.6.26359.118",
+      "releaseDate": "2026-07-29",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-07-29T16:45:28.178Z",
+      "ciRunId": "30467190428",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/30467190428"
     }
   ],
   "apps": {

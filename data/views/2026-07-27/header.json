@@ -77,6 +77,32 @@
       "benchmarkDateTime": "2026-07-29T06:03:55.279Z",
       "ciRunId": "30423631370",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/30423631370"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.1.26378.120",
+      "runtimeGitHash": "f8cf526f300e471f20d9899ba89bec84fdcea753",
+      "aspnetCoreGitHash": "00905b60fb6d1ded57f7588b067c7b05f3959837",
+      "sdkGitHash": "1d4d9266732cfe4220c2137058d4281c12226212",
+      "vmrGitHash": "77a60772669bc6602e26076c7ff0c3ebae137445",
+      "runtimeCommitDateTime": "2026-07-28T01:03:25Z",
+      "runtimeCommitAuthor": "Rachel Jarvi",
+      "runtimeCommitMessage": "Fix EnC static field address cDAC API (#131443)",
+      "aspnetCoreCommitDateTime": "2026-07-27T20:27:26Z",
+      "aspnetCoreCommitAuthor": "William Godbe",
+      "aspnetCoreCommitMessage": "Updated npm packages 2026-07-27 (#68052)",
+      "aspnetCoreVersion": "11.0.0-rc.1.26378.120",
+      "runtimePackVersion": "11.0.0-rc.1.26378.120",
+      "workloadVersion": "11.0.100-rc.1.26378.120",
+      "bootstrapSdkVersion": "11.0.100-preview.6.26359.118",
+      "releaseDate": "2026-07-28",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-07-29T12:41:13.054Z",
+      "ciRunId": "30449223302",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/30449223302"
     }
   ],
   "apps": {

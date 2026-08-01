@@ -233,6 +233,32 @@
       "benchmarkDateTime": "2026-07-30T20:04:24.018Z",
       "ciRunId": "30573320300",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/30573320300"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.1.26381.101",
+      "runtimeGitHash": "cf81048c496a54cca41f960e70bf3981d1d33e72",
+      "aspnetCoreGitHash": "747d2cdb584079a0c7309115979f13c331fb7df7",
+      "sdkGitHash": "390f04ee6f9f635962e37ca94269904320745197",
+      "vmrGitHash": "45ee027fe6e3e41dfe3c747563bb5bf728768b97",
+      "runtimeCommitDateTime": "2026-07-31T00:33:30Z",
+      "runtimeCommitAuthor": "Kevin Jones",
+      "runtimeCommitMessage": "Vectorize PrintableStringEncoding and NumericStringEncoding",
+      "aspnetCoreCommitDateTime": "2026-07-30T18:21:56Z",
+      "aspnetCoreCommitAuthor": "Brennan",
+      "aspnetCoreCommitMessage": "Add SignalR TypeScript auth refresh (#67964)",
+      "aspnetCoreVersion": "11.0.0-rc.1.26381.101",
+      "runtimePackVersion": "11.0.0-rc.1.26381.101",
+      "workloadVersion": "11.0.100-rc.1.26381.101",
+      "bootstrapSdkVersion": "11.0.100-preview.6.26359.118",
+      "releaseDate": "2026-07-31",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-01T02:31:22.502Z",
+      "ciRunId": "30678027745",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/30678027745"
     }
   ],
   "apps": {

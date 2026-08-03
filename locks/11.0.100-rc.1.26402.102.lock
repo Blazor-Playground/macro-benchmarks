@@ -1,5 +1,6 @@
 {
   "dispatchedAt": "2026-08-03T16:12:26.494Z",
-  "ciRunId": "30831080832",
-  "attempt": 1
+  "ciRunId": "30831098698",
+  "attempt": 1,
+  "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/30831098698"
 }

@@ -25,6 +25,32 @@
       "benchmarkDateTime": "2026-08-04T17:12:19.965Z",
       "ciRunId": "30927306402",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/30927306402"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.1.26404.112",
+      "runtimeGitHash": "854ee0872ab804701b45b64fdf794944657d4bc8",
+      "aspnetCoreGitHash": "51e6c945be9871d2a7dbd999928d4ede586b6cc7",
+      "sdkGitHash": "c907364019eafdc8521bc82d3cf1acc3fc2197cd",
+      "vmrGitHash": "130b7a6f22566c06b7fca51913337eaca66adb5c",
+      "runtimeCommitDateTime": "2026-08-04T01:18:04Z",
+      "runtimeCommitAuthor": "Egor Bogatov",
+      "runtimeCommitMessage": "Compile ref-assemblies with updated-memory-safety-rules (#131733)",
+      "aspnetCoreCommitDateTime": "2026-08-03T22:40:24Z",
+      "aspnetCoreCommitAuthor": "dependabot[bot]",
+      "aspnetCoreCommitMessage": "[main] (deps): Bump dotnet/arcade/.github/workflows/inter-branch-merge-base.yml (#68176)",
+      "aspnetCoreVersion": "11.0.0-rc.1.26404.112",
+      "runtimePackVersion": "11.0.0-rc.1.26404.112",
+      "workloadVersion": "11.0.100-rc.1.26404.112",
+      "bootstrapSdkVersion": "11.0.100-preview.6.26359.118",
+      "releaseDate": "2026-08-04",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-05T09:19:52.900Z",
+      "ciRunId": "30988074801",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/30988074801"
     }
   ],
   "apps": {

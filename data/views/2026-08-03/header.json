@@ -103,6 +103,32 @@
       "benchmarkDateTime": "2026-08-05T16:56:22.483Z",
       "ciRunId": "31022453116",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/31022453116"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.1.26405.109",
+      "runtimeGitHash": "173e6b40e02cd1652102c09e07bd4cf7320b3d4d",
+      "aspnetCoreGitHash": "51e6c945be9871d2a7dbd999928d4ede586b6cc7",
+      "sdkGitHash": "51e0aa37b055a161c80481a9f49b3d90739b1df0",
+      "vmrGitHash": "8a6d49a3ce3bd6d5fcbac911e446b9cce5767ae4",
+      "runtimeCommitDateTime": "2026-08-05T01:23:13Z",
+      "runtimeCommitAuthor": "Rachel Jarvi",
+      "runtimeCommitMessage": "[cDAC] Preserve basic object type input (#131836)",
+      "aspnetCoreCommitDateTime": "2026-08-03T22:40:24Z",
+      "aspnetCoreCommitAuthor": "dependabot[bot]",
+      "aspnetCoreCommitMessage": "[main] (deps): Bump dotnet/arcade/.github/workflows/inter-branch-merge-base.yml (#68176)",
+      "aspnetCoreVersion": "11.0.0-rc.1.26405.109",
+      "runtimePackVersion": "11.0.0-rc.1.26405.109",
+      "workloadVersion": "11.0.100-rc.1.26405.109",
+      "bootstrapSdkVersion": "11.0.100-preview.6.26359.118",
+      "releaseDate": "2026-08-05",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-06T09:14:33.514Z",
+      "ciRunId": "31083850107",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/31083850107"
     }
   ],
   "apps": {

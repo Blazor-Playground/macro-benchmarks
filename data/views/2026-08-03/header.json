@@ -155,6 +155,32 @@
       "benchmarkDateTime": "2026-08-07T00:49:27.702Z",
       "ciRunId": "31132312166",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/31132312166"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.1.26407.106",
+      "runtimeGitHash": "9bf3be3ad48e77e97436fa96825cb713a6964389",
+      "aspnetCoreGitHash": "31b9bcde346e9782682e14b654a5d98238bf74fe",
+      "sdkGitHash": "ddbc6ec7cc56950eed19bfdc2db3de541284a9c1",
+      "vmrGitHash": "10d231dd86555cc17a757c800d821ad8e0f459d5",
+      "runtimeCommitDateTime": "2026-08-06T23:56:07Z",
+      "runtimeCommitAuthor": "Rachel Jarvi",
+      "runtimeCommitMessage": "[cDAC] Add stackwalk DAC flags (#131901)",
+      "aspnetCoreCommitDateTime": "2026-08-04T22:17:59Z",
+      "aspnetCoreCommitAuthor": "Brennan",
+      "aspnetCoreCommitMessage": "Update CHANGELOG for version 11.0.0-rc1 (#68207)",
+      "aspnetCoreVersion": "11.0.0-rc.1.26407.106",
+      "runtimePackVersion": "11.0.0-rc.1.26407.106",
+      "workloadVersion": "11.0.100-rc.1.26407.106",
+      "bootstrapSdkVersion": "11.0.100-preview.6.26359.118",
+      "releaseDate": "2026-08-07",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-07T23:34:44.749Z",
+      "ciRunId": "31223609464",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/31223609464"
     }
   ],
   "apps": {

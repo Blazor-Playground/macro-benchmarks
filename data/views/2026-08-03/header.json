@@ -285,6 +285,32 @@
       "benchmarkDateTime": "2026-08-10T13:43:43.689Z",
       "ciRunId": "31389046600",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/31389046600"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.1.26410.104",
+      "runtimeGitHash": "14b601ec5edfeecbc70368890e8676fe5c29da83",
+      "aspnetCoreGitHash": "31b9bcde346e9782682e14b654a5d98238bf74fe",
+      "sdkGitHash": "ddbc6ec7cc56950eed19bfdc2db3de541284a9c1",
+      "vmrGitHash": "db95ef13a031f9f901bc0b87338df11bf8599c7b",
+      "runtimeCommitDateTime": "2026-08-09T19:56:54Z",
+      "runtimeCommitAuthor": "Egor Bogatov",
+      "runtimeCommitMessage": "Share MemoryMarshal.GetArrayDataReference between CoreCLR and NativeAOT (#132057)",
+      "aspnetCoreCommitDateTime": "2026-08-04T22:17:59Z",
+      "aspnetCoreCommitAuthor": "Brennan",
+      "aspnetCoreCommitMessage": "Update CHANGELOG for version 11.0.0-rc1 (#68207)",
+      "aspnetCoreVersion": "11.0.0-rc.1.26410.104",
+      "runtimePackVersion": "11.0.0-rc.1.26410.104",
+      "workloadVersion": "11.0.100-rc.1.26410.104",
+      "bootstrapSdkVersion": "11.0.100-preview.6.26359.118",
+      "releaseDate": "2026-08-10",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-10T17:46:55.043Z",
+      "ciRunId": "31410140099",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/31410140099"
     }
   ],
   "apps": {

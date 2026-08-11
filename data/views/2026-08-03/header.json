@@ -311,6 +311,32 @@
       "benchmarkDateTime": "2026-08-10T17:46:55.043Z",
       "ciRunId": "31410140099",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/31410140099"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.1.26410.108",
+      "runtimeGitHash": "14b601ec5edfeecbc70368890e8676fe5c29da83",
+      "aspnetCoreGitHash": "92f07e298d5c5a629385b8b0a32d7164b1b53906",
+      "sdkGitHash": "ddbc6ec7cc56950eed19bfdc2db3de541284a9c1",
+      "vmrGitHash": "a331ec1877b0aca43d294b3d3f91af49bf403ee9",
+      "runtimeCommitDateTime": "2026-08-09T19:56:54Z",
+      "runtimeCommitAuthor": "Egor Bogatov",
+      "runtimeCommitMessage": "Share MemoryMarshal.GetArrayDataReference between CoreCLR and NativeAOT (#132057)",
+      "aspnetCoreCommitDateTime": "2026-08-07T01:00:59Z",
+      "aspnetCoreCommitAuthor": "Jeff Handley",
+      "aspnetCoreCommitMessage": "[.NET 11] Update MCP template dependency (#68212)",
+      "aspnetCoreVersion": "11.0.0-rc.1.26410.108",
+      "runtimePackVersion": "11.0.0-rc.1.26410.108",
+      "workloadVersion": "11.0.100-rc.1.26410.108",
+      "bootstrapSdkVersion": "11.0.100-preview.6.26359.118",
+      "releaseDate": "2026-08-10",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-11T04:34:17.379Z",
+      "ciRunId": "31455302562",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/31455302562"
     }
   ],
   "apps": {

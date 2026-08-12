@@ -25,6 +25,32 @@
       "benchmarkDateTime": "2026-08-12T01:08:03.605Z",
       "ciRunId": "31549009261",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/31549009261"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.1.26411.119",
+      "runtimeGitHash": "067d74c23c41161cedb93f672be3de0f2452a3d0",
+      "aspnetCoreGitHash": "3600ca084e9c8b5f4174fc5e747f4c52d2100806",
+      "sdkGitHash": "2763d135dec5d2fd6c8767e52cea9b82f6b42819",
+      "vmrGitHash": "7cdb217445905f3342bbb0266a4497b9a014389a",
+      "runtimeCommitDateTime": "2026-08-11T00:08:12Z",
+      "runtimeCommitAuthor": "Rachel Jarvi",
+      "runtimeCommitMessage": "Fix contract violation in CodeVersionManager::EnumerateClosedMethodDescs (#132091)",
+      "aspnetCoreCommitDateTime": "2026-08-11T15:22:40Z",
+      "aspnetCoreCommitAuthor": "Copilot",
+      "aspnetCoreCommitMessage": "Fix ASP0016 false positive for nested anonymous functions (#64174)",
+      "aspnetCoreVersion": "11.0.0-rc.1.26411.119",
+      "runtimePackVersion": "11.0.0-rc.1.26411.119",
+      "workloadVersion": "11.0.100-rc.1.26411.119",
+      "bootstrapSdkVersion": "11.0.100-preview.6.26359.118",
+      "releaseDate": "2026-08-11",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-12T08:05:44.016Z",
+      "ciRunId": "31572411559",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/31572411559"
     }
   ],
   "apps": {

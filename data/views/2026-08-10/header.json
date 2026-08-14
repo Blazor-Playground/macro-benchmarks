@@ -51,6 +51,32 @@
       "benchmarkDateTime": "2026-08-12T08:05:44.016Z",
       "ciRunId": "31572411559",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/31572411559"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.1.26413.103",
+      "runtimeGitHash": "633ab1a41439ad2405ba2eb241295ba1842fcf5a",
+      "aspnetCoreGitHash": "933baa08e981a68c9c87aa709b860284cbfbf269",
+      "sdkGitHash": "2763d135dec5d2fd6c8767e52cea9b82f6b42819",
+      "vmrGitHash": "b8c18a5c2f5d06efdd635120822953728b21678e",
+      "runtimeCommitDateTime": "2026-08-11T23:24:58Z",
+      "runtimeCommitAuthor": "Andy Ayers",
+      "runtimeCommitMessage": "JIT: fold wasm local address frame offsets into store memargs (#132100)",
+      "aspnetCoreCommitDateTime": "2026-08-11T22:11:21Z",
+      "aspnetCoreCommitAuthor": "dependabot[bot]",
+      "aspnetCoreCommitMessage": "Bump Microsoft.Build.NoTargets from 3.7.0 to 3.7.134 (#68360)",
+      "aspnetCoreVersion": "11.0.0-rc.1.26413.103",
+      "runtimePackVersion": "11.0.0-rc.1.26413.103",
+      "workloadVersion": "11.0.100-rc.1.26413.103",
+      "bootstrapSdkVersion": "11.0.100-preview.7.26381.103",
+      "releaseDate": "2026-08-13",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-14T11:51:24.014Z",
+      "ciRunId": "31793508138",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/31793508138"
     }
   ],
   "apps": {

@@ -25,6 +25,32 @@
       "benchmarkDateTime": "2026-08-20T09:29:25.254Z",
       "ciRunId": "32348498133",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/32348498133"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.1.26420.103",
+      "runtimeGitHash": "f2568ada0923e08fc0e6e972ae583a3bc794837a",
+      "aspnetCoreGitHash": "96b7ae9999a954147cabc0245063f87cf2a0029b",
+      "sdkGitHash": "6bb52e256cd35f45066ee209812c099f2195122a",
+      "vmrGitHash": "1d599674e31ad86ca9e6e1dad7055b531e4d58e4",
+      "runtimeCommitDateTime": "2026-08-17T23:07:43Z",
+      "runtimeCommitAuthor": "Eirik Tsarpalis",
+      "runtimeCommitMessage": "[release/11.0-rc1] Add structural union type classifier (#132427)",
+      "aspnetCoreCommitDateTime": "2026-08-18T14:14:43Z",
+      "aspnetCoreCommitAuthor": "github-actions[bot]",
+      "aspnetCoreCommitMessage": "Fix auto-pause when circuit starts after enhanced navigation (#68540) (#68612)",
+      "aspnetCoreVersion": "11.0.0-rc.1.26420.103",
+      "runtimePackVersion": "11.0.0-rc.1.26420.103",
+      "workloadVersion": "11.0.100-rc.1.26420.103",
+      "bootstrapSdkVersion": "11.0.100-preview.7.26381.103",
+      "releaseDate": "2026-08-20",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-20T17:15:17.055Z",
+      "ciRunId": "32391363024",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/32391363024"
     }
   ],
   "apps": {

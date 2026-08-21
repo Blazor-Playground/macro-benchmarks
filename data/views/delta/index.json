@@ -1,6 +1,13 @@
 {
   "deltas": [
     {
+      "file": "delta-11.0.100-rc.1.26421.101-d05381f-96b7ae9.json",
+      "sdkVersion": "11.0.100-rc.1.26421.101",
+      "runtimeGitHash": "d05381f906b275674098aa57c9db80a6a217f49e",
+      "benchmarkDateTime": "2026-08-21T19:21:00.511Z",
+      "hasSignificant": true
+    },
+    {
       "file": "delta-11.0.100-rc.1.26420.118-be80e4c-96b7ae9.json",
       "sdkVersion": "11.0.100-rc.1.26420.118",
       "runtimeGitHash": "be80e4c79d5be869cb0e6af81a0ae5195f0ad8c8",

@@ -77,6 +77,32 @@
       "benchmarkDateTime": "2026-08-21T09:25:15.781Z",
       "ciRunId": "32463007068",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/32463007068"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.1.26421.101",
+      "runtimeGitHash": "d05381f906b275674098aa57c9db80a6a217f49e",
+      "aspnetCoreGitHash": "96b7ae9999a954147cabc0245063f87cf2a0029b",
+      "sdkGitHash": "b1b438a1bfb000957acfbac68aac1fae3e8b445c",
+      "vmrGitHash": "7cba5e99f9bb2a43fd0bd0dad345b3a21583eb7b",
+      "runtimeCommitDateTime": "2026-08-21T00:23:48Z",
+      "runtimeCommitAuthor": "github-actions[bot]",
+      "runtimeCommitMessage": "[release/11.0-rc1] Fix hang in InvalidClientRequestTests by guarding oversized Content-Length cases to managed implementation (#132593)",
+      "aspnetCoreCommitDateTime": "2026-08-18T14:14:43Z",
+      "aspnetCoreCommitAuthor": "github-actions[bot]",
+      "aspnetCoreCommitMessage": "Fix auto-pause when circuit starts after enhanced navigation (#68540) (#68612)",
+      "aspnetCoreVersion": "11.0.0-rc.1.26421.101",
+      "runtimePackVersion": "11.0.0-rc.1.26421.101",
+      "workloadVersion": "11.0.100-rc.1.26421.101",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-08-21",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-21T19:21:00.511Z",
+      "ciRunId": "32512729718",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/32512729718"
     }
   ],
   "apps": {

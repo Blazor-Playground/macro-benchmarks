@@ -103,6 +103,32 @@
       "benchmarkDateTime": "2026-08-21T19:21:00.511Z",
       "ciRunId": "32512729718",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/32512729718"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.1.26421.110",
+      "runtimeGitHash": "ffef27053d39af33dd2042f93865c1b521fece31",
+      "aspnetCoreGitHash": "96b7ae9999a954147cabc0245063f87cf2a0029b",
+      "sdkGitHash": "87d436bc0931c7e543bda1f48eea5743076477fc",
+      "vmrGitHash": "25c0025e42e3857ccc7b946adff9fadea9fe35a4",
+      "runtimeCommitDateTime": "2026-08-21T14:07:24Z",
+      "runtimeCommitAuthor": "github-actions[bot]",
+      "runtimeCommitMessage": "[release/11.0-rc1] Ensure BackgroundService invokes ExecuteAsync after start (#132598)",
+      "aspnetCoreCommitDateTime": "2026-08-18T14:14:43Z",
+      "aspnetCoreCommitAuthor": "github-actions[bot]",
+      "aspnetCoreCommitMessage": "Fix auto-pause when circuit starts after enhanced navigation (#68540) (#68612)",
+      "aspnetCoreVersion": "11.0.0-rc.1.26421.110",
+      "runtimePackVersion": "11.0.0-rc.1.26421.110",
+      "workloadVersion": "11.0.100-rc.1.26421.110",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-08-21",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-22T05:22:19.577Z",
+      "ciRunId": "32551425552",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/32551425552"
     }
   ],
   "apps": {

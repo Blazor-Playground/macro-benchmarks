@@ -181,6 +181,32 @@
       "benchmarkDateTime": "2026-08-22T05:22:19.577Z",
       "ciRunId": "32551425552",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/32551425552"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.1.26422.109",
+      "runtimeGitHash": "0d496901b4007278ef5757f3284ae3e5c007baac",
+      "aspnetCoreGitHash": "9245482a33933ca2832e67b01f77c05bb3d0d5c0",
+      "sdkGitHash": "87d436bc0931c7e543bda1f48eea5743076477fc",
+      "vmrGitHash": "88e905681d5a594a3e7c2425277f092968373490",
+      "runtimeCommitDateTime": "2026-08-21T21:32:12Z",
+      "runtimeCommitAuthor": "github-actions[bot]",
+      "runtimeCommitMessage": "[release/11.0-rc1] Fix transition from monomorphic to polymorphic VSD (#132622)",
+      "aspnetCoreCommitDateTime": "2026-08-21T23:10:14Z",
+      "aspnetCoreCommitAuthor": "github-actions[bot]",
+      "aspnetCoreCommitMessage": "Update SignalR authentication refresh APIs (#68676) (#68702)",
+      "aspnetCoreVersion": "11.0.0-rc.1.26422.109",
+      "runtimePackVersion": "11.0.0-rc.1.26422.109",
+      "workloadVersion": "11.0.100-rc.1.26422.109",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-08-22",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-23T05:14:45.474Z",
+      "ciRunId": "32617815962",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/32617815962"
     }
   ],
   "apps": {

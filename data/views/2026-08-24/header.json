@@ -25,6 +25,32 @@
       "benchmarkDateTime": "2026-08-27T01:16:32.669Z",
       "ciRunId": "33026159543",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33026159543"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.2.26426.116",
+      "runtimeGitHash": "b2a6bda9f8694b25abdc3a76009129dbfeff55bb",
+      "aspnetCoreGitHash": "5f1e3ede2bbbdc583feda26dfc68470495ab3a2a",
+      "sdkGitHash": "e411efd0894e6b401f3ab471ac84827a2fdaed24",
+      "vmrGitHash": "ba2e95a66f46b0e685fbec8e950b3c42bf7c583c",
+      "runtimeCommitDateTime": "2026-08-26T13:46:46Z",
+      "runtimeCommitAuthor": "github-actions[bot]",
+      "runtimeCommitMessage": "[release/11.0] Implement SocketsHttpHandler.InitialHttp2MaxConcurrentStreams (#132566)",
+      "aspnetCoreCommitDateTime": "2026-08-25T19:11:41Z",
+      "aspnetCoreCommitAuthor": "github-actions[bot]",
+      "aspnetCoreCommitMessage": "Localized file check-in by OneLocBuild Task: Build definition ID 1159: Build ID 3057266 (#68783) (#68784)",
+      "aspnetCoreVersion": "11.0.0-rc.2.26426.116",
+      "runtimePackVersion": "11.0.0-rc.2.26426.116",
+      "workloadVersion": "11.0.100-rc.2.26426.116",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-08-26",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-27T06:36:05.905Z",
+      "ciRunId": "33042487311",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33042487311"
     }
   ],
   "apps": {

@@ -51,6 +51,32 @@
       "benchmarkDateTime": "2026-08-27T06:36:05.905Z",
       "ciRunId": "33042487311",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33042487311"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.2.26426.126",
+      "runtimeGitHash": "5ac8903ad7da4415482c3bdc195c3be05ed1c624",
+      "aspnetCoreGitHash": "340efbe4816ae070fa5a55824ea4494e5d052b8c",
+      "sdkGitHash": "e411efd0894e6b401f3ab471ac84827a2fdaed24",
+      "vmrGitHash": "100002779ceec649fcfd00c233f673b494130827",
+      "runtimeCommitDateTime": "2026-08-26T23:35:08Z",
+      "runtimeCommitAuthor": "github-actions[bot]",
+      "runtimeCommitMessage": "[release/11.0] Fix X509 reference leak in SslStream extra chain certificates on Unix (#132733)",
+      "aspnetCoreCommitDateTime": "2026-08-26T19:36:42Z",
+      "aspnetCoreCommitAuthor": "github-actions[bot]",
+      "aspnetCoreCommitMessage": "Localized file check-in by OneLocBuild Task: Build definition ID 1159: Build ID 3058217 (#68827) (#68829)",
+      "aspnetCoreVersion": "11.0.0-rc.2.26426.126",
+      "runtimePackVersion": "11.0.0-rc.2.26426.126",
+      "workloadVersion": "11.0.100-rc.2.26426.126",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-08-26",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-27T17:50:07.797Z",
+      "ciRunId": "33096008375",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33096008375"
     }
   ],
   "apps": {

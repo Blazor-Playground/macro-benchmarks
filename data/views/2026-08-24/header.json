@@ -129,6 +129,32 @@
       "benchmarkDateTime": "2026-08-27T17:50:07.797Z",
       "ciRunId": "33096008375",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33096008375"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.2.26427.127",
+      "runtimeGitHash": "27e339529da0c7cf9c00aa57faf3c14447152a33",
+      "aspnetCoreGitHash": "c5252603340d384e78de6ab20854e71dccb17b21",
+      "sdkGitHash": "aa26bf8301981c1cccc965959581ac5afaecffdf",
+      "vmrGitHash": "fb84ad6786f66923632768b97128d7343ae4eae8",
+      "runtimeCommitDateTime": "2026-08-27T21:12:06Z",
+      "runtimeCommitAuthor": "github-actions[bot]",
+      "runtimeCommitMessage": "[release/11.0] Fix \"Bad IL range\" when applying a hot reload update without FEATURE_REJIT (#132837)",
+      "aspnetCoreCommitDateTime": "2026-08-26T22:25:21Z",
+      "aspnetCoreCommitAuthor": "Youssef Fahmy",
+      "aspnetCoreCommitMessage": "Fix validation of parsable types (#68746)",
+      "aspnetCoreVersion": "11.0.0-rc.2.26427.127",
+      "runtimePackVersion": "11.0.0-rc.2.26427.127",
+      "workloadVersion": "11.0.100-rc.2.26427.127",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-08-27",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-28T14:35:24.705Z",
+      "ciRunId": "33175499109",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33175499109"
     }
   ],
   "apps": {

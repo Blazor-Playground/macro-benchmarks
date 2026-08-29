@@ -285,6 +285,32 @@
       "benchmarkDateTime": "2026-08-29T05:42:47.583Z",
       "ciRunId": "33234106563",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33234106563"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.2.26428.122",
+      "runtimeGitHash": "c6b97354468cc8484492a413c5689e77c03e5a82",
+      "aspnetCoreGitHash": "c5252603340d384e78de6ab20854e71dccb17b21",
+      "sdkGitHash": "aa26bf8301981c1cccc965959581ac5afaecffdf",
+      "vmrGitHash": "a1d60271d589de52ba513a8265a9038da9eaba5c",
+      "runtimeCommitDateTime": "2026-08-28T23:07:55Z",
+      "runtimeCommitAuthor": "github-actions[bot]",
+      "runtimeCommitMessage": "[release/11.0] Gate Composite ML-DSA CNG tests on NCrypt support (#132903)",
+      "aspnetCoreCommitDateTime": "2026-08-26T22:25:21Z",
+      "aspnetCoreCommitAuthor": "Youssef Fahmy",
+      "aspnetCoreCommitMessage": "Fix validation of parsable types (#68746)",
+      "aspnetCoreVersion": "11.0.0-rc.2.26428.122",
+      "runtimePackVersion": "11.0.0-rc.2.26428.122",
+      "workloadVersion": "11.0.100-rc.2.26428.122",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-08-28",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-29T12:45:45.466Z",
+      "ciRunId": "33251145406",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33251145406"
     }
   ],
   "apps": {

@@ -233,6 +233,32 @@
       "benchmarkDateTime": "2026-08-29T00:22:54.470Z",
       "ciRunId": "33219774934",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33219774934"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.2.26428.114",
+      "runtimeGitHash": "efe877f9dd4c0e95c5411264d47441e7fcc63a92",
+      "aspnetCoreGitHash": "c5252603340d384e78de6ab20854e71dccb17b21",
+      "sdkGitHash": "aa26bf8301981c1cccc965959581ac5afaecffdf",
+      "vmrGitHash": "a0cd5a3807ede13f62b0e2f6c69e5681c36fe958",
+      "runtimeCommitDateTime": "2026-08-28T11:24:13Z",
+      "runtimeCommitAuthor": "github-actions[bot]",
+      "runtimeCommitMessage": "[release/11.0] Correctly exclude the Helix Job Monitor stage in `coreclr outerloop` (#132883)",
+      "aspnetCoreCommitDateTime": "2026-08-26T22:25:21Z",
+      "aspnetCoreCommitAuthor": "Youssef Fahmy",
+      "aspnetCoreCommitMessage": "Fix validation of parsable types (#68746)",
+      "aspnetCoreVersion": "11.0.0-rc.2.26428.114",
+      "runtimePackVersion": "11.0.0-rc.2.26428.114",
+      "workloadVersion": "11.0.100-rc.2.26428.114",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-08-28",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-29T05:42:47.583Z",
+      "ciRunId": "33234106563",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33234106563"
     }
   ],
   "apps": {

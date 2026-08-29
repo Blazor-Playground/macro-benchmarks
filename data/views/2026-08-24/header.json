@@ -207,6 +207,32 @@
       "benchmarkDateTime": "2026-08-28T14:35:24.705Z",
       "ciRunId": "33175499109",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33175499109"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.2.26428.107",
+      "runtimeGitHash": "1d6b8543f5146202cbf189dc1082d673d04694c8",
+      "aspnetCoreGitHash": "c5252603340d384e78de6ab20854e71dccb17b21",
+      "sdkGitHash": "aa26bf8301981c1cccc965959581ac5afaecffdf",
+      "vmrGitHash": "a0663fbdaea1e78e51b686674c6d21f365522416",
+      "runtimeCommitDateTime": "2026-08-28T08:18:18Z",
+      "runtimeCommitAuthor": "github-actions[bot]",
+      "runtimeCommitMessage": "[release/11.0] Temporarily disable Helix Job Monitor (#132880)",
+      "aspnetCoreCommitDateTime": "2026-08-26T22:25:21Z",
+      "aspnetCoreCommitAuthor": "Youssef Fahmy",
+      "aspnetCoreCommitMessage": "Fix validation of parsable types (#68746)",
+      "aspnetCoreVersion": "11.0.0-rc.2.26428.107",
+      "runtimePackVersion": "11.0.0-rc.2.26428.107",
+      "workloadVersion": "11.0.100-rc.2.26428.107",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-08-28",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-29T00:22:54.470Z",
+      "ciRunId": "33219774934",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33219774934"
     }
   ],
   "apps": {

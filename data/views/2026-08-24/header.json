@@ -363,6 +363,32 @@
       "benchmarkDateTime": "2026-08-29T19:59:48.316Z",
       "ciRunId": "33269619845",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33269619845"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.2.26429.111",
+      "runtimeGitHash": "c4accc41a1e67cf393c8440b116f48f361be9778",
+      "aspnetCoreGitHash": "c5252603340d384e78de6ab20854e71dccb17b21",
+      "sdkGitHash": "aa26bf8301981c1cccc965959581ac5afaecffdf",
+      "vmrGitHash": "6c102ec59fc1ae0ef44054cb4659daf828b96e8d",
+      "runtimeCommitDateTime": "2026-08-29T16:22:38Z",
+      "runtimeCommitAuthor": "Matt Mitchell",
+      "runtimeCommitMessage": "[release/11.0] Re-enable Helix Job Monitor (#132899)",
+      "aspnetCoreCommitDateTime": "2026-08-26T22:25:21Z",
+      "aspnetCoreCommitAuthor": "Youssef Fahmy",
+      "aspnetCoreCommitMessage": "Fix validation of parsable types (#68746)",
+      "aspnetCoreVersion": "11.0.0-rc.2.26429.111",
+      "runtimePackVersion": "11.0.0-rc.2.26429.111",
+      "workloadVersion": "11.0.100-rc.2.26429.111",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-08-29",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-08-30T10:35:48.644Z",
+      "ciRunId": "33304272800",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33304272800"
     }
   ],
   "apps": {

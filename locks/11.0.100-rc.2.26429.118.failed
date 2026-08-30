@@ -1,0 +1,9 @@
+{
+  "failedAt": "2026-08-30T15:56:13.945Z",
+  "failures": [
+    {
+      "target": "empty-blazor/no-workload",
+      "errorLines": []
+    }
+  ]
+}

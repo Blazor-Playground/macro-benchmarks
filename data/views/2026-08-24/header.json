@@ -441,6 +441,32 @@
       "benchmarkDateTime": "2026-08-31T23:07:54.339Z",
       "ciRunId": "33444686076",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33444686076"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.2.26431.116",
+      "runtimeGitHash": "c4accc41a1e67cf393c8440b116f48f361be9778",
+      "aspnetCoreGitHash": "fbcdba32fd66705a11c5bbb7e2f1bf7ed92c93dc",
+      "sdkGitHash": "aa26bf8301981c1cccc965959581ac5afaecffdf",
+      "vmrGitHash": "f8a811758057986566da27d06d8f03a7e5e226bf",
+      "runtimeCommitDateTime": "2026-08-29T16:22:38Z",
+      "runtimeCommitAuthor": "Matt Mitchell",
+      "runtimeCommitMessage": "[release/11.0] Re-enable Helix Job Monitor (#132899)",
+      "aspnetCoreCommitDateTime": "2026-08-28T12:43:02Z",
+      "aspnetCoreCommitAuthor": "Matt Mitchell",
+      "aspnetCoreCommitMessage": "Update Helix Job Monitor to 11.0.0-beta.26427.10 (#68875)",
+      "aspnetCoreVersion": "11.0.0-rc.2.26431.116",
+      "runtimePackVersion": "11.0.0-rc.2.26431.116",
+      "workloadVersion": "11.0.100-rc.2.26431.116",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-08-31",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-09-01T10:02:43.516Z",
+      "ciRunId": "33489735793",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33489735793"
     }
   ],
   "apps": {

@@ -51,6 +51,32 @@
       "benchmarkDateTime": "2026-09-02T13:23:51.303Z",
       "ciRunId": "33629374457",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33629374457"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.2.26452.102",
+      "runtimeGitHash": "f9825c724ba49bd1430c5e29b053d9708bb59d24",
+      "aspnetCoreGitHash": "6c010a60b7aaa8297b2807681faeaa711f79c34d",
+      "sdkGitHash": "bfcffd96458613cdcff7905d095026a10d58337f",
+      "vmrGitHash": "ba5fefc87000195d9618a554794c7b0f283290c7",
+      "runtimeCommitDateTime": "2026-09-02T02:09:59Z",
+      "runtimeCommitAuthor": "github-actions[bot]",
+      "runtimeCommitMessage": "[release/11.0] Use lock-free reads for ETW rundown versions (#133043)",
+      "aspnetCoreCommitDateTime": "2026-09-01T17:59:19Z",
+      "aspnetCoreCommitAuthor": "Soňa Nemečkayová",
+      "aspnetCoreCommitMessage": "Fix LoginWith2fa remember-machine checkbox label association (#68844)",
+      "aspnetCoreVersion": "11.0.0-rc.2.26452.102",
+      "runtimePackVersion": "11.0.0-rc.2.26452.102",
+      "workloadVersion": "11.0.100-rc.2.26452.102",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-09-02",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-09-02T18:30:47.199Z",
+      "ciRunId": "33661266691",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33661266691"
     }
   ],
   "apps": {

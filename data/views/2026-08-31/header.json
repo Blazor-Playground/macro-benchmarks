@@ -103,6 +103,32 @@
       "benchmarkDateTime": "2026-09-03T00:40:19.131Z",
       "ciRunId": "33696084325",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33696084325"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.2.26452.117",
+      "runtimeGitHash": "76c6255e74677869f86e265188dcc3d17c5da03c",
+      "aspnetCoreGitHash": "be0f5ffde91d246fe1735d8a25ba1e80816fd3f1",
+      "sdkGitHash": "ff2ca10968de65dc2429fe2f1de9b3ee9c49b8ab",
+      "vmrGitHash": "1fee94ef34a9c6e2e4cf4199d9a546ef8a2a927d",
+      "runtimeCommitDateTime": "2026-09-02T16:47:45Z",
+      "runtimeCommitAuthor": "github-actions[bot]",
+      "runtimeCommitMessage": "[release/11.0] JIT: update impFixupStructReturnType to handle `GT_RET_EXPR` (#133051)",
+      "aspnetCoreCommitDateTime": "2026-09-02T16:58:24Z",
+      "aspnetCoreCommitAuthor": "William Godbe",
+      "aspnetCoreCommitMessage": "Fix installer background for bundles (#68931)",
+      "aspnetCoreVersion": "11.0.0-rc.2.26452.117",
+      "runtimePackVersion": "11.0.0-rc.2.26452.117",
+      "workloadVersion": "11.0.100-rc.2.26452.117",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-09-02",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-09-03T07:41:53.198Z",
+      "ciRunId": "33723978833",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33723978833"
     }
   ],
   "apps": {

@@ -77,6 +77,32 @@
       "benchmarkDateTime": "2026-09-02T18:30:47.199Z",
       "ciRunId": "33661266691",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33661266691"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.2.26452.108",
+      "runtimeGitHash": "8967fdf948150cec4763e9f53419fe86d9d8c57a",
+      "aspnetCoreGitHash": "6c010a60b7aaa8297b2807681faeaa711f79c34d",
+      "sdkGitHash": "bfcffd96458613cdcff7905d095026a10d58337f",
+      "vmrGitHash": "4ecf58080cbcc57f41463a98fe245d76c27ebc39",
+      "runtimeCommitDateTime": "2026-09-02T09:46:25Z",
+      "runtimeCommitAuthor": "Alexander Köplinger",
+      "runtimeCommitMessage": "[automated] Merge branch 'release/11.0-rc1' => 'release/11.0' (#132888)",
+      "aspnetCoreCommitDateTime": "2026-09-01T17:59:19Z",
+      "aspnetCoreCommitAuthor": "Soňa Nemečkayová",
+      "aspnetCoreCommitMessage": "Fix LoginWith2fa remember-machine checkbox label association (#68844)",
+      "aspnetCoreVersion": "11.0.0-rc.2.26452.108",
+      "runtimePackVersion": "11.0.0-rc.2.26452.108",
+      "workloadVersion": "11.0.100-rc.2.26452.108",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-09-02",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-09-03T00:40:19.131Z",
+      "ciRunId": "33696084325",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33696084325"
     }
   ],
   "apps": {

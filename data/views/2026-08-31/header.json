@@ -181,6 +181,32 @@
       "benchmarkDateTime": "2026-09-04T00:34:37.234Z",
       "ciRunId": "33818404862",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33818404862"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.2.26453.114",
+      "runtimeGitHash": "d4bc10ab4683ea41bdf4213b4c6df2eb427bb94c",
+      "aspnetCoreGitHash": "7c75204d53b3ec863038b057b7218dd29f464ea7",
+      "sdkGitHash": "b8bcb1430457ca3d774362693d13baea4b7160fe",
+      "vmrGitHash": "c9b72963eb22ce3f8eb2ad8ebedf9ecef57615da",
+      "runtimeCommitDateTime": "2026-09-03T12:56:22Z",
+      "runtimeCommitAuthor": "github-actions[bot]",
+      "runtimeCommitMessage": "[release/11.0] Don't report unsupported types for never bound properties (#132783)",
+      "aspnetCoreCommitDateTime": "2026-09-03T14:49:32Z",
+      "aspnetCoreCommitAuthor": "Javier Calvarro Nelson",
+      "aspnetCoreCommitMessage": "[release/11.0] Update Bootstrap to 5.3.8 in templates and Identity UI (#68948)",
+      "aspnetCoreVersion": "11.0.0-rc.2.26453.114",
+      "runtimePackVersion": "11.0.0-rc.2.26453.114",
+      "workloadVersion": "11.0.100-rc.2.26453.114",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-09-03",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-09-04T13:21:58.921Z",
+      "ciRunId": "33872140604",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33872140604"
     }
   ],
   "apps": {

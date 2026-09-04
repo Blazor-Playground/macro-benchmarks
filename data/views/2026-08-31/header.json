@@ -155,6 +155,32 @@
       "benchmarkDateTime": "2026-09-03T21:18:34.767Z",
       "ciRunId": "33800976254",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33800976254"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.2.26453.107",
+      "runtimeGitHash": "acf2a917e9bc24aebf2c2d2005d6be88d6cf1882",
+      "aspnetCoreGitHash": "e93a1374154fd95f6e4ea8e105570815faee04fc",
+      "sdkGitHash": "ff2ca10968de65dc2429fe2f1de9b3ee9c49b8ab",
+      "vmrGitHash": "a12253cf4283fcf4a54a7d2732aae2e8821f833a",
+      "runtimeCommitDateTime": "2026-09-02T21:35:08Z",
+      "runtimeCommitAuthor": "github-actions[bot]",
+      "runtimeCommitMessage": "[release/11.0] Use acquire reads for cast cache entries (#133052)",
+      "aspnetCoreCommitDateTime": "2026-09-03T03:09:59Z",
+      "aspnetCoreCommitAuthor": "dotnet-maestro[bot]",
+      "aspnetCoreCommitMessage": "[release/11.0] Source code updates from dotnet/dotnet (#68929)",
+      "aspnetCoreVersion": "11.0.0-rc.2.26453.107",
+      "runtimePackVersion": "11.0.0-rc.2.26453.107",
+      "workloadVersion": "11.0.100-rc.2.26453.107",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-09-03",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-09-04T00:34:37.234Z",
+      "ciRunId": "33818404862",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33818404862"
     }
   ],
   "apps": {

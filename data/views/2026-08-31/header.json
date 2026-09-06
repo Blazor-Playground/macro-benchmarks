@@ -233,6 +233,32 @@
       "benchmarkDateTime": "2026-09-05T18:47:35.386Z",
       "ciRunId": "33981961211",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/33981961211"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.2.26455.107",
+      "runtimeGitHash": "459f6b60db0a6fd1ed05aedd4ab4c669b9b5bada",
+      "aspnetCoreGitHash": "8b2331cb93e495e01898a825d8d5c5a9d444668b",
+      "sdkGitHash": "31118cfde1f4d217094cf199e1ec5885d2066311",
+      "vmrGitHash": "165468be4fb6d7b5adc526c226abf2aa7da4b5d4",
+      "runtimeCommitDateTime": "2026-09-05T02:12:46Z",
+      "runtimeCommitAuthor": "github-actions[bot]",
+      "runtimeCommitMessage": "[release/11.0] Improve PemEncoding.TryFind perf with degenerate inputs (#133249)",
+      "aspnetCoreCommitDateTime": "2026-09-04T18:59:31Z",
+      "aspnetCoreCommitAuthor": "github-actions[bot]",
+      "aspnetCoreCommitMessage": "Fix Blazor client-side validation support for custom attributes (#69020) (#69026)",
+      "aspnetCoreVersion": "11.0.0-rc.2.26455.107",
+      "runtimePackVersion": "11.0.0-rc.2.26455.107",
+      "workloadVersion": "11.0.100-rc.2.26455.107",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-09-05",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-09-06T02:39:29.401Z",
+      "ciRunId": "34004351917",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/34004351917"
     }
   ],
   "apps": {

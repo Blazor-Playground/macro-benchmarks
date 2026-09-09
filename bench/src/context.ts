@@ -30,6 +30,8 @@ export interface SdkInfo {
     workloadVersion: string;
     bootstrapSdkVersion: string;
     releaseDate: string;
+    /** dotnet/dotnet branch the VMR build came from (e.g. 'main', 'release/11.0.1xx', 'unknown'). */
+    vmrBranch?: string;
 }
 
 // ── Build Manifest Entry (populated by build stage) ──────────────────────────
@@ -99,6 +101,8 @@ export interface BenchContext {
     months: number;
     releaseMajors: number[];
     forceEnumerate: boolean;
+    /** Keep only daily packs from this dotnet/dotnet branch ('' = keep all). */
+    vmrBranch: string;
 
     // ── Resolved paths (populated during execution) ──
     repoRoot: string;

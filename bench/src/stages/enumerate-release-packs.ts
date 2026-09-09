@@ -8,6 +8,7 @@ import {
     GITHUB_API, GITHUB_RAW, NUGET_FLAT, PRODUCT_COMMIT_BASE, RELEASES_INDEX_URL,
 } from '../lib/http.js';
 import { getFeatureBand, getVersionMajor, populateVersionFields } from '../lib/version-utils.js';
+import { resolveVmrBranch, vmrBranchCandidates } from '../lib/vmr-branch.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -217,6 +218,17 @@ async function resolveRelease(
         info(`Resolved ${label} (${isVmr ? 'VMR' : 'pre-VMR'})`);
     }
 
+    // Informational only — release packs are never branch-filtered. Pre-VMR (8/9) has no
+    // dotnet/dotnet commit to classify.
+    const vmrBranch = isVmr
+        ? await resolveVmrBranch(
+            vmrGitHash,
+            vmrBranchCandidates(getVersionMajor(sdkVersion), getFeatureBand(sdkVersion)),
+            token,
+            verbose,
+        )
+        : 'pre-vmr';
+
     return populateVersionFields({
         sdkVersion,
         runtimeGitHash,
@@ -234,6 +246,7 @@ async function resolveRelease(
         workloadVersion: runtimeVersion,
         bootstrapSdkVersion,
         releaseDate,
+        vmrBranch,
     });
 }
 
@@ -343,7 +356,9 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const existingPacks: SdkInfo[] = existing?.packs ?? [];
 
     if (existing) {
-        const knownVersions = new Set(existing.packs.map(p => p.runtimePackVersion));
+        // Only entries already tagged with a VMR branch count as resolved, so a run after this
+        // change backfills vmrBranch onto previously cached release packs.
+        const knownVersions = new Set(existing.packs.filter(p => p.vmrBranch).map(p => p.runtimePackVersion));
         toResolve = candidates.filter(c => !knownVersions.has(c.runtimeVersion));
         info(`Incremental: ${toResolve.length} new releases to resolve (${knownVersions.size} cached)`);
     } else {

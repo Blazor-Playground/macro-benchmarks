@@ -68,6 +68,7 @@ Enumeration:
   --major <n>              .NET major version (default: 11)
   --months <n>             History months to scan (default: 1)
   --release-majors <list>  Comma-separated majors for release enumeration (default: 8,9,10)
+  --vmr-branch <name>      Keep only daily packs from this dotnet/dotnet branch (default: main; empty = all)
   --force-enumerate        Re-resolve all versions (ignore cache)
 
 General:
@@ -126,6 +127,7 @@ const ARG_OPTIONS = {
     'major': { type: 'string' as const, default: '11' },
     'months': { type: 'string' as const, default: '1' },
     'release-majors': { type: 'string' as const, default: '8,9,10' },
+    'vmr-branch': { type: 'string' as const, default: 'main' },
     'force-enumerate': { type: 'boolean' as const, default: false },
 
     // General
@@ -283,6 +285,7 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
         months: parseIntStrict(values.months!, 'months'),
         releaseMajors: values['release-majors']!.split(',').map(s => parseIntStrict(s.trim(), 'release-majors')),
         forceEnumerate: values['force-enumerate'] ?? false,
+        vmrBranch: values['vmr-branch'] ?? loaded.vmrBranch ?? 'main',
 
         // Resolved paths
         repoRoot,

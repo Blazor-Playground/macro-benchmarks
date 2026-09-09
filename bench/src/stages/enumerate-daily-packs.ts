@@ -8,8 +8,9 @@ import {
     GITHUB_API, GITHUB_RAW,
 } from '../lib/http.js';
 import {
-    parseArcadeDate, deriveSdkVersion, populateVersionFields,
+    parseArcadeDate, deriveSdkVersion, populateVersionFields, getVersionMajor,
 } from '../lib/version-utils.js';
+import { resolveVmrBranch, vmrBranchCandidates } from '../lib/vmr-branch.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -146,6 +147,13 @@ async function resolveVersion(
         info(`Resolved ${label}`);
     }
 
+    const vmrBranch = await resolveVmrBranch(
+        vmrCommit,
+        vmrBranchCandidates(getVersionMajor(sdkVersion)),
+        token,
+        verbose,
+    );
+
     return populateVersionFields({
         sdkVersion,
         runtimeGitHash: rtRepo.commitSha,
@@ -163,6 +171,7 @@ async function resolveVersion(
         workloadVersion: runtimePackVersion,
         bootstrapSdkVersion: gj.tools.dotnet,
         releaseDate: parseArcadeDate(runtimePackVersion)?.toISOString().slice(0, 10) ?? '',
+        vmrBranch,
     });
 }
 
@@ -257,7 +266,9 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const existingPacks: SdkInfo[] = existing?.packs ?? [];
 
     if (existing) {
-        const knownVersions = new Set(existing.packs.map(p => p.runtimePackVersion));
+        // Only entries already tagged with a VMR branch count as resolved, so a run after this
+        // change backfills vmrBranch onto previously cached packs.
+        const knownVersions = new Set(existing.packs.filter(p => p.vmrBranch).map(p => p.runtimePackVersion));
         toResolve = candidates.filter(v => !knownVersions.has(v));
         info(`Incremental: ${toResolve.length} new versions to resolve (${knownVersions.size} cached)`);
     } else {
@@ -281,12 +292,29 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     for (const p of newPacks) mergedMap.set(p.runtimePackVersion, p);
 
     // Prune versions that have aged out of the window
-    const allPacks = [...mergedMap.values()]
+    let windowed = [...mergedMap.values()]
         .filter(p => {
             const buildDate = parseArcadeDate(p.runtimePackVersion);
             return buildDate && buildDate >= cutoff;
         })
         .sort((a, b) => b.runtimePackVersion.localeCompare(a.runtimePackVersion));
+
+    // Diagnostic: how the in-window packs split across VMR branches
+    const branchDist = new Map<string, number>();
+    for (const p of windowed) {
+        const b = p.vmrBranch ?? 'unknown';
+        branchDist.set(b, (branchDist.get(b) ?? 0) + 1);
+    }
+    info(`VMR branch distribution: ${[...branchDist].map(([b, n]) => `${b}=${n}`).join(', ') || '(none)'}`);
+
+    // Keep only packs from the requested VMR branch ('' = keep all)
+    if (ctx.vmrBranch) {
+        const before = windowed.length;
+        windowed = windowed.filter(p => p.vmrBranch === ctx.vmrBranch);
+        info(`VMR branch filter '${ctx.vmrBranch}': kept ${windowed.length}/${before}`);
+    }
+
+    const allPacks = windowed;
 
     // ── Step 7: Write output ─────────────────────────────────────────────────
 

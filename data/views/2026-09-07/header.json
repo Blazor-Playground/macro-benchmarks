@@ -77,6 +77,32 @@
       "benchmarkDateTime": "2026-09-08T18:30:40.072Z",
       "ciRunId": "34258244242",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/34258244242"
+    },
+    {
+      "sdkVersion": "11.0.100-rc.2.26458.109",
+      "runtimeGitHash": "53aa60a8d5b189cefb525334eef643b8d5864ad4",
+      "aspnetCoreGitHash": "8b2331cb93e495e01898a825d8d5c5a9d444668b",
+      "sdkGitHash": "31118cfde1f4d217094cf199e1ec5885d2066311",
+      "vmrGitHash": "c65c25f0c9889e06a5d70e275c741d8430fa353a",
+      "runtimeCommitDateTime": "2026-09-07T09:38:08Z",
+      "runtimeCommitAuthor": "dotnet-maestro[bot]",
+      "runtimeCommitMessage": "[release/11.0] Source code updates from dotnet/dotnet (#133198)",
+      "aspnetCoreCommitDateTime": "2026-09-04T18:59:31Z",
+      "aspnetCoreCommitAuthor": "github-actions[bot]",
+      "aspnetCoreCommitMessage": "Fix Blazor client-side validation support for custom attributes (#69020) (#69026)",
+      "aspnetCoreVersion": "11.0.0-rc.2.26458.109",
+      "runtimePackVersion": "11.0.0-rc.2.26458.109",
+      "workloadVersion": "11.0.100-rc.2.26458.109",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-09-08",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-09-09T07:52:21.752Z",
+      "ciRunId": "34320839477",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/34320839477"
     }
   ],
   "apps": {

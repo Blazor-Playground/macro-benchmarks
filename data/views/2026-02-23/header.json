@@ -1,30 +1,6 @@
 {
   "columns": [
     {
-      "sdkVersion": "11.0.100-preview.2.26159.112",
-      "runtimeGitHash": "68d697a4971a0f3ceb4ae7fed51ce3b244018c36",
-      "aspnetCoreGitHash": "552df3085ec12b38fc5e6620dc6fc8b352dfe5d5",
-      "sdkGitHash": "b8600c8854f5d1ac1442d717211d968f69a53acd",
-      "vmrGitHash": "17d11de66cf75b962995c81dd1235fae9aa5ece0",
-      "runtimeCommitDateTime": "2026-02-27T14:54:45Z",
-      "runtimeCommitAuthor": "github-actions[bot]",
-      "runtimeCommitMessage": "[release/11.0-preview2] Revert \"Increase number of assertions (GlobalAP) + VN cache (#124132)\" (#124955)",
-      "aspnetCoreCommitDateTime": "2026-02-26T23:52:38Z",
-      "aspnetCoreVersion": "11.0.0-preview.2.26159.112",
-      "runtimePackVersion": "11.0.0-preview.2.26159.112",
-      "workloadVersion": "11.0.100-preview.2.26159.112",
-      "bootstrapSdkVersion": "11.0.100-preview.1.26104.118",
-      "releaseDate": "2026-03-09",
-      "major": 11,
-      "minor": 0,
-      "patch": 100,
-      "channel": "11.0",
-      "isPrerelease": true,
-      "benchmarkDateTime": "2026-03-30T15:46:44.442Z",
-      "ciRunId": "23751052354",
-      "ciRunUrl": "https://github.com/pavelsavara/macro-benchmarks/actions/runs/23751052354"
-    },
-    {
       "sdkVersion": "11.0.100-preview.3.26151.102",
       "runtimeGitHash": "d7362ecd2500f0536b4a162d469575494b36390f",
       "aspnetCoreGitHash": "8dc0b08f3cc5ad2acacb242745b68bf52257a63d",

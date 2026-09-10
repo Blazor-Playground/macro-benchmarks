@@ -22,7 +22,7 @@ Pipeline control:
   --dry-run                Minimal run: empty-browser + dev-loop + chrome only
 
 SDK & Runtime:
-  --sdk-channel <ch>       SDK channel (default: 11.0)
+  --sdk-channel <ch>       SDK channel (default: 12.0)
   --sdk-version <ver>      Exact SDK version (overrides channel)
   --runtime <rt>           Runtime flavor: mono, coreclr, naotllvm (default: mono)
   --runtime-pack <ver>     Specific runtime pack version
@@ -65,7 +65,7 @@ Scheduling:
   --branch <name>          Branch for dispatch (default: main)
 
 Enumeration:
-  --major <n>              .NET major version (default: 11)
+  --major <n>              .NET major version (default: 12)
   --months <n>             History months to scan (default: 1)
   --release-majors <list>  Comma-separated majors for release enumeration (default: 8,9,10)
   --vmr-branch <name>      Keep only daily packs from this dotnet/dotnet branch (default: main; empty = all)
@@ -124,7 +124,7 @@ const ARG_OPTIONS = {
     'branch': { type: 'string' as const, default: 'main' },
 
     // Enumeration
-    'major': { type: 'string' as const, default: '11' },
+    'major': { type: 'string' as const, default: '12' },
     'months': { type: 'string' as const, default: '1' },
     'release-majors': { type: 'string' as const, default: '8,9,10' },
     'vmr-branch': { type: 'string' as const, default: 'main' },
@@ -238,7 +238,7 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
         verbose: values.verbose ?? false,
 
         // SDK & Runtime
-        sdkChannel: values['sdk-channel'] || loaded.sdkChannel || '11.0',
+        sdkChannel: values['sdk-channel'] || loaded.sdkChannel || '12.0',
         sdkVersion: values['sdk-version'] || loaded.sdkVersion || '',
         runtimes: effectiveRuntimes,
         runtimePack: values['runtime-pack'] || loaded.runtimePack || '',

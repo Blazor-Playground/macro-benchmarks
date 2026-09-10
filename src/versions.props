@@ -9,7 +9,12 @@
     <BundledNETCoreAppPackageVersion Condition="Exists('$(_BundledVersionsFile)')">$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(_BundledVersionsFile)')), '&lt;BundledNETCoreAppPackageVersion&gt;([^&lt;]+)&lt;').Groups[1].Value)</BundledNETCoreAppPackageVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <_SdkTfm>net$(NETCoreSdkVersion.Split('.')[0]).$(NETCoreSdkVersion.Split('.')[1])</_SdkTfm>
+    <!-- The SDK's bundled framework TFM is authoritative: early in a major the SDK version can be
+         12.0.x while the shipped framework (and runtime pack) is still net11.0. -->
+    <_BundledVersionsFile Condition="'$(_BundledVersionsFile)' == ''">$(MSBuildBinPath)\Microsoft.NETCoreSdk.BundledVersions.props</_BundledVersionsFile>
+    <_SdkTfm Condition="'$(BundledNETCoreAppTargetFramework)' != ''">$(BundledNETCoreAppTargetFramework)</_SdkTfm>
+    <_SdkTfm Condition="'$(_SdkTfm)' == '' and Exists('$(_BundledVersionsFile)')">net$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(_BundledVersionsFile)')), '&lt;BundledNETCoreAppTargetFrameworkVersion&gt;([^&lt;]+)&lt;').Groups[1].Value)</_SdkTfm>
+    <_SdkTfm Condition="'$(_SdkTfm)' == ''">net$(NETCoreSdkVersion.Split('.')[0]).$(NETCoreSdkVersion.Split('.')[1])</_SdkTfm>
     <BenchmarkTargetFramework Condition="'$(BenchmarkTargetFramework)' == ''">$(_SdkTfm)</BenchmarkTargetFramework>
   </PropertyGroup>
 

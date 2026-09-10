@@ -134,6 +134,9 @@ function getRestoreArgs(
     const args = [
         appDir,
         `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,
+        // Lift the SDK's targeting ceiling (global prop) so the SDK-major TFM (e.g. net12.0) isn't
+        // rejected with NETSDK1045 when the SDK's bundled NETCoreAppMaximumVersion lags its own major.
+        `/p:NETCoreAppMaximumVersion=${ctx.sdkInfo.major}.0`,
         ...getRuntimeProps(effectiveRuntime),
         `/p:BuildLabel=${ctx.buildLabel}`,
         '/p:MSBuildDisableTaskHost=true',
@@ -185,6 +188,7 @@ function getPublishArgs(
     }
     args.push(
         `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,
+        `/p:NETCoreAppMaximumVersion=${ctx.sdkInfo.major}.0`,
         '-c', PRESET_CONFIG[preset],
         ...getRuntimeProps(effectiveRuntime),
         `/p:BuildLabel=${ctx.buildLabel!}`,

@@ -1,5 +1,5 @@
 import { readFile, writeFile, readdir, rm, mkdir, stat, unlink } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, basename } from 'node:path';
 import { existsSync } from 'node:fs';
 import { type BenchContext, type BuildManifestEntry } from '../context.js';
 import {
@@ -48,6 +48,15 @@ function getRuntimeProps(runtime: Runtime): string[] {
         return ['/p:UsingNativeAOT=true'];
     }
     return [`/p:RuntimeFlavor=${runtime === R.CoreCLR ? 'CoreCLR' : 'Mono'}`];
+}
+
+// MSBuildProjectName drives the artifacts/{bin,obj}/<name>/<label>/<flavor>/<preset> layout
+// (see src/Directory.Build.props). appDir may be a .csproj (projectPath apps) or a directory.
+async function getProjectName(appDir: string): Promise<string> {
+    if (appDir.endsWith('.csproj')) return basename(appDir, '.csproj');
+    const entries = await readdir(appDir);
+    const csproj = entries.find(e => e.endsWith('.csproj'));
+    return csproj ? basename(csproj, '.csproj') : basename(appDir);
 }
 
 // ── Workload detection helpers ───────────────────────────────────────────────
@@ -187,6 +196,15 @@ async function buildPhase(
                 const publishDir = join(ctx.artifactsDir, 'publish', app, runtime, ctx.buildLabel!, preset);
 
                 try {
+                    // Clean this app+preset's bin/obj/publish so every build starts from a clean state.
+                    // A stale obj (e.g. ILLink up-to-date) otherwise leaves the WASM publish asset staging
+                    // up-to-date and the served bundle ends up missing framework assemblies.
+                    const effectiveRuntime = clientRuntimeFor(app, runtime, ctx.sdkInfo);
+                    const flavor = effectiveRuntime === R.CoreCLR ? 'CoreCLR' : 'Mono';
+                    const projectName = await getProjectName(appDir);
+                    const presetFolder = PRESET_MAP[preset];
+                    await rm(join(ctx.artifactsDir, 'bin', projectName, ctx.buildLabel!, flavor, presetFolder), { recursive: true, force: true });
+                    await rm(join(ctx.artifactsDir, 'obj', projectName, ctx.buildLabel!, flavor, presetFolder), { recursive: true, force: true });
                     await rm(publishDir, { recursive: true, force: true });
                     await mkdir(publishDir, { recursive: true });
 
@@ -369,6 +387,10 @@ async function pushFailedMarker(ctx: BenchContext, failures: BuildFailure[]): Pr
     if (!ctx.sdkInfo?.sdkVersion) return;
 
     const sdkVersion = ctx.sdkInfo.sdkVersion;
+    if (ctx.dryRun) {
+        info(`[dry-run] Skipping .failed marker for ${sdkVersion}`);
+        return;
+    }
     const trackingDir = join(ctx.repoRoot, 'tracking');
 
     const locksDir = join(trackingDir, 'locks');

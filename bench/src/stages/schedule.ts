@@ -270,6 +270,10 @@ async function markFailedFromSchedule(
     attempts: number,
     ctx: BenchContext,
 ): Promise<void> {
+    if (ctx.dryRun) {
+        info(`[dry-run] Skipping .failed marker for ${sdkVersion}`);
+        return;
+    }
     const locksDir = join(trackingDir, LOCK_DIR);
     await mkdir(locksDir, { recursive: true });
 

@@ -3,7 +3,7 @@ import { join, basename } from 'node:path';
 import { existsSync } from 'node:fs';
 import { type BenchContext, type BuildManifestEntry } from '../context.js';
 import {
-    type Preset, type Runtime,
+    Preset, type Runtime,
     App,
     Runtime as R,
     APP_CONFIG,
@@ -89,6 +89,38 @@ async function computeIntegrity(dir: string): Promise<{ fileCount: number; total
 
 // ── Publish arg builder ──────────────────────────────────────────────────────
 
+// The `aot` preset means Mono AOT for Mono and ReadyToRun (R2R) for CoreCLR. R2R needs the
+// from-source crossgen2 and WebAssembly SDK pack injected (until they ship in the base SDK).
+function isCoreClrR2R(effectiveRuntime: Runtime, preset: Preset): boolean {
+    return effectiveRuntime === R.CoreCLR && preset === Preset.Aot;
+}
+
+// CoreCLR R2R (aot) uses WasmBuildNative=false, so it needs no wasm-tools workload; Mono aot and
+// the native-relinking presets do.
+function presetNeedsWorkload(runtime: Runtime, preset: Preset): boolean {
+    if (NON_WORKLOAD_PRESETS.has(preset)) return false;
+    if (isCoreClrR2R(runtime, preset)) return false;
+    return true;
+}
+
+function getAdditionalRestoreSources(ctx: BenchContext, r2r: boolean): string[] {
+    const sources: string[] = [];
+    if (ctx.aspnetCorePackagesDir) sources.push(ctx.aspnetCorePackagesDir);
+    if (r2r && ctx.runtimePackagesDir) sources.push(ctx.runtimePackagesDir);
+    return sources;
+}
+
+// TODO: temporary injection — drop once both land in the daily SDK:
+//   - WebAssembly.Pack R2R targets: https://github.com/dotnet/runtime/pull/133378
+//   - browser-wasm crossgen2 pack:  https://github.com/dotnet/sdk/issues/55785
+function getR2RArgs(ctx: BenchContext, r2r: boolean): string[] {
+    if (!r2r) return [];
+    const args: string[] = [];
+    if (ctx.crossgen2Dir) args.push(`/p:Crossgen2InBuildDir=${ctx.crossgen2Dir}`);
+    if (ctx.r2rPackVersion) args.push(`/p:WasmR2RPackVersion=${ctx.r2rPackVersion}`);
+    return args;
+}
+
 function getRestoreArgs(
     ctx: BenchContext,
     appDir: string,
@@ -110,10 +142,15 @@ function getRestoreArgs(
     if (ctx.runtimePackDirs?.[effectiveRuntime]) {
         args.push(`/p:RuntimePackDir=${ctx.runtimePackDirs[effectiveRuntime]}`);
     }
+    const r2r = isCoreClrR2R(effectiveRuntime, preset);
+    const restoreSources = getAdditionalRestoreSources(ctx, r2r);
+    if (restoreSources.length > 0) {
+        args.push(`/p:RestoreAdditionalProjectSources=${restoreSources.join(';')}`);
+    }
     if (ctx.aspnetCorePackagesDir) {
-        args.push(`/p:RestoreAdditionalProjectSources=${ctx.aspnetCorePackagesDir}`);
         args.push(`/p:MicrosoftAspNetCoreVersion=${ctx.aspnetCorePackageVersion}`);
     }
+    args.push(...getR2RArgs(ctx, r2r));
     if (app === App.UnoGallery) {
         args.push(`/p:TargetFramework=net${ctx.sdkInfo.major}.0-browserwasm`);
     }
@@ -162,10 +199,15 @@ function getPublishArgs(
     if (ctx.runtimePackDirs?.[effectiveRuntime]) {
         args.push(`/p:RuntimePackDir=${ctx.runtimePackDirs[effectiveRuntime]}`);
     }
+    const r2r = isCoreClrR2R(effectiveRuntime, preset);
+    const restoreSources = getAdditionalRestoreSources(ctx, r2r);
+    if (restoreSources.length > 0) {
+        args.push(`/p:RestoreAdditionalProjectSources=${restoreSources.join(';')}`);
+    }
     if (ctx.aspnetCorePackagesDir) {
-        args.push(`/p:RestoreAdditionalProjectSources=${ctx.aspnetCorePackagesDir}`);
         args.push(`/p:MicrosoftAspNetCoreVersion=${ctx.aspnetCorePackageVersion}`);
     }
+    args.push(...getR2RArgs(ctx, r2r));
     return args;
 }
 
@@ -294,25 +336,31 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         await buildPhase(ctx, nonWorkloadPresets, succeeded, failed);
     }
 
-    // Phase: Install workload (only if workload presets are requested)
+    // Phase: Install workload (only if a requested workload-preset build actually needs it).
+    // CoreCLR aot is ReadyToRun (WasmBuildNative=false) and does not need the wasm-tools workload.
     if (workloadPresets.length > 0) {
-        banner('Install wasm-tools workload');
-        await dotnetWorkloadInstall(ctx.dotnetBin, 'wasm-tools', { cwd: ctx.repoRoot });
+        const workloadNeeded = workloadPresets.some(p => ctx.runtimes.some(r => presetNeedsWorkload(r, p)));
+        if (workloadNeeded) {
+            banner('Install wasm-tools workload');
+            await dotnetWorkloadInstall(ctx.dotnetBin, 'wasm-tools', { cwd: ctx.repoRoot });
 
-        const verifyOutput = await dotnetWorkloadList(ctx.dotnetBin);
-        const workloadVersion = parseWorkloadVersion(verifyOutput);
-        if (!workloadVersion) {
-            throw new Error(
-                'wasm-tools workload was not found after install.\n'
-                + `dotnet workload list output:\n${verifyOutput}`,
-            );
+            const verifyOutput = await dotnetWorkloadList(ctx.dotnetBin);
+            const workloadVersion = parseWorkloadVersion(verifyOutput);
+            if (!workloadVersion) {
+                throw new Error(
+                    'wasm-tools workload was not found after install.\n'
+                    + `dotnet workload list output:\n${verifyOutput}`,
+                );
+            }
+            info(`wasm-tools workload installed: ${workloadVersion}`);
+
+            ctx.sdkInfo.workloadVersion = workloadVersion;
+            await writeFile(sdkInfoPath, JSON.stringify(ctx.sdkInfo, null, 2) + '\n');
+        } else {
+            info('No requested workload-preset build needs the wasm-tools workload (CoreCLR R2R) — skipping install');
         }
-        info(`wasm-tools workload installed: ${workloadVersion}`);
 
-        ctx.sdkInfo.workloadVersion = workloadVersion;
-        await writeFile(sdkInfoPath, JSON.stringify(ctx.sdkInfo, null, 2) + '\n');
-
-        // Phase B: Workload presets
+        // Phase B: Workload presets (CoreCLR R2R builds here too, without the workload)
         banner('Build workload presets');
         await buildPhase(ctx, workloadPresets, succeeded, failed);
     }

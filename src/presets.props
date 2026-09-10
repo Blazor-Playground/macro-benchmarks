@@ -48,15 +48,26 @@
     <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
 
-  <!-- Preset Aot -->
+  <!-- Preset Aot (Mono = AOT, CoreCLR = ReadyToRun) -->
   <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Aot'">
     <Configuration>Release</Configuration>
-    <WasmBuildNative>true</WasmBuildNative>
-    <WasmNativeStrip>true</WasmNativeStrip>
-    <RunAOTCompilation>true</RunAOTCompilation>
 
     <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
     <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
+
+  <!-- Aot on Mono: full AOT compilation (native relink). -->
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Aot' and '$(RuntimeFlavor)' != 'CoreCLR'">
+    <WasmBuildNative>true</WasmBuildNative>
+    <WasmNativeStrip>true</WasmNativeStrip>
+    <RunAOTCompilation>true</RunAOTCompilation>
+  </PropertyGroup>
+
+  <!-- Aot on CoreCLR: ReadyToRun. R2R images are separate lazy .wasm modules consumed by the
+       stock dotnet.native.wasm, so no native relink / wasm-tools workload is needed. -->
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Aot' and '$(RuntimeFlavor)' == 'CoreCLR'">
+    <WasmBuildNative>false</WasmBuildNative>
+    <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
 
   <!-- Preset NoJiterp -->

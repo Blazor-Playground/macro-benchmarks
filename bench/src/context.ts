@@ -110,6 +110,10 @@ export interface BenchContext {
     sdkDir: string;
     dotnetBin: string;
     runtimePackDirs?: Partial<Record<Runtime, string>>;
+    // R2R injection (CoreCLR aot preset): populated by build-runtime when a from-source runtime is built.
+    crossgen2Dir?: string;
+    runtimePackagesDir?: string;
+    r2rPackVersion?: string;
     publishDir: string;
     resultsDir: string;
     buildLabel: string;

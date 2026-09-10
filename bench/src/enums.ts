@@ -164,7 +164,6 @@ export const NON_WORKLOAD_PRESETS = new Set<Preset>([
 
 /** Presets only valid for Mono runtime (error with CoreCLR) */
 export const MONO_ONLY_PRESETS = new Set<Preset>([
-    Preset.Aot,
     Preset.NoJiterp,
 ]);
 
@@ -238,7 +237,10 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     if (MONO_ONLY_PRESETS.has(preset) && runtime === Runtime.CoreCLR) {
         return `Preset '${preset}' is mono-only and cannot be used with runtime '${runtime}'`;
     }
-    if (runtime === Runtime.CoreCLR && (preset !== Preset.DevLoop && preset !== Preset.NoWorkload)) {
+    if (runtime === Runtime.CoreCLR && preset === Preset.Aot && !coreclrR2RAvailable(ctx)) {
+        return `CoreCLR ReadyToRun (preset 'aot') requires a from-source runtime (dotnet/runtime#133378); use --runtime-pr or --runtime-commit`;
+    }
+    if (runtime === Runtime.CoreCLR && (preset !== Preset.DevLoop && preset !== Preset.NoWorkload && preset !== Preset.Aot)) {
         return `Preset '${preset}' requires native rebuild which is not supported with CoreCLR`;
     }
     if (BLAZOR_APPS.has(app) && preset === Preset.NoReflectionEmit) {
@@ -369,6 +371,20 @@ export function coreclrWasmAvailable(sdkInfo: { major: number; isPrerelease: boo
     if (sdkInfo.major < 11) return false;
     if (sdkInfo.major === 11 && sdkInfo.isPrerelease && sdkInfo.sdkVersion.includes('preview.3')) return false;
     return true;
+}
+
+/**
+ * Whether CoreCLR ReadyToRun (the `aot` preset for CoreCLR) is available.
+ *
+ * R2R for browser-wasm is not in the stock SDK yet — it lives in the runtime PR and is injected
+ * into the build only when the runtime is built from source (--runtime-pr / --runtime-commit).
+ *
+ * TODO(https://github.com/dotnet/runtime/pull/133378): once it merges and flows into the daily
+ * SDK's WebAssembly.Pack, gate on the SDK version instead of requiring a from-source build
+ * (R2R support first ships around 12.0.0-alpha.1.26459.112 — placeholder).
+ */
+export function coreclrR2RAvailable(ctx: { runtimeBuildRequired: boolean }): boolean {
+    return ctx.runtimeBuildRequired;
 }
 
 /**

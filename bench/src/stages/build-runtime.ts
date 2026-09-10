@@ -9,6 +9,31 @@ import { banner, info, err } from '../log.js';import { findNupkg, parseVersionFr
 
 const MONO_RUNTIME_PACK_GLOB = 'Microsoft.NETCore.App.Runtime.Mono.browser-wasm';
 const CORECLR_RUNTIME_PACK_GLOB = 'Microsoft.NETCore.App.Runtime.browser-wasm';
+const WEBASSEMBLY_SDK_PACK_ID = 'Microsoft.NET.Sdk.WebAssembly.Pack';
+
+// ── R2R artifact capture ─────────────────────────────────────────────────────
+
+// Locate the host crossgen2 (emits browser-wasm R2R images) and the built WebAssembly SDK pack
+// (carries the CoreCLR R2R targets). These are consumed by build.ts for the CoreCLR `aot` preset.
+async function captureR2RArtifacts(cloneDir: string): Promise<Pick<BenchContext, 'crossgen2Dir' | 'runtimePackagesDir' | 'r2rPackVersion'>> {
+    const result: Pick<BenchContext, 'crossgen2Dir' | 'runtimePackagesDir' | 'r2rPackVersion'> = {};
+    const r2rRoot = join(cloneDir, 'artifacts', 'bin', 'coreclr', 'browser.wasm.Release');
+    if (existsSync(r2rRoot)) {
+        for (const arch of ['x64', 'arm64', 'x86']) {
+            const cg = join(r2rRoot, arch, 'crossgen2');
+            if (existsSync(cg)) { result.crossgen2Dir = cg; break; }
+        }
+    }
+    const shippingDir = join(cloneDir, 'artifacts', 'packages', 'Release', 'Shipping');
+    if (existsSync(shippingDir)) {
+        const packNupkg = await findNupkg(shippingDir, WEBASSEMBLY_SDK_PACK_ID);
+        if (packNupkg) {
+            result.runtimePackagesDir = shippingDir;
+            result.r2rPackVersion = parseVersionFromNupkg(packNupkg, WEBASSEMBLY_SDK_PACK_ID);
+        }
+    }
+    return result;
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -161,10 +186,12 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         }
 
         const buildLabel = `${ctx.sdkInfo.sdkVersion}_${runtimeCommit.slice(0, 10)}`;
+        const r2r = await captureR2RArtifacts(getRuntimeCloneDir(artifactsDir));
         return {
             ...ctx,
             runtimePackDirs: prebuiltPackDirs,
             buildLabel,
+            ...r2r,
         };
     }
 
@@ -238,11 +265,13 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     };
 
     const buildLabel = `${ctx.sdkInfo.sdkVersion}_${runtimeCommit.slice(0, 10)}`;
+    const r2r = await captureR2RArtifacts(cloneDir);
 
     return {
         ...ctx,
         sdkInfo: updatedSdkInfo,
         runtimePackDirs,
         buildLabel,
+        ...r2r,
     };
 }

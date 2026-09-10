@@ -20,6 +20,23 @@
     </Target>
 
     <!--
+      R2R (CoreCLR `aot` preset): point the WebAssembly SDK pack at the from-source build version so
+      its CoreCLR ReadyToRun targets are used. crossgen2 itself comes from /p:Crossgen2InBuildDir at
+      targets time, so the crossgen2 pack is left at the SDK default (restored but not used).
+      Temporary scaffolding until the R2R targets ship in the SDK's WebAssembly.Pack.
+      TODO: remove once https://github.com/dotnet/runtime/pull/133378 merges and flows into the
+      daily SDK's Microsoft.NET.Sdk.WebAssembly.Pack.
+    -->
+    <Target Name="UpdateWasmR2RPacks" BeforeTargets="ProcessFrameworkReferences"
+            Condition="'$(WasmR2RPackVersion)' != '' and '$(RuntimeIdentifier)' == 'browser-wasm'">
+        <ItemGroup>
+            <KnownWebAssemblySdkPack Update="@(KnownWebAssemblySdkPack)">
+                <WebAssemblySdkPackVersion>$(WasmR2RPackVersion)</WebAssemblySdkPackVersion>
+            </KnownWebAssemblySdkPack>
+        </ItemGroup>
+    </Target>
+
+    <!--
       Override the ASP.NET Core shared framework with a custom-built one.
       Set /p:MicrosoftAspNetCoreVersion=<version> and add a NuGet source pointing
       to the directory containing the built packages.

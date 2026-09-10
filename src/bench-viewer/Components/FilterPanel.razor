@@ -28,7 +28,7 @@
                                 <label class="form-check-label small"
                                        for="@($"filter-{group.Key}-{value}")"
                                        title="@GetTooltip(group.Key, value)">
-                                    @value
+                                    @FormatValue(group.Key, value)
                                 </label>
                             </div>
                         }
@@ -89,6 +89,13 @@
     };
 
     // keep in sync with src\presets.props
+    private static string FormatValue(string group, string value) => (group, value) switch
+    {
+        ("presets", "aot") => "AOT/R2R",
+        _ => value
+    };
+
+    // keep in sync with src\presets.props
     private static string GetTooltip(string group, string value)
     {
         if (group != "presets") return value;
@@ -112,10 +119,15 @@
                 + "WasmBuildNative=true\n"
                 + "WasmNativeStrip=true\n"
                 + "PublishTrimmed=true",
-            "aot" => "Configuration=Release\n"
+            "aot" => "Mono (AOT): Configuration=Release\n"
                 + "WasmBuildNative=true\n"
                 + "WasmNativeStrip=true\n"
                 + "RunAOTCompilation=true\n"
+                + "PublishTrimmed=true\n"
+                + "\n"
+                + "CoreCLR (R2R): Configuration=Release\n"
+                + "WasmBuildNative=false\n"
+                + "PublishReadyToRun=true\n"
                 + "PublishTrimmed=true",
             "no-jiterp" => "Configuration=Release\n"
                 + "WasmBuildNative=true\n"

@@ -11,7 +11,7 @@ on:
       sdk_channel:
         description: '.NET SDK channel'
         required: false
-        default: '11.0'
+        default: '12.0'
         type: string
       runtime_commit:
         description: 'Specific dotnet/runtime commit hash to benchmark (patches SDK with matching runtime pack)'
@@ -19,7 +19,7 @@ on:
         default: ''
         type: string
       runtime_pack:
-        description: 'Specific runtime pack version (e.g. 11.0.0-preview.3.26153.109)'
+        description: 'Specific runtime pack version (e.g. 12.0.0-alpha.1.26459.112)'
         required: false
         default: ''
         type: string
@@ -94,7 +94,7 @@ jobs:
           npx --prefix bench tsx bench/src/main.ts \
             --stages check-out-tracking,enumerate-daily-packs,enumerate-release-packs,update-cache,resolve-sdk \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
-            --sdk-channel "${{ inputs.sdk_channel || '11.0' }}" \
+            --sdk-channel "${{ inputs.sdk_channel || '12.0' }}" \
             ${{ inputs.sdk_version && format('--sdk-version "{0}"', inputs.sdk_version) || '' }} \
             ${{ inputs.runtime_commit && format('--runtime-commit "{0}"', inputs.runtime_commit) || '' }} \
             ${{ inputs.runtime_pack && format('--runtime-pack "{0}"', inputs.runtime_pack) || '' }} \

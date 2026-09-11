@@ -58,6 +58,49 @@
     </Target>
 
     <!--
+      CoreCLR browser-wasm native-relink needs a crossgen2 that knows the wasm ABI to emit the
+      P/Invoke portable call helpers. The stock wasm-tools workload doesn't acquire one nor set
+      $(Crossgen2ToolPath), so BrowserWasmApp.CoreCLR.targets errors with "crossgen2 was not found".
+      The host crossgen2 pack already ships a wasm-capable crossgen2 (clrjit_universal_wasm), so
+      acquire it and point the generator at it. Skipped for the from-source path (which supplies
+      $(Crossgen2InBuildDir)) and whenever the SDK already provides crossgen2.
+      TODO: remove once dotnet/runtime#133413 + dotnet/sdk#55785 flow into the daily SDK (the
+      wasm-tools workload will then acquire crossgen2 and set $(Crossgen2ToolPath)).
+    -->
+    <ItemGroup Condition="'$(RuntimeFlavor)' == 'CoreCLR'
+                          and '$(WasmBuildNative)' == 'true'
+                          and '$(Crossgen2InBuildDir)' == ''
+                          and '$(DisableRepoWasmCrossgen2)' != 'true'">
+        <PackageReference Include="Microsoft.NETCore.App.Crossgen2.$(NETCoreSdkRuntimeIdentifier)"
+                          Version="$([MSBuild]::ValueOrDefault('$(RepoWasmCrossgen2Version)', '$(BundledNETCoreAppPackageVersion)'))"
+                          ExcludeAssets="all" PrivateAssets="all" />
+    </ItemGroup>
+
+    <Target Name="ProvideWasmCrossgen2ForNativeRelink"
+            BeforeTargets="_CoreCLRGenerateManagedToNative"
+            Condition="'$(RuntimeIdentifier)' == 'browser-wasm'
+                       and '$(RuntimeFlavor)' == 'CoreCLR'
+                       and '$(WasmBuildNative)' == 'true'
+                       and '$(Crossgen2InBuildDir)' == ''
+                       and '$(Crossgen2ToolPath)' == ''
+                       and '$(PortableCallHelpersGeneratorPath)' == ''
+                       and '$(DisableRepoWasmCrossgen2)' != 'true'">
+        <PropertyGroup>
+            <_RepoCrossgen2Rid>$(NETCoreSdkRuntimeIdentifier)</_RepoCrossgen2Rid>
+            <_RepoCrossgen2Version>$([MSBuild]::ValueOrDefault('$(RepoWasmCrossgen2Version)', '$(BundledNETCoreAppPackageVersion)'))</_RepoCrossgen2Version>
+            <_RepoCrossgen2Exe Condition="'$(OS)' == 'Windows_NT'">crossgen2.exe</_RepoCrossgen2Exe>
+            <_RepoCrossgen2Exe Condition="'$(OS)' != 'Windows_NT'">crossgen2</_RepoCrossgen2Exe>
+            <!-- NuGet global packages folder (NUGET_PACKAGES is set by the bench harness / CI). -->
+            <_RepoCrossgen2Folder>$([System.Environment]::GetEnvironmentVariable('NUGET_PACKAGES'))</_RepoCrossgen2Folder>
+            <_RepoCrossgen2Folder Condition="'$(_RepoCrossgen2Folder)' == ''">$(NuGetPackageFolders)</_RepoCrossgen2Folder>
+            <PortableCallHelpersGeneratorPath>$([MSBuild]::NormalizePath('$(_RepoCrossgen2Folder)', 'microsoft.netcore.app.crossgen2.$(_RepoCrossgen2Rid)', '$(_RepoCrossgen2Version)', 'tools', '$(_RepoCrossgen2Exe)'))</PortableCallHelpersGeneratorPath>
+        </PropertyGroup>
+        <Error Condition="!Exists('$(PortableCallHelpersGeneratorPath)')"
+               Text="Repo crossgen2 hack: '$(PortableCallHelpersGeneratorPath)' does not exist. Ensure package 'Microsoft.NETCore.App.Crossgen2.$(_RepoCrossgen2Rid)' $(_RepoCrossgen2Version) restored into '$(_RepoCrossgen2Folder)'." />
+        <Message Importance="High" Text="Repo crossgen2 hack: PortableCallHelpersGeneratorPath=$(PortableCallHelpersGeneratorPath)" />
+    </Target>
+
+    <!--
       Override the ASP.NET Core shared framework with a custom-built one.
       Set /p:MicrosoftAspNetCoreVersion=<version> and add a NuGet source pointing
       to the directory containing the built packages.

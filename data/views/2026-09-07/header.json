@@ -1,6 +1,33 @@
 {
   "columns": [
     {
+      "sdkVersion": "12.0.100-alpha.1.26460.107",
+      "runtimeGitHash": "3d26705856ea8f29d53aa512c500195e41d18cab",
+      "aspnetCoreGitHash": "8551f5ee71fee3ff2e0637dbd98d015b4f68bf69",
+      "sdkGitHash": "e6a4e642531bf99a02add3845a3d664336295402",
+      "vmrGitHash": "fb77dc3f29919112365866a433aa9c544d1268dd",
+      "runtimeCommitDateTime": "2026-09-10T00:32:53Z",
+      "runtimeCommitAuthor": "Larry Ewing",
+      "runtimeCommitMessage": "Fix missing transition adapters for shared Wasm R2R unboxing stubs (#133516)",
+      "aspnetCoreCommitDateTime": "2026-09-09T23:03:35Z",
+      "aspnetCoreCommitAuthor": "dotnet-maestro[bot]",
+      "aspnetCoreCommitMessage": "Update dependencies from https://github.com/dotnet/extensions build 20260902.2 (#69084)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26460.107",
+      "runtimePackVersion": "12.0.0-alpha.1.26460.107",
+      "workloadVersion": "12.0.100-alpha.1.26460.107",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-09-10",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "bundledFrameworkTfm": "net11.0",
+      "benchmarkDateTime": "2026-09-11T21:02:50.098Z",
+      "ciRunId": "34642282004",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/34642282004"
+    },
+    {
       "sdkVersion": "12.0.100-alpha.1.26460.113",
       "runtimeGitHash": "3d26705856ea8f29d53aa512c500195e41d18cab",
       "aspnetCoreGitHash": "8551f5ee71fee3ff2e0637dbd98d015b4f68bf69",

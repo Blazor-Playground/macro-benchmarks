@@ -16,6 +16,11 @@
     <_SdkTfm Condition="'$(_SdkTfm)' == '' and Exists('$(_BundledVersionsFile)')">net$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(_BundledVersionsFile)')), '&lt;BundledNETCoreAppTargetFrameworkVersion&gt;([^&lt;]+)&lt;').Groups[1].Value)</_SdkTfm>
     <_SdkTfm Condition="'$(_SdkTfm)' == ''">net$(NETCoreSdkVersion.Split('.')[0]).$(NETCoreSdkVersion.Split('.')[1])</_SdkTfm>
     <BenchmarkTargetFramework Condition="'$(BenchmarkTargetFramework)' == ''">$(_SdkTfm)</BenchmarkTargetFramework>
+    <!-- Major of the runtime pack that carries the emscripten/LLVM native toolchain (e.g. 12 for
+         12.0.0-alpha). This governs which native assets (SkiaSharp/HarfBuzz) are ABI-compatible,
+         independent of the framework TFM (a 12.0.100 SDK can still bundle net11.0). -->
+    <_RuntimeMajor Condition="'$(BundledNETCoreAppPackageVersion)' != ''">$(BundledNETCoreAppPackageVersion.Split('.')[0])</_RuntimeMajor>
+    <_RuntimeMajor Condition="'$(_RuntimeMajor)' == ''">$(NETCoreSdkVersion.Split('.')[0])</_RuntimeMajor>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -45,14 +50,30 @@
     <HavitBlazorVersion>4.23.0</HavitBlazorVersion>
     <HavitBlazorSmartVersion>4.23.0-preview04</HavitBlazorSmartVersion>
     <NetEscapadesEnumGeneratorsVersion>1.0.0-beta20</NetEscapadesEnumGeneratorsVersion>
+    <SkiaSharpVersion>3.119.1</SkiaSharpVersion>
+    <CommunityToolkitMvvmVersion>8.4.0</CommunityToolkitMvvmVersion>
+    <MicrosoftDotNetILCompilerLLVMVersion>0.0.1.0</MicrosoftDotNetILCompilerLLVMVersion>
+    <IgniteUIBlazorLiteVersion>0.1.0</IgniteUIBlazorLiteVersion>
+    <IgniteUIBlazorGridLiteVersion>0.9.0</IgniteUIBlazorGridLiteVersion>
+  </PropertyGroup>
+
+  <!-- Avalonia stack, runtime pack 11 and below: native assets (libSkiaSharp.a/libHarfBuzzSharp.a)
+       built for the old emscripten/LLVM toolchain shipped by those runtime packs. -->
+  <PropertyGroup Condition="$(_RuntimeMajor) &lt; 12">
     <AvaloniaVersion>11.3.8</AvaloniaVersion>
     <SkiaSharpVersion>3.119.1</SkiaSharpVersion>
     <SemiAvaloniaVersion>11.3.7.3</SemiAvaloniaVersion>
     <SemiAvaloniaTreeDataGridVersion>11.2.0</SemiAvaloniaTreeDataGridVersion>
-    <CommunityToolkitMvvmVersion>8.4.0</CommunityToolkitMvvmVersion>
     <IrihiAvaloniaSharedVersion>0.3.1</IrihiAvaloniaSharedVersion>
-    <MicrosoftDotNetILCompilerLLVMVersion>0.0.1.0</MicrosoftDotNetILCompilerLLVMVersion>
-    <IgniteUIBlazorLiteVersion>0.1.0</IgniteUIBlazorLiteVersion>
-    <IgniteUIBlazorGridLiteVersion>0.9.0</IgniteUIBlazorGridLiteVersion>
+  </PropertyGroup>
+
+  <!-- Avalonia stack, runtime pack 12+: needs SkiaSharp 4.151+ whose WebAssembly native assets are
+       rebuilt for emscripten 6.0.2 / LLVM 23 (ABI break, dotnet/runtime; AvaloniaUI/Avalonia#21700). -->
+  <PropertyGroup Condition="$(_RuntimeMajor) &gt;= 12">
+    <AvaloniaVersion>12.1.2</AvaloniaVersion>
+    <SkiaSharpVersion>4.151.0</SkiaSharpVersion>
+    <SemiAvaloniaVersion>12.1.0.1</SemiAvaloniaVersion>
+    <SemiAvaloniaTreeDataGridVersion>12.1.0</SemiAvaloniaTreeDataGridVersion>
+    <IrihiAvaloniaSharedVersion>0.5.0</IrihiAvaloniaSharedVersion>
   </PropertyGroup>
 </Project>

@@ -83,6 +83,7 @@
                        and '$(WasmBuildNative)' == 'true'
                        and '$(Crossgen2InBuildDir)' == ''
                        and '$(Crossgen2ToolPath)' == ''
+                       and '$(Crossgen2Path)' == ''
                        and '$(PortableCallHelpersGeneratorPath)' == ''
                        and '$(DisableRepoWasmCrossgen2)' != 'true'">
         <PropertyGroup>
@@ -93,11 +94,15 @@
             <!-- NuGet global packages folder (NUGET_PACKAGES is set by the bench harness / CI). -->
             <_RepoCrossgen2Folder>$([System.Environment]::GetEnvironmentVariable('NUGET_PACKAGES'))</_RepoCrossgen2Folder>
             <_RepoCrossgen2Folder Condition="'$(_RepoCrossgen2Folder)' == ''">$(NuGetPackageFolders)</_RepoCrossgen2Folder>
-            <PortableCallHelpersGeneratorPath>$([MSBuild]::NormalizePath('$(_RepoCrossgen2Folder)', 'microsoft.netcore.app.crossgen2.$(_RepoCrossgen2Rid)', '$(_RepoCrossgen2Version)', 'tools', '$(_RepoCrossgen2Exe)'))</PortableCallHelpersGeneratorPath>
+            <_RepoCrossgen2ExePath>$([MSBuild]::NormalizePath('$(_RepoCrossgen2Folder)', 'microsoft.netcore.app.crossgen2.$(_RepoCrossgen2Rid)', '$(_RepoCrossgen2Version)', 'tools', '$(_RepoCrossgen2Exe)'))</_RepoCrossgen2ExePath>
+            <!-- $(Crossgen2Path) is the current name; $(PortableCallHelpersGeneratorPath) was the
+                 name before ~12.0.0-alpha.1.26460 — set both so the target works across SDK bands. -->
+            <Crossgen2Path>$(_RepoCrossgen2ExePath)</Crossgen2Path>
+            <PortableCallHelpersGeneratorPath>$(_RepoCrossgen2ExePath)</PortableCallHelpersGeneratorPath>
         </PropertyGroup>
-        <Error Condition="!Exists('$(PortableCallHelpersGeneratorPath)')"
-               Text="Repo crossgen2 hack: '$(PortableCallHelpersGeneratorPath)' does not exist. Ensure package 'Microsoft.NETCore.App.Crossgen2.$(_RepoCrossgen2Rid)' $(_RepoCrossgen2Version) restored into '$(_RepoCrossgen2Folder)'." />
-        <Message Importance="High" Text="Repo crossgen2 hack: PortableCallHelpersGeneratorPath=$(PortableCallHelpersGeneratorPath)" />
+        <Error Condition="!Exists('$(Crossgen2Path)')"
+               Text="Repo crossgen2 hack: '$(Crossgen2Path)' does not exist. Ensure package 'Microsoft.NETCore.App.Crossgen2.$(_RepoCrossgen2Rid)' $(_RepoCrossgen2Version) restored into '$(_RepoCrossgen2Folder)'." />
+        <Message Importance="High" Text="Repo crossgen2 hack: Crossgen2Path=$(Crossgen2Path)" />
     </Target>
 
     <!--

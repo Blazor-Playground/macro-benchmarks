@@ -148,10 +148,11 @@ export const APP_CONFIG: Record<App, AppConfig> = {
     [App.MudBlazor]: { browserOnly: true, internal: false, monoOnly: false },
     [App.IgniteUILight]: { browserOnly: true, internal: false, monoOnly: false },
 
+    // Mono-only before .NET 12 (CoreCLR wasm had no native relink); gated in shouldSkipBuild.
+    [App.UnoGallery]: { browserOnly: true, internal: false, monoOnly: false },
+    [App.SemiAvalonia]: { browserOnly: true, internal: false, monoOnly: false },
     // mono only
     [App.BenchViewer]: { browserOnly: true, internal: false, monoOnly: true },
-    [App.UnoGallery]: { browserOnly: true, internal: false, monoOnly: true },
-    [App.SemiAvalonia]: { browserOnly: true, internal: false, monoOnly: true },
 };
 
 // ── Preset Constraints ───────────────────────────────────────────────────────
@@ -221,6 +222,13 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     // genuinely needs CoreCLR WASM, so it is skipped when unavailable.
     if ((app === App.SemiAvalonia || app === App.UnoGallery) && ctx.sdkInfo.major == 11) {
         return `Needs native parts recompiled for new LLVM https://github.com/unoplatform/uno/issues/23626`;
+    }
+    // These UI-framework apps could only build Mono because CoreCLR wasm had no native relink
+    // before .NET 12; from .NET 12 they can also build CoreCLR. They never support NativeAOT-LLVM.
+    if ((app === App.SemiAvalonia || app === App.UnoGallery || app === App.BenchViewer)
+        && runtime !== Runtime.Mono
+        && !(runtime === Runtime.CoreCLR && ctx.sdkInfo.major >= 12)) {
+        return `App '${app}' is Mono-only before .NET 12 (CoreCLR wasm native relink starts in .NET 12)`;
     }
     if (runtime === Runtime.CoreCLR && !coreclrWasmAvailable(ctx.sdkInfo) && app !== App.BlazorPerf) {
         if (ctx.sdkInfo.major < 11) {

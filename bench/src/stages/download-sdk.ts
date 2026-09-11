@@ -87,6 +87,16 @@ async function detectBundledRuntimeVersion(sdkDir: string, sdkInfo: SdkInfo): Pr
     return match[1];
 }
 
+// Highest framework the SDK can target (BundledNETCoreAppTargetFrameworkVersion, e.g. '11.0' -> 'net11.0').
+// May lag the SDK major early in a release, so it drives app TFMs instead of the SDK version.
+async function detectBundledFrameworkTfm(sdkDir: string, sdkInfo: SdkInfo): Promise<string | undefined> {
+    const propsPath = join(sdkDir, 'sdk', sdkInfo.sdkVersion, 'Microsoft.NETCoreSdk.BundledVersions.props');
+    if (!existsSync(propsPath)) return undefined;
+    const content = await readFile(propsPath, 'utf-8');
+    const match = content.match(/<BundledNETCoreAppTargetFrameworkVersion>([^<]+)<\/BundledNETCoreAppTargetFrameworkVersion>/);
+    return match ? `net${match[1]}` : undefined;
+}
+
 // ── Runtime Pack Restore ─────────────────────────────────────────────────────
 
 async function restoreRuntimePack(
@@ -164,6 +174,12 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     // ── Step 3: Detect bundled runtime version ───────────────────────────
     const bundledVersion = await detectBundledRuntimeVersion(sdkDir, sdkInfo);
     info(`Bundled runtime pack: ${bundledVersion}`);
+
+    // Record the highest framework the SDK can target (may lag the SDK major in early previews).
+    sdkInfo.bundledFrameworkTfm = await detectBundledFrameworkTfm(sdkDir, sdkInfo);
+    if (sdkInfo.bundledFrameworkTfm) {
+        info(`Bundled framework TFM: ${sdkInfo.bundledFrameworkTfm}`);
+    }
 
     // ── Step 4: Runtime pack override ────────────────────────────────────
     let runtimePackDirs: Partial<Record<Runtime, string>> | undefined;

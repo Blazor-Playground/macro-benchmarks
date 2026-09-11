@@ -32,6 +32,12 @@ export interface SdkInfo {
     releaseDate: string;
     /** dotnet/dotnet branch the VMR build came from (e.g. 'main', 'release/11.0.1xx', 'unknown'). */
     vmrBranch?: string;
+    /**
+     * TFM the SDK can actually target, from BundledNETCoreAppTargetFrameworkVersion (e.g. 'net11.0').
+     * Early in a major this can lag the SDK version (a 12.0.100-alpha SDK still shipping net11.0),
+     * so it — not the SDK major — is the correct framework to target (avoids NETSDK1045).
+     */
+    bundledFrameworkTfm?: string;
 }
 
 // ── Build Manifest Entry (populated by build stage) ──────────────────────────

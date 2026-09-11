@@ -113,12 +113,29 @@ function getAdditionalRestoreSources(ctx: BenchContext, r2r: boolean): string[] 
 // TODO: temporary injection — drop once both land in the daily SDK:
 //   - WebAssembly.Pack R2R targets: https://github.com/dotnet/runtime/pull/133378
 //   - browser-wasm crossgen2 pack:  https://github.com/dotnet/sdk/issues/55785
-function getR2RArgs(ctx: BenchContext, r2r: boolean): string[] {
-    if (!r2r) return [];
+// crossgen2 (from a source build) both emits R2R images and generates the native-relink portable
+// call helpers, so it is passed for CoreCLR R2R (aot) and CoreCLR native-relink. The R2R pack
+// version / restore source are R2R-only.
+function getCoreClrNativeArgs(ctx: BenchContext, effectiveRuntime: Runtime, preset: Preset): string[] {
     const args: string[] = [];
-    if (ctx.crossgen2Dir) args.push(`/p:Crossgen2InBuildDir=${ctx.crossgen2Dir}`);
-    if (ctx.r2rPackVersion) args.push(`/p:WasmR2RPackVersion=${ctx.r2rPackVersion}`);
+    const r2r = isCoreClrR2R(effectiveRuntime, preset);
+    const needsCrossgen2 = r2r || (effectiveRuntime === R.CoreCLR && preset === Preset.NativeRelink);
+    if (needsCrossgen2 && ctx.crossgen2Dir) {
+        args.push(`/p:Crossgen2InBuildDir=${ctx.crossgen2Dir}`);
+    }
+    if (r2r && ctx.r2rPackVersion) {
+        args.push(`/p:WasmR2RPackVersion=${ctx.r2rPackVersion}`);
+    }
     return args;
+}
+
+// Uno.Gallery is single-TFM, but Uno.Sdk needs the TFM as an early global property (it reads it
+// before Directory.Build.props sets $(BenchmarkTargetFramework)). Use the SDK's bundled framework
+// TFM (e.g. net11.0 for a 12.0.100-alpha SDK that still ships net11), never the SDK major, so we
+// don't target above NETCoreAppMaximumVersion (NETSDK1045).
+function unoTargetFramework(ctx: BenchContext): string {
+    const fw = ctx.sdkInfo.bundledFrameworkTfm || `net${ctx.sdkInfo.major}.0`;
+    return `${fw}-browserwasm`;
 }
 
 function getRestoreArgs(
@@ -150,9 +167,9 @@ function getRestoreArgs(
     if (ctx.aspnetCorePackagesDir) {
         args.push(`/p:MicrosoftAspNetCoreVersion=${ctx.aspnetCorePackageVersion}`);
     }
-    args.push(...getR2RArgs(ctx, r2r));
+    args.push(...getCoreClrNativeArgs(ctx, effectiveRuntime, preset));
     if (app === App.UnoGallery) {
-        args.push(`/p:TargetFramework=net${ctx.sdkInfo.major}.0-browserwasm`);
+        args.push(`/p:TargetFramework=${unoTargetFramework(ctx)}`);
     }
     return args;
 }
@@ -176,7 +193,7 @@ function getPublishArgs(
         args.push('--no-restore');
     }
     if (app === App.UnoGallery) {
-        args.push('--framework', `net${ctx.sdkInfo.major}.0-browserwasm`);
+        args.push('--framework', unoTargetFramework(ctx));
     }
     // Kestrel-hosted apps must be self-contained so the measure container can run them without the SDK
     if (APP_CONFIG[app].kestrelHosted) {
@@ -207,7 +224,7 @@ function getPublishArgs(
     if (ctx.aspnetCorePackagesDir) {
         args.push(`/p:MicrosoftAspNetCoreVersion=${ctx.aspnetCorePackageVersion}`);
     }
-    args.push(...getR2RArgs(ctx, r2r));
+    args.push(...getCoreClrNativeArgs(ctx, effectiveRuntime, preset));
     return args;
 }
 

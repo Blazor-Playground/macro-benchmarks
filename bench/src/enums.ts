@@ -240,7 +240,14 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     if (runtime === Runtime.CoreCLR && preset === Preset.Aot && !coreclrR2RAvailable(ctx)) {
         return `CoreCLR ReadyToRun (preset 'aot') requires a from-source runtime (dotnet/runtime#133378); use --runtime-pr or --runtime-commit`;
     }
-    if (runtime === Runtime.CoreCLR && (preset !== Preset.DevLoop && preset !== Preset.NoWorkload && preset !== Preset.Aot)) {
+    // CoreCLR native-relink generates P/Invoke portable call helpers with a crossgen2 that knows
+    // the browser-wasm ABI (dotnet/runtime#133413), first available in .NET 12. Until that flows
+    // into the SDK, the repo's Directory.Build.targets acquires the host crossgen2 pack, so a
+    // from-source runtime is not required.
+    if (runtime === Runtime.CoreCLR && preset === Preset.NativeRelink && ctx.sdkInfo.major < 12) {
+        return `CoreCLR native-relink requires .NET 12 or later (crossgen2 via SDK, dotnet/runtime#133413)`;
+    }
+    if (runtime === Runtime.CoreCLR && (preset !== Preset.DevLoop && preset !== Preset.NoWorkload && preset !== Preset.Aot && preset !== Preset.NativeRelink)) {
         return `Preset '${preset}' requires native rebuild which is not supported with CoreCLR`;
     }
     if (BLAZOR_APPS.has(app) && preset === Preset.NoReflectionEmit) {

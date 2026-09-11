@@ -148,11 +148,11 @@ export const APP_CONFIG: Record<App, AppConfig> = {
     [App.MudBlazor]: { browserOnly: true, internal: false, monoOnly: false },
     [App.IgniteUILight]: { browserOnly: true, internal: false, monoOnly: false },
 
-    // Mono-only before .NET 12 (CoreCLR wasm had no native relink); gated in shouldSkipBuild.
-    [App.UnoGallery]: { browserOnly: true, internal: false, monoOnly: false },
-    [App.SemiAvalonia]: { browserOnly: true, internal: false, monoOnly: false },
-    // mono only
+    // bench-viewer and uno-gallery only run on Mono (Uno's WASM bootstrap isn't CoreCLR-compatible).
     [App.BenchViewer]: { browserOnly: true, internal: false, monoOnly: true },
+    [App.UnoGallery]: { browserOnly: true, internal: false, monoOnly: true },
+    // semi-avalonia gains CoreCLR from .NET 12 (gated in shouldSkipBuild).
+    [App.SemiAvalonia]: { browserOnly: true, internal: false, monoOnly: false },
 };
 
 // ── Preset Constraints ───────────────────────────────────────────────────────
@@ -223,12 +223,16 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     if ((app === App.SemiAvalonia || app === App.UnoGallery) && ctx.sdkInfo.major == 11) {
         return `Needs native parts recompiled for new LLVM https://github.com/unoplatform/uno/issues/23626`;
     }
-    // These UI-framework apps could only build Mono because CoreCLR wasm had no native relink
-    // before .NET 12; from .NET 12 they can also build CoreCLR. They never support NativeAOT-LLVM.
-    if ((app === App.SemiAvalonia || app === App.UnoGallery || app === App.BenchViewer)
-        && runtime !== Runtime.Mono
+    // Uno.Gallery only runs on Mono: its WASM bootstrap calls dotnet.js APIs (withRuntimeOptions)
+    // the CoreCLR runtime doesn't provide, so it builds but fails to start on CoreCLR.
+    if (app === App.UnoGallery && runtime !== Runtime.Mono) {
+        return `Uno.Gallery is Mono-only (WASM bootstrap not supported on CoreCLR)`;
+    }
+    // SemiAvalonia was Mono-only only because CoreCLR wasm had no native relink before .NET 12;
+    // from .NET 12 it also builds and runs on CoreCLR. It never supports NativeAOT-LLVM.
+    if (app === App.SemiAvalonia && runtime !== Runtime.Mono
         && !(runtime === Runtime.CoreCLR && ctx.sdkInfo.major >= 12)) {
-        return `App '${app}' is Mono-only before .NET 12 (CoreCLR wasm native relink starts in .NET 12)`;
+        return `SemiAvalonia is Mono-only before .NET 12 (CoreCLR wasm native relink starts in .NET 12)`;
     }
     if (runtime === Runtime.CoreCLR && !coreclrWasmAvailable(ctx.sdkInfo) && app !== App.BlazorPerf) {
         if (ctx.sdkInfo.major < 11) {

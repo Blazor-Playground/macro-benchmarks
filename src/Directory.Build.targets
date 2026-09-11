@@ -37,6 +37,27 @@
     </Target>
 
     <!--
+      CoreCLR browser-wasm interpreter (non-R2R) builds: the CoreCLR runtime pack bundles
+      pre-crossgen'd R2R images at runtimes/browser-wasm/native/r2r/*.wasm (one per framework
+      assembly). Without PublishReadyToRun the SDK's own prune (_WasmCoreClrPrunePackR2RFromBuild,
+      keyed on _WasmRuntimePackR2RDir) doesn't fire, so those images leak into the static web assets
+      with AssetTraitValue=native and GenerateWasmBootJson rejects each one ("X.wasm is not
+      recognized as any native asset"). Drop them so the interpreter build publishes only the
+      managed webcil set.
+      TODO: remove once the SDK prunes native/r2r for the non-R2R path (dotnet/runtime#132466).
+    -->
+    <Target Name="PruneCoreClrR2RImagesForInterp"
+            Condition="'$(RuntimeIdentifier)' == 'browser-wasm' and '$(RuntimeFlavor)' == 'CoreCLR' and '$(PublishReadyToRun)' != 'true'"
+            BeforeTargets="ProcessPublishFilesForWasm;_ComputeWasmBuildCandidates">
+        <ItemGroup>
+            <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)"
+                Condition="'%(Extension)' == '.wasm' and $([MSBuild]::ValueOrDefault('%(Identity)', '').Replace('\', '/').Contains('/native/r2r/'))" />
+            <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)"
+                Condition="'%(Extension)' == '.wasm' and $([MSBuild]::ValueOrDefault('%(Identity)', '').Replace('\', '/').Contains('/native/r2r/'))" />
+        </ItemGroup>
+    </Target>
+
+    <!--
       Override the ASP.NET Core shared framework with a custom-built one.
       Set /p:MicrosoftAspNetCoreVersion=<version> and add a NuGet source pointing
       to the directory containing the built packages.

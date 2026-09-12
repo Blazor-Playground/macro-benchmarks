@@ -1,6 +1,33 @@
 {
   "columns": [
     {
+      "sdkVersion": "12.0.100-alpha.1.26459.108",
+      "runtimeGitHash": "6b1fb3c43c8a5478c592813ee2e263fe4375af4c",
+      "aspnetCoreGitHash": "67a02a66a21ac4f2e8ab19201b59cf45e97c8c98",
+      "sdkGitHash": "79546a879c71f91aac5653ef6e7b436291315f84",
+      "vmrGitHash": "cb0ebd776aabc5590df4947a5a31d68143c3e46e",
+      "runtimeCommitDateTime": "2026-09-08T21:15:08Z",
+      "runtimeCommitAuthor": "Michał Petryka",
+      "runtimeCommitMessage": "Set minimum ISAs when compiling native code (#130556)",
+      "aspnetCoreCommitDateTime": "2026-09-08T21:14:42Z",
+      "aspnetCoreCommitAuthor": "Copilot",
+      "aspnetCoreCommitMessage": "Stop output/response caching from reordering request values (#69112)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26459.108",
+      "runtimePackVersion": "12.0.0-alpha.1.26459.108",
+      "workloadVersion": "12.0.100-alpha.1.26459.108",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-09-09",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "bundledFrameworkTfm": "net11.0",
+      "benchmarkDateTime": "2026-09-12T06:00:29.931Z",
+      "ciRunId": "34673643233",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/34673643233"
+    },
+    {
       "sdkVersion": "12.0.100-alpha.1.26459.112",
       "runtimeGitHash": "8badb35fe071d733f260cddfd6d87a9febbb1b18",
       "aspnetCoreGitHash": "67a02a66a21ac4f2e8ab19201b59cf45e97c8c98",

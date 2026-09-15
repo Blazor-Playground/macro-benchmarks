@@ -3,8 +3,7 @@ import { dotnet } from './_framework/dotnet.js'
 // Startup metrics (read by bench/src/stages/measure.ts via globalThis.bench_results):
 //   time-to-create-dotnet  — dotnet.create() resolved
 //   time-to-reach-managed  — Avalonia OnFrameworkInitializationCompleted
-//   time-to-exit           — REUSED as "first frame rendered": a UI app never exits, so the
-//                            end-of-startup marker is the first presented Avalonia frame.
+// bench_complete is set once the first Avalonia frame is rendered, so scenarios start with the view attached.
 
 let scenarioExports = null;
 
@@ -22,7 +21,6 @@ function tryComplete() {
     globalThis.bench_results = {
         'time-to-create-dotnet': Math.round(globalThis.dotnet_created - globalThis.js_loaded),
         'time-to-reach-managed': Math.round(globalThis.dotnet_managed_ready - globalThis.js_loaded),
-        'time-to-exit': Math.round(globalThis.dotnet_first_frame - globalThis.js_loaded),
         'wasm-memory-size': globalThis.getDotnetRuntime(0).Module.HEAPU8.byteLength,
     };
     globalThis.bench_complete = true;
@@ -227,7 +225,7 @@ function setupManualUi() {
     panel.querySelector('[data-toggle]').addEventListener('click', () => panel.classList.toggle('collapsed'));
 
     const r = globalThis.bench_results;
-    write(`startup: create-dotnet ${r['time-to-create-dotnet']} ms, reach-managed ${r['time-to-reach-managed']} ms, first frame ${r['time-to-exit']} ms`);
+    write(`startup: create-dotnet ${r['time-to-create-dotnet']} ms, reach-managed ${r['time-to-reach-managed']} ms`);
 }
 
 // ── Startup ─────────────────────────────────────────────────────────────────

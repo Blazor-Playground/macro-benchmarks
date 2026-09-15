@@ -1,11 +1,9 @@
 {
-  "failedAt": "2026-09-15T14:22:03.846Z",
+  "failedAt": "2026-09-15T14:23:04.739Z",
   "failures": [
     {
       "target": "havit-bootstrap/aot",
-      "errorLines": [
-        "D:\\macro-benchmarks\\src\\Directory.Build.props(3,3): error MSB4024: The imported project file \"D:\\macro-benchmarks\\src\\presets.props\" could not be loaded. Name cannot begin with the '1' character, hexadecimal value 0x31. Line 75, position 65. [D:\\macro-benchmarks\\src\\havit-bootstrap\\HavitBootstrap.csproj]"
-      ]
+      "errorLines": []
     }
   ]
 }

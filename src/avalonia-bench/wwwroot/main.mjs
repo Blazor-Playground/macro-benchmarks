@@ -26,6 +26,8 @@ function tryComplete() {
         'wasm-memory-size': globalThis.getDotnetRuntime(0).Module.HEAPU8.byteLength,
     };
     globalThis.bench_complete = true;
+    // After startup metrics are recorded, so the optional panel never affects them.
+    setupManualUi();
 }
 
 // ── Scenario signals (C# → JS) ──────────────────────────────────────────────
@@ -130,6 +132,102 @@ async function runScenario(name, { warmup = 1, samples = 5, sampleDurationMs = 1
     } finally {
         scenarioExports.ClearScenario();
     }
+}
+
+// ── Manual run UI (only with ?ui, so automated runs load no extra DOM) ──────
+
+const UNITS = { managed: 'ops/s', async: 'ops/s', frames: 'fps', input: 'ms' };
+
+function setupManualUi() {
+    if (!new URLSearchParams(globalThis.location?.search ?? '').has('ui')) return;
+
+    const style = document.createElement('style');
+    style.textContent = `
+        #bench-ui { position: fixed; top: 8px; right: 8px; z-index: 10; width: 300px; max-height: calc(100% - 16px);
+            display: flex; flex-direction: column; gap: 6px; padding: 8px; box-sizing: border-box;
+            font: 12px system-ui, sans-serif; color: #111; background: rgba(255,255,255,.95);
+            border: 1px solid #999; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+        #bench-ui .head { display: flex; justify-content: space-between; align-items: center; }
+        #bench-ui .opts { display: flex; gap: 4px; }
+        #bench-ui .opts label { display: flex; flex-direction: column; flex: 1; }
+        #bench-ui input { width: 100%; box-sizing: border-box; }
+        #bench-ui .scenarios { display: flex; flex-wrap: wrap; gap: 4px; }
+        #bench-ui button { font: inherit; padding: 2px 6px; cursor: pointer; }
+        #bench-ui button:disabled { cursor: default; }
+        #bench-ui pre { margin: 0; min-height: 60px; overflow: auto; white-space: pre-wrap; font: 11px ui-monospace, monospace; }
+        #bench-ui.collapsed .body { display: none; }
+        #bench-ui .body { display: flex; flex-direction: column; gap: 6px; min-height: 0; }`;
+    document.head.append(style);
+
+    const panel = document.createElement('div');
+    panel.id = 'bench-ui';
+    panel.innerHTML = `
+        <div class="head"><strong>avalonia-bench</strong><button data-toggle title="Collapse">–</button></div>
+        <div class="body">
+            <div class="opts">
+                <label>warmup<input name="warmup" type="number" min="0" value="1"></label>
+                <label>samples<input name="samples" type="number" min="1" value="5"></label>
+                <label>sample ms<input name="sampleDurationMs" type="number" min="100" step="100" value="1000"></label>
+            </div>
+            <div class="scenarios"></div>
+            <div><button data-all>Run all</button> <button data-clear>Clear</button></div>
+            <pre></pre>
+        </div>`;
+    document.body.append(panel);
+
+    const log = panel.querySelector('pre');
+    const write = (line) => { log.textContent += line + '\n'; log.scrollTop = log.scrollHeight; };
+    const buttons = [];
+    const setBusy = (busy) => buttons.forEach(b => { b.disabled = busy; });
+    const readOptions = () => Object.fromEntries(
+        [...panel.querySelectorAll('.opts input')].map(i => [i.name, Number(i.value)]));
+    const median = (values) => {
+        const sorted = [...values].sort((a, b) => a - b);
+        const mid = Math.floor(sorted.length / 2);
+        return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+    };
+    const format = (v) => v >= 100 ? Math.round(v).toString() : v.toFixed(1);
+
+    async function runOne({ name, kind }) {
+        write(`${name}…`);
+        // Let the status text paint before the (blocking) run starts.
+        await new Promise(resolve => setTimeout(resolve, 50));
+        try {
+            const values = await runScenario(name, readOptions());
+            write(`  median ${format(median(values))} ${UNITS[kind]}  [${values.map(format).join(', ')}]`);
+        } catch (e) {
+            write(`  failed: ${e?.message ?? e}`);
+        }
+    }
+
+    const scenarios = listScenarios();
+    const container = panel.querySelector('.scenarios');
+    for (const scenario of scenarios) {
+        const button = document.createElement('button');
+        button.textContent = scenario.name;
+        button.title = `${scenario.kind} (${UNITS[scenario.kind]})`;
+        button.addEventListener('click', async () => {
+            setBusy(true);
+            await runOne(scenario);
+            setBusy(false);
+        });
+        buttons.push(button);
+        container.append(button);
+    }
+
+    const runAll = panel.querySelector('[data-all]');
+    runAll.addEventListener('click', async () => {
+        setBusy(true);
+        for (const scenario of scenarios) await runOne(scenario);
+        write('done');
+        setBusy(false);
+    });
+    buttons.push(runAll);
+    panel.querySelector('[data-clear]').addEventListener('click', () => { log.textContent = ''; });
+    panel.querySelector('[data-toggle]').addEventListener('click', () => panel.classList.toggle('collapsed'));
+
+    const r = globalThis.bench_results;
+    write(`startup: create-dotnet ${r['time-to-create-dotnet']} ms, reach-managed ${r['time-to-reach-managed']} ms, first frame ${r['time-to-exit']} ms`);
 }
 
 // ── Startup ─────────────────────────────────────────────────────────────────

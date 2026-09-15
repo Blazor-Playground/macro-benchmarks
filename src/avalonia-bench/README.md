@@ -64,6 +64,25 @@ To add a scenario:
 
 Scenarios run on Chrome/desktop only, like other walkthroughs.
 
+## Run manually in a browser
+
+Publish with the pipeline's settings and serve `wwwroot` with any static file server:
+
+```powershell
+$env:NUGET_PACKAGES = "$PWD\artifacts\nuget-packages"
+dotnet publish src/avalonia-bench -c Release /p:BenchmarkPreset=NativeRelink /p:RuntimeFlavor=Mono `
+  /p:BuildLabel=manual /p:MSBuildDisableTaskHost=true -o artifacts/manual/avalonia-bench
+npx --yes http-server artifacts/manual/avalonia-bench/wwwroot -p 8080 -c-1
+```
+
+Open `http://localhost:8080/?ui` for a panel with a button per scenario, sample options and a
+results log. Without `?ui` the panel isn't created, so automated runs are unaffected. The same API
+is available from the console: `avaloniaBench.list()` and
+`await avaloniaBench.run(name, { warmup, samples, sampleDurationMs })`.
+
+FPS in a regular browser window is capped by vsync. Start Chrome with
+`--disable-gpu-vsync --disable-frame-rate-limit` to match the pipeline.
+
 ## Run locally
 
 ```powershell

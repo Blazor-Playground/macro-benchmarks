@@ -40,6 +40,7 @@
 | `havit-walkthrough` | ms | Havit Bootstrap interaction scenario |
 | `mud-walkthrough` | ms | MUD Blazor interaction scenario |
 | `uno-walkthrough` | ms | Uno Gallery navigation scenario |
+| `semi-walkthrough` | ms | Semi Avalonia: select each demo page and wait until it is rendered |
 
 ### Microbenchmark metrics (CLI engines)
 

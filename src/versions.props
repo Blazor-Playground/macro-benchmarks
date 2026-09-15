@@ -50,7 +50,6 @@
     <HavitBlazorVersion>4.23.0</HavitBlazorVersion>
     <HavitBlazorSmartVersion>4.23.0-preview04</HavitBlazorSmartVersion>
     <NetEscapadesEnumGeneratorsVersion>1.0.0-beta20</NetEscapadesEnumGeneratorsVersion>
-    <SkiaSharpVersion>3.119.1</SkiaSharpVersion>
     <CommunityToolkitMvvmVersion>8.4.0</CommunityToolkitMvvmVersion>
     <MicrosoftDotNetILCompilerLLVMVersion>0.0.1.0</MicrosoftDotNetILCompilerLLVMVersion>
     <IgniteUIBlazorLiteVersion>0.1.0</IgniteUIBlazorLiteVersion>

@@ -427,7 +427,7 @@ jobs:
     container:
       image: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io/blazor-playground/macro-benchmarks' }}/browser-bench-measure:latest
       options: --user 1001
-    timeout-minutes: 60
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
@@ -488,7 +488,7 @@ jobs:
             --runtime "${{ matrix.runtime }}" \
             --retries 3 \
             --timeout 600000 \
-            --deadline-minutes 55 \
+            --deadline-minutes 85 \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 
       - name: Upload results

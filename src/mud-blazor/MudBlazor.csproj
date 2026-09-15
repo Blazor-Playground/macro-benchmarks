@@ -37,6 +37,17 @@
     <EmbeddedResource Include="ExamplesData\Elements.json" LogicalName="MudBlazor.Examples.Data.Elements.json" />
   </ItemGroup>
 
+  <!--
+    R2R (CoreCLR `aot` preset): the generated ApiDocumentation partial class folds all its static
+    members into one giant static constructor. crossgen2 compiles that .cctor into a single wasm
+    function larger than V8's per-function limit (kV8MaxWasmFunctionSize = 7654321), so the module
+    fails to instantiate. Exclude this app assembly from R2R (ships as IL, runs on the interpreter);
+    framework assemblies stay R2R. TODO: remove once dotnet/runtime#133939 is fixed in RyuJIT.
+  -->
+  <ItemGroup Condition="'$(PublishReadyToRun)' == 'true'">
+    <PublishReadyToRunExclude Include="MudBlazor.Docs.dll" />
+  </ItemGroup>
+
   <!-- Pre-generated code (from MudBlazor.Docs.Compiler, kept in Generated/) -->
   <ItemGroup>
     <EmbeddedResource Include="Pages\**\*.html" />

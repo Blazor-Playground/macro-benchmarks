@@ -1,7 +1,7 @@
 /**
  * semi-walkthrough.ts — Playwright walkthrough for Semi Avalonia Demo app.
  *
- * All walkthrough steps run entirely inside the browser via a single
+ * All timed walkthrough steps run entirely inside the browser via a single
  * page.evaluate() call, eliminating Playwright round-trip overhead from
  * the benchmark measurement.
  *
@@ -9,9 +9,10 @@
  * component demo tabs via ArrowDown keyboard navigation.
  *
  * Semi Avalonia renders to a <canvas> element (Avalonia WASM), so DOM
- * selectors are not available for content detection.  We use keyboard
- * navigation (ArrowDown through the sidebar TabControl) and
- * requestAnimationFrame to wait for canvas repaints between tabs.
+ * selectors are not available for content detection. MainView logs
+ * "[semi-rendered] <tab>" once the frame with the selected page has been
+ * rendered (see src/semi-avalonia/Views/MainView.axaml.cs), and each step
+ * waits for that message with the expected tab name.
  */
 
 import { debug } from '../log.js';
@@ -97,16 +98,7 @@ const TAB_NAMES: string[] = [
 /** Number of non-component tabs at the start to skip (Overview, About Us). */
 const SKIP_TABS = 2;
 
-/** rAF counter for debugging. */
-let rafCount = 0;
-
-/** Wait for Avalonia canvas to repaint (two rAF cycles), logging the count. */
-async function waitForRepaint(page: PlaywrightPage): Promise<void> {
-    const n = ++rafCount;
-    await page.evaluate((idx: unknown) => new Promise<void>(resolve => {
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
-    }), String(n));
-}
+const RENDERED_PREFIX = '[semi-rendered] ';
 
 /** Dispatch an ArrowDown key event on the Avalonia container element. */
 async function pressArrowDown(page: PlaywrightPage): Promise<void> {
@@ -114,7 +106,6 @@ async function pressArrowDown(page: PlaywrightPage): Promise<void> {
         const container = document.querySelector('.avalonia-container') as HTMLElement | null;
         if (!container) throw new Error('Avalonia container not found');
         container.focus();
-        console.log(`[semi-walkthrough] ArrowDown on container (focused=${document.activeElement === container})`);
         container.dispatchEvent(new KeyboardEvent('keydown', {
             key: 'ArrowDown', code: 'ArrowDown', keyCode: 40, bubbles: true, cancelable: true,
         }));
@@ -126,58 +117,48 @@ async function pressArrowDown(page: PlaywrightPage): Promise<void> {
 
 /**
  * Runs entirely inside the browser (passed to page.evaluate).
- * Navigates through every component demo tab via ArrowDown keyboard events,
- * intercepting [semi-nav] console messages to confirm navigation.
+ * Navigates from the current tab through every following component demo tab via ArrowDown,
+ * waiting for "[semi-rendered] <tab>" after each step.
  * Returns wall-clock duration in ms.
  *
  * Arrow function to avoid bundler __name helper injection that breaks
  * Playwright's function serialization for page.evaluate().
  */
 const browserSemiWalkthrough = (args: unknown): Promise<number> => {
-    const { timeout: t, verbose, tabNames, skipTabs } = args as {
+    const { timeout: t, verbose, tabNames, startIndex, prefix } = args as {
         timeout: number;
         verbose: boolean;
         tabNames: string[];
-        skipTabs: number;
+        startIndex: number;
+        prefix: string;
     };
 
-    const NAV_PREFIX = '[semi-nav] ';
     const log = verbose
         ? (msg: string) => console.log(`[semi-walkthrough] ${msg}`)
         : () => { /* noop */ };
 
-    // ── Subscribe to globalThis.onConsole to capture [semi-nav] messages ─
     // main.mjs replaces console.log with a dispatcher that calls onConsole handlers,
     // so dotnet's console.log calls go through onConsole, not the native console.log.
-    let lastNavTab: string | null = null;
-    let navResolve: (() => void) | null = null;
+    let waiter: { tab: string; resolve: () => void } | null = null;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onConsole = (globalThis as any).onConsole as ((...args: unknown[]) => void)[];
-    const navHandler = (...logArgs: unknown[]): void => {
+    const renderedHandler = (...logArgs: unknown[]): void => {
         const first = logArgs[0];
-        if (typeof first === 'string' && first.startsWith(NAV_PREFIX)) {
-            lastNavTab = first.slice(NAV_PREFIX.length);
-            if (navResolve) {
-                navResolve();
-                navResolve = null;
-            }
+        if (waiter && typeof first === 'string' && first === prefix + waiter.tab) {
+            waiter.resolve();
+            waiter = null;
         }
     };
-    onConsole.push(navHandler);
+    onConsole.push(renderedHandler);
 
-    const waitForNav = (expected: string, ms: number): Promise<void> =>
+    /** Register the waiter before pressing the key, so a synchronous message is not missed. */
+    const waitForRendered = (tab: string): Promise<void> =>
         new Promise<void>((resolve, reject) => {
-            if (lastNavTab === expected) { resolve(); return; }
             const timer = setTimeout(() => {
-                navResolve = null;
-                reject(new Error(`Timed out waiting for [semi-nav] ${expected} (last seen: ${lastNavTab})`));
-            }, ms);
-            navResolve = () => { clearTimeout(timer); resolve(); };
-        });
-
-    const waitForRepaintBrowser = (): Promise<void> =>
-        new Promise<void>(resolve => {
-            requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+                waiter = null;
+                reject(new Error(`Timed out waiting for ${prefix}${tab}`));
+            }, t);
+            waiter = { tab, resolve: () => { clearTimeout(timer); resolve(); } };
         });
 
     const pressArrowDownBrowser = (): void => {
@@ -193,23 +174,20 @@ const browserSemiWalkthrough = (args: unknown): Promise<number> => {
     };
 
     const startTime = performance.now();
-    const componentTabs = tabNames.length - skipTabs;
 
     const steps = async (): Promise<number> => {
         try {
-            for (let i = 1; i < componentTabs; i++) {
-                const tabName = tabNames[skipTabs + i];
-                lastNavTab = null;
+            for (let i = startIndex + 1; i < tabNames.length; i++) {
+                const tabName = tabNames[i];
+                const rendered = waitForRendered(tabName);
                 pressArrowDownBrowser();
-                await waitForRepaintBrowser();
-                await waitForNav(tabName, t);
-                await waitForRepaintBrowser();
-                log(`loaded: ${tabName}`);
+                await rendered;
+                log(`rendered: ${tabName}`);
             }
 
             return performance.now() - startTime;
         } finally {
-            const idx = onConsole.indexOf(navHandler);
+            const idx = onConsole.indexOf(renderedHandler);
             if (idx >= 0) onConsole.splice(idx, 1);
         }
     };
@@ -226,33 +204,31 @@ export async function runSemiWalkthrough(opts: WalkthroughOpts<PlaywrightPage>):
     const { page, url, timeout, verbose = false } = opts;
     const log = verbose ? (msg: string) => debug(`Semi: ${msg}`) : () => { };
 
-    // ── Capture [semi-nav] console messages from C# SelectionChanged handler ─
-    const NAV_PREFIX = '[semi-nav] ';
-    let lastNavTab: string | null = null;
-    let navResolve: (() => void) | null = null;
+    // ── Capture [semi-rendered] console messages from MainView ───────────────
+    const rendered = new Set<string>();
+    let waiter: { tab: string; resolve: () => void } | null = null;
 
     const consoleHandler = (...args: unknown[]) => {
-        const msg = args[0] as ConsoleMessage;
-        const text = msg.text();
-        if (text.startsWith(NAV_PREFIX)) {
-            lastNavTab = text.slice(NAV_PREFIX.length);
-            if (navResolve) {
-                navResolve();
-                navResolve = null;
-            }
+        const text = (args[0] as ConsoleMessage).text();
+        if (!text.startsWith(RENDERED_PREFIX)) return;
+        const tab = text.slice(RENDERED_PREFIX.length);
+        rendered.add(tab);
+        if (waiter?.tab === tab) {
+            waiter.resolve();
+            waiter = null;
         }
     };
     page.on('console', consoleHandler);
 
-    /** Wait until a [semi-nav] message arrives, with timeout. */
-    const waitForNav = (expected: string, ms: number): Promise<void> =>
+    /** Wait until "[semi-rendered] <tab>" arrives (or already arrived since the last reset). */
+    const waitForRendered = (tab: string): Promise<void> =>
         new Promise<void>((resolve, reject) => {
-            if (lastNavTab === expected) { resolve(); return; }
+            if (rendered.has(tab)) { resolve(); return; }
             const timer = setTimeout(() => {
-                navResolve = null;
-                reject(new Error(`Timed out waiting for [semi-nav] ${expected} (last seen: ${lastNavTab})`));
-            }, ms);
-            navResolve = () => { clearTimeout(timer); resolve(); };
+                waiter = null;
+                reject(new Error(`Timed out waiting for ${RENDERED_PREFIX}${tab}`));
+            }, timeout);
+            waiter = { tab, resolve: () => { clearTimeout(timer); resolve(); } };
         });
 
     try {
@@ -263,55 +239,31 @@ export async function runSemiWalkthrough(opts: WalkthroughOpts<PlaywrightPage>):
             () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
             null, { timeout },
         );
-        log('home loaded');
+        await waitForRendered(TAB_NAMES[0]);
+        log(`${TAB_NAMES[0]} rendered`);
 
-        // Wait for Avalonia canvas to be created and the splash screen to disappear
-        await page.waitForFunction(
-            () => {
-                const canvas = document.querySelector('canvas.avalonia-canvas');
-                const splash = document.querySelector('.avalonia-splash');
-                const ready = canvas !== null && (splash === null || (splash as HTMLElement).style.display === 'none'
-                    || getComputedStyle(splash).display === 'none' || getComputedStyle(splash).opacity === '0');
-                console.log(`[semi-walkthrough] canvas=${!!canvas} splash-gone=${ready}`);
-                return ready;
-            },
-            null, { timeout },
-        );
-        log('canvas ready');
-
-        // Give Avalonia a few frames to finish rendering the initial UI
-        await waitForRepaint(page);
-        await waitForRepaint(page);
-        await waitForRepaint(page);
-
-        // ── Step 1: Focus the sidebar TabControl ─────────────────────────────
+        // ── Step 1: Focus the sidebar TabControl (click the selected Overview item) ──
         await page.mouse.click(95, 82);
-        await page.evaluate(() => {
-            const container = document.querySelector('.avalonia-container') as HTMLElement | null;
-            if (container) container.focus();
-        });
-        await waitForRepaint(page);
-        log('focused TabControl on Overview');
 
-        // Skip past non-component tabs (Overview, About Us)
-        for (let i = 0; i < SKIP_TABS; i++) {
-            const expected = TAB_NAMES[i + 1]; // next tab after current
-            lastNavTab = null;
+        // Skip past non-component tabs (Overview, About Us), waiting until the first
+        // component page is rendered so its cost is not part of the timed section.
+        for (let i = 1; i <= SKIP_TABS; i++) {
+            rendered.clear();
+            const done = waitForRendered(TAB_NAMES[i]);
             await pressArrowDown(page);
-            await waitForNav(expected, timeout);
-            log(`skipped: ${expected}`);
+            await done;
+            log(`skipped: ${TAB_NAMES[i]}`);
         }
-        log(`positioned on ${TAB_NAMES[SKIP_TABS]}`);
 
         // ── Run timed walkthrough steps inside the browser ───────────────────
-        log('starting in-browser walkthrough...');
+        log(`starting in-browser walkthrough from ${TAB_NAMES[SKIP_TABS]}...`);
         // esbuild's keepNames injects __name() calls into the serialized function body;
         // provide the helper in the browser so they resolve at runtime.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await page.evaluate(() => { (globalThis as any).__name = (fn: any) => fn; });
         const duration: number = await page.evaluate(
             browserSemiWalkthrough,
-            { timeout, verbose, tabNames: TAB_NAMES, skipTabs: SKIP_TABS },
+            { timeout, verbose, tabNames: TAB_NAMES, startIndex: SKIP_TABS, prefix: RENDERED_PREFIX },
         );
 
         log(`in-browser walkthrough completed: ${Math.round(duration)}ms`);

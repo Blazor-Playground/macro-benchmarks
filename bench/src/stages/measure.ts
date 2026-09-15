@@ -250,7 +250,7 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
     { app: A.MudBlazor, metric: MetricKey.MudWalkthrough, fn: runMudWalkthrough as WalkthroughFn },
     { app: A.IgniteUILight, metric: MetricKey.IgniteUIWalkthrough, fn: runIgniteUIWalkthrough as WalkthroughFn },
     { app: A.UnoGallery, metric: MetricKey.UnoWalkthrough, fn: runUnoWalkthrough as WalkthroughFn },
-    // { app: A.SemiAvalonia, metric: MetricKey.SemiWalkthrough, fn: runSemiWalkthrough as WalkthroughFn },
+    { app: A.SemiAvalonia, metric: MetricKey.SemiWalkthrough, fn: runSemiWalkthrough as WalkthroughFn },
 
     // blazor-perf: WASM-only benchmarks first (need healthy server for JS module imports)
     { app: A.BlazorPerf, metric: MetricKey.BlazorCounterHeavyWasm, fn: runCounterHeavyWasm as WalkthroughFn, runs: 1, selfNav: true, wasmOnly: true },

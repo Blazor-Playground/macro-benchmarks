@@ -13,6 +13,7 @@ Daily performance tracking for .NET WebAssembly in browsers. Automatically build
 | **havit-bootstrap** | Havit Blazor Bootstrap component library |
 | **mud-blazor** | MUD Blazor Material Design component library |
 | **igniteui-light** | Infragistics FOSS component library |
+| **avalonia-bench** | Minimal Avalonia app — startup plus layout, styling, input, rendering (FPS) and dispatcher scenarios |
 
 ## Pipeline stages
 

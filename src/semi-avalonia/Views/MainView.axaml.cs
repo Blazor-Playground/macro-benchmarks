@@ -45,11 +45,15 @@ public partial class MainView : UserControl
             return;
         }
 
-        if (tab.SelectedItem == tabItem)
+        topLevel.RequestAnimationFrame(_ => topLevel.RequestAnimationFrame(_ =>
         {
-            // The walkthrough script waits for "[semi-rendered] <tab>".
-            Console.WriteLine($"[semi-rendered] {header}");
-        }
+            if (tab.SelectedItem == tabItem)
+            {
+                // The walkthrough script waits for "[semi-rendered] <tab>".
+                // Run it on the next two frames to ensure that the tab is fully rendered.
+                Console.WriteLine($"[semi-rendered] {header}");
+            }
+        }));
     }
 
     private void MessageHandler(object _, string message)

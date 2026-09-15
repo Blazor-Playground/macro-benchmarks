@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile, rm } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import { existsSync } from 'node:fs';
 import { type BenchContext } from '../context.js';
@@ -87,7 +87,7 @@ async function buildFlavor(
     const buildArtifactsDir = getBuildArtifactsDir(cloneDir);
     if (existsSync(buildArtifactsDir)) {
         banner(`Cleaning previous build artifacts`);
-        await exec('rm', ['-rf', buildArtifactsDir], { label: 'rm -rf artifacts' });
+        await rm(buildArtifactsDir, { recursive: true, force: true });
     }
 
     // Step 1: Build runtime + libs

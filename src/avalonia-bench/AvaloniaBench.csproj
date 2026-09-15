@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>$(BenchmarkTargetFramework)-browser</TargetFramework>
+    <DashName>avalonia-bench</DashName>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>AvaloniaBench</RootNamespace>
+    <AssemblyName>AvaloniaBench</AssemblyName>
+  </PropertyGroup>
+
+  <!-- Keep dependencies minimal: Avalonia.Browser plus a pinned SkiaSharp so the managed and
+       native (WebAssembly) Skia versions match. Native relink is mandatory (Skia/HarfBuzz .a files). -->
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Browser" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="SkiaSharp" Version="$(SkiaSharpVersion)" />
+    <PackageReference Include="SkiaSharp.NativeAssets.WebAssembly" Version="$(SkiaSharpVersion)" />
+  </ItemGroup>
+
+</Project>

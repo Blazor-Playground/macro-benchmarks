@@ -41,6 +41,27 @@
 | `mud-walkthrough` | ms | MUD Blazor interaction scenario |
 | `uno-walkthrough` | ms | Uno Gallery navigation scenario |
 
+### Avalonia scenario metrics (avalonia-bench, Chrome/desktop only)
+
+Each scenario runs in the page (see `src/avalonia-bench/README.md`). The reported value is the
+interquartile mean of 3 runs, and each run is the median of several samples.
+
+| Key | Unit | Description |
+|-----|------|-------------|
+| `avalonia-layout-pass-ops` | ops/sec | Invalidate ~200 TextBlocks and run a layout pass |
+| `avalonia-pointer-move` | ms | Dispatch 200 DOM `pointermove` events until the control receives the last one |
+| `avalonia-fps-layout-resize` | fps | ~1200 Borders resized every frame (full measure/arrange) |
+| `avalonia-fps-render-transforms` | fps | ~1500 Borders with UI-thread keyframe animations (transform, opacity) |
+| `avalonia-fps-composition-animations` | fps | ~1500 Borders with compositor keyframe animations |
+| `avalonia-fps-tree-churn` | fps | 80 of ~800 subtrees removed and recreated every frame |
+| `avalonia-property-set-get-ops` | ops/sec | Styled, direct and style-priority property operations |
+| `avalonia-property-inheritance-ops` | ops/sec | Inherited property changes at the root of ~2100 controls |
+| `avalonia-styles-class-toggle-ops` | ops/sec | Class changes under ~160 global style rules |
+| `avalonia-styles-attach-ops` | ops/sec | Controls attached (and styled) under ~160 global style rules |
+| `avalonia-hit-test-ops` | ops/sec | `InputHitTest` over ~2000 overlapping Borders |
+| `avalonia-dispatcher-post-ops` | ops/sec | Dispatcher jobs posted at mixed priorities and drained |
+| `avalonia-dispatcher-invoke-async-ops` | ops/sec | Chained `await Dispatcher.InvokeAsync` round-trips |
+
 ### Microbenchmark metrics (CLI engines)
 
 | Key | Unit | Description |

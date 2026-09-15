@@ -42,6 +42,7 @@ export enum App {
     MudBlazor = 'mud-blazor',
     SemiAvalonia = 'semi-avalonia',
     IgniteUILight = 'igniteui-light',
+    AvaloniaBench = 'avalonia-bench',
 }
 
 export enum Stage {
@@ -110,6 +111,19 @@ export enum MetricKey {
     JsInteropOps = 'js-interop-ops',
     JsonParseOps = 'json-parse-ops',
     ExceptionOps = 'exception-ops',
+    AvaloniaLayoutPassOps = 'avalonia-layout-pass-ops',
+    AvaloniaPointerMove = 'avalonia-pointer-move',
+    AvaloniaFpsLayoutResize = 'avalonia-fps-layout-resize',
+    AvaloniaFpsRenderTransforms = 'avalonia-fps-render-transforms',
+    AvaloniaFpsCompositionAnimations = 'avalonia-fps-composition-animations',
+    AvaloniaFpsTreeChurn = 'avalonia-fps-tree-churn',
+    AvaloniaPropertySetGetOps = 'avalonia-property-set-get-ops',
+    AvaloniaPropertyInheritanceOps = 'avalonia-property-inheritance-ops',
+    AvaloniaStylesClassToggleOps = 'avalonia-styles-class-toggle-ops',
+    AvaloniaStylesAttachOps = 'avalonia-styles-attach-ops',
+    AvaloniaHitTestOps = 'avalonia-hit-test-ops',
+    AvaloniaDispatcherPostOps = 'avalonia-dispatcher-post-ops',
+    AvaloniaDispatcherInvokeAsyncOps = 'avalonia-dispatcher-invoke-async-ops',
 }
 
 // ── App Routing Configuration ────────────────────────────────────────────────
@@ -153,6 +167,8 @@ export const APP_CONFIG: Record<App, AppConfig> = {
     [App.UnoGallery]: { browserOnly: true, internal: false, monoOnly: true },
     // semi-avalonia gains CoreCLR from .NET 12 (gated in shouldSkipBuild).
     [App.SemiAvalonia]: { browserOnly: true, internal: false, monoOnly: false },
+    // avalonia-bench: minimal Avalonia.Browser app for startup + Avalonia scenario benchmarks.
+    [App.AvaloniaBench]: { browserOnly: true, internal: false, monoOnly: false },
 };
 
 // ── Preset Constraints ───────────────────────────────────────────────────────
@@ -172,7 +188,10 @@ export const MONO_ONLY_PRESETS = new Set<Preset>([
 export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazorPerf, App.BlazingPizza, App.HavitBootstrap, App.BenchViewer, App.MudBlazor, App.IgniteUILight, App.BlazorPerf]);
 export const BLAZOR_REDUCED_PRESETS = new Set<Preset>([Preset.DevLoop, Preset.NoWorkload, Preset.Aot]);
 
-export const NON_BLAZOR_APPS = new Set<App>([App.UnoGallery, App.SemiAvalonia]);
+export const NON_BLAZOR_APPS = new Set<App>([App.UnoGallery, App.SemiAvalonia, App.AvaloniaBench]);
+
+/** Avalonia apps: Skia/HarfBuzz native assets make native relink mandatory. */
+export const AVALONIA_APPS = new Set<App>([App.SemiAvalonia, App.AvaloniaBench]);
 export const NON_BLAZOR_REDUCED_PRESETS = new Set<Preset>([Preset.NativeRelink, Preset.Aot]);
 
 
@@ -228,11 +247,15 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     if (app === App.UnoGallery && runtime !== Runtime.Mono) {
         return `Uno.Gallery is Mono-only (WASM bootstrap not supported on CoreCLR)`;
     }
-    // SemiAvalonia was Mono-only only because CoreCLR wasm had no native relink before .NET 12;
-    // from .NET 12 it also builds and runs on CoreCLR. It never supports NativeAOT-LLVM.
-    if (app === App.SemiAvalonia && runtime !== Runtime.Mono
+    // Avalonia apps were Mono-only only because CoreCLR wasm had no native relink before .NET 12;
+    // from .NET 12 they also build and run on CoreCLR. They never support NativeAOT-LLVM.
+    if (AVALONIA_APPS.has(app) && runtime !== Runtime.Mono
         && !(runtime === Runtime.CoreCLR && ctx.sdkInfo.major >= 12)) {
-        return `SemiAvalonia is Mono-only before .NET 12 (CoreCLR wasm native relink starts in .NET 12)`;
+        return `Avalonia app '${app}' is Mono-only before .NET 12 (CoreCLR wasm native relink starts in .NET 12)`;
+    }
+    // CoreCLR `aot` (ReadyToRun) builds with WasmBuildNative=false, so Skia can't be linked.
+    if (AVALONIA_APPS.has(app) && runtime === Runtime.CoreCLR && preset === Preset.Aot) {
+        return `Avalonia app '${app}' needs native relink, which CoreCLR ReadyToRun (preset 'aot') does not do`;
     }
     if (runtime === Runtime.CoreCLR && !coreclrWasmAvailable(ctx.sdkInfo) && app !== App.BlazorPerf) {
         if (ctx.sdkInfo.major < 11) {
@@ -283,8 +306,8 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     if (app === App.MudBlazor && ctx.sdkInfo.major < 9) {
         return `MudBlazor app '${app}' does not build with SDK versions below 9.0.0`;
     }
-    if (app === App.SemiAvalonia && ctx.sdkInfo.major < 10) {
-        return `SemiAvalonia app '${app}' does not build with SDK versions below 10.0.0`;
+    if (AVALONIA_APPS.has(app) && ctx.sdkInfo.major < 10) {
+        return `Avalonia app '${app}' does not build with SDK versions below 10.0.0`;
     }
     if (app === App.IgniteUILight && ctx.sdkInfo.major < 8) {
         return `Ignite UI Light app '${app}' does not build with SDK versions below 8.0.0`;

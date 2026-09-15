@@ -57,9 +57,9 @@
     <IgniteUIBlazorGridLiteVersion>0.9.0</IgniteUIBlazorGridLiteVersion>
   </PropertyGroup>
 
-  <!-- Avalonia stack, runtime pack 11 and below: native assets (libSkiaSharp.a/libHarfBuzzSharp.a)
+  <!-- Avalonia stack, runtime pack 10 and below: native assets (libSkiaSharp.a/libHarfBuzzSharp.a)
        built for the old emscripten/LLVM toolchain shipped by those runtime packs. -->
-  <PropertyGroup Condition="$(_RuntimeMajor) &lt; 12">
+  <PropertyGroup Condition="$(_RuntimeMajor) &lt; 11">
     <AvaloniaVersion>11.3.8</AvaloniaVersion>
     <SkiaSharpVersion>3.119.1</SkiaSharpVersion>
     <SemiAvaloniaVersion>11.3.7.3</SemiAvaloniaVersion>
@@ -67,9 +67,9 @@
     <IrihiAvaloniaSharedVersion>0.3.1</IrihiAvaloniaSharedVersion>
   </PropertyGroup>
 
-  <!-- Avalonia stack, runtime pack 12+: needs SkiaSharp 4.151+ whose WebAssembly native assets are
-       rebuilt for emscripten 6.0.2 / LLVM 23 (ABI break, dotnet/runtime; AvaloniaUI/Avalonia#21700). -->
-  <PropertyGroup Condition="$(_RuntimeMajor) &gt;= 12">
+  <!-- Avalonia stack, runtime pack 11+: needs SkiaSharp 4.x whose WebAssembly native assets are
+       rebuilt for the newer emscripten/LLVM toolchain (ABI break, dotnet/runtime; AvaloniaUI/Avalonia#21700). -->
+  <PropertyGroup Condition="$(_RuntimeMajor) &gt;= 11">
     <AvaloniaVersion>12.1.2</AvaloniaVersion>
     <SkiaSharpVersion>4.151.0</SkiaSharpVersion>
     <SemiAvaloniaVersion>12.1.0.1</SemiAvaloniaVersion>

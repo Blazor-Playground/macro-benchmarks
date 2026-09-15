@@ -104,6 +104,11 @@ const HIGHER_IS_BETTER = new Set([
     'blazor-params-count-htmlrenderer', 'blazor-too-many-components-htmlrenderer',
     'blazor-params-count-htmlrenderer-stress', 'blazor-too-many-components-htmlrenderer-stress',
     'blazor-params-count-server-stress', 'blazor-too-many-components-server-stress',
+    'avalonia-layout-pass-ops', 'avalonia-property-set-get-ops', 'avalonia-property-inheritance-ops',
+    'avalonia-styles-class-toggle-ops', 'avalonia-styles-attach-ops', 'avalonia-hit-test-ops',
+    'avalonia-dispatcher-post-ops', 'avalonia-dispatcher-invoke-async-ops',
+    'avalonia-fps-layout-resize', 'avalonia-fps-render-transforms',
+    'avalonia-fps-composition-animations', 'avalonia-fps-tree-churn',
 ]);
 
 function getDirection(metric: string, deltaPct: number): 'regression' | 'improvement' | 'neutral' {
@@ -120,7 +125,7 @@ export type MetricType = 'compile-time' | 'size' | 'throughput' | 'timing-memory
 export function classifyMetric(metric: string): MetricType {
     if (metric.startsWith('compile-time')) return 'compile-time';
     if (metric.startsWith('disk-size') || metric.startsWith('download-size')) return 'size';
-    if (metric.includes('-ops') || metric.includes('-per-second') || metric.startsWith('blazor-')) return 'throughput';
+    if (metric.includes('-ops') || metric.includes('-per-second') || metric.startsWith('blazor-') || metric.startsWith('avalonia-fps-')) return 'throughput';
     if (metric.startsWith('time-to') || metric.startsWith('memory')) return 'timing-memory';
     return 'other';
 }

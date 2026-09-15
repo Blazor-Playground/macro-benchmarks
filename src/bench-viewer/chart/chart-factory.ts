@@ -25,6 +25,9 @@ export function formatValue(value: number | null, unit: string): string {
     if (unit === 'ops/sec') {
         return Math.round(value).toLocaleString() + ' ops/sec';
     }
+    if (unit === 'fps') {
+        return value.toFixed(1) + ' fps';
+    }
     return String(value);
 }
 

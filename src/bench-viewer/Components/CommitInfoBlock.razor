@@ -154,8 +154,10 @@
         "js-interop-ops", "json-parse-ops", "exception-ops"
     };
 
+    // avalonia-bench: everything except avalonia-pointer-move (ms) is ops/sec or fps.
     private static bool IsHigherBetter(string metricKey)
-        => HigherIsBetter.Contains(metricKey) || metricKey.StartsWith("blazor-");
+        => HigherIsBetter.Contains(metricKey) || metricKey.StartsWith("blazor-")
+           || (metricKey.StartsWith("avalonia-") && metricKey != "avalonia-pointer-move");
 
     private record struct MetricDelta(string Icon, string Text, string CssClass);
 

@@ -25,7 +25,7 @@ public static class DashboardConfig
     public static readonly List<string> AppOrder = new()
     {
         "blazing-pizza", "havit-bootstrap", "mud-blazor", "igniteui-light", "blazor-perf", "empty-blazor",
-        "semi-avalonia", "uno-gallery",
+        "semi-avalonia", "avalonia-bench", "uno-gallery",
         "empty-browser", "empty-browser",
         "micro-benchmarks", "blazor-perf",
         "bench-viewer", 
@@ -43,6 +43,10 @@ public static class DashboardConfig
         "blazor-js-to-cs-number", "blazor-js-to-cs-string", "blazor-js-to-cs-json",
         "blazor-cs-to-js-number", "blazor-cs-to-js-string", "blazor-cs-to-js-json",
         "json-parse-ops", "js-interop-ops", "exception-ops",
+        "avalonia-fps-layout-resize", "avalonia-fps-render-transforms", "avalonia-fps-composition-animations", "avalonia-fps-tree-churn",
+        "avalonia-layout-pass-ops", "avalonia-property-set-get-ops", "avalonia-property-inheritance-ops",
+        "avalonia-styles-class-toggle-ops", "avalonia-styles-attach-ops", "avalonia-hit-test-ops",
+        "avalonia-dispatcher-post-ops", "avalonia-dispatcher-invoke-async-ops", "avalonia-pointer-move",
         "time-to-reach-managed-cold", "time-to-reach-managed-warm",
         "time-to-create-dotnet-cold", "time-to-create-dotnet-warm",
         "download-size-cold", "download-size-warm",

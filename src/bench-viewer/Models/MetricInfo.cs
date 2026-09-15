@@ -62,6 +62,19 @@ public class MetricInfo
         ["blazor-too-many-components-server-stress"] = new("blazor-too-many-components-server-stress", "Many Components (Server ×25)", "ops/sec", "throughput"),
         ["time-to-exit-warm"] = new("time-to-exit-warm", "Time to Exit (Warm)", "ms", "time"),
         ["time-to-exit-cold"] = new("time-to-exit-cold", "Time to Exit (Cold)", "ms", "time"),
+        ["avalonia-layout-pass-ops"] = new("avalonia-layout-pass-ops", "Avalonia Layout Pass", "ops/sec", "throughput"),
+        ["avalonia-pointer-move"] = new("avalonia-pointer-move", "Avalonia Pointer Move", "ms", "time"),
+        ["avalonia-fps-layout-resize"] = new("avalonia-fps-layout-resize", "Avalonia FPS: Layout Resize", "fps", "throughput"),
+        ["avalonia-fps-render-transforms"] = new("avalonia-fps-render-transforms", "Avalonia FPS: RenderTransform Animations", "fps", "throughput"),
+        ["avalonia-fps-composition-animations"] = new("avalonia-fps-composition-animations", "Avalonia FPS: Composition Animations", "fps", "throughput"),
+        ["avalonia-fps-tree-churn"] = new("avalonia-fps-tree-churn", "Avalonia FPS: Visual Tree Churn", "fps", "throughput"),
+        ["avalonia-property-set-get-ops"] = new("avalonia-property-set-get-ops", "Avalonia Property Set/Get", "ops/sec", "throughput"),
+        ["avalonia-property-inheritance-ops"] = new("avalonia-property-inheritance-ops", "Avalonia Inherited Property Change", "ops/sec", "throughput"),
+        ["avalonia-styles-class-toggle-ops"] = new("avalonia-styles-class-toggle-ops", "Avalonia Styles: Class Toggle", "ops/sec", "throughput"),
+        ["avalonia-styles-attach-ops"] = new("avalonia-styles-attach-ops", "Avalonia Styles: Attach", "ops/sec", "throughput"),
+        ["avalonia-hit-test-ops"] = new("avalonia-hit-test-ops", "Avalonia Hit Test", "ops/sec", "throughput"),
+        ["avalonia-dispatcher-post-ops"] = new("avalonia-dispatcher-post-ops", "Avalonia Dispatcher Post", "ops/sec", "throughput"),
+        ["avalonia-dispatcher-invoke-async-ops"] = new("avalonia-dispatcher-invoke-async-ops", "Avalonia Dispatcher InvokeAsync", "ops/sec", "throughput"),
     };
 
     // OTEL counter short-names to display names (used for dynamic -otel- suffix metrics)
@@ -144,6 +157,7 @@ public class MetricInfo
             "ms" when info.Key == "compile-time" => $"{Math.Round(value / 1000)} s",
             "ms" => $"{value:N1} ms",
             "ops/sec" => $"{value:N0} ops/s",
+            "fps" => $"{value:N1} fps",
             _ => value.ToString("N2"),
         };
     }

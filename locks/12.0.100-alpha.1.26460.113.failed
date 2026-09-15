@@ -1,0 +1,9 @@
+{
+  "failedAt": "2026-09-15T14:14:46.229Z",
+  "failures": [
+    {
+      "target": "havit-bootstrap/aot",
+      "errorLines": []
+    }
+  ]
+}

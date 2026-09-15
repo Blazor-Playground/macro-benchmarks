@@ -8,6 +8,7 @@ import {
     Runtime as R,
     APP_CONFIG,
     NON_WORKLOAD_PRESETS,
+    NATIVE_COMPONENT_APPS,
     PRESET_MAP, PRESET_CONFIG,
     shouldSkipBuild,
     clientRuntimeFor,
@@ -95,11 +96,9 @@ function isCoreClrR2R(effectiveRuntime: Runtime, preset: Preset): boolean {
     return effectiveRuntime === R.CoreCLR && preset === Preset.Aot;
 }
 
-// CoreCLR R2R (aot) uses WasmBuildNative=false, so it needs no wasm-tools workload; Mono aot and
-// the native-relinking presets do.
-function presetNeedsWorkload(runtime: Runtime, preset: Preset): boolean {
+function presetNeedsWorkload(runtime: Runtime, preset: Preset, app: App): boolean {
+    if (NATIVE_COMPONENT_APPS.has(app)) return true;
     if (NON_WORKLOAD_PRESETS.has(preset)) return false;
-    if (isCoreClrR2R(runtime, preset)) return false;
     return true;
 }
 
@@ -116,7 +115,7 @@ function getAdditionalRestoreSources(ctx: BenchContext, r2r: boolean): string[] 
 // crossgen2 (from a source build) both emits R2R images and generates the native-relink portable
 // call helpers, so it is passed for CoreCLR R2R (aot) and CoreCLR native-relink. The R2R pack
 // version / restore source are R2R-only.
-function getCoreClrNativeArgs(ctx: BenchContext, effectiveRuntime: Runtime, preset: Preset): string[] {
+function getCoreClrNativeArgs(ctx: BenchContext, effectiveRuntime: Runtime, preset: Preset, app: App): string[] {
     const args: string[] = [];
     const r2r = isCoreClrR2R(effectiveRuntime, preset);
     const needsCrossgen2 = r2r || (effectiveRuntime === R.CoreCLR && preset === Preset.NativeRelink);
@@ -125,6 +124,9 @@ function getCoreClrNativeArgs(ctx: BenchContext, effectiveRuntime: Runtime, pres
     }
     if (r2r && ctx.r2rPackVersion) {
         args.push(`/p:WasmR2RPackVersion=${ctx.r2rPackVersion}`);
+    }
+    if ((NATIVE_COMPONENT_APPS.has(app))) {
+        args.push('/p:WasmBuildNative=true');
     }
     return args;
 }
@@ -167,7 +169,7 @@ function getRestoreArgs(
     if (ctx.aspnetCorePackagesDir) {
         args.push(`/p:MicrosoftAspNetCoreVersion=${ctx.aspnetCorePackageVersion}`);
     }
-    args.push(...getCoreClrNativeArgs(ctx, effectiveRuntime, preset));
+    args.push(...getCoreClrNativeArgs(ctx, effectiveRuntime, preset, app));
     if (app === App.UnoGallery) {
         args.push(`/p:TargetFramework=${unoTargetFramework(ctx)}`);
     }
@@ -224,7 +226,7 @@ function getPublishArgs(
     if (ctx.aspnetCorePackagesDir) {
         args.push(`/p:MicrosoftAspNetCoreVersion=${ctx.aspnetCorePackageVersion}`);
     }
-    args.push(...getCoreClrNativeArgs(ctx, effectiveRuntime, preset));
+    args.push(...getCoreClrNativeArgs(ctx, effectiveRuntime, preset, app));
     return args;
 }
 
@@ -354,9 +356,11 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     }
 
     // Phase: Install workload (only if a requested workload-preset build actually needs it).
-    // CoreCLR aot is ReadyToRun (WasmBuildNative=false) and does not need the wasm-tools workload.
+    // CoreCLR aot is ReadyToRun (WasmBuildNative=false) and does not need the wasm-tools workload,
+    // except for native-component apps (uno-gallery, semi-avalonia) whose R2R build still relinks.
     if (workloadPresets.length > 0) {
-        const workloadNeeded = workloadPresets.some(p => ctx.runtimes.some(r => presetNeedsWorkload(r, p)));
+        const workloadNeeded = workloadPresets.some(p =>
+            ctx.runtimes.some(r => ctx.apps.some(a => presetNeedsWorkload(r, p, a))));
         if (workloadNeeded) {
             banner('Install wasm-tools workload');
             await dotnetWorkloadInstall(ctx.dotnetBin, 'wasm-tools', { cwd: ctx.repoRoot });
@@ -377,7 +381,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
             info('No requested workload-preset build needs the wasm-tools workload (CoreCLR R2R) — skipping install');
         }
 
-        // Phase B: Workload presets (CoreCLR R2R builds here too, without the workload)
+        // Phase B: Workload presets (native-free CoreCLR R2R builds here too, without the workload)
         banner('Build workload presets');
         await buildPhase(ctx, workloadPresets, succeeded, failed);
     }

@@ -175,6 +175,13 @@ export const BLAZOR_REDUCED_PRESETS = new Set<Preset>([Preset.DevLoop, Preset.No
 export const NON_BLAZOR_APPS = new Set<App>([App.UnoGallery, App.SemiAvalonia]);
 export const NON_BLAZOR_REDUCED_PRESETS = new Set<Preset>([Preset.NativeRelink, Preset.Aot]);
 
+/**
+ * Apps with native WASM components that must be relinked even for CoreCLR R2R (aot). For these apps
+ * the `aot` preset needs `WasmBuildNative=true` and therefore the wasm-tools workload, unlike other
+ * apps whose CoreCLR R2R build is native-free (WasmBuildNative=false) and workload-free.
+ */
+export const NATIVE_COMPONENT_APPS = new Set<App>([App.UnoGallery, App.SemiAvalonia]);
+
 
 export function shouldSkipDeployment(runtime: Runtime, app: App, preset: Preset, ctx: BenchContext): string | null {
     const build = shouldSkipBuild(runtime, app, preset, ctx);

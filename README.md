@@ -55,6 +55,8 @@ Prerequisites: Node.js ≥ 24, .NET SDK (downloaded automatically).
 ```powershell
 # Windows
 .\bench.ps1 --verbose --stages enumerate-daily-packs,enumerate-release-packs,resolve-sdk,download-sdk,build,measure --preset dev-loop --app blazing-pizza --dry-run
+
+.\bench.ps1 --sdk-version 12.0.100-alpha.1.26460.113 --runtime-pr 132419 --runtime coreclr --stages enumerate-daily-packs,resolve-sdk,download-sdk,build-runtime,build,measure --app semi-avalonia --preset aot --engine chrome --dry-run
 ```
 
 ```bash

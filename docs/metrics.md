@@ -22,8 +22,8 @@
 | `time-to-reach-managed-cold` | ms | First navigation (empty cache) to `dotnet_managed_ready` |
 | `time-to-create-dotnet-warm` | ms | Warm reload to dotnet runtime creation |
 | `time-to-create-dotnet-cold` | ms | Cold load to dotnet runtime creation |
-| `time-to-exit-warm` | ms | Warm reload to app exit (avalonia-bench: first rendered frame) |
-| `time-to-exit-cold` | ms | Cold load to app exit (avalonia-bench: first rendered frame) |
+| `time-to-exit-warm` | ms | Warm reload to app exit |
+| `time-to-exit-cold` | ms | Cold load to app exit |
 
 ### Memory metrics
 

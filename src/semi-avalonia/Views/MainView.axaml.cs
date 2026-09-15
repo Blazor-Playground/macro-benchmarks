@@ -6,6 +6,7 @@ using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Interactivity;
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -22,11 +23,32 @@ public partial class MainView : UserControl
         WeakReferenceMessenger.Default.Register<string, string>(this, "JumpTo", MessageHandler);
     }
 
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+        LogRenderedTab();
+    }
+
     private void OnTabSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (sender is TabControl tc && tc.SelectedItem is TabItem tabItem && tabItem.Header is string header)
+        // SelectionChanged bubbles: ignore selections made inside the demo pages.
+        if (e.Source == sender)
         {
-            Console.WriteLine($"[semi-nav] {header}");
+            LogRenderedTab();
+        }
+    }
+
+    private void LogRenderedTab()
+    {
+        if (tab.SelectedItem is not TabItem { Header: string header } tabItem || TopLevel.GetTopLevel(this) is not { } topLevel)
+        {
+            return;
+        }
+
+        if (tab.SelectedItem == tabItem)
+        {
+            // The walkthrough script waits for "[semi-rendered] <tab>".
+            Console.WriteLine($"[semi-rendered] {header}");
         }
     }
 

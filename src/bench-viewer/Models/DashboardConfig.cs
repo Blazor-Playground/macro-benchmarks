@@ -10,7 +10,6 @@ public static class DashboardConfig
     // Metrics to skip for all apps
     public static readonly HashSet<string> SkipMetrics = new()
     {
-        "semi-walkthrough"
     };
 
     // Metrics to skip for micro-benchmarks (build/disk not meaningful)

@@ -1,4 +1,4 @@
-import { readFile, writeFile, mkdir, chmod } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, chmod, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -164,7 +164,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         // thinking the SDK is already installed (it checks sdk/<version>/ exists)
         if (existsSync(sdkDir)) {
             info(`Removing stale SDK directory: ${sdkDir}`);
-            await exec('rm', ['-rf', sdkDir], { label: 'rm stale sdk' });
+            await rm(sdkDir, { recursive: true, force: true });
         }
         info(`Installing SDK ${sdkInfo.sdkVersion}...`);
         await installSdk(sdkInfo, sdkDir, platform);

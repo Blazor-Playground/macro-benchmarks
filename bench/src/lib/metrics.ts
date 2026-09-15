@@ -55,6 +55,19 @@ export const METRICS: Record<MetricKey, MetricInfo> = {
     [MetricKey.JsInteropOps]: { displayName: 'JS Interop', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.JsonParseOps]: { displayName: 'JSON Parse', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.ExceptionOps]: { displayName: 'Exception Handling', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaLayoutPassOps]: { displayName: 'Avalonia Layout Pass', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaPointerMove]: { displayName: 'Avalonia Pointer Move', unit: 'ms', category: 'time' },
+    [MetricKey.AvaloniaFpsLayoutResize]: { displayName: 'Avalonia FPS: Layout Resize', unit: 'fps', category: 'throughput' },
+    [MetricKey.AvaloniaFpsRenderTransforms]: { displayName: 'Avalonia FPS: RenderTransform Animations', unit: 'fps', category: 'throughput' },
+    [MetricKey.AvaloniaFpsCompositionAnimations]: { displayName: 'Avalonia FPS: Composition Animations', unit: 'fps', category: 'throughput' },
+    [MetricKey.AvaloniaFpsTreeChurn]: { displayName: 'Avalonia FPS: Visual Tree Churn', unit: 'fps', category: 'throughput' },
+    [MetricKey.AvaloniaPropertySetGetOps]: { displayName: 'Avalonia Property Set/Get', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaPropertyInheritanceOps]: { displayName: 'Avalonia Inherited Property Change', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaStylesClassToggleOps]: { displayName: 'Avalonia Styles: Class Toggle', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaStylesAttachOps]: { displayName: 'Avalonia Styles: Attach', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaHitTestOps]: { displayName: 'Avalonia Hit Test', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaDispatcherPostOps]: { displayName: 'Avalonia Dispatcher Post', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaDispatcherInvokeAsyncOps]: { displayName: 'Avalonia Dispatcher InvokeAsync', unit: 'ops/sec', category: 'throughput' },
 };
 
 export const EXTERNAL_METRICS: MetricKey[] = [
@@ -87,6 +100,19 @@ export const EXTERNAL_METRICS: MetricKey[] = [
     MetricKey.BlazorCsToJsJson,
     MetricKey.BlazorCounterHeavyWasm,
     MetricKey.BlazorCounterHeavyServer,
+    MetricKey.AvaloniaLayoutPassOps,
+    MetricKey.AvaloniaPointerMove,
+    MetricKey.AvaloniaFpsLayoutResize,
+    MetricKey.AvaloniaFpsRenderTransforms,
+    MetricKey.AvaloniaFpsCompositionAnimations,
+    MetricKey.AvaloniaFpsTreeChurn,
+    MetricKey.AvaloniaPropertySetGetOps,
+    MetricKey.AvaloniaPropertyInheritanceOps,
+    MetricKey.AvaloniaStylesClassToggleOps,
+    MetricKey.AvaloniaStylesAttachOps,
+    MetricKey.AvaloniaHitTestOps,
+    MetricKey.AvaloniaDispatcherPostOps,
+    MetricKey.AvaloniaDispatcherInvokeAsyncOps,
 ];
 
 export const INTERNAL_METRICS: MetricKey[] = [

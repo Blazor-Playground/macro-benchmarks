@@ -66,7 +66,6 @@
   <!-- Aot on CoreCLR: ReadyToRun. R2R images are separate lazy .wasm modules consumed by the
        stock dotnet.native.wasm, so no native relink / wasm-tools workload is needed. -->
   <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Aot' and '$(RuntimeFlavor)' == 'CoreCLR'">
-    <WasmBuildNative>false</WasmBuildNative>
     <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
 

@@ -27,7 +27,6 @@
     <PackageReference Include="Semi.Avalonia.ColorPicker" Version="$(SemiAvaloniaVersion)" />
     <PackageReference Include="Semi.Avalonia.DataGrid" Version="$(SemiAvaloniaVersion)" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="$(CommunityToolkitMvvmVersion)" />
-    <PackageReference Include="Irihi.Avalonia.Shared" Version="$(IrihiAvaloniaSharedVersion)" />
   </ItemGroup>
 
 </Project>

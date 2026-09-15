@@ -26,28 +26,28 @@ public partial class MainView : UserControl
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        LogRenderedTab();
+        LogRenderedTab(tab);
     }
 
     private void OnTabSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         // SelectionChanged bubbles: ignore selections made inside the demo pages.
-        if (e.Source == sender)
+        if (e.Source == sender && sender is TabControl tabControl)
         {
-            LogRenderedTab();
+            LogRenderedTab(tabControl);
         }
     }
 
-    private void LogRenderedTab()
+    private void LogRenderedTab(TabControl tabControl)
     {
-        if (tab.SelectedItem is not TabItem { Header: string header } tabItem || TopLevel.GetTopLevel(this) is not { } topLevel)
+        if (tabControl.SelectedItem is not TabItem { Header: string header } tabItem || TopLevel.GetTopLevel(this) is not { } topLevel)
         {
             return;
         }
 
         topLevel.RequestAnimationFrame(_ => topLevel.RequestAnimationFrame(_ =>
         {
-            if (tab.SelectedItem == tabItem)
+            if (tabControl.SelectedItem == tabItem)
             {
                 // The walkthrough script waits for "[semi-rendered] <tab>".
                 // Run it on the next two frames to ensure that the tab is fully rendered.

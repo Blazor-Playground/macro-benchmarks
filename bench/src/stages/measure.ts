@@ -29,6 +29,7 @@ import { runMudWalkthrough } from '../lib/mud-walkthrough.js';
 import { runIgniteUIWalkthrough } from '../lib/igniteui-walkthrough.js';
 import { runUnoWalkthrough } from '../lib/uno-walkthrough.js';
 import { runSemiWalkthrough } from '../lib/semi-walkthrough.js';
+import { avaloniaScenario } from '../lib/avalonia-scenarios.js';
 import {
     runCounterHeavyWasm, runCounterHeavyServer,
     runParamsCountWasm, runParamsCountServer,
@@ -234,6 +235,9 @@ function mergeTimingArrays(target: TimingArrays, source: TimingArrays): void {
     }
 }
 
+// avalonia-bench FPS scenarios: longer samples (frame counts are noisy over short windows).
+const AVALONIA_FPS_OPTIONS = { samples: 4, warmup: 1, sampleDurationMs: 2000 };
+
 // Walkthrough dispatch table — Chrome + desktop only
 type WalkthroughFn = (opts: WalkthroughOpts<Page>) => Promise<WalkthroughFnReturn>;
 
@@ -251,6 +255,21 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
     { app: A.IgniteUILight, metric: MetricKey.IgniteUIWalkthrough, fn: runIgniteUIWalkthrough as WalkthroughFn },
     { app: A.UnoGallery, metric: MetricKey.UnoWalkthrough, fn: runUnoWalkthrough as WalkthroughFn },
     // { app: A.SemiAvalonia, metric: MetricKey.SemiWalkthrough, fn: runSemiWalkthrough as WalkthroughFn },
+
+    // avalonia-bench scenarios (src/avalonia-bench/Scenarios + wwwroot/main.mjs)
+    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaLayoutPassOps, fn: avaloniaScenario('layout-pass') as WalkthroughFn, runs: 3 },
+    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaPointerMove, fn: avaloniaScenario('pointer-move') as WalkthroughFn, runs: 3 },
+    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaFpsLayoutResize, fn: avaloniaScenario('fps-layout-resize', AVALONIA_FPS_OPTIONS) as WalkthroughFn, runs: 3 },
+    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaFpsRenderTransforms, fn: avaloniaScenario('fps-render-transforms', AVALONIA_FPS_OPTIONS) as WalkthroughFn, runs: 3 },
+    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaFpsCompositionAnimations, fn: avaloniaScenario('fps-composition-animations', AVALONIA_FPS_OPTIONS) as WalkthroughFn, runs: 3 },
+    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaFpsTreeChurn, fn: avaloniaScenario('fps-tree-churn', AVALONIA_FPS_OPTIONS) as WalkthroughFn, runs: 3 },
+    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaPropertySetGetOps, fn: avaloniaScenario('property-set-get') as WalkthroughFn, runs: 3 },
+    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaPropertyInheritanceOps, fn: avaloniaScenario('property-inheritance') as WalkthroughFn, runs: 3 },
+    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaStylesClassToggleOps, fn: avaloniaScenario('styles-class-toggle') as WalkthroughFn, runs: 3 },
+    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaStylesAttachOps, fn: avaloniaScenario('styles-attach') as WalkthroughFn, runs: 3 },
+    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaHitTestOps, fn: avaloniaScenario('hit-test') as WalkthroughFn, runs: 3 },
+    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaDispatcherPostOps, fn: avaloniaScenario('dispatcher-post') as WalkthroughFn, runs: 3 },
+    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaDispatcherInvokeAsyncOps, fn: avaloniaScenario('dispatcher-invoke-async') as WalkthroughFn, runs: 3 },
 
     // blazor-perf: WASM-only benchmarks first (need healthy server for JS module imports)
     { app: A.BlazorPerf, metric: MetricKey.BlazorCounterHeavyWasm, fn: runCounterHeavyWasm as WalkthroughFn, runs: 1, selfNav: true, wasmOnly: true },

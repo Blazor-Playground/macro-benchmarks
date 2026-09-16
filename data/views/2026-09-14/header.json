@@ -1,6 +1,33 @@
 {
   "columns": [
     {
+      "sdkVersion": "12.0.100-alpha.1.26464.120",
+      "runtimeGitHash": "77ba163a8e9d05baf4855cafa30e3628cf81c44d",
+      "aspnetCoreGitHash": "7b520eb5d33f41cbea49ff88e360b8cf08b5aa94",
+      "sdkGitHash": "6eb73fce2a360cda160ac6e3e946ff26de7f8c76",
+      "vmrGitHash": "2577879ab57d812ff130a476b34c717a1276adf3",
+      "runtimeCommitDateTime": "2026-09-14T23:51:49Z",
+      "runtimeCommitAuthor": "Mitchell Hwang",
+      "runtimeCommitMessage": "[CreateDump] Use _exit after createdump launch failures (#133742)",
+      "aspnetCoreCommitDateTime": "2026-09-14T17:39:28Z",
+      "aspnetCoreCommitAuthor": "Jakob Botsch Nielsen",
+      "aspnetCoreCommitMessage": "Add AggressiveOptimization to key long-running async methods (#69287)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26464.120",
+      "runtimePackVersion": "12.0.0-alpha.1.26464.120",
+      "workloadVersion": "12.0.100-alpha.1.26464.120",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-09-14",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "bundledFrameworkTfm": "net11.0",
+      "benchmarkDateTime": "2026-09-16T14:40:20.732Z",
+      "ciRunId": "35100966691",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/35100966691"
+    },
+    {
       "sdkVersion": "12.0.100-alpha.1.26465.103",
       "runtimeGitHash": "77ba163a8e9d05baf4855cafa30e3628cf81c44d",
       "aspnetCoreGitHash": "7b520eb5d33f41cbea49ff88e360b8cf08b5aa94",

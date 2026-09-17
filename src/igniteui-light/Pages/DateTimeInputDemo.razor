@@ -4,12 +4,32 @@
 
 <h3>Date Time Input</h3>
 
-<IgbDateTimeInput @bind-Value="SelectedDateTime"
-                  InputFormat="MM/dd/yyyy HH:mm"
-                  SpinLoop="true" />
+<p>
+    <code>Value</code> changes only when the editor commits, together with the <code>Change</code>
+    event on blur. The partially typed text arrives in the detail of the input event
+    (<code>InputOcurred</code>), which keeps <code>Value</code> stable for external bindings.
+</p>
 
-<p>Value: @SelectedDateTime</p>
+<IgbDateTimeInput @bind-Value="SelectedDateTime"
+                  Label="Appointment"
+                  InputFormat="MM/dd/yyyy HH:mm"
+                  SpinLoop="true"
+                  InputOcurred="OnInput" />
+
+<p>Committed value: @(SelectedDateTime?.ToString("g") ?? "none")</p>
+<p>Being typed: @Typed</p>
+
+<h4>Undo and Redo</h4>
+
+<p>
+    The masked editors support the standard shortcuts: <kbd>Ctrl</kbd> + <kbd>Z</kbd> to undo, and
+    <kbd>Ctrl</kbd> + <kbd>Y</kbd> or <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> to redo.
+    Type over a few date parts above and undo your way back.
+</p>
 
 @code {
     DateTime? SelectedDateTime { get; set; } = DateTime.Now;
+    string Typed { get; set; } = "nothing yet";
+
+    void OnInput(IgbComponentValueChangedEventArgs args) => Typed = args.Detail ?? "(empty)";
 }

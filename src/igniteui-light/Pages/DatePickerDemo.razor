@@ -4,11 +4,39 @@
 
 <h3>Date Picker</h3>
 
-<IgbDatePicker @ref="Picker" Value="@SelectedDate" />
+<p>
+    <code>Value</code> holds only a committed value: it changes together with the
+    <code>Change</code> event, which the picker emits on blur. What is being typed is
+    available in the detail of the <code>Input</code> event, so the component can be bound
+    externally — in a grid edit template, for instance — without fighting the editor.
+</p>
 
-<p>Selected: @SelectedDate.ToShortDateString()</p>
+<IgbDatePicker @bind-Value="SelectedDate" Label="Delivery date" Input="OnInput" />
+
+<p>Committed value: @Format(SelectedDate)</p>
+<p>Being typed: @Typed</p>
+
+<h4>Locale-Driven Week Start</h4>
+
+<p>
+    With no explicit <code>WeekStart</code>, the week starts on the first day of the week of the
+    <code>Locale</code>, as reported by the browser. The header date and the month/year navigation
+    follow the field order of the locale too. An explicit <code>WeekStart</code> takes priority.
+</p>
+
+<IgbDatePicker Label="en-US — starts Sunday" Locale="en-US" ShowWeekNumbers="true" />
+<IgbDatePicker Label="bg-BG — starts Monday" Locale="bg-BG" ShowWeekNumbers="true" />
+<IgbDatePicker Label="en-US, WeekStart=Wednesday" Locale="en-US" WeekStart="@WeekDays.Wednesday" />
+
+<h4>Dialog Mode</h4>
+
+<IgbDatePicker Label="Dialog" Mode="@PickerMode.Dialog" Outlined="true" />
 
 @code {
-    IgbDatePicker Picker { get; set; } = default!;
-    DateTime SelectedDate { get; set; } = DateTime.Today;
+    DateTime? SelectedDate { get; set; } = DateTime.Today;
+    string Typed { get; set; } = "nothing yet";
+
+    void OnInput(IgbComponentDateValueChangedEventArgs args) => Typed = Format(args.Detail);
+
+    static string Format(DateTime? value) => value?.ToShortDateString() ?? "none";
 }

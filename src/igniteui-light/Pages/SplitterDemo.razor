@@ -6,7 +6,9 @@
 
 <IgbSplitter @ref="SplitterRef" style="height: 300px;"
              StartSize="30%" StartMinSize="150px" EndMinSize="200px"
-             ResizeEnd="OnResizeEnd">
+             StartCollapsed="StartCollapsed" EndCollapsed="EndCollapsed"
+             ResizeEnd="OnResizeEnd"
+             LayoutChanged="OnLayoutChanged">
     <div slot="start" style="padding: 16px;">
         <h4>Navigation</h4>
         <p>Drag the bar, use the keyboard, or collapse this pane with the buttons on the bar.</p>
@@ -18,8 +20,12 @@
 </IgbSplitter>
 
 <p>@SizeMessage</p>
+<p>@LayoutMessage</p>
 
 <IgbButton Variant="@ButtonVariant.Contained" @onclick="ToggleStartPane">Toggle Start Pane</IgbButton>
+<IgbButton Variant="@ButtonVariant.Outlined" @onclick="() => SetCollapsed(start: true)">Collapse Start</IgbButton>
+<IgbButton Variant="@ButtonVariant.Outlined" @onclick="() => SetCollapsed(start: false)">Collapse End</IgbButton>
+<IgbButton Variant="@ButtonVariant.Outlined" @onclick="ExpandBoth">Expand Both</IgbButton>
 
 <h4>Nested Splitters</h4>
 
@@ -34,11 +40,40 @@
 @code {
     IgbSplitter SplitterRef { get; set; } = default!;
     string SizeMessage { get; set; } = "Resize the panes to see their sizes.";
+    string LayoutMessage { get; set; } = "LayoutChanged reports the full layout after every user-driven resize or collapse.";
+
+    bool StartCollapsed { get; set; }
+    bool EndCollapsed { get; set; }
 
     async Task ToggleStartPane() => await SplitterRef.ToggleAsync(PanePosition.Start);
+
+    void SetCollapsed(bool start)
+    {
+        StartCollapsed = start;
+        EndCollapsed = !start;
+    }
+
+    void ExpandBoth()
+    {
+        StartCollapsed = false;
+        EndCollapsed = false;
+    }
 
     void OnResizeEnd(IgbSplitterResizeEventArgs args)
     {
         SizeMessage = $"Start pane: {args.Detail.StartPanelSize:0}px, End pane: {args.Detail.EndPanelSize:0}px";
     }
+
+    void OnLayoutChanged(IgbSplitterLayoutChangedEventArgs args)
+    {
+        var layout = args.Detail;
+
+        StartCollapsed = layout.StartCollapsed;
+        EndCollapsed = layout.EndCollapsed;
+
+        LayoutMessage = $"Layout — start: {layout.StartSize} ({State(layout.StartCollapsed)}), " +
+                        $"end: {layout.EndSize} ({State(layout.EndCollapsed)})";
+    }
+
+    static string State(bool collapsed) => collapsed ? "collapsed" : "expanded";
 }

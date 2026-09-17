@@ -4,7 +4,7 @@
 
 <h3>Tabs</h3>
 
-<IgbTabs>
+<IgbTabs @ref="TabsRef">
     <IgbTab Label="Tab 1">
         <p>Content for tab 1. Lorem ipsum dolor sit amet.</p>
     </IgbTab>
@@ -18,3 +18,34 @@
         <p>This tab is disabled.</p>
     </IgbTab>
 </IgbTabs>
+
+<h4>Selecting and Reading the Selected Tab</h4>
+
+<p>
+    <code>Select</code> matches either the IDREF or the <code>Label</code> of a tab, and
+    <code>GetSelectedTabAsync</code> returns the selected <code>IgbTab</code>, or
+    <code>null</code> when nothing is selected.
+</p>
+
+<IgbButton Variant="@ButtonVariant.Contained" @onclick='() => SelectByLabelAsync("Tab 3")'>Select "Tab 3" by label</IgbButton>
+<IgbButton Variant="@ButtonVariant.Outlined" @onclick='() => SelectByLabelAsync("Tab 1")'>Select "Tab 1" by label</IgbButton>
+<IgbButton Variant="@ButtonVariant.Outlined" @onclick="ReadSelectedTabAsync">Read selected tab</IgbButton>
+
+<p>@SelectedMessage</p>
+
+@code {
+    IgbTabs TabsRef { get; set; } = default!;
+    string SelectedMessage { get; set; } = "No tab read yet.";
+
+    async Task SelectByLabelAsync(string label)
+    {
+        await TabsRef.SelectAsync(label);
+        await ReadSelectedTabAsync();
+    }
+
+    async Task ReadSelectedTabAsync()
+    {
+        var tab = await TabsRef.GetSelectedTabAsync();
+        SelectedMessage = tab is null ? "No tab is selected." : $"Selected tab: {tab.Label}";
+    }
+}

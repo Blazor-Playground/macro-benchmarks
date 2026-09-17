@@ -4,4 +4,39 @@
 
 <h3>Calendar</h3>
 
-<IgbCalendar />
+<IgbCalendar @bind-Value="Selected" ShowWeekNumbers="true" />
+
+<p>Selected: @Selected.ToShortDateString()</p>
+
+<h4>Locale-Driven Week Start</h4>
+
+<p>
+    When <code>WeekStart</code> is not set, the week starts on the first day of the week of the
+    <code>Locale</code>, as reported by the browser's <code>Intl.Locale</code> week info — so
+    <code>bg</code> starts on Monday while <code>en</code> stays on Sunday. An explicit
+    <code>WeekStart</code> has priority, and browsers without week-info support keep the Sunday
+    default.
+</p>
+
+<div style="display: flex; gap: 32px; flex-wrap: wrap;">
+    <div>
+        <p><strong>en-US</strong> — Sunday</p>
+        <IgbCalendar Locale="en-US" ShowWeekNumbers="true" />
+    </div>
+    <div>
+        <p><strong>bg-BG</strong> — Monday</p>
+        <IgbCalendar Locale="bg-BG" ShowWeekNumbers="true" />
+    </div>
+    <div>
+        <p><strong>en-US</strong>, <code>WeekStart="Wednesday"</code></p>
+        <IgbCalendar Locale="en-US" WeekStart="@WeekDays.Wednesday" ShowWeekNumbers="true" />
+    </div>
+</div>
+
+<h4>Range Selection</h4>
+
+<IgbCalendar Selection="@CalendarSelection.Range" VisibleMonths="2" />
+
+@code {
+    DateTime Selected { get; set; } = DateTime.Today;
+}

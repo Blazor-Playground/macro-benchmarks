@@ -8,9 +8,30 @@
 <IgbIconButton @ref="MenuBtn" IconName="menu" Collection="default" Variant="@IconButtonVariant.Flat" />
 <IgbIconButton IconName="settings" Collection="default" Variant="@IconButtonVariant.Contained" />
 
+<h4>Stripping SVG Metadata</h4>
+
+<p>
+    An SVG that carries a <code>&lt;title&gt;</code> shows the browser's own tooltip on hover.
+    Register it with <code>IgbRegisterIconOptions.StripMeta</code> to drop the
+    <code>&lt;title&gt;</code> and <code>&lt;desc&gt;</code> elements from the stored SVG — the
+    title text stays available as the <code>aria-label</code> of the host icon element, so the
+    icon keeps its accessible name.
+</p>
+
+<p>
+    Hover both icons: the first shows a native "Information" tooltip, the second does not.
+</p>
+
+<IgbIcon IconName="info-titled" Collection="default" />
+<IgbIcon IconName="info-stripped" Collection="default" />
+
 @code {
+#pragma warning disable BL0005 // IgbRegisterIconOptions is a data object populated in code by design
+
     IgbIcon IconRef { get; set; } = default!;
     IgbIconButton MenuBtn { get; set; } = default!;
+
+    const string InfoSvg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><title>Information</title><desc>A circled lowercase letter i.</desc><path d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'/></svg>";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -20,6 +41,15 @@
             await IconRef.RegisterIconFromTextAsync("home", "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/></svg>", "default");
             await IconRef.RegisterIconFromTextAsync("menu", "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z'/></svg>", "default");
             await IconRef.RegisterIconFromTextAsync("settings", "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 0 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.61 3.61 0 0 1 8.4 12 3.61 3.61 0 0 1 12 8.4a3.61 3.61 0 0 1 3.6 3.6 3.61 3.61 0 0 1-3.6 3.6z'/></svg>", "default");
+
+            await IconRef.RegisterIconFromTextAsync("info-titled", InfoSvg, "default");
+            await IconRef.RegisterIconFromTextAsync("info-stripped", InfoSvg, new IgbRegisterIconOptions
+            {
+                Collection = "default",
+                StripMeta = true
+            });
         }
     }
+
+#pragma warning restore BL0005
 }

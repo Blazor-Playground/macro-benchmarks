@@ -4,8 +4,49 @@
 
 <h3>Date Range Picker</h3>
 
-<IgbDateRangePicker @ref="RangePicker" />
+<p>
+    Like the other date editors, <code>Value</code> holds only a committed range and changes
+    together with the <code>Change</code> event on blur. The range being typed is available in
+    the detail of the <code>Input</code> event.
+</p>
+
+<IgbDateRangePicker @ref="RangePicker" Label="Reporting period" Change="OnChange" Input="OnInput" />
+
+<p>Committed range: @Committed</p>
+<p>Being typed: @Typed</p>
+
+<IgbButton Variant="@ButtonVariant.Outlined" @onclick="ClearAsync">Clear</IgbButton>
+
+<h4>Two Inputs and Predefined Ranges</h4>
+
+<IgbDateRangePicker UseTwoInputs="true"
+                    UsePredefinedRanges="true"
+                    LabelStart="From"
+                    LabelEnd="To"
+                    Outlined="true" />
+
+<h4>Locale-Driven Week Start</h4>
+
+<IgbDateRangePicker Label="bg-BG — starts Monday" Locale="bg-BG" ShowWeekNumbers="true" />
 
 @code {
     IgbDateRangePicker RangePicker { get; set; } = default!;
+
+    string Committed { get; set; } = "none";
+    string Typed { get; set; } = "nothing yet";
+
+    async Task ClearAsync()
+    {
+        await RangePicker.ClearAsync();
+        Committed = "none";
+        Typed = "nothing yet";
+    }
+
+    void OnChange(IgbDateRangeValueEventArgs args) => Committed = Format(args.Detail);
+
+    void OnInput(IgbDateRangeValueEventArgs args) => Typed = Format(args.Detail);
+
+    static string Format(IgbDateRangeValueDetail? range) => range is null
+        ? "none"
+        : $"{range.Start.ToShortDateString()} — {range.End.ToShortDateString()}";
 }

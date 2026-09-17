@@ -1,0 +1,66 @@
+@page "/colorpicker"
+
+<PageTitle>Color Picker Demo</PageTitle>
+
+<h3>Color Picker</h3>
+
+<p>
+    Pick a color on the saturation/value canvas, drag the hue slider, or type any CSS color
+    string — hex, <code>rgb(a)</code>, <code>hsl(a)</code> or a named color such as
+    <code>rebeccapurple</code>. Browsers that expose the EyeDropper API also show a picker
+    button for sampling a color from anywhere on the screen.
+</p>
+
+<IgbColorPicker @bind-Value="BrandColor" Label="Brand color" Input="OnInput" />
+
+<div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-top: 16px;">
+    <span style="display: inline-block; width: 48px; height: 48px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, .2); background: @LiveColor;"></span>
+    <span>Committed (<code>Change</code>): <code>@BrandColor</code></span>
+    <span>Live (<code>Input</code>): <code>@LiveColor</code></span>
+</div>
+
+<h4>Input Mode</h4>
+
+<p>
+    In the default mode the anchor is a trigger button. In <code>ColorPickerMode.Input</code>
+    the anchor is an editable text field with a color swatch prefix that also opens the picker.
+</p>
+
+<IgbColorPicker Mode="@ColorPickerMode.Input"
+                Label="Accent color"
+                Value="rgb(124, 58, 237)"
+                Format="@ColorFormat.Rgb" />
+
+<h4>Alpha Channel</h4>
+
+<IgbColorPicker Mode="@ColorPickerMode.Input"
+                Label="Overlay tint"
+                ShowAlpha="true"
+                Value="hsla(258, 90%, 66%, 0.4)"
+                Format="@ColorFormat.Hsl" />
+
+<h4>Swatches</h4>
+
+<p>Pre-defined colors render as clickable swatches below the picker controls.</p>
+
+<IgbColorPicker Label="Theme palette"
+                Swatches="Palette"
+                HideFormats="true"
+                Value="#512BD4" />
+
+<h4>Disabled</h4>
+
+<IgbColorPicker Label="Disabled" Disabled="true" Value="#9E9E9E" />
+
+@code {
+    static readonly string[] Palette =
+    [
+        "#512BD4", "#7C3AED", "#0EA5E9", "#10B981",
+        "#F59E0B", "#EF4444", "#1A1A2E", "#FFFFFF"
+    ];
+
+    string BrandColor { get; set; } = "#512BD4";
+    string LiveColor { get; set; } = "#512BD4";
+
+    void OnInput(IgbComponentValueChangedEventArgs args) => LiveColor = args.Detail ?? string.Empty;
+}

@@ -1,0 +1,104 @@
+@page "/qrcode"
+
+<PageTitle>QR Code Demo</PageTitle>
+
+<h3>QR Code</h3>
+
+<p>
+    Renders a scannable QR code as an SVG from its <code>Value</code>. Edit the value and the
+    styling options below — the code re-renders on every change.
+</p>
+
+<div style="display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start;">
+    <IgbQrCode @ref="QrRef"
+               Value="@Value"
+               Size="200"
+               Margin="2"
+               ErrorLevel="Level"
+               DotStyle="DotStyle"
+               SquareStyle="SquareStyle" />
+
+    <div style="display: flex; flex-direction: column; gap: 16px; min-width: 280px;">
+        <IgbInput @bind-Value="Value" Label="Encoded value" />
+
+        <IgbSelect @bind-Value="LevelKey" Label="Error correction">
+            <IgbSelectItem Value="Low">Low — 7% recoverable</IgbSelectItem>
+            <IgbSelectItem Value="Medium">Medium — 15% recoverable</IgbSelectItem>
+            <IgbSelectItem Value="Quartile">Quartile — 25% recoverable</IgbSelectItem>
+            <IgbSelectItem Value="High">High — 30% recoverable</IgbSelectItem>
+        </IgbSelect>
+
+        <IgbSelect @bind-Value="DotStyleKey" Label="Dot style">
+            <IgbSelectItem Value="Square">Square</IgbSelectItem>
+            <IgbSelectItem Value="Circle">Circle</IgbSelectItem>
+            <IgbSelectItem Value="Rounded">Rounded</IgbSelectItem>
+        </IgbSelect>
+
+        <IgbSelect @bind-Value="SquareStyleKey" Label="Corner square style">
+            <IgbSelectItem Value="Square">Square</IgbSelectItem>
+            <IgbSelectItem Value="Circle">Circle</IgbSelectItem>
+            <IgbSelectItem Value="Rounded">Rounded</IgbSelectItem>
+        </IgbSelect>
+    </div>
+</div>
+
+<h4>Explicit Version</h4>
+
+<p>
+    <code>Version</code> (1–40) fixes the module grid, and so the data capacity, of the code.
+    Left unset, the component picks the smallest version that fits the value.
+</p>
+
+<IgbQrCode Value="@Value" Size="160" Version="4" ErrorLevel="@QrErrorCorrectionLevel.Low" />
+
+<h4>With a Logo</h4>
+
+<p>
+    <code>LogoSize</code> is a ratio (0–1) of the area that can safely be obscured while the code
+    stays scannable, not a ratio of the whole code.
+</p>
+
+<IgbQrCode Value="https://www.nuget.org/packages/IgniteUI.Blazor.Lite"
+           Size="200"
+           ErrorLevel="@QrErrorCorrectionLevel.High"
+           LogoSrc="favicon.png"
+           LogoSize="0.8"
+           DotStyle="@QrDotStyle.Rounded"
+           SquareStyle="@QrCornerSquareStyle.Rounded" />
+
+<h4>Export</h4>
+
+<p>
+    <code>ToImageAsync</code> hands the code to the browser's download dialog.
+    <code>Scale</code> multiplies <code>Size</code>, so the 200px code above exports at 400×400.
+</p>
+
+<IgbButton Variant="@ButtonVariant.Contained" @onclick="() => ExportAsync(QrCodeExportFormat.Png)">Download PNG</IgbButton>
+<IgbButton Variant="@ButtonVariant.Outlined" @onclick="() => ExportAsync(QrCodeExportFormat.Svg)">Download SVG</IgbButton>
+<IgbButton Variant="@ButtonVariant.Outlined" @onclick="() => ExportAsync(QrCodeExportFormat.Webp)">Download WebP</IgbButton>
+
+@code {
+#pragma warning disable BL0005 // IgbQrCodeExportOptions is a data object populated in code by design
+
+    IgbQrCode QrRef { get; set; } = default!;
+
+    string Value { get; set; } = "https://github.com/IgniteUI/igniteui-blazor-lite-examples";
+
+    string LevelKey { get; set; } = nameof(QrErrorCorrectionLevel.Medium);
+    string DotStyleKey { get; set; } = nameof(QrDotStyle.Square);
+    string SquareStyleKey { get; set; } = nameof(QrCornerSquareStyle.Square);
+
+    QrErrorCorrectionLevel Level => Enum.Parse<QrErrorCorrectionLevel>(LevelKey);
+    QrDotStyle DotStyle => Enum.Parse<QrDotStyle>(DotStyleKey);
+    QrCornerSquareStyle SquareStyle => Enum.Parse<QrCornerSquareStyle>(SquareStyleKey);
+
+    async Task ExportAsync(QrCodeExportFormat format) =>
+        await QrRef.ToImageAsync(new IgbQrCodeExportOptions
+        {
+            FileName = "ignite-ui-blazor-lite",
+            Format = format,
+            Scale = 2
+        });
+
+#pragma warning restore BL0005
+}

@@ -15,3 +15,21 @@
 <IgbMaskInput Mask="AAAA-0000"
               Label="Code"
               Placeholder="ABCD-1234" />
+
+<h4>Undo and Redo</h4>
+
+<p>
+    The masked editors support the standard shortcuts: <kbd>Ctrl</kbd> + <kbd>Z</kbd> to undo, and
+    <kbd>Ctrl</kbd> + <kbd>Y</kbd> or <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> to redo.
+</p>
+
+<IgbMaskInput @bind-Value="LicenseKey"
+              Mask="CCCC-CCCC-CCCC-CCCC"
+              Label="License Key"
+              Placeholder="XXXX-XXXX-XXXX-XXXX" />
+
+<p>Value: @LicenseKey</p>
+
+@code {
+    string LicenseKey { get; set; } = "";
+}

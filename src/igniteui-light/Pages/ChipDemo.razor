@@ -9,3 +9,61 @@
 <IgbChip Removable="true">Removable</IgbChip>
 <IgbChip Selectable="true" Removable="true">Both</IgbChip>
 <IgbChip Disabled="true">Disabled</IgbChip>
+
+<h4>Outlined</h4>
+
+<p>
+    <code>Outlined</code> swaps the filled background for an outline, in every style variant.
+</p>
+
+<IgbChip Outlined="true">Default</IgbChip>
+<IgbChip Outlined="true" Variant="@StyleVariant.Primary">Primary</IgbChip>
+<IgbChip Outlined="true" Variant="@StyleVariant.Info">Info</IgbChip>
+<IgbChip Outlined="true" Variant="@StyleVariant.Success">Success</IgbChip>
+<IgbChip Outlined="true" Variant="@StyleVariant.Warning">Warning</IgbChip>
+<IgbChip Outlined="true" Variant="@StyleVariant.Danger">Danger</IgbChip>
+<IgbChip Outlined="true" Selectable="true">Selectable</IgbChip>
+<IgbChip Outlined="true" Disabled="true">Disabled</IgbChip>
+
+<h4>Filled</h4>
+
+<IgbChip Variant="@StyleVariant.Primary">Primary</IgbChip>
+<IgbChip Variant="@StyleVariant.Info">Info</IgbChip>
+<IgbChip Variant="@StyleVariant.Success">Success</IgbChip>
+<IgbChip Variant="@StyleVariant.Warning">Warning</IgbChip>
+<IgbChip Variant="@StyleVariant.Danger">Danger</IgbChip>
+
+<h4>Removable Filters</h4>
+
+<p>
+    <code>Remove</code> carries <code>IgbVoidEventArgs</code> — the event itself is the payload.
+    Removing a chip from the DOM is up to the host, so the handler drops the tag from the list.
+</p>
+
+@foreach (var tag in Tags)
+{
+    <IgbChip @key="tag" Outlined="true" Removable="true" Remove="() => RemoveTag(tag)">@tag</IgbChip>
+}
+
+<p>@Status</p>
+
+<IgbButton Variant="@ButtonVariant.Outlined" @onclick="ResetTags">Reset</IgbButton>
+
+@code {
+    static readonly string[] DefaultTags = ["Blazor", "WebAssembly", "Ignite UI", "MIT", "Lite"];
+
+    List<string> Tags { get; set; } = [.. DefaultTags];
+    string Status { get; set; } = "Click the X on a chip to remove it.";
+
+    void RemoveTag(string tag)
+    {
+        Tags.Remove(tag);
+        Status = Tags.Count > 0 ? $"Removed \"{tag}\"." : $"Removed \"{tag}\" — no tags left.";
+    }
+
+    void ResetTags()
+    {
+        Tags = [.. DefaultTags];
+        Status = "Click the X on a chip to remove it.";
+    }
+}

@@ -36,6 +36,9 @@ async function outer() {
     setModuleImports('main.mjs', {
         bench: {
             setManagedReady,
+        },
+        browser: {
+            isFirefox: () => /firefox/i.test(globalThis.navigator?.userAgent ?? ''),
         }
     });
 

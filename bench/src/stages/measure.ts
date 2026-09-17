@@ -250,7 +250,9 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
     { app: A.MudBlazor, metric: MetricKey.MudWalkthrough, fn: runMudWalkthrough as WalkthroughFn },
     { app: A.IgniteUILight, metric: MetricKey.IgniteUIWalkthrough, fn: runIgniteUIWalkthrough as WalkthroughFn },
     { app: A.UnoGallery, metric: MetricKey.UnoWalkthrough, fn: runUnoWalkthrough as WalkthroughFn },
-    { app: A.SemiAvalonia, metric: MetricKey.SemiWalkthrough, fn: runSemiWalkthrough as WalkthroughFn },
+    // selfNav: fresh browser per run so each Avalonia boot's WebGL context is fully
+    // torn down, avoiding Chromium's live-context cap during the multi-run walkthrough.
+    { app: A.SemiAvalonia, metric: MetricKey.SemiWalkthrough, fn: runSemiWalkthrough as WalkthroughFn, selfNav: true },
 
     // blazor-perf: WASM-only benchmarks first (need healthy server for JS module imports)
     { app: A.BlazorPerf, metric: MetricKey.BlazorCounterHeavyWasm, fn: runCounterHeavyWasm as WalkthroughFn, runs: 1, selfNav: true, wasmOnly: true },
@@ -679,7 +681,10 @@ async function runWalkthroughs(
                     }
                 }
 
-                // Sample JS heap and WASM linear memory after each walkthrough run
+                // Sample JS heap and WASM linear memory after each walkthrough run.
+                // Shared-context runs use the persistent CDP session. selfNav runs have no
+                // shared session (main browser was closed), so open a one-shot CDP session on
+                // the first run's own page to still capture a single JS-heap reading.
                 if (cdp && wtPage) {
                     try {
                         const perfMetrics = await cdp.client.send('Performance.getMetrics');
@@ -687,6 +692,17 @@ async function runWalkthroughs(
                             (m: { name: string; value: number }) => m.name === 'JSHeapUsedSize',
                         );
                         if (heapUsed) jsHeapSamples.push(heapUsed.value);
+                    } catch { /* ignore */ }
+                } else if (!cdp && wtCtx && wtPage && i === 0) {
+                    try {
+                        const session = await wtCtx.newCDPSession(wtPage);
+                        await session.send('Performance.enable');
+                        const perfMetrics = await session.send('Performance.getMetrics');
+                        const heapUsed = perfMetrics.metrics.find(
+                            (m: { name: string; value: number }) => m.name === 'JSHeapUsedSize',
+                        );
+                        if (heapUsed) jsHeapSamples.push(heapUsed.value);
+                        await session.detach();
                     } catch { /* ignore */ }
                 }
                 if (wtPage) {

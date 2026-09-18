@@ -1,6 +1,7 @@
 // ── Dimension Enums ──────────────────────────────────────────────────────────
 
 import { BenchContext } from "./context.js";
+import { compareVersions } from "./lib/version-utils.js";
 
 export enum Runtime {
     Mono = 'mono',
@@ -257,7 +258,7 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
         return `Preset '${preset}' is mono-only and cannot be used with runtime '${runtime}'`;
     }
     if (runtime === Runtime.CoreCLR && preset === Preset.Aot && !coreclrR2RAvailable(ctx)) {
-        return `CoreCLR ReadyToRun (preset 'aot') requires a from-source runtime (dotnet/runtime#133378); use --runtime-pr or --runtime-commit`;
+        return `CoreCLR ReadyToRun (preset 'aot') requires SDK ${CORECLR_R2R_MIN_SDK} or later (dotnet/runtime#133378), or a from-source runtime (--runtime-pr / --runtime-commit)`;
     }
     // CoreCLR native-relink generates P/Invoke portable call helpers with a crossgen2 that knows
     // the browser-wasm ABI (dotnet/runtime#133413), first available in .NET 12. Until that flows
@@ -399,18 +400,19 @@ export function coreclrWasmAvailable(sdkInfo: { major: number; isPrerelease: boo
     return true;
 }
 
+/** First stock SDK whose WebAssembly.Pack carries the CoreCLR browser-wasm R2R targets (dotnet/runtime#133378). */
+export const CORECLR_R2R_MIN_SDK = '12.0.100-alpha.1.26467.103';
+
 /**
  * Whether CoreCLR ReadyToRun (the `aot` preset for CoreCLR) is available.
  *
- * R2R for browser-wasm is not in the stock SDK yet — it lives in the runtime PR and is injected
- * into the build only when the runtime is built from source (--runtime-pr / --runtime-commit).
- *
- * TODO(https://github.com/dotnet/runtime/pull/133378): once it merges and flows into the daily
- * SDK's WebAssembly.Pack, gate on the SDK version instead of requiring a from-source build
- * (R2R support first ships around 12.0.0-alpha.1.26459.112 — placeholder).
+ * R2R for browser-wasm ships in the stock SDK's WebAssembly.Pack from CORECLR_R2R_MIN_SDK onward
+ * (dotnet/runtime#133378). Older SDKs only support it when the runtime is built from source
+ * (--runtime-pr / --runtime-commit), which injects the pack and a wasm-capable crossgen2.
  */
-export function coreclrR2RAvailable(ctx: { runtimeBuildRequired: boolean }): boolean {
-    return ctx.runtimeBuildRequired;
+export function coreclrR2RAvailable(ctx: { runtimeBuildRequired: boolean; sdkInfo: { sdkVersion: string } }): boolean {
+    if (ctx.runtimeBuildRequired) return true;
+    return compareVersions(ctx.sdkInfo.sdkVersion, CORECLR_R2R_MIN_SDK) >= 0;
 }
 
 /**

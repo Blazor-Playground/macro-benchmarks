@@ -82,7 +82,7 @@
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/35072149820"
     },
     {
-      "sdkVersion": "12.0.100-alpha.1.26466.103",
+      "sdkVersion": "12.0.100-alpha.1.26465.115",
       "runtimeGitHash": "9c7fe6dfb6807eab6f66fb304880a6136577b67d",
       "aspnetCoreGitHash": "79afe979a028e7823b3c1bda2c34e60b86afc39a",
       "sdkGitHash": "48b76c4ecaf042a9a863b69fea2a76c174017ab5",
@@ -93,20 +93,20 @@
       "aspnetCoreCommitDateTime": "2026-09-15T21:59:25Z",
       "aspnetCoreCommitAuthor": "dependabot[bot]",
       "aspnetCoreCommitMessage": "[main] (deps): Bump dotnet/arcade/.github/workflows/inter-branch-merge-base.yml (#69336)",
-      "aspnetCoreVersion": "12.0.0-alpha.1.26466.103",
-      "runtimePackVersion": "12.0.0-alpha.1.26466.103",
-      "workloadVersion": "12.0.100-alpha.1.26466.103",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26465.115",
+      "runtimePackVersion": "12.0.0-alpha.1.26465.115",
+      "workloadVersion": "12.0.100-alpha.1.26465.115",
       "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
-      "releaseDate": "2026-09-16",
+      "releaseDate": "2026-09-15",
       "major": 12,
       "minor": 0,
       "patch": 100,
       "channel": "12.0",
       "isPrerelease": true,
       "bundledFrameworkTfm": "net11.0",
-      "benchmarkDateTime": "2026-09-18T18:49:45.152Z",
-      "ciRunId": "35373854484",
-      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/35373854484"
+      "benchmarkDateTime": "2026-09-18T20:23:12.946Z",
+      "ciRunId": "35383338934",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/35383338934"
     },
     {
       "sdkVersion": "12.0.100-alpha.1.26466.107",

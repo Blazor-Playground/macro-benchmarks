@@ -527,7 +527,7 @@ async function prepareColdContext(
 }
 
 async function runColdLoads(
-    browser: Browser,
+    launchBrowser: () => Promise<Browser>,
     pageUrl: string,
     warmRuns: number,
     timeout: number,
@@ -537,8 +537,12 @@ async function runColdLoads(
 ): Promise<TimingArrays> {
     const arrays = emptyTimingArrays();
     for (let i = 0; i < warmRuns; i++) {
-        if (verbose) debug(`Cold load ${i + 1}/${warmRuns}: fresh context...`);
-        const coldCtx = await browser.newContext();
+        if (verbose) debug(`Cold load ${i + 1}/${warmRuns}: fresh browser...`);
+        // Full browser teardown per iteration. Reusing a BrowserContext leaks
+        // renderer/GPU processes on constrained CI runners, inflating each
+        // successive cold load (observed 7s → 235s); a fresh process reaps them.
+        const coldBrowser = await launchBrowser();
+        const coldCtx = await coldBrowser.newContext();
         const coldPage = await coldCtx.newPage();
         try {
             await prepareColdContext(coldPage, coldCtx, pageUrl, profile, useCDP);
@@ -549,8 +553,7 @@ async function runColdLoads(
             pushTiming(arrays, t);
         } finally {
             await sleep(100);
-            await coldPage.close();
-            await coldCtx.close();
+            try { await coldBrowser.close(); } catch { /* already closed */ }
             await sleep(400);
         }
     }
@@ -822,7 +825,7 @@ async function runBrowserSession(
     if (!isInternal) {
         if (warmRuns > 1) {
             const extraCold = await runColdLoads(
-                browser, pageUrl, warmRuns - 1, timeout, profile, useCDP, verbose,
+                launchBrowser, pageUrl, warmRuns - 1, timeout, profile, useCDP, verbose,
             );
             mergeTimingArrays(coldArrays, extraCold);
         }

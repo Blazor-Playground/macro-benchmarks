@@ -273,6 +273,33 @@
       "benchmarkDateTime": "2026-09-17T19:01:34.612Z",
       "ciRunId": "35248272778",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/35248272778"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26468.106",
+      "runtimeGitHash": "f0e659026713d85924b2fcb81047e622a5b3f719",
+      "aspnetCoreGitHash": "8821f7eb710e9ab70f1493e9be6fb9d5cff3d75b",
+      "sdkGitHash": "fdc3536fcc73d66d5d92f31d8538279f878141a2",
+      "vmrGitHash": "1c1ae5d3edc93742cdcb2311db6d480723c16033",
+      "runtimeCommitDateTime": "2026-09-18T02:41:35Z",
+      "runtimeCommitAuthor": "Juan Hoyos",
+      "runtimeCommitMessage": "Stop the DBI from unloading any DAC on non-Windows (#133211)",
+      "aspnetCoreCommitDateTime": "2026-09-17T15:57:59Z",
+      "aspnetCoreCommitAuthor": "Shane Neuville",
+      "aspnetCoreCommitMessage": "[pr-attention-queue] Guard merge recommendations with current review evidence (#69355)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26468.106",
+      "runtimePackVersion": "12.0.0-alpha.1.26468.106",
+      "workloadVersion": "12.0.100-alpha.1.26468.106",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-09-18",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "bundledFrameworkTfm": "net11.0",
+      "benchmarkDateTime": "2026-09-18T20:52:58.216Z",
+      "ciRunId": "35382990730",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/35382990730"
     }
   ],
   "apps": {

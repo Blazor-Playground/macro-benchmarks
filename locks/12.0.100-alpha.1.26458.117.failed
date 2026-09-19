@@ -1,0 +1,11 @@
+{
+  "failedAt": "2026-09-19T07:34:58.632Z",
+  "ciRunId": "35426329601",
+  "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/35426329601",
+  "failures": [
+    {
+      "target": "semi-avalonia/native-relink",
+      "errorLines": []
+    }
+  ]
+}

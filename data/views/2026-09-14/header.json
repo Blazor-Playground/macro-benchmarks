@@ -408,6 +408,33 @@
       "benchmarkDateTime": "2026-09-19T22:00:51.453Z",
       "ciRunId": "35466592027",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/35466592027"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26470.102",
+      "runtimeGitHash": "7888feef8b35f9db4fec0868eea1f8a158e3ba3e",
+      "aspnetCoreGitHash": "1fcd7ef305697a1888f3ede076010350ae9f4f8d",
+      "sdkGitHash": "fdc3536fcc73d66d5d92f31d8538279f878141a2",
+      "vmrGitHash": "66551619c00bee615342142059fbd8b9cad2e1af",
+      "runtimeCommitDateTime": "2026-09-20T00:08:19Z",
+      "runtimeCommitAuthor": "Andy Ayers",
+      "runtimeCommitMessage": "Re-enable badcodeinsidefinally for Wasm R2R (#134288)",
+      "aspnetCoreCommitDateTime": "2026-09-18T21:54:03Z",
+      "aspnetCoreCommitAuthor": "William Godbe",
+      "aspnetCoreCommitMessage": "Updated npm packages 2026-09-18 (#69396)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26470.102",
+      "runtimePackVersion": "12.0.0-alpha.1.26470.102",
+      "workloadVersion": "12.0.100-alpha.1.26470.102",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-09-20",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "bundledFrameworkTfm": "net11.0",
+      "benchmarkDateTime": "2026-09-20T19:58:00.575Z",
+      "ciRunId": "35529363325",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/35529363325"
     }
   ],
   "apps": {

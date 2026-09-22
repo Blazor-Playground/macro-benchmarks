@@ -238,14 +238,15 @@ export function buildResultJson(
     meta: Record<string, unknown>,
     metrics: Partial<Record<MetricKey, number | null>>,
     sampleCounts?: Partial<Record<MetricKey, number>>,
-): { meta: Record<string, unknown>; metrics: Record<string, number>; samples?: Record<string, number> } {
+    rawSamples?: Partial<Record<MetricKey, number[]>>,
+): { meta: Record<string, unknown>; metrics: Record<string, number>; samples?: Record<string, number>; rawSamples?: Record<string, number[]> } {
     const cleanMetrics: Record<string, number> = {};
     for (const [key, value] of Object.entries(metrics)) {
         if (value != null && Number.isFinite(value)) {
             cleanMetrics[key] = Math.round(value);
         }
     }
-    const result: { meta: Record<string, unknown>; metrics: Record<string, number>; samples?: Record<string, number> } = { meta, metrics: cleanMetrics };
+    const result: { meta: Record<string, unknown>; metrics: Record<string, number>; samples?: Record<string, number>; rawSamples?: Record<string, number[]> } = { meta, metrics: cleanMetrics };
     if (sampleCounts) {
         const cleanSamples: Record<string, number> = {};
         for (const [key, value] of Object.entries(sampleCounts)) {
@@ -255,6 +256,16 @@ export function buildResultJson(
         }
         if (Object.keys(cleanSamples).length > 0) {
             result.samples = cleanSamples;
+        }
+    }
+    if (rawSamples) {
+        const cleanRaw: Record<string, number[]> = {};
+        for (const [key, arr] of Object.entries(rawSamples)) {
+            const finite = arr?.filter(v => v != null && Number.isFinite(v)) ?? [];
+            if (finite.length > 0) cleanRaw[key] = finite;
+        }
+        if (Object.keys(cleanRaw).length > 0) {
+            result.rawSamples = cleanRaw;
         }
     }
     return result;
@@ -288,10 +299,12 @@ export function buildResultFilename(
     profile: string,
     engine: string,
     app: string,
+    replica = '',
 ): string {
     const dateTime = sdkInfo.runtimeCommitDateTime.replace(/:/g, '-');
     const hash7 = sdkInfo.runtimeGitHash.slice(0, 7);
-    return `${dateTime}_${hash7}_${runtime}_${preset}_${profile}_${engine}_${app}.json`;
+    const suffix = replica ? `_r${replica}` : '';
+    return `${dateTime}_${hash7}_${runtime}_${preset}_${profile}_${engine}_${app}${suffix}.json`;
 }
 
 // ── CLI Entry File Finder ────────────────────────────────────────────────────

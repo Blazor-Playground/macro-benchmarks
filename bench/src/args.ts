@@ -50,6 +50,8 @@ Measurement:
   --timeout <ms>           Per-measurement timeout (default: 300000)
   --warm-runs <n>          Warm reload iterations (also drives walkthrough runs = warm-runs×4) (default: 5)
   --cold-runs <n>          Cold load iterations (fresh browser each) (default: 10)
+  --walkthrough-runs <n>   Walkthrough iterations per node (0 = auto = warm-runs×4) (default: 0)
+  --replica <id>           Replica id for multi-node sharding (tags result files; empty = single node)
   --deadline-minutes <n>   Time budget for measure stage (default: 0 = no limit)
   --no-headless            Launch browsers in headed mode
 
@@ -110,6 +112,8 @@ const ARG_OPTIONS = {
     'timeout': { type: 'string' as const, default: '300000' },
     'warm-runs': { type: 'string' as const, default: '5' },
     'cold-runs': { type: 'string' as const, default: '10' },
+    'walkthrough-runs': { type: 'string' as const, default: '0' },
+    'replica': { type: 'string' as const, default: '' },
     'deadline-minutes': { type: 'string' as const, default: '0' },
     'no-headless': { type: 'boolean' as const, default: false },
 
@@ -268,6 +272,8 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
         timeout: parseIntStrict(values.timeout!, 'timeout'),
         warmRuns: parseIntStrict(values['warm-runs']!, 'warm-runs'),
         coldRuns: parseIntStrict(values['cold-runs']!, 'cold-runs'),
+        walkthroughRuns: parseIntStrict(values['walkthrough-runs']!, 'walkthrough-runs'),
+        replica: values['replica'] || loaded.replica || '',
         deadlineMs: parseIntStrict(values['deadline-minutes']!, 'deadline-minutes') * 60_000 || 0,
         headless: !(values['no-headless'] ?? false),
 

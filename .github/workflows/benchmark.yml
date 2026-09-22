@@ -404,12 +404,99 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Upload all builds
+      - name: Prepare per-app artifact roots
+        if: always() && steps.matrix.outputs.matrix != '[]'
+        shell: bash
+        run: |
+          # Pin each app's artifact common-ancestor to the app dir so upload-artifact keeps
+          # the {runtime}/{label}/{preset} structure even when an app has a single built cell.
+          if [ -d "${ARTIFACTS_DIR}/publish" ]; then
+            for d in "${ARTIFACTS_DIR}"/publish/*/; do touch "${d}.keep"; done
+          fi
+
+      # One artifact per app so each measure job downloads only its app's binaries instead
+      # of the whole publish tree. Keep this list in sync with the measured App enum values;
+      # if-no-files-found:ignore covers apps not built in a given run (dry-run, mono-only, etc.).
+      - name: Upload build (empty-browser)
         uses: actions/upload-artifact@v7
         if: always() && steps.matrix.outputs.matrix != '[]'
         with:
-          name: all-builds
-          path: ${{ env.ARTIFACTS_DIR }}/publish/
+          name: build-empty-browser
+          path: ${{ env.ARTIFACTS_DIR }}/publish/empty-browser
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload build (empty-blazor)
+        uses: actions/upload-artifact@v7
+        if: always() && steps.matrix.outputs.matrix != '[]'
+        with:
+          name: build-empty-blazor
+          path: ${{ env.ARTIFACTS_DIR }}/publish/empty-blazor
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload build (blazor-perf)
+        uses: actions/upload-artifact@v7
+        if: always() && steps.matrix.outputs.matrix != '[]'
+        with:
+          name: build-blazor-perf
+          path: ${{ env.ARTIFACTS_DIR }}/publish/blazor-perf
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload build (blazing-pizza)
+        uses: actions/upload-artifact@v7
+        if: always() && steps.matrix.outputs.matrix != '[]'
+        with:
+          name: build-blazing-pizza
+          path: ${{ env.ARTIFACTS_DIR }}/publish/blazing-pizza
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload build (havit-bootstrap)
+        uses: actions/upload-artifact@v7
+        if: always() && steps.matrix.outputs.matrix != '[]'
+        with:
+          name: build-havit-bootstrap
+          path: ${{ env.ARTIFACTS_DIR }}/publish/havit-bootstrap
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload build (micro-benchmarks)
+        uses: actions/upload-artifact@v7
+        if: always() && steps.matrix.outputs.matrix != '[]'
+        with:
+          name: build-micro-benchmarks
+          path: ${{ env.ARTIFACTS_DIR }}/publish/micro-benchmarks
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload build (uno-gallery)
+        uses: actions/upload-artifact@v7
+        if: always() && steps.matrix.outputs.matrix != '[]'
+        with:
+          name: build-uno-gallery
+          path: ${{ env.ARTIFACTS_DIR }}/publish/uno-gallery
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload build (mud-blazor)
+        uses: actions/upload-artifact@v7
+        if: always() && steps.matrix.outputs.matrix != '[]'
+        with:
+          name: build-mud-blazor
+          path: ${{ env.ARTIFACTS_DIR }}/publish/mud-blazor
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload build (semi-avalonia)
+        uses: actions/upload-artifact@v7
+        if: always() && steps.matrix.outputs.matrix != '[]'
+        with:
+          name: build-semi-avalonia
+          path: ${{ env.ARTIFACTS_DIR }}/publish/semi-avalonia
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload build (igniteui-light)
+        uses: actions/upload-artifact@v7
+        if: always() && steps.matrix.outputs.matrix != '[]'
+        with:
+          name: build-igniteui-light
+          path: ${{ env.ARTIFACTS_DIR }}/publish/igniteui-light
+          if-no-files-found: ignore
+          retention-days: 7
           if-no-files-found: error
           retention-days: 3
 
@@ -459,11 +546,11 @@ jobs:
           name: build-results
           path: ${{ env.ARTIFACTS_DIR }}/results
 
-      - name: Download builds
+      - name: Download build (${{ matrix.app }})
         uses: actions/download-artifact@v8
         with:
-          name: all-builds
-          path: ${{ env.ARTIFACTS_DIR }}/publish
+          name: build-${{ matrix.app }}
+          path: ${{ env.ARTIFACTS_DIR }}/publish/${{ matrix.app }}
 
       - name: Validate downloaded artifacts
         shell: bash

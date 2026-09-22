@@ -497,8 +497,6 @@ jobs:
           path: ${{ env.ARTIFACTS_DIR }}/publish/igniteui-light
           if-no-files-found: ignore
           retention-days: 7
-          if-no-files-found: error
-          retention-days: 3
 
   # ── Job 3: Measure (matrix: app × preset, all engines per job) ─────────────
   measure:

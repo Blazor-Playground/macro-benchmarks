@@ -67,7 +67,7 @@ Scheduling:
 Enumeration:
   --major <n>              .NET major version (default: 12)
   --months <n>             History months to scan (default: 1)
-  --release-majors <list>  Comma-separated majors for release enumeration (default: 8,9,10)
+  --release-majors <list>  Comma-separated majors for release enumeration (default: 8,9,10,11)
   --vmr-branch <name>      Keep only daily packs from this dotnet/dotnet branch (default: main; empty = all)
   --force-enumerate        Re-resolve all versions (ignore cache)
 
@@ -126,7 +126,7 @@ const ARG_OPTIONS = {
     // Enumeration
     'major': { type: 'string' as const, default: '12' },
     'months': { type: 'string' as const, default: '1' },
-    'release-majors': { type: 'string' as const, default: '8,9,10' },
+    'release-majors': { type: 'string' as const, default: '8,9,10,11' },
     'vmr-branch': { type: 'string' as const, default: 'main' },
     'force-enumerate': { type: 'boolean' as const, default: false },
 

@@ -776,6 +776,7 @@ async function runBrowserSession(
     isInternal: boolean,
     useCDP: boolean,
     warmRuns: number,
+    coldRuns: number,
     timeout: number,
     verbose: boolean,
     dryRun: boolean,
@@ -823,9 +824,9 @@ async function runBrowserSession(
 
     // Additional cold loads + warm loads (external apps only)
     if (!isInternal) {
-        if (warmRuns > 1) {
+        if (coldRuns > 1) {
             const extraCold = await runColdLoads(
-                launchBrowser, pageUrl, warmRuns - 1, timeout, profile, useCDP, verbose,
+                launchBrowser, pageUrl, coldRuns - 1, timeout, profile, useCDP, verbose,
             );
             mergeTimingArrays(coldArrays, extraCold);
         }
@@ -966,6 +967,9 @@ async function measureBrowser(
     const warmRuns = ctx.dryRun ? 1
         : entry.preset === Preset.DevLoop ? 1
             : ctx.warmRuns;
+    const coldRuns = ctx.dryRun ? 1
+        : entry.preset === Preset.DevLoop ? 1
+            : ctx.coldRuns;
     const timeout = ctx.timeout;
     const maxRetries = ctx.retries;
 
@@ -983,7 +987,7 @@ async function measureBrowser(
     }
     info(`    Serving on ${pageUrl}`);
     if (ctx.verbose) {
-        debug(`Browser: ${engine}, CDP: ${useCDP}, warmRuns: ${warmRuns}, timeout: ${timeout}ms, retries: ${maxRetries}, kestrelHosted: ${!!isKestrelHosted}`);
+        debug(`Browser: ${engine}, CDP: ${useCDP}, warmRuns: ${warmRuns}, coldRuns: ${coldRuns}, timeout: ${timeout}ms, retries: ${maxRetries}, kestrelHosted: ${!!isKestrelHosted}`);
     }
 
     // For Kestrel-hosted apps, provide a function that restarts the server between walkthroughs
@@ -1027,7 +1031,7 @@ async function measureBrowser(
                 const result = await runBrowserSession(
                     browser, launchBrowser, pageUrl, entry, engine, profile,
                     compileTime, fileSizes, isInternal, useCDP,
-                    warmRuns, timeout, ctx.verbose, ctx.dryRun, srv,
+                    warmRuns, coldRuns, timeout, ctx.verbose, ctx.dryRun, srv,
                     deadlineAt, restartServer, coreclrWasmAvailable(ctx.sdkInfo),
                 );
                 await sleep(100);

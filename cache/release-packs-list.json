@@ -2,10 +2,35 @@
   "channels": [
     "8.0",
     "9.0",
-    "10.0"
+    "10.0",
+    "11.0"
   ],
-  "totalPacks": 65,
+  "totalPacks": 66,
   "packs": [
+    {
+      "sdkVersion": "11.0.100-rc.1.26425.128",
+      "runtimeGitHash": "ab19415702aa8139d5369e47c73edb47343c34ad",
+      "aspnetCoreGitHash": "c3325eeb6b47bc6383c127d4f4827dc9642a2b6e",
+      "sdkGitHash": "0eac0cf2f8e6e2b9db933ebf98fc1fae43e9b02f",
+      "vmrGitHash": "3551975be08744f0418857c5bed8ab1545c5dd47",
+      "runtimeCommitDateTime": "2026-08-24T18:31:10Z",
+      "runtimeCommitAuthor": "dotnet-maestro[bot]",
+      "runtimeCommitMessage": "[release/11.0-rc1] Source code updates from dotnet/dotnet (#132568)",
+      "aspnetCoreCommitDateTime": "2026-08-25T08:38:40Z",
+      "aspnetCoreCommitAuthor": "dotnet-maestro[bot]",
+      "aspnetCoreCommitMessage": "[release/11.0-rc1] Source code updates from dotnet/dotnet (#68668)",
+      "aspnetCoreVersion": "11.0.0-rc.1.26425.128",
+      "runtimePackVersion": "11.0.0-rc.1.26425.128",
+      "workloadVersion": "11.0.0-rc.1.26425.128",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-09-08",
+      "vmrBranch": "release/11.0.1xx",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true
+    },
     {
       "sdkVersion": "10.0.401",
       "runtimeGitHash": "4271d88e0aebf3d04f188f1334c2220d80555ef6",

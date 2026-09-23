@@ -1051,6 +1051,10 @@ async function measureBrowser(
                 '--ignore-gpu-blocklist',
                 '--no-sandbox',
                 '--disable-dev-shm-usage',
+                // Keep timers/rendering at full rate so background/occluded tabs aren't throttled
+                '--disable-background-timer-throttling',
+                '--disable-renderer-backgrounding',
+                '--disable-backgrounding-occluded-windows',
             ] : undefined;
             const launchBrowser = () => browserType.launch({
                 headless: ctx.headless,

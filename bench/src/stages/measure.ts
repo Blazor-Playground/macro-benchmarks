@@ -295,6 +295,11 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
 
 const INTERNAL_KEYS = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;
 
+// Pin the browser locale so the guest resolves a culture that always exists. On runners
+// with no system locale (e.g. arm64 images) Chrome otherwise reports one the trimmed/AOT
+// app can't resolve → CultureNotFoundException at startup → bench_complete never fires.
+const BROWSER_CONTEXT_OPTIONS = { locale: 'en-US' } as const;
+
 /** Metrics + sample counts for each metric key. */
 interface MetricsResult {
     metrics: Partial<Record<MetricKey, number | null>>;
@@ -560,7 +565,7 @@ async function runColdLoads(
         // renderer/GPU processes on constrained CI runners, inflating each
         // successive cold load (observed 7s → 235s); a fresh process reaps them.
         const coldBrowser = await launchBrowser();
-        const coldCtx = await coldBrowser.newContext();
+        const coldCtx = await coldBrowser.newContext(BROWSER_CONTEXT_OPTIONS);
         const coldPage = await coldCtx.newPage();
         try {
             await prepareColdContext(coldPage, coldCtx, pageUrl, profile, useCDP);
@@ -680,7 +685,7 @@ async function runWalkthroughs(
                 }
                 if (!wt.noBrowser) {
                     wtBrowser = await launchBrowser();
-                    wtCtx = await wtBrowser.newContext();
+                    wtCtx = await wtBrowser.newContext(BROWSER_CONTEXT_OPTIONS);
                     wtPage = await wtCtx.newPage();
                 }
             } else {
@@ -809,7 +814,7 @@ async function runBrowserSession(
     restartServer: (() => Promise<string>) | null,
     coreclrWasmReady: boolean,
 ): Promise<MetricsResult> {
-    const context = await browser.newContext();
+    const context = await browser.newContext(BROWSER_CONTEXT_OPTIONS);
     const page = await context.newPage();
 
     // (#3) Use project logger instead of console.error

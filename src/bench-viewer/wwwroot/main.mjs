@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 import * as chartInterop from './chart/chart-interop.js';
+import * as focusInterop from './chart/focus-interop.js';
 
 function setManagedReady() {
     globalThis.dotnet_managed_ready = performance.now();
@@ -35,6 +36,7 @@ async function outer() {
                     globalThis.dotnet_created = performance.now();
                     const { setModuleImports } = globalThis.getDotnetRuntime(0);
                     setModuleImports('chart-interop.js', chartInterop);
+                    setModuleImports('focus-interop.js', focusInterop);
                     setModuleImports('main.mjs', {
                         bench: {
                             setManagedReady

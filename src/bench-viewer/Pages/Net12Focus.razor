@@ -1,0 +1,179 @@
+@page "/net12-focus"
+@implements IAsyncDisposable
+
+<PageTitle>NET12 focus - .NET WASM Benchmarks</PageTitle>
+
+<div class="net12-focus" data-focus-owner="@owner">
+    <div class="focus-workbench">
+        <aside class="focus-settings" aria-label="NET12 focus settings">
+            <DashboardSidebarHeader Active="focus" />
+            <label for="focus-app">Application</label>
+            <select id="focus-app" value="@app" @onchange="ChangeApp">
+                @if (apps.Count == 0)
+                {
+                    <option value="havit-bootstrap">Blazor Havit</option>
+                }
+                @foreach (var appId in apps)
+                {
+                    <option value="@appId" selected="@(appId == app)">@AppName(appId)</option>
+                }
+            </select>
+            <div class="focus-selection-control">
+                <label for="focus-flavor">Flavor comparison (CoreCLR vs Mono)</label>
+                <select id="focus-flavor" value="@flavor" @onchange="ChangeFlavor" disabled="@(configuration == null)">
+                    @if (configuration == null)
+                    {
+                        <option>Loading comparisons...</option>
+                    }
+                    @foreach (var option in configuration?.Flavors ?? [])
+                    {
+                        <option value="@option.Id" selected="@(option.Id == flavor)">@option.Label</option>
+                    }
+                </select>
+                @if (SelectedFlavor is { } selectedFlavor)
+                {
+                    <p class="focus-selection-note">@selectedFlavor.CoreclrLabel vs @selectedFlavor.MonoLabel</p>
+                }
+            </div>
+            <div class="focus-selection-control">
+                <label for="focus-startup-profile">Startup profile</label>
+                <select id="focus-startup-profile" value="@startupProfile" @onchange="ChangeStartupProfile" disabled="@(configuration == null)">
+                    <option value="mobile" selected="@(startupProfile == "mobile")">Mobile (throttled)</option>
+                    <option value="desktop" selected="@(startupProfile == "desktop")">Desktop (unthrottled)</option>
+                </select>
+                <p class="focus-selection-note">Startup: @StartupProfileLabel.ToLowerInvariant(); other metrics: desktop. All use Chromium.</p>
+            </div>
+            <fieldset>
+                <legend>History window</legend>
+                <div class="focus-range-buttons">
+                    @foreach (var option in Ranges)
+                    {
+                        <button type="button" data-range="@option.Value" aria-pressed="@(range == option.Value ? "true" : "false")"
+                                @onclick="() => ChangeRange(option.Value)">@option.Label</button>
+                    }
+                </div>
+                @if (report != null)
+                {
+                    <p class="focus-range-note">@report.StartDay to @report.EndDay<br />Inclusive SDK build days / UTC</p>
+                }
+            </fieldset>
+            <fieldset class="focus-graph-settings">
+                <legend>Graph settings</legend>
+                <label class="focus-curve-toggle"><input id="focus-percentage" type="checkbox" checked="@showPercentage"
+                    disabled="@(configuration == null)" @onchange="ChangePercentage" />Percentage curve</label>
+                <label class="focus-curve-toggle"><input id="focus-measurements" type="checkbox" checked="@showMeasurements"
+                    disabled="@(configuration == null)" @onchange="ChangeMeasurements" />Actual measurements</label>
+                <div class="focus-average-buttons">
+                    <button type="button" aria-pressed="@(averaged ? "true" : "false")" disabled="@(!GraphsEnabled)" @onclick="() => SetAverage(true)">5-point average</button>
+                    <button type="button" aria-pressed="@(!averaged ? "true" : "false")" disabled="@(!GraphsEnabled)" @onclick="() => SetAverage(false)">No average</button>
+                </div>
+                <label class="focus-band-toggle"><input type="checkbox" checked="@showBands" disabled="@(!averaged || !GraphsEnabled)" @onchange="ChangeBands" />Show min-max bands</label>
+                <p class="focus-setting-hint">Actual measurements shows both runtime curves; smoothing still applies. Bands: observed min-max, 20% fill. Summaries unchanged.</p>
+            </fieldset>
+            <div class="focus-cohort">
+                <p class="focus-eyebrow">COMPARISON CONTEXT</p>
+                <dl>
+                    <div><dt>Channel</dt><dd>SDK 12 only</dd></div>
+                    <div><dt>Actual target framework</dt><dd>@(report == null ? "Loading metadata..." : string.Join(", ", report.TargetFrameworks.DefaultIfEmpty("Unknown")))</dd></div>
+                </dl>
+                <p class="focus-setting-hint">Existing configured Release presets, not clean/default Release. CoreCLR's aot preset is R2R; Mono's is AOT. Known custom builds excluded; missing flags do not certify a stock build.</p>
+            </div>
+        </aside>
+        <main class="focus-main">
+            <div class="focus-heading">
+                <h1>NET12 focus<span>.</span></h1>
+                <p>Four signals in one view. CoreCLR compared with Mono.</p>
+            </div>
+            <div class="focus-provenance">
+                <span><strong>Historical comparison, not a controlled same-runner result.</strong> Same SDK/variant and per-metric profile; presets follow the selected flavor. Hardware and browser provenance are unverified.</span>
+                <a href="#focus-methodology">Details</a>
+            </div>
+            <div class="focus-chart-toolbar">
+                <div>
+                    <strong>@AppName(app)</strong>
+                    @if (GraphsEnabled)
+                    {
+                        <span>SDK build order with UTC dates, not elapsed time. @(averaged ? "Up-to-five-point means" : "Raw observations")@(averaged && showBands ? " / min-max bands" : "")</span>
+                    }
+                    else if (configuration != null)
+                    {
+                        <span class="focus-graphs-off" role="status">Graphs off · summaries still update</span>
+                    }
+                </div>
+                @if (GraphsEnabled)
+                {
+                <div class="focus-legend" aria-label="Chart series">
+                    @if (showMeasurements)
+                    {
+                        <span><i class="coreclr"></i>CoreCLR</span><span><i class="mono"></i>Mono</span>
+                    }
+                    @if (showPercentage)
+                    {
+                        <span><i class="percent"></i>vs Mono %</span>
+                    }
+                </div>
+                }
+            </div>
+            @if (error != null)
+            {
+                <div class="focus-error" role="alert"><strong>Unable to load NET12 focus.</strong> @error <button type="button" @onclick="Retry">Retry</button></div>
+            }
+            <div class="focus-metrics" aria-busy="@(loading ? "true" : "false")">
+                @foreach (var metric in CurrentMetrics)
+                {
+                    <FocusMetricCard @key="metric.Id" Metric="@metric" Owner="@owner"
+                                     Averaged="@averaged" ShowPercentage="@showPercentage" ShowMeasurements="@showMeasurements"
+                                     Loading="@loading" LoadError="@error" />
+                }
+            </div>
+            @if (report != null)
+            {
+                var latestBuilds = LatestBuilds;
+                @if (error == null && latestBuilds.Count > 0)
+                {
+                    <div class="focus-latest-builds" role="group" aria-label="Latest matched SDK results">
+                        @foreach (var build in latestBuilds)
+                        {
+                            <p class="focus-latest-build" data-sdk="@build.Observation.SdkVersion">
+                                @if (latestBuilds.Count > 1)
+                                {
+                                    <strong class="focus-build-metrics">@string.Join(", ", build.MetricTitles):</strong>
+                                }
+                                <span>Latest SDK day <strong>@build.Observation.Day</strong></span>
+                                <span>· @build.AgeDays @(build.AgeDays == 1 ? "day" : "days") ago</span>
+                                <span class="focus-sdk">· SDK @build.Observation.SdkVersion</span>
+                            </p>
+                        }
+                    </div>
+                }
+                <p class="focus-coverage">
+                    Available SDK 12 days: @(report.AvailableStartDay ?? "none") to @(report.AvailableEndDay ?? "none").
+                    Longer ranges do not invent more history. View refreshed @RefreshTime(report.LastUpdated).
+                    <button type="button" @onclick="Retry">Refresh data</button>
+                </p>
+            }
+            <details id="focus-methodology" class="focus-methodology">
+                <summary>How to read these comparisons</summary>
+                <p>The large percentage is 100 × (CoreCLR / Mono - 1) for the newest complete pair in each card's date window.
+                    Green means less elapsed time or fewer bytes; red means more. These colors do not imply statistical significance.
+                    The smaller <strong>5 avg</strong> is the mean of up to five consecutive per-SDK percentages ending at that same SDK, regardless of graph controls.</p>
+                <p>Each SDK build has a distinct, equally spaced position, including builds sharing a day. The dates are SDK build/release days in UTC, not exact measurement times.
+                    Missing values break the affected curve and reset its average. No earlier result outside the selected range supplies a headline.
+                    Band bounds are the raw minimum and maximum of each exact rolling window, not uncertainty estimates.</p>
+                <p>Percentage curve controls the comparison line, its axis and parity reference. Actual measurements controls both runtime curves and their units axis.
+                    Smoothing and min-max bands apply only to enabled curves. Turning both off removes the charts without changing either summary, raw values or data selectors.</p>
+                <p>The flavor explicitly chooses CoreCLR and Mono presets: Release is no-workload; CoreCLR Release/R2R is aot with ReadyToRun;
+                    Mono Release/AOT is aot with Mono AOT. Different presets are intentional only in the selected mapping. These are configured Release builds, not clean/default Release.</p>
+                <p>The startup profile selector affects only time-to-managed (cold). Mobile emulates 3x CPU slowdown, 20 Mbps download, 5 Mbps upload and 70 ms latency;
+                    desktop has no throttling. This timer runs from JS bootstrap to managed-ready, not navigation to full rendering.
+                    Walkthrough, download and build comparisons use their published desktop/Chromium rows for the selected flavor.
+                    Download bytes are not assumed profile-independent. Missing R2R/AOT or profile rows stay missing; there is no fallback.</p>
+                <p>Build time excludes restore. Download MB are decimal. SDK 12 does not imply a net12.0 target: the actual recorded TFM is shown in the settings.
+                    Refresh data loads a new publication; local flavor, profile and range changes reuse the loaded all-row data.</p>
+                <p>Published headers have representative timestamps, not reliable per-cell execution provenance. The inspected Havit Mono/CoreCLR jobs used different runners.
+                    Exact browser, hardware, methodology revision and evaluated build settings are not recorded per cell; history can reflect harness changes.
+                    A stable publication marker does not prove immutable or controlled results.</p>
+            </details>
+        </main>
+    </div>
+</div>

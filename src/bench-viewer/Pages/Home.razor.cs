@@ -9,6 +9,8 @@ namespace BenchViewer.Pages;
 
 public partial class Home : IAsyncDisposable
 {
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
+
     private ViewIndex? viewIndex;
     private string currentApp = "";
     private List<string> currentMetrics = new();
@@ -39,7 +41,7 @@ public partial class Home : IAsyncDisposable
 
         try
         {
-            var indexJson = await ChartInterop.InitDashboard($"{DashboardConfig.GitHubPagesUrl}/data/views");
+            var indexJson = await ChartInterop.InitDashboard(Navigation.ToAbsoluteUri("data/views").AbsoluteUri);
             viewIndex = JsonSerializer.Deserialize<ViewIndex>(indexJson);
 
             if (viewIndex == null || viewIndex.Apps.Count == 0)

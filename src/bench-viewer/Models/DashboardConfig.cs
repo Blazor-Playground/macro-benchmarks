@@ -7,6 +7,22 @@ public static class DashboardConfig
     public static string GitHubUrl => $"https://github.com/{GitHubRepo}";
     public static string GitHubPagesUrl => $"https://{GitHubRepo.Split('/')[0]}.github.io/{GitHubRepo.Split('/')[1]}";
 
+    public static string AppName(string app) => app switch
+    {
+        "empty-browser" => "Empty Template",
+        "empty-blazor" => "Empty Blazor",
+        "blazing-pizza" => "Blazing Pizza",
+        "blazor-perf" => "Blazor Perf",
+        "micro-benchmarks" => "Micro Benchmarks",
+        "havit-bootstrap" => "Havit Bootstrap",
+        "mud-blazor" => "Mud Blazor",
+        "igniteui-light" => "Ignite UI Light",
+        "uno-gallery" => "Uno Gallery",
+        "semi-avalonia" => "Semi Avalonia",
+        "bench-viewer" => "Bench Viewer",
+        _ => app
+    };
+
     // Metrics to skip for all apps
     public static readonly HashSet<string> SkipMetrics = new()
     {

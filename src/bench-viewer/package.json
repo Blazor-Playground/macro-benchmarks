@@ -1,5 +1,9 @@
 {
     "private": true,
+    "type": "module",
+    "dependencies": {
+        "bootstrap": "5.3.3"
+    },
     "devDependencies": {
         "typescript": "^5.8.0"
     }

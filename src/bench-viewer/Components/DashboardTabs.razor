@@ -1,0 +1,8 @@
+<nav class="dashboard-mode-tabs" aria-label="Dashboard views">
+    <NavLink href="" Match="NavLinkMatch.All" aria-current="@(Active == "all" ? "page" : null)">All benchmarks</NavLink>
+    <NavLink href="net12-focus" aria-current="@(Active == "focus" ? "page" : null)">NET12 focus</NavLink>
+</nav>
+
+@code {
+    [Parameter] public string Active { get; set; } = "all";
+}

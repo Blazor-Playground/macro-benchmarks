@@ -1,0 +1,11 @@
+<div class="dashboard-sidebar-heading">
+    <a class="dashboard-brand" href="./">
+        <span class="dashboard-brand-mark">.NET</span>
+        <span><strong>WASM benchmarks</strong><small>Browser performance, over time</small></span>
+    </a>
+    <DashboardTabs Active="@Active" />
+</div>
+
+@code {
+    [Parameter] public string Active { get; set; } = "all";
+}

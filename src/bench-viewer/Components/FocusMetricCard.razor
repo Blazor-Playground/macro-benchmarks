@@ -1,0 +1,105 @@
+<article class="focus-card @(!GraphsEnabled ? "focus-summary-only" : "")" data-metric="@Metric.Id" data-profile="@Metric.Profile"
+         data-coreclr-row="@Metric.CoreclrRowKey" data-mono-row="@Metric.MonoRowKey"
+         data-status="@(Loading ? "loading" : LoadError != null ? "error" : Metric.Status)">
+    <div class="focus-card-summary">
+        <h2 id="focus-title-@Metric.Id">@Metric.Title</h2>
+        @if (Metric.Id == "startup")
+        {
+            <p class="focus-measurement" title="@Metric.Description">Time to managed (cold)@if (Metric.Profile.Length > 0) { <span> · @ProfileLabel</span> }</p>
+        }
+        else if (Metric.Profile.Length > 0)
+        {
+            <p class="focus-measurement" title="@Metric.Description">@ProfileLabel / Chromium</p>
+        }
+        @if (!Loading && LoadError == null && Metric.Comparison is { } comparison)
+        {
+            <div class="focus-kpi @comparison.Tone" aria-label="@($"{Metric.Title}: {comparison.Magnitude} {comparison.Verdict}")">
+                <span class="focus-percentage">@comparison.Magnitude</span>
+                <span class="focus-verdict">@comparison.Verdict</span>
+            </div>
+            @if (Metric.AverageComparison is { } average && Metric.Latest?.PercentWindow is { } window)
+            {
+                <p class="focus-rolling-caption" title="@AverageDescription(average, window)" aria-label="@AverageDescription(average, window)"
+                   data-average="@window.Mean.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-count="@window.Count"
+                   data-end-sdk="@window.LastSdk">
+                    (<span class="@average.Tone">@average.Magnitude @average.Verdict</span><span> · <span class="focus-average-label">5 avg</span></span>)
+                </p>
+            }
+            <dl class="focus-values">
+                <div><dt><span class="focus-dot coreclr"></span>@Metric.CoreclrLabel</dt><dd>@Metric.FormatValue(Metric.Latest?.Coreclr)</dd></div>
+                <div><dt><span class="focus-dot mono"></span>@Metric.MonoLabel</dt><dd>@Metric.FormatValue(Metric.Latest?.Mono)</dd></div>
+            </dl>
+        }
+        else
+        {
+            <p class="focus-unavailable-heading">@(Loading ? "Loading..." : LoadError != null ? "Load failed" : "Unavailable")</p>
+            <p class="focus-summary-note">No baseline, metric or cohort substitution</p>
+        }
+        @if (!GraphsEnabled && !Loading && LoadError == null)
+        {
+            @if (Metric.Latest == null)
+            {
+                <p class="focus-summary-note">@Metric.Message</p>
+            }
+            else if (Metric.HasNewerIncomplete)
+            {
+                <p class="focus-older-pair">Latest complete pair; newer result incomplete</p>
+            }
+        }
+    </div>
+    @if (GraphsEnabled)
+    {
+        <div class="focus-card-chart">
+            @if (!Loading && LoadError == null && HasVisibleData)
+            {
+                <div class="focus-plot">
+                    <canvas id="@($"focus-{Owner}-{Metric.Id}")" role="img" aria-label="@ChartDescription"></canvas>
+                </div>
+                @if (Metric.HasNewerIncomplete || Metric.Latest == null)
+                {
+                    <div class="focus-card-status">
+                        @if (Metric.HasNewerIncomplete)
+                        {
+                            <span class="focus-older-pair">Latest complete pair; newer result incomplete</span>
+                        }
+                        @if (Metric.Latest == null)
+                        {
+                            <span>@Metric.Message</span>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="focus-empty">
+                    <strong>@(Loading ? "Loading recorded results" : LoadError != null ? "Data could not be loaded" : "Comparison unavailable")</strong>
+                    <p>@(Loading ? "Reading the published SDK 12 cohort." : LoadError != null ? "Use Retry above. A load error is not a missing metric or a zero." : Metric.Message)</p>
+                </div>
+            }
+        </div>
+    }
+</article>
+
+@code {
+    [Parameter, EditorRequired] public FocusMetricReport Metric { get; set; } = new();
+    [Parameter] public string Owner { get; set; } = "";
+    [Parameter] public bool Averaged { get; set; }
+    [Parameter] public bool ShowPercentage { get; set; }
+    [Parameter] public bool ShowMeasurements { get; set; }
+    [Parameter] public bool Loading { get; set; }
+    [Parameter] public string? LoadError { get; set; }
+    private string ProfileLabel => Metric.Profile == "mobile" ? "Mobile" : "Desktop";
+    private bool GraphsEnabled => ShowPercentage || ShowMeasurements;
+    private bool HasVisibleData => (ShowPercentage && Metric.Points.Any(point => point.Percent.HasValue))
+        || (ShowMeasurements && Metric.HasSeries);
+    private string ChartDescription =>
+        $"{Metric.Title}. {Metric.Description} History: {(Averaged ? "trailing means of up to five SDK observations" : "raw SDK observations")}. "
+        + (ShowMeasurements ? $"CoreCLR and Mono in {Metric.Unit}. " : "")
+        + (ShowPercentage ? "CoreCLR vs Mono on the signed percent axis with zero parity. " : "")
+        + "SDK build order, not elapsed time. Hover a series for raw values and window counts.";
+
+    private static string AverageDescription(FocusComparison comparison, FocusWindow window) =>
+        $"Rolling comparison: {comparison.Magnitude} {comparison.Verdict}. {window.Count} of 5 available consecutive SDK measurements, "
+        + $"ending at SDK {window.LastSdk}. Window {window.FirstDay} to {window.LastDay}, starting at SDK {window.FirstSdk}. "
+        + "Mean of individual CoreCLR-versus-Mono percentages, not a ratio of means.";
+}

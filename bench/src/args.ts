@@ -139,6 +139,7 @@ const ARG_OPTIONS = {
     // General
     'help': { type: 'boolean' as const, default: false },
     'verbose': { type: 'boolean' as const, default: false },
+    'print-apps': { type: 'boolean' as const, default: false },
 } as const;
 
 // ── Parsing Helpers ──────────────────────────────────────────────────────────

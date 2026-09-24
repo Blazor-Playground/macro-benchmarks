@@ -77,6 +77,8 @@ jobs:
       aspnetcore-build-required: ${{ steps.sdk-version.outputs.aspnetcore-build-required }}
       aspnetcore-commit: ${{ steps.sdk-version.outputs.aspnetcore-commit }}
       aspnetcore-repo: ${{ steps.sdk-version.outputs.aspnetcore-repo }}
+      apps: ${{ steps.plan.outputs.apps }}
+      build-run-id: ${{ steps.plan.outputs.build-run-id }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -131,6 +133,17 @@ jobs:
           echo "Runtime commit: $COMMIT_DATE $COMMIT_MSG" >&2
           echo "Runtime build required: $RUNTIME_BUILD" >&2
           echo "ASP.NET Core build required: $ASPNETCORE_BUILD" >&2
+
+      # App list drives the per-app build shard matrix; --print-apps is dry-run aware, and a
+      # single build-run-id keeps every shard's results/<id>/ path identical for the merge.
+      - name: Plan build shards
+        id: plan
+        shell: bash
+        run: |
+          APPS=$(npx --prefix bench tsx bench/src/main.ts --print-apps ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }})
+          echo "apps=$APPS" >> "$GITHUB_OUTPUT"
+          echo "build-run-id=$(date -u +%Y-%m-%dT%H-%M-%SZ)" >> "$GITHUB_OUTPUT"
+          echo "Build apps: $APPS" >&2
 
       - name: Upload bench context
         uses: actions/upload-artifact@v7
@@ -294,9 +307,9 @@ jobs:
           path: aspnetcore-packages/
           retention-days: 3
 
-  # ── Job 3: Build all apps ──────────────────────────────────────────────────
+  # ── Job 3: Build apps (one shard per app, in parallel) ─────────────────────
   build:
-    name: Build (${{ needs.resolve.outputs.sdk-version }}, ${{ needs.resolve.outputs.runtime-commit-date }}, ${{ needs.resolve.outputs.runtime-commit-message }})
+    name: Build ${{ matrix.app }} (${{ needs.resolve.outputs.sdk-version }})
     needs: [resolve, build-runtime-mono, build-runtime-coreclr, build-aspnetcore]
     if: |
       always()
@@ -309,9 +322,13 @@ jobs:
     permissions:
       contents: write
       packages: read
-    timeout-minutes: 180
-    outputs:
-      matrix: ${{ steps.matrix.outputs.matrix }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJSON(needs.resolve.outputs.apps) }}
+    env:
+      BENCH_RUN_ID: ${{ needs.resolve.outputs.build-run-id }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -348,30 +365,113 @@ jobs:
           name: aspnetcore-packages
           path: ${{ env.ARTIFACTS_DIR }}/aspnetcore-packages
 
-      - name: Build all apps
+      - name: Build app
         shell: bash
         run: |
           npx --prefix bench tsx bench/src/main.ts \
             --stages check-out-tracking,download-sdk,build-runtime,build-aspnetcore,build \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
+            --app "${{ matrix.app }}" \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 
-      - name: Read run ID
-        id: run-id
+      - name: Pin artifact root
         shell: bash
         run: |
-          RUN_ID=$(cat "${ARTIFACTS_DIR}/results/.run-id")
-          echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
-          echo "Run ID: $RUN_ID" >&2
+          # Keep the {runtime}/{label}/{preset} structure even for a single built cell.
+          if [ -d "${ARTIFACTS_DIR}/publish/${{ matrix.app }}" ]; then
+            touch "${ARTIFACTS_DIR}/publish/${{ matrix.app }}/.keep"
+          fi
+
+      - name: Upload build (${{ matrix.app }})
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-${{ matrix.app }}
+          path: ${{ env.ARTIFACTS_DIR }}/publish/${{ matrix.app }}
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload partial manifest (${{ matrix.app }})
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-manifest-${{ matrix.app }}
+          path: ${{ env.ARTIFACTS_DIR }}/results/${{ env.BENCH_RUN_ID }}/build-manifest.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # ── Job 3b: Collect build manifests + generate the measure matrix ──────────
+  build-collect:
+    name: Collect builds (${{ needs.resolve.outputs.sdk-version }})
+    needs: [resolve, build]
+    if: always() && needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    container: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io/blazor-playground/macro-benchmarks' }}/browser-bench-build:latest
+    permissions:
+      contents: read
+      packages: read
+    timeout-minutes: 15
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    env:
+      BENCH_RUN_ID: ${{ needs.resolve.outputs.build-run-id }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          clean: false
+
+      - name: Export container env to GitHub Actions
+        shell: bash
+        run: echo "ARTIFACTS_DIR=${ARTIFACTS_DIR:-artifacts}" >> "$GITHUB_ENV"
+
+      - name: Download bench context
+        uses: actions/download-artifact@v8
+        with:
+          name: bench-context
+          path: ${{ env.ARTIFACTS_DIR }}
+
+      - name: Download partial manifests
+        uses: actions/download-artifact@v8
+        with:
+          pattern: build-manifest-*
+          path: ${{ env.ARTIFACTS_DIR }}/manifests
+
+      - name: Merge manifests into context + results
+        shell: bash
+        run: |
+          RESULTS="${ARTIFACTS_DIR}/results/${BENCH_RUN_ID}"
+          mkdir -p "$RESULTS"
+          # Concatenate every shard's build-manifest.json into one, and fold it back into
+          # bench-context (measure reads ctx.buildManifest/runId/resultsDir from there).
+          node --input-type=module -e "
+            import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
+            const mdir = '${ARTIFACTS_DIR}/manifests';
+            let cells = [];
+            if (existsSync(mdir)) {
+              for (const d of readdirSync(mdir)) {
+                const f = mdir + '/' + d + '/build-manifest.json';
+                if (existsSync(f)) cells = cells.concat(JSON.parse(readFileSync(f, 'utf-8')));
+              }
+            }
+            const results = '${RESULTS}';
+            writeFileSync(results + '/build-manifest.json', JSON.stringify(cells, null, 2) + '\n');
+            const ctxPath = '${ARTIFACTS_DIR}/bench-context.json';
+            const ctx = JSON.parse(readFileSync(ctxPath, 'utf-8'));
+            ctx.buildManifest = cells;
+            ctx.runId = '${BENCH_RUN_ID}';
+            ctx.resultsDir = results;
+            writeFileSync(ctxPath, JSON.stringify(ctx, null, 2) + '\n');
+            console.error('Merged ' + cells.length + ' cells');
+          "
+          echo "${BENCH_RUN_ID}" > "${ARTIFACTS_DIR}/results/.run-id"
 
       - name: Set matrix output
         id: matrix
         shell: bash
         run: |
-          MANIFEST="${ARTIFACTS_DIR}/results/${{ steps.run-id.outputs.run-id }}/build-manifest.json"
-          if [ ! -f "$MANIFEST" ]; then
+          MANIFEST="${ARTIFACTS_DIR}/results/${BENCH_RUN_ID}/build-manifest.json"
+          CELLS=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$MANIFEST','utf-8')).length)" 2>/dev/null || echo 0)
+          if [ "$CELLS" = "0" ]; then
             echo "matrix=[]" >> "$GITHUB_OUTPUT"
-            echo "⚠ No build manifest found" >&2
+            echo "⚠ No build manifest cells" >&2
             exit 0
           fi
           # Extract {app, preset, runtime} for the GHA matrix, crossed with up to 2 replica
@@ -395,7 +495,6 @@ jobs:
 
       - name: Upload bench context
         uses: actions/upload-artifact@v7
-        if: always()
         with:
           name: bench-context
           path: ${{ env.ARTIFACTS_DIR }}/bench-context.json
@@ -405,116 +504,21 @@ jobs:
 
       - name: Upload results
         uses: actions/upload-artifact@v7
-        if: always()
         with:
           name: build-results
           path: ${{ env.ARTIFACTS_DIR }}/results/
           if-no-files-found: error
           retention-days: 7
 
-      - name: Prepare per-app artifact roots
-        if: always() && steps.matrix.outputs.matrix != '[]'
-        shell: bash
-        run: |
-          # Pin each app's artifact common-ancestor to the app dir so upload-artifact keeps
-          # the {runtime}/{label}/{preset} structure even when an app has a single built cell.
-          if [ -d "${ARTIFACTS_DIR}/publish" ]; then
-            for d in "${ARTIFACTS_DIR}"/publish/*/; do touch "${d}.keep"; done
-          fi
-
-      # One artifact per app so each measure job downloads only its app's binaries instead
-      # of the whole publish tree. Keep this list in sync with the measured App enum values;
-      # if-no-files-found:ignore covers apps not built in a given run (dry-run, mono-only, etc.).
-      - name: Upload build (empty-browser)
-        uses: actions/upload-artifact@v7
-        if: always() && steps.matrix.outputs.matrix != '[]'
-        with:
-          name: build-empty-browser
-          path: ${{ env.ARTIFACTS_DIR }}/publish/empty-browser
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Upload build (empty-blazor)
-        uses: actions/upload-artifact@v7
-        if: always() && steps.matrix.outputs.matrix != '[]'
-        with:
-          name: build-empty-blazor
-          path: ${{ env.ARTIFACTS_DIR }}/publish/empty-blazor
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Upload build (blazor-perf)
-        uses: actions/upload-artifact@v7
-        if: always() && steps.matrix.outputs.matrix != '[]'
-        with:
-          name: build-blazor-perf
-          path: ${{ env.ARTIFACTS_DIR }}/publish/blazor-perf
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Upload build (blazing-pizza)
-        uses: actions/upload-artifact@v7
-        if: always() && steps.matrix.outputs.matrix != '[]'
-        with:
-          name: build-blazing-pizza
-          path: ${{ env.ARTIFACTS_DIR }}/publish/blazing-pizza
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Upload build (havit-bootstrap)
-        uses: actions/upload-artifact@v7
-        if: always() && steps.matrix.outputs.matrix != '[]'
-        with:
-          name: build-havit-bootstrap
-          path: ${{ env.ARTIFACTS_DIR }}/publish/havit-bootstrap
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Upload build (micro-benchmarks)
-        uses: actions/upload-artifact@v7
-        if: always() && steps.matrix.outputs.matrix != '[]'
-        with:
-          name: build-micro-benchmarks
-          path: ${{ env.ARTIFACTS_DIR }}/publish/micro-benchmarks
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Upload build (uno-gallery)
-        uses: actions/upload-artifact@v7
-        if: always() && steps.matrix.outputs.matrix != '[]'
-        with:
-          name: build-uno-gallery
-          path: ${{ env.ARTIFACTS_DIR }}/publish/uno-gallery
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Upload build (mud-blazor)
-        uses: actions/upload-artifact@v7
-        if: always() && steps.matrix.outputs.matrix != '[]'
-        with:
-          name: build-mud-blazor
-          path: ${{ env.ARTIFACTS_DIR }}/publish/mud-blazor
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Upload build (semi-avalonia)
-        uses: actions/upload-artifact@v7
-        if: always() && steps.matrix.outputs.matrix != '[]'
-        with:
-          name: build-semi-avalonia
-          path: ${{ env.ARTIFACTS_DIR }}/publish/semi-avalonia
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Upload build (igniteui-light)
-        uses: actions/upload-artifact@v7
-        if: always() && steps.matrix.outputs.matrix != '[]'
-        with:
-          name: build-igniteui-light
-          path: ${{ env.ARTIFACTS_DIR }}/publish/igniteui-light
-          if-no-files-found: ignore
-          retention-days: 7
-
-  # ── Job 3: Measure (matrix: app × preset, all engines per job) ─────────────
+  # ── Job 4: Measure (matrix: app × preset × runtime × replica) ──────────────
   measure:
     name: Measure ${{ matrix.app }}/${{ matrix.preset }}/${{ matrix.runtime }} r${{ matrix.replica }}
-    needs: [resolve, build]
+    needs: [resolve, build-collect]
     if: |
       !cancelled()
-      && needs.build.result == 'success'
-      && needs.build.outputs.matrix != '[]'
-      && needs.build.outputs.matrix != ''
+      && needs.build-collect.result == 'success'
+      && needs.build-collect.outputs.matrix != '[]'
+      && needs.build-collect.outputs.matrix != ''
     runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
@@ -526,7 +530,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJSON(needs.build.outputs.matrix) }}
+        include: ${{ fromJSON(needs.build-collect.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -599,10 +603,10 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-  # ── Job 3: Aggregate results and update views ──────────────────────────────
+  # ── Job 5: Aggregate results and update views ──────────────────────────────
   aggregate:
     name: Aggregate
-    needs: [resolve, build, measure]
+    needs: [resolve, build-collect, measure]
     if: always() && needs.measure.result == 'success'
     runs-on: ubuntu-latest
     container: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io/blazor-playground/macro-benchmarks' }}/browser-bench-build:latest

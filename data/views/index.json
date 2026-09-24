@@ -1,12 +1,14 @@
 {
-  "lastUpdated": "2026-09-22T10:29:34.041Z",
+  "lastUpdated": "2026-09-24T16:28:06.630Z",
   "activeRelease": "net12",
   "releases": [
     "net8",
     "net9",
     "net10"
   ],
-  "weeks": [],
+  "weeks": [
+    "2026-09-21"
+  ],
   "apps": [
     "blazing-pizza",
     "blazor-perf",

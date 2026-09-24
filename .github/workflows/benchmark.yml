@@ -442,14 +442,15 @@ jobs:
           # Concatenate every shard's build-manifest.json into one, and fold it back into
           # bench-context (measure reads ctx.buildManifest/runId/resultsDir from there).
           node --input-type=module -e "
-            import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
+            import { readFileSync, writeFileSync, readdirSync, existsSync, statSync } from 'node:fs';
             const mdir = '${ARTIFACTS_DIR}/manifests';
+            const find = (dir) => readdirSync(dir).flatMap(e => {
+              const p = dir + '/' + e;
+              return statSync(p).isDirectory() ? find(p) : (e === 'build-manifest.json' ? [p] : []);
+            });
             let cells = [];
             if (existsSync(mdir)) {
-              for (const d of readdirSync(mdir)) {
-                const f = mdir + '/' + d + '/build-manifest.json';
-                if (existsSync(f)) cells = cells.concat(JSON.parse(readFileSync(f, 'utf-8')));
-              }
+              for (const f of find(mdir)) cells = cells.concat(JSON.parse(readFileSync(f, 'utf-8')));
             }
             const results = '${RESULTS}';
             writeFileSync(results + '/build-manifest.json', JSON.stringify(cells, null, 2) + '\n');

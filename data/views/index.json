@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-24T20:45:39.291Z",
+  "lastUpdated": "2026-09-24T22:14:55.956Z",
   "activeRelease": "net12",
   "releases": [
     "net8",
@@ -7,7 +7,8 @@
     "net10"
   ],
   "weeks": [
-    "2026-09-21"
+    "2026-09-21",
+    "2026-09-14"
   ],
   "apps": [
     "blazing-pizza",

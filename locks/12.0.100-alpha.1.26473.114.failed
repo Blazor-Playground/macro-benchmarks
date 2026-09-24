@@ -1,0 +1,73 @@
+{
+  "failedAt": "2026-09-24T14:03:56.458Z",
+  "ciRunId": "36009786985",
+  "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/36009786985",
+  "failures": [
+    {
+      "target": "mud-blazor/dev-loop",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)"
+      ]
+    },
+    {
+      "target": "mud-blazor/no-workload",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)"
+      ]
+    },
+    {
+      "target": "mud-blazor/dev-loop",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)"
+      ]
+    },
+    {
+      "target": "mud-blazor/no-workload",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)"
+      ]
+    },
+    {
+      "target": "mud-blazor/aot",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)"
+      ]
+    },
+    {
+      "target": "mud-blazor/aot",
+      "errorLines": [
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0). Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.Components 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.Components.Web 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)",
+        "/__w/macro-benchmarks/macro-benchmarks/src/mud-blazor/MudBlazor.csproj : error NU1202: Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 is not compatible with net11.0 (.NETCoreApp,Version=v11.0) / browser-wasm. Package Microsoft.AspNetCore.WebUtilities 12.0.0-alpha.1.26473.114 supports: net12.0 (.NETCoreApp,Version=v12.0)"
+      ]
+    }
+  ]
+}

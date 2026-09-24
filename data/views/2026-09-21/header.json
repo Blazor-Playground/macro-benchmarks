@@ -1,6 +1,32 @@
 {
   "columns": [
     {
+      "sdkVersion": "12.0.100-alpha.1.26472.116",
+      "runtimeGitHash": "d4b2951c1fa53ed95aa5bea8ad8e8a0e0a5a2fe7",
+      "aspnetCoreGitHash": "60a812ff26304bb6064e4d29828d4412e8a123b6",
+      "sdkGitHash": "3389239e7adbd7440df1e7fb8354bc4afa41fa2f",
+      "vmrGitHash": "0cfd699c3d0ad1d7054f237ccfbbb509b9d1c1e5",
+      "runtimeCommitDateTime": "2026-09-22T00:45:02Z",
+      "runtimeCommitAuthor": "Tanner Gooding",
+      "runtimeCommitMessage": "Allow platform NaN canonicalization in floating-point assertions (#134316)",
+      "aspnetCoreCommitDateTime": "2026-09-21T22:26:26Z",
+      "aspnetCoreCommitAuthor": "William Godbe",
+      "aspnetCoreCommitMessage": "[automated] Merge branch 'release/11.0' => 'main' (#69418)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26472.116",
+      "runtimePackVersion": "12.0.0-alpha.1.26472.116",
+      "workloadVersion": "12.0.0-alpha.1.26472.116",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-09-22",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-09-24T18:12:14.836Z",
+      "ciRunId": "36037432960",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/36037432960"
+    },
+    {
       "sdkVersion": "12.0.100-alpha.1.26472.125",
       "runtimeGitHash": "d4b2951c1fa53ed95aa5bea8ad8e8a0e0a5a2fe7",
       "aspnetCoreGitHash": "60a812ff26304bb6064e4d29828d4412e8a123b6",

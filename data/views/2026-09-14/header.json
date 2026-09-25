@@ -1,6 +1,32 @@
 {
   "columns": [
     {
+      "sdkVersion": "12.0.100-alpha.1.26467.103",
+      "runtimeGitHash": "8970fe8a2fb3301d03a9de8e75892fb31b49291d",
+      "aspnetCoreGitHash": "d004c0435916c5071c6f6341ed9337100d4df346",
+      "sdkGitHash": "4c958c2fc262cbb5546d4360f2885bcfb971bfe2",
+      "vmrGitHash": "3a65ecff9e089f5c3e9a62cc006c3338ed945b2c",
+      "runtimeCommitDateTime": "2026-09-16T23:34:34Z",
+      "runtimeCommitAuthor": "Ben {chmark} Adams",
+      "runtimeCommitMessage": "Fix dotnet-pgo SPGO crash in FlowSmoothing.MakeGraphFeasible (#125896)",
+      "aspnetCoreCommitDateTime": "2026-09-16T23:14:47Z",
+      "aspnetCoreCommitAuthor": "Martin Costello",
+      "aspnetCoreCommitMessage": "[Hosting] Avoid allocations for OpenTelemetry (#67440)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26467.103",
+      "runtimePackVersion": "12.0.0-alpha.1.26467.103",
+      "workloadVersion": "12.0.0-alpha.1.26467.103",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-09-17",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-09-25T12:48:38.446Z",
+      "ciRunId": "36134636736",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/36134636736"
+    },
+    {
       "sdkVersion": "12.0.100-alpha.1.26468.106",
       "runtimeGitHash": "f0e659026713d85924b2fcb81047e622a5b3f719",
       "aspnetCoreGitHash": "8821f7eb710e9ab70f1493e9be6fb9d5cff3d75b",

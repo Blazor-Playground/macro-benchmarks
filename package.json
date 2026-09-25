@@ -5,7 +5,9 @@
     "description": ".NET Browser WASM Benchmark Suite",
     "type": "module",
     "scripts": {
-        "test": "node --test tests/unit/*.test.mjs",
+        "build:charts": "node src/bench-viewer/node_modules/typescript/bin/tsc --project src/bench-viewer/tsconfig.json",
+        "build:viewer": "dotnet publish src/bench-viewer/BenchViewer.csproj -c Release -p:BenchmarkPreset=NoWorkload -p:RuntimeFlavor=Mono -p:BuildLabel=viewer -o artifacts/bench-viewer --verbosity minimal",
+        "test": "npm run build:charts && node --test tests/unit/*.test.mjs",
         "test:e2e": "npx playwright test tests/e2e/"
     },
     "repository": {

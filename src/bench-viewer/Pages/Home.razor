@@ -17,6 +17,12 @@
              OnShowDailyReleasesChanged="@HandleShowDailyReleasesChanged"
              OnFilterChanged="@HandleFilterChanged" />
 }
+else
+{
+    <aside class="sidebar" aria-label="Benchmark filters">
+        <DashboardSidebarHeader />
+    </aside>
+}
 
 <main class="main-content">
     @if (loading)

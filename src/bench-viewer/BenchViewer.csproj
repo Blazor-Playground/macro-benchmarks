@@ -29,7 +29,6 @@
 
   <!-- TypeScript compilation -->
   <PropertyGroup>
-    <TypeScriptOutputDir>wwwroot\chart</TypeScriptOutputDir>
     <NpmInstallStamp>node_modules/.install-stamp</NpmInstallStamp>
   </PropertyGroup>
 
@@ -38,13 +37,30 @@
     <None Remove="chart\**" />
   </ItemGroup>
 
-  <Target Name="NpmInstall" BeforeTargets="CompileTypeScript" Inputs="package.json" Outputs="$(NpmInstallStamp)">
-    <Exec Command="npm install" WorkingDirectory="$(MSBuildProjectDirectory)" />
+  <Target Name="NpmInstall" Inputs="package.json;package-lock.json" Outputs="$(NpmInstallStamp)">
+    <Exec Command="npm ci --ignore-scripts --no-audit --no-fund" WorkingDirectory="$(MSBuildProjectDirectory)" />
     <Touch Files="$(NpmInstallStamp)" AlwaysCreate="true" />
   </Target>
 
-  <Target Name="CompileTypeScript" BeforeTargets="Build" Inputs="@(TypeScriptSource)" Outputs="$(TypeScriptOutputDir)\main.js">
-    <Exec Command="npx tsc" WorkingDirectory="$(MSBuildProjectDirectory)" />
+  <Target Name="CompileTypeScript" BeforeTargets="ResolveProjectStaticWebAssets" DependsOnTargets="NpmInstall">
+    <Exec Command="node node_modules/typescript/bin/tsc --project tsconfig.json" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Copy SourceFiles="node_modules/bootstrap/dist/css/bootstrap.min.css;node_modules/bootstrap/dist/css/bootstrap.min.css.map"
+          DestinationFolder="wwwroot/lib/bootstrap/dist/css" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="node_modules/bootstrap/LICENSE" DestinationFolder="wwwroot/lib/bootstrap" SkipUnchangedFiles="true" />
+    <!-- These files do not exist at project evaluation on a clean checkout. -->
+    <ItemGroup>
+      <Content Include="wwwroot/chart/**/*.js;wwwroot/lib/bootstrap/**/*" Exclude="@(Content)" />
+      <FileWrites Include="wwwroot/chart/**/*.js;wwwroot/lib/bootstrap/**/*" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="RemoveStaleViewerBootstraps" BeforeTargets="ComputeAndCopyFilesToPublishDirectory">
+    <!-- The shared alias target requires one current fingerprint when republishing. -->
+    <ItemGroup>
+      <_StaleViewerBootstrap Include="$(PublishDir)wwwroot/main.*.mjs;$(PublishDir)wwwroot/_framework/dotnet.*.js"
+                             Exclude="$(PublishDir)wwwroot/_framework/dotnet.native*.js;$(PublishDir)wwwroot/_framework/dotnet.runtime*.js;$(PublishDir)wwwroot/_framework/dotnet.diagnostics*.js" />
+    </ItemGroup>
+    <Delete Files="@(_StaleViewerBootstrap)" />
   </Target>
 
 </Project>

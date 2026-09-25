@@ -29,6 +29,15 @@ tracking/           Cache branch for SDK enumeration state and lock files
 artifacts/          Local build outputs, downloaded SDKs, and result JSON
 ```
 
+## Dashboard views
+
+The Blazor viewer has Home, NET12 focus and delta routes, all using the
+app-relative `data/views/` root. Home and Focus share left-pane navigation;
+delta reports remain linked from point details. Focus owns separate charts and
+pure comparison/window logic, without changing the benchmark producer.
+See [dashboard.md](dashboard.md) for selectors, provenance limits, local data
+sources and tests of the source-built viewer.
+
 ## Pipeline stages
 
 The CLI defines 14 stages, executed in the order specified by `--stages`:

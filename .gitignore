@@ -17,6 +17,7 @@ tracking/
 dist/
 !src/igniteui-light/wwwroot/lib/bootstrap/dist/
 src/bench-viewer/wwwroot/chart/*.js
+src/bench-viewer/wwwroot/lib/bootstrap/
 .playwright-mcp
 
 # System files

@@ -24,6 +24,7 @@ interface ReleasesIndex {
     'releases-index': Array<{
         'channel-version': string;
         'releases.json': string;
+        'support-phase'?: string;
     }>;
 }
 
@@ -326,12 +327,22 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
             continue;
         }
 
+        // Pre-GA channels (preview/go-live) have no GA release yet; include only the
+        // single latest prerelease so an upcoming release (e.g. net11 RC) is measured
+        // and transitions cleanly to GA once support-phase flips to active.
+        const supportPhase = entry['support-phase'] ?? '';
+        const allowPrerelease = supportPhase === 'go-live' || supportPhase === 'preview';
+
         let channelCount = 0;
+        let tookPrerelease = false;
         for (const rel of channelData.releases) {
             const rtVersion = rel.runtime.version;
 
-            // GA only: skip prerelease
-            if (rtVersion.includes('-')) continue;
+            if (rtVersion.includes('-')) {
+                // releases.json is newest-first; take only the first (latest) prerelease.
+                if (!allowPrerelease || tookPrerelease) continue;
+                tookPrerelease = true;
+            }
 
             const sdkVersion = pickLatestBandSdk(rel.sdks);
             if (!sdkVersion) continue;
@@ -344,7 +355,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
             channelCount++;
         }
 
-        info(`${channel}: ${channelCount} GA releases`);
+        info(`${channel}: ${channelCount} releases`);
     }
 
     info(`Total candidates: ${candidates.length}`);

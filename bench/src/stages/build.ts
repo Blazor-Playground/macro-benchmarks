@@ -397,8 +397,9 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     }
     info(`${succeeded.length} builds succeeded`);
 
-    // Generate run ID and write manifest
-    const runId = new Date().toISOString().replace(/:/g, '-').replace(/\.\d+Z$/, 'Z');
+    // Generate run ID and write manifest. BENCH_RUN_ID keeps the results path identical
+    // across per-app build shards so their partial manifests merge under one run.
+    const runId = process.env['BENCH_RUN_ID'] || new Date().toISOString().replace(/:/g, '-').replace(/\.\d+Z$/, 'Z');
     const resultsDir = join(ctx.artifactsDir, 'results', runId);
     await mkdir(resultsDir, { recursive: true });
 

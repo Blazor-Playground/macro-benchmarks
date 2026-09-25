@@ -7,6 +7,12 @@ import { runStages } from './stages/index.js';
 async function main(): Promise<void> {
     const ctx = await buildContext();
 
+    // Emit the effective app list (dry-run aware) for the CI build shard matrix, then exit.
+    if (process.argv.includes('--print-apps')) {
+        console.log(JSON.stringify(ctx.apps));
+        return;
+    }
+
     if (ctx.verbose) {
         console.log('Stages:', ctx.stages.join(', '));
         console.log('Runtimes:', ctx.runtimes.join(', '));

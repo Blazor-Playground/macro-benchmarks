@@ -48,7 +48,10 @@ Filters (comma-separated, restrict what gets built/measured):
 Measurement:
   --retries <n>            Max retries on timeout (default: 0)
   --timeout <ms>           Per-measurement timeout (default: 300000)
-  --warm-runs <n>          Warm/cold reload iterations (default: 5)
+  --warm-runs <n>          Warm reload iterations (also drives walkthrough runs = warm-runs×4) (default: 5)
+  --cold-runs <n>          Cold load iterations (fresh browser each) (default: 10)
+  --walkthrough-runs <n>   Walkthrough iterations per node (0 = auto = warm-runs×4) (default: 0)
+  --replica <id>           Replica id for multi-node sharding (tags result files; empty = single node)
   --deadline-minutes <n>   Time budget for measure stage (default: 0 = no limit)
   --no-headless            Launch browsers in headed mode
 
@@ -67,7 +70,7 @@ Scheduling:
 Enumeration:
   --major <n>              .NET major version (default: 12)
   --months <n>             History months to scan (default: 1)
-  --release-majors <list>  Comma-separated majors for release enumeration (default: 8,9,10)
+  --release-majors <list>  Comma-separated majors for release enumeration (default: 8,9,10,11)
   --vmr-branch <name>      Keep only daily packs from this dotnet/dotnet branch (default: main; empty = all)
   --force-enumerate        Re-resolve all versions (ignore cache)
 
@@ -108,6 +111,9 @@ const ARG_OPTIONS = {
     'retries': { type: 'string' as const, default: '0' },
     'timeout': { type: 'string' as const, default: '300000' },
     'warm-runs': { type: 'string' as const, default: '5' },
+    'cold-runs': { type: 'string' as const, default: '10' },
+    'walkthrough-runs': { type: 'string' as const, default: '0' },
+    'replica': { type: 'string' as const, default: '' },
     'deadline-minutes': { type: 'string' as const, default: '0' },
     'no-headless': { type: 'boolean' as const, default: false },
 
@@ -126,13 +132,14 @@ const ARG_OPTIONS = {
     // Enumeration
     'major': { type: 'string' as const, default: '12' },
     'months': { type: 'string' as const, default: '1' },
-    'release-majors': { type: 'string' as const, default: '8,9,10' },
+    'release-majors': { type: 'string' as const, default: '8,9,10,11' },
     'vmr-branch': { type: 'string' as const, default: 'main' },
     'force-enumerate': { type: 'boolean' as const, default: false },
 
     // General
     'help': { type: 'boolean' as const, default: false },
     'verbose': { type: 'boolean' as const, default: false },
+    'print-apps': { type: 'boolean' as const, default: false },
 } as const;
 
 // ── Parsing Helpers ──────────────────────────────────────────────────────────
@@ -265,6 +272,9 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
         retries: parseIntStrict(values.retries!, 'retries'),
         timeout: parseIntStrict(values.timeout!, 'timeout'),
         warmRuns: parseIntStrict(values['warm-runs']!, 'warm-runs'),
+        coldRuns: parseIntStrict(values['cold-runs']!, 'cold-runs'),
+        walkthroughRuns: parseIntStrict(values['walkthrough-runs']!, 'walkthrough-runs'),
+        replica: values['replica'] || loaded.replica || '',
         deadlineMs: parseIntStrict(values['deadline-minutes']!, 'deadline-minutes') * 60_000 || 0,
         headless: !(values['no-headless'] ?? false),
 

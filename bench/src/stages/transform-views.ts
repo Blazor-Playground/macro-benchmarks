@@ -5,6 +5,7 @@ import { type BenchContext, type SdkInfo } from '../context.js';
 import { banner, info, debug } from '../log.js';
 import { ensureBranchCheckout } from '../lib/branch-checkout.js';
 import { isPrerelease, getVersionMajor, compareVersions } from '../lib/version-utils.js';
+import { sortedIQM, sortedMedian } from '../lib/stats.js';
 import { computeAndWriteDelta } from '../lib/delta.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -19,6 +20,7 @@ interface ResultFile {
         [key: string]: unknown;
     };
     metrics: Record<string, number>;
+    rawSamples?: Record<string, number[]>;
 }
 
 interface LoadedResult extends SdkInfo {
@@ -92,6 +94,10 @@ async function loadResults(ctx: BenchContext): Promise<LoadedResult[]> {
 
     const results: LoadedResult[] = [];
 
+    // Group files by (commit, rowKey, app) so multiple replica nodes of the same
+    // measurement pool together instead of overwriting each other in the grid.
+    const groups = new Map<string, { base: Omit<LoadedResult, 'metrics'>; replicas: { metrics: Record<string, number>; rawSamples?: Record<string, number[]> }[] }>();
+
     for (const { path: filepath, filename } of resultFiles) {
         const raw = await readFile(filepath, 'utf-8');
         const data: ResultFile = JSON.parse(raw);
@@ -110,12 +116,27 @@ async function loadResults(ctx: BenchContext): Promise<LoadedResult[]> {
 
         const { runtime, preset, profile: rawProfile, engine, app, ...sdkFields } = m;
         const profile = rawProfile || 'desktop';
-        results.push({
-            ...sdkFields,
-            rowKey: `${runtime}/${preset}/${profile}/${engine}`,
-            app,
-            metrics: data.metrics,
-        });
+        const rowKey = `${runtime}/${preset}/${profile}/${engine}`;
+        const key = `${sdkFields.runtimeGitHash}|${sdkFields.sdkVersion}|${rowKey}|${app}`;
+        let g = groups.get(key);
+        if (!g) {
+            g = { base: { ...sdkFields, rowKey, app }, replicas: [] };
+            groups.set(key, g);
+        }
+        g.replicas.push({ metrics: data.metrics, rawSamples: data.rawSamples });
+    }
+
+    let pooledGroups = 0;
+    for (const g of groups.values()) {
+        const metrics = g.replicas.length === 1
+            ? g.replicas[0].metrics
+            : mergeReplicaMetrics(g.replicas);
+        if (g.replicas.length > 1) pooledGroups++;
+        results.push({ ...g.base, metrics });
+    }
+
+    if (ctx.verbose && pooledGroups > 0) {
+        debug(`Pooled replicas for ${pooledGroups}/${groups.size} measurements`);
     }
 
     if (ctx.verbose) {
@@ -126,6 +147,37 @@ async function loadResults(ctx: BenchContext): Promise<LoadedResult[]> {
         debug(`  SDK versions: ${[...sdks].sort().join(', ')}`);
     }
     return results;
+}
+
+// Pool N replica measurements of the same cell into one metric map. For metrics with raw
+// per-run samples, all replicas' samples are pooled and IQM-trimmed (balanced design →
+// machine noise divided by replica count + global outlier rejection). Metrics without raw
+// samples (sizes, memory) fall back to the median of the replica point values.
+function mergeReplicaMetrics(
+    replicas: { metrics: Record<string, number>; rawSamples?: Record<string, number[]> }[],
+): Record<string, number> {
+    const keys = new Set<string>();
+    for (const r of replicas) for (const k of Object.keys(r.metrics)) keys.add(k);
+
+    const out: Record<string, number> = {};
+    for (const key of keys) {
+        const pooled: number[] = [];
+        for (const r of replicas) {
+            const arr = r.rawSamples?.[key];
+            if (arr?.length) pooled.push(...arr);
+        }
+        if (pooled.length > 0) {
+            const v = sortedIQM(pooled);
+            if (v != null) out[key] = Math.round(v);
+        } else {
+            const points = replicas
+                .map(r => r.metrics[key])
+                .filter((v): v is number => v != null && Number.isFinite(v));
+            const v = sortedMedian(points);
+            if (v != null) out[key] = Math.round(v);
+        }
+    }
+    return out;
 }
 
 async function findResultFiles(dir: string): Promise<{ path: string; filename: string }[]> {

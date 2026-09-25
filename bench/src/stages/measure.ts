@@ -147,10 +147,10 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
                     // Build and write result JSON
                     const meta = buildMeta(ctx, entry, engine, profile);
-                    const resultJson = buildResultJson(meta, result.metrics, result.sampleCounts);
+                    const resultJson = buildResultJson(meta, result.metrics, result.sampleCounts, result.rawSamples);
                     const filename = buildResultFilename(
                         ctx.sdkInfo, entry.runtime, entry.preset,
-                        profile, engine, entry.app,
+                        profile, engine, entry.app, ctx.replica,
                     );
                     const outPath = join(ctx.resultsDir, filename);
                     await writeFile(outPath, JSON.stringify(resultJson, null, 2) + '\n');
@@ -295,10 +295,17 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
 
 const INTERNAL_KEYS = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;
 
+// Pin the browser locale so the guest resolves a culture that always exists. On runners
+// with no system locale (e.g. arm64 images) Chrome otherwise reports one the trimmed/AOT
+// app can't resolve → CultureNotFoundException at startup → bench_complete never fires.
+const BROWSER_CONTEXT_OPTIONS = { locale: 'en-US' } as const;
+
 /** Metrics + sample counts for each metric key. */
 interface MetricsResult {
     metrics: Partial<Record<MetricKey, number | null>>;
     sampleCounts: Partial<Record<MetricKey, number>>;
+    /** Raw per-run samples per metric, for cross-replica pooling at aggregate time. */
+    rawSamples?: Partial<Record<MetricKey, number[]>>;
 }
 
 /** Average of the top-N largest values in an array (default N=3). */
@@ -332,6 +339,7 @@ function assembleInternalMetrics(
     timeToCreateDotnetCold: number | null,
     timeToExitCold: number | null,
     wasmMemorySize: number | null,
+    rawSamples?: Record<string, number[]>,
 ): MetricsResult {
     return {
         metrics: {
@@ -349,6 +357,11 @@ function assembleInternalMetrics(
             [MetricKey.JsonParseOps]: statsMap['json-parse-ops']?.n,
             [MetricKey.ExceptionOps]: statsMap['exception-ops']?.n,
         },
+        rawSamples: rawSamples ? {
+            [MetricKey.JsInteropOps]: rawSamples['js-interop-ops'],
+            [MetricKey.JsonParseOps]: rawSamples['json-parse-ops'],
+            [MetricKey.ExceptionOps]: rawSamples['exception-ops'],
+        } : undefined,
     };
 }
 
@@ -376,6 +389,7 @@ function buildExternalMetrics(
     memoryPeak: number | null,
     walkthroughMetrics: Partial<Record<MetricKey, number | null>>,
     walkthroughSampleCounts: Partial<Record<MetricKey, number>>,
+    walkthroughRawSamples?: Partial<Record<MetricKey, number[]>>,
 ): MetricsResult {
     return {
         metrics: {
@@ -404,6 +418,15 @@ function buildExternalMetrics(
             [MetricKey.TimeToExitWarm]: warmArrays.exit.length || undefined,
             [MetricKey.TimeToExitCold]: coldArrays.exit.length || undefined,
             ...walkthroughSampleCounts,
+        },
+        rawSamples: {
+            [MetricKey.TimeToReachManagedWarm]: warmArrays.reachManaged,
+            [MetricKey.TimeToReachManagedCold]: coldArrays.reachManaged,
+            [MetricKey.TimeToCreateDotnetWarm]: warmArrays.createDotnet,
+            [MetricKey.TimeToCreateDotnetCold]: coldArrays.createDotnet,
+            [MetricKey.TimeToExitWarm]: warmArrays.exit,
+            [MetricKey.TimeToExitCold]: coldArrays.exit,
+            ...walkthroughRawSamples,
         },
     };
 }
@@ -542,7 +565,7 @@ async function runColdLoads(
         // renderer/GPU processes on constrained CI runners, inflating each
         // successive cold load (observed 7s → 235s); a fresh process reaps them.
         const coldBrowser = await launchBrowser();
-        const coldCtx = await coldBrowser.newContext();
+        const coldCtx = await coldBrowser.newContext(BROWSER_CONTEXT_OPTIONS);
         const coldPage = await coldCtx.newPage();
         try {
             await prepareColdContext(coldPage, coldCtx, pageUrl, profile, useCDP);
@@ -591,6 +614,7 @@ async function runWarmLoads(
 interface WalkthroughResult {
     metrics: Partial<Record<MetricKey, number | null>>;
     sampleCounts: Partial<Record<MetricKey, number>>;
+    rawSamples: Partial<Record<MetricKey, number[]>>;
     jsHeapSamples: number[];
     wasmMemorySamples: number[];
 }
@@ -603,6 +627,7 @@ async function runWalkthroughs(
     engine: Engine,
     profile: Profile,
     warmRuns: number,
+    walkthroughRuns: number,
     timeout: number,
     verbose: boolean,
     dryRun: boolean,
@@ -611,8 +636,8 @@ async function runWalkthroughs(
     restartServer: (() => Promise<string>) | null,
     coreclrWasmReady: boolean,
 ): Promise<WalkthroughResult> {
-    const empty: WalkthroughResult = { metrics: {}, sampleCounts: {}, jsHeapSamples: [], wasmMemorySamples: [] };
-    const defaultRuns = warmRuns > 1 ? warmRuns * 4 : 1;
+    const empty: WalkthroughResult = { metrics: {}, sampleCounts: {}, rawSamples: {}, jsHeapSamples: [], wasmMemorySamples: [] };
+    const defaultRuns = walkthroughRuns > 0 ? walkthroughRuns : (warmRuns > 1 ? warmRuns * 4 : 1);
     // Walkthroughs are Chrome-only + desktop-only (CDP required for reliable timing)
     if (profile !== 'desktop' || engine !== E.Chrome) return empty;
     // Filter: coreclrOnly needs coreclr runtime; wasmOnly needs a usable CoreCLR WASM runtime
@@ -627,6 +652,7 @@ async function runWalkthroughs(
     const durationMs = dryRun ? 5_000 : 60_000;
     const allMetrics: Partial<Record<MetricKey, number | null>> = {};
     const allSampleCounts: Partial<Record<MetricKey, number>> = {};
+    const allRawSamples: Partial<Record<MetricKey, number[]>> = {};
     const jsHeapSamples: number[] = [];
     const wasmMemorySamples: number[] = [];
     let currentUrl = pageUrl;
@@ -659,7 +685,7 @@ async function runWalkthroughs(
                 }
                 if (!wt.noBrowser) {
                     wtBrowser = await launchBrowser();
-                    wtCtx = await wtBrowser.newContext();
+                    wtCtx = await wtBrowser.newContext(BROWSER_CONTEXT_OPTIONS);
                     wtPage = await wtCtx.newPage();
                 }
             } else {
@@ -747,6 +773,7 @@ async function runWalkthroughs(
         }
         allMetrics[wt.metric] = rounded;
         allSampleCounts[wt.metric] = times.length;
+        allRawSamples[wt.metric] = times;
     }
 
     if (verbose) {
@@ -756,6 +783,7 @@ async function runWalkthroughs(
     return {
         metrics: allMetrics,
         sampleCounts: allSampleCounts,
+        rawSamples: allRawSamples,
         jsHeapSamples,
         wasmMemorySamples,
     };
@@ -776,6 +804,8 @@ async function runBrowserSession(
     isInternal: boolean,
     useCDP: boolean,
     warmRuns: number,
+    coldRuns: number,
+    walkthroughRuns: number,
     timeout: number,
     verbose: boolean,
     dryRun: boolean,
@@ -784,7 +814,7 @@ async function runBrowserSession(
     restartServer: (() => Promise<string>) | null,
     coreclrWasmReady: boolean,
 ): Promise<MetricsResult> {
-    const context = await browser.newContext();
+    const context = await browser.newContext(BROWSER_CONTEXT_OPTIONS);
     const page = await context.newPage();
 
     // (#3) Use project logger instead of console.error
@@ -823,9 +853,9 @@ async function runBrowserSession(
 
     // Additional cold loads + warm loads (external apps only)
     if (!isInternal) {
-        if (warmRuns > 1) {
+        if (coldRuns > 1) {
             const extraCold = await runColdLoads(
-                launchBrowser, pageUrl, warmRuns - 1, timeout, profile, useCDP, verbose,
+                launchBrowser, pageUrl, coldRuns - 1, timeout, profile, useCDP, verbose,
             );
             mergeTimingArrays(coldArrays, extraCold);
         }
@@ -870,10 +900,11 @@ async function runBrowserSession(
 
     // Walkthroughs (external apps only)
     const walkthroughResult = !isInternal
-        ? await runWalkthroughs(context, launchBrowser, pageUrl, entry, engine, profile, warmRuns, timeout, verbose, dryRun, allSelfNav ? null : cdp, deadlineAt, restartServer, coreclrWasmReady)
-        : { metrics: {}, sampleCounts: {}, jsHeapSamples: [] as number[], wasmMemorySamples: [] as number[] };
+        ? await runWalkthroughs(context, launchBrowser, pageUrl, entry, engine, profile, warmRuns, walkthroughRuns, timeout, verbose, dryRun, allSelfNav ? null : cdp, deadlineAt, restartServer, coreclrWasmReady)
+        : { metrics: {}, sampleCounts: {}, rawSamples: {}, jsHeapSamples: [] as number[], wasmMemorySamples: [] as number[] };
     const walkthroughMetrics = walkthroughResult.metrics;
     const walkthroughSampleCounts = walkthroughResult.sampleCounts;
+    const walkthroughRawSamples = walkthroughResult.rawSamples;
 
     // Replace memory metrics with post-walkthrough avg-of-top-3 when walkthrough ran
     if (walkthroughResult.jsHeapSamples.length > 0) {
@@ -920,6 +951,7 @@ async function runBrowserSession(
             statsMap, compileTime,
             useCDP ? (cdp!.memoryPeak || null) : null,
             createDotnetCold, exitCold, wasmMemorySize,
+            benchSamples!,
         );
     }
 
@@ -943,6 +975,7 @@ async function runBrowserSession(
         finalMemoryPeak != null ? Math.round(finalMemoryPeak) : null,
         walkthroughMetrics,
         walkthroughSampleCounts,
+        walkthroughRawSamples,
     );
 }
 
@@ -966,6 +999,12 @@ async function measureBrowser(
     const warmRuns = ctx.dryRun ? 1
         : entry.preset === Preset.DevLoop ? 1
             : ctx.warmRuns;
+    const coldRuns = ctx.dryRun ? 1
+        : entry.preset === Preset.DevLoop ? 1
+            : ctx.coldRuns;
+    const walkthroughRuns = ctx.dryRun ? 1
+        : entry.preset === Preset.DevLoop ? 1
+            : ctx.walkthroughRuns;
     const timeout = ctx.timeout;
     const maxRetries = ctx.retries;
 
@@ -983,7 +1022,7 @@ async function measureBrowser(
     }
     info(`    Serving on ${pageUrl}`);
     if (ctx.verbose) {
-        debug(`Browser: ${engine}, CDP: ${useCDP}, warmRuns: ${warmRuns}, timeout: ${timeout}ms, retries: ${maxRetries}, kestrelHosted: ${!!isKestrelHosted}`);
+        debug(`Browser: ${engine}, CDP: ${useCDP}, warmRuns: ${warmRuns}, coldRuns: ${coldRuns}, timeout: ${timeout}ms, retries: ${maxRetries}, kestrelHosted: ${!!isKestrelHosted}`);
     }
 
     // For Kestrel-hosted apps, provide a function that restarts the server between walkthroughs
@@ -1017,6 +1056,10 @@ async function measureBrowser(
                 '--ignore-gpu-blocklist',
                 '--no-sandbox',
                 '--disable-dev-shm-usage',
+                // Keep timers/rendering at full rate so background/occluded tabs aren't throttled
+                '--disable-background-timer-throttling',
+                '--disable-renderer-backgrounding',
+                '--disable-backgrounding-occluded-windows',
             ] : undefined;
             const launchBrowser = () => browserType.launch({
                 headless: ctx.headless,
@@ -1027,7 +1070,7 @@ async function measureBrowser(
                 const result = await runBrowserSession(
                     browser, launchBrowser, pageUrl, entry, engine, profile,
                     compileTime, fileSizes, isInternal, useCDP,
-                    warmRuns, timeout, ctx.verbose, ctx.dryRun, srv,
+                    warmRuns, coldRuns, walkthroughRuns, timeout, ctx.verbose, ctx.dryRun, srv,
                     deadlineAt, restartServer, coreclrWasmAvailable(ctx.sdkInfo),
                 );
                 await sleep(100);
@@ -1099,6 +1142,7 @@ async function measureCli(
         return assembleInternalMetrics(
             statsMap, compileTime, null,
             t.createDotnet, t.exit, t.wasmMemory,
+            cliSamples,
         );
     }
 

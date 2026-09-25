@@ -87,6 +87,9 @@ export interface BenchContext {
     retries: number;
     timeout: number;
     warmRuns: number;
+    coldRuns: number;
+    walkthroughRuns: number;
+    replica: string;
     deadlineMs: number;
     headless: boolean;
 

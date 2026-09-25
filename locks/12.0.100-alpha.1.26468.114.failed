@@ -1,0 +1,11 @@
+{
+  "failedAt": "2026-09-25T06:32:53.207Z",
+  "ciRunId": "36099947630",
+  "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/36099947630",
+  "failures": [
+    {
+      "target": "havit-bootstrap/aot",
+      "errorLines": []
+    }
+  ]
+}

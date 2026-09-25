@@ -1,6 +1,32 @@
 {
   "columns": [
     {
+      "sdkVersion": "12.0.100-alpha.1.26471.101",
+      "runtimeGitHash": "f8546ab27b4eb75894e2574c7da144f039d4c95c",
+      "aspnetCoreGitHash": "1fcd7ef305697a1888f3ede076010350ae9f4f8d",
+      "sdkGitHash": "fdc3536fcc73d66d5d92f31d8538279f878141a2",
+      "vmrGitHash": "3fda104e7d5e30b3425e0e04fc7365f72356fd2d",
+      "runtimeCommitDateTime": "2026-09-20T20:00:19Z",
+      "runtimeCommitAuthor": "Andy Ayers",
+      "runtimeCommitMessage": "Disable badinlinee on unsupported configurations (#134309)",
+      "aspnetCoreCommitDateTime": "2026-09-18T21:54:03Z",
+      "aspnetCoreCommitAuthor": "William Godbe",
+      "aspnetCoreCommitMessage": "Updated npm packages 2026-09-18 (#69396)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26471.101",
+      "runtimePackVersion": "12.0.0-alpha.1.26471.101",
+      "workloadVersion": "12.0.0-alpha.1.26471.101",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-09-21",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-09-25T01:45:52.184Z",
+      "ciRunId": "36081492444",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/36081492444"
+    },
+    {
       "sdkVersion": "12.0.100-alpha.1.26471.108",
       "runtimeGitHash": "f8546ab27b4eb75894e2574c7da144f039d4c95c",
       "aspnetCoreGitHash": "1fcd7ef305697a1888f3ede076010350ae9f4f8d",

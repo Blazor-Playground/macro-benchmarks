@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>.NET WASM Benchmark Dashboard</title>
     <base href="/macro-benchmarks/" />
-    <link href="_framework/dotnet.83vuyezgkc.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-HH1GRXAiEQ2AO6Z6/NV1hzBMQzEazdlCEMnvnwVmPDA=" />
+    <link href="_framework/dotnet.0xy1xdeu4x.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-/CPQejBfMEP4EnauGmKYoo/m3TFfv9VGuwyw85fJaFY=" />
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
@@ -16,14 +16,20 @@
     <script src="lib/chartjs/hammer.min.4uqs2me7ef.js"></script>
     <script type="importmap">{
   "imports": {
-    "./_framework/dotnet.js": "./_framework/dotnet.83vuyezgkc.js",
-    "./_framework/dotnet.native.js": "./_framework/dotnet.native.sej0r0bo3i.js",
-    "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.tvb3jonony.js",
+    "./_framework/dotnet.js": "./_framework/dotnet.0xy1xdeu4x.js",
+    "./_framework/dotnet.native.js": "./_framework/dotnet.native.je1otc1dfl.js",
+    "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.tde8f9s28r.js",
     "./chart/chart-factory.js": "./chart/chart-factory.9hy25g233c.js",
     "./chart/chart-interop.js": "./chart/chart-interop.stfl6r9dj8.js",
     "./chart/constants.js": "./chart/constants.doh0w8uj6j.js",
     "./chart/data-fetcher.js": "./chart/data-fetcher.wuf8yj6b1v.js",
     "./chart/dataset-builder.js": "./chart/dataset-builder.zp4myim4aa.js",
+    "./chart/focus-chart.js": "./chart/focus-chart.cj9vmfwzog.js",
+    "./chart/focus-data.js": "./chart/focus-data.g6h5loyp9i.js",
+    "./chart/focus-interop.js": "./chart/focus-interop.m0ctjeoc4w.js",
+    "./chart/focus-loader.js": "./chart/focus-loader.fdpmn313m4.js",
+    "./chart/focus-selection.js": "./chart/focus-selection.873a5yhkcy.js",
+    "./chart/focus-types.js": "./chart/focus-types.snkbmmy1c8.js",
     "./chart/tick-layout.js": "./chart/tick-layout.k9clcfhy0u.js",
     "./lib/bootstrap/dist/js/bootstrap.bundle.js": "./lib/bootstrap/dist/js/bootstrap.bundle.c2gs0umjsq.js",
     "./lib/bootstrap/dist/js/bootstrap.bundle.min.js": "./lib/bootstrap/dist/js/bootstrap.bundle.min.hd3gran6i8.js",
@@ -35,16 +41,16 @@
     "./lib/chartjs/chartjs-adapter-date-fns.bundle.min.js": "./lib/chartjs/chartjs-adapter-date-fns.bundle.min.3fzizwo9jc.js",
     "./lib/chartjs/chartjs-plugin-zoom.min.js": "./lib/chartjs/chartjs-plugin-zoom.min.uqvkc91v5r.js",
     "./lib/chartjs/hammer.min.js": "./lib/chartjs/hammer.min.4uqs2me7ef.js",
-    "./main.mjs": "./main.c4ggbzub8d.mjs"
+    "./main.mjs": "./main.bjip4pk7q3.mjs"
   },
   "scopes": {},
   "integrity": {
-    "./_framework/dotnet.83vuyezgkc.js": "sha256-HH1GRXAiEQ2AO6Z6/NV1hzBMQzEazdlCEMnvnwVmPDA=",
-    "./_framework/dotnet.js": "sha256-HH1GRXAiEQ2AO6Z6/NV1hzBMQzEazdlCEMnvnwVmPDA=",
-    "./_framework/dotnet.native.js": "sha256-RA1L7but0V4r2RJ4VRk5j9yjUsvDqloWnhblgNSDRI8=",
-    "./_framework/dotnet.native.sej0r0bo3i.js": "sha256-RA1L7but0V4r2RJ4VRk5j9yjUsvDqloWnhblgNSDRI8=",
-    "./_framework/dotnet.runtime.js": "sha256-F97H0JD0omjZn9gjiEoM6tTDeZx7l+4bAiVcpxCDC84=",
-    "./_framework/dotnet.runtime.tvb3jonony.js": "sha256-F97H0JD0omjZn9gjiEoM6tTDeZx7l+4bAiVcpxCDC84=",
+    "./_framework/dotnet.0xy1xdeu4x.js": "sha256-/CPQejBfMEP4EnauGmKYoo/m3TFfv9VGuwyw85fJaFY=",
+    "./_framework/dotnet.js": "sha256-/CPQejBfMEP4EnauGmKYoo/m3TFfv9VGuwyw85fJaFY=",
+    "./_framework/dotnet.native.je1otc1dfl.js": "sha256-5aV8jzdWd6/+s7Z3+vM1Hty7cRBQ06wZTOKFgnyNH0Y=",
+    "./_framework/dotnet.native.js": "sha256-5aV8jzdWd6/+s7Z3+vM1Hty7cRBQ06wZTOKFgnyNH0Y=",
+    "./_framework/dotnet.runtime.js": "sha256-L5KTB6fRmvqNeUS6FLw+fXkRpf4pY5PjaPhPw1iHfaA=",
+    "./_framework/dotnet.runtime.tde8f9s28r.js": "sha256-L5KTB6fRmvqNeUS6FLw+fXkRpf4pY5PjaPhPw1iHfaA=",
     "./chart/chart-factory.9hy25g233c.js": "sha256-859HHO8AgB63TW14kNDX23isx+7OgxEY7gpZVU47Yhs=",
     "./chart/chart-factory.js": "sha256-859HHO8AgB63TW14kNDX23isx+7OgxEY7gpZVU47Yhs=",
     "./chart/chart-interop.js": "sha256-oNqzJQrLOjrfx8kZn7SMTO62bga5eHIC0zZ+iKneQ0g=",
@@ -55,6 +61,18 @@
     "./chart/data-fetcher.wuf8yj6b1v.js": "sha256-SLBrY4GTcvckFbBLgBxcm6D2i5ktPHR5J1pfaq24lBA=",
     "./chart/dataset-builder.js": "sha256-Zwu9shf3L3AQkSDF+8WFjR6Kn/YgY/adOICCrblNK7g=",
     "./chart/dataset-builder.zp4myim4aa.js": "sha256-Zwu9shf3L3AQkSDF+8WFjR6Kn/YgY/adOICCrblNK7g=",
+    "./chart/focus-chart.cj9vmfwzog.js": "sha256-+IuJ5fRdjlupdW19O92yVGpSHuuOKmNBRRjSU9MWpLM=",
+    "./chart/focus-chart.js": "sha256-+IuJ5fRdjlupdW19O92yVGpSHuuOKmNBRRjSU9MWpLM=",
+    "./chart/focus-data.g6h5loyp9i.js": "sha256-yCRtiIO1iCKrTgQZ4U2mQExq3LSR/0yZoPYtgKvcvms=",
+    "./chart/focus-data.js": "sha256-yCRtiIO1iCKrTgQZ4U2mQExq3LSR/0yZoPYtgKvcvms=",
+    "./chart/focus-interop.js": "sha256-Fk3pAwZCk9lhSrSy6KodklVUn0C6Y0p1slubbWuXRzY=",
+    "./chart/focus-interop.m0ctjeoc4w.js": "sha256-Fk3pAwZCk9lhSrSy6KodklVUn0C6Y0p1slubbWuXRzY=",
+    "./chart/focus-loader.fdpmn313m4.js": "sha256-81wtmeARC59MtCvkbgkZ7H1R9UxosiQttYlu8+jei24=",
+    "./chart/focus-loader.js": "sha256-81wtmeARC59MtCvkbgkZ7H1R9UxosiQttYlu8+jei24=",
+    "./chart/focus-selection.873a5yhkcy.js": "sha256-TNRtRFMBtCXc1Hs1X5FHJOkAjC7xbNZacgZIkGWrTH4=",
+    "./chart/focus-selection.js": "sha256-TNRtRFMBtCXc1Hs1X5FHJOkAjC7xbNZacgZIkGWrTH4=",
+    "./chart/focus-types.js": "sha256-WIvA2gbLCTcJN0loEuXYvDWqTeiutXhB2ruDoyxKaj0=",
+    "./chart/focus-types.snkbmmy1c8.js": "sha256-WIvA2gbLCTcJN0loEuXYvDWqTeiutXhB2ruDoyxKaj0=",
     "./chart/tick-layout.js": "sha256-WOkO9dJ8sJQ8gntN+coH7U8xZ/BKSbcuJ9gffaSmcH0=",
     "./chart/tick-layout.k9clcfhy0u.js": "sha256-WOkO9dJ8sJQ8gntN+coH7U8xZ/BKSbcuJ9gffaSmcH0=",
     "./lib/bootstrap/dist/js/bootstrap.bundle.c2gs0umjsq.js": "sha256-VJjRA1MaZxAgC39Druy1Iw9M5lIMcrv0irI3gwEW4tE=",
@@ -77,8 +95,8 @@
     "./lib/chartjs/chartjs-plugin-zoom.min.uqvkc91v5r.js": "sha256-tv2LCZ11b3ZRARYonNt57j5KpHRbn81Mis4TTLVWVEA=",
     "./lib/chartjs/hammer.min.4uqs2me7ef.js": "sha256-3HDSH0r/gwYSX4FTdgIFq3LSz1bVN9d7MaK1xG8fSmw=",
     "./lib/chartjs/hammer.min.js": "sha256-3HDSH0r/gwYSX4FTdgIFq3LSz1bVN9d7MaK1xG8fSmw=",
-    "./main.c4ggbzub8d.mjs": "sha256-nKzmxOQXLblz5+Gwfct1RqqVy+aEXxl9jqDyNGIVMys=",
-    "./main.mjs": "sha256-nKzmxOQXLblz5+Gwfct1RqqVy+aEXxl9jqDyNGIVMys="
+    "./main.bjip4pk7q3.mjs": "sha256-6U1GjpzUpVy4cGlHNOA9m7uNFtYQUPwpPfUXXOQYnHw=",
+    "./main.mjs": "sha256-6U1GjpzUpVy4cGlHNOA9m7uNFtYQUPwpPfUXXOQYnHw="
   }
 }</script>
 </head>
@@ -98,7 +116,7 @@
         <span class="dismiss">🗙</span>
     </div>
     <script src="_framework/blazor.webassembly.js" autostart="false"></script>
-    <script src="main.c4ggbzub8d.mjs" type="module"></script>
+    <script src="main.bjip4pk7q3.mjs" type="module"></script>
 </body>
 
 </html>

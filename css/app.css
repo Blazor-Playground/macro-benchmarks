@@ -351,3 +351,643 @@ code {
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 }
+
+.dashboard-mode-tabs {
+    display: flex;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    gap: 24px;
+    min-height: 48px;
+    padding: 0 18px;
+    background: #fff;
+    border-bottom: 1px solid #e3e5ed;
+    font-size: 13px;
+}
+
+.dashboard-mode-tabs a {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    color: #697184;
+    text-decoration: none;
+    border-bottom: 3px solid transparent;
+}
+
+.dashboard-mode-tabs a.active {
+    color: #512bd4;
+    border-bottom-color: #512bd4;
+    font-weight: 600;
+}
+
+.net12-focus {
+    --focus-ink: #202138;
+    --focus-muted: #697184;
+    --focus-border: #e3e5ed;
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    background: #f6f7fb;
+    color: var(--focus-ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 13px;
+}
+
+.net12-focus :is(button, select, a, summary):focus-visible {
+    outline: 3px solid #9175ee;
+    outline-offset: 3px;
+}
+
+.net12-focus button,
+.net12-focus select {
+    font: inherit;
+}
+
+.dashboard-sidebar-heading {
+    flex-shrink: 0;
+    font-size: 13px;
+}
+
+.sidebar > .dashboard-sidebar-heading {
+    padding: 20px 20px 0;
+}
+
+.sidebar-updated {
+    font-size: 0.7rem;
+    line-height: 1.4;
+}
+
+.dashboard-sidebar-heading .dashboard-mode-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    min-height: 0;
+    margin: 16px 0 20px;
+    padding: 0;
+    background: transparent;
+    border-bottom: 0;
+}
+
+.dashboard-sidebar-heading .dashboard-mode-tabs a {
+    justify-content: center;
+    padding: 9px 4px;
+    border: 0;
+    border-radius: 5px;
+    color: #d1cadd;
+    font-size: 12px;
+}
+
+.dashboard-sidebar-heading .dashboard-mode-tabs a.active {
+    color: #512bd4;
+    background: #e8dffb;
+}
+
+.dashboard-sidebar-heading .dashboard-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #f1eff8;
+    text-decoration: none;
+}
+
+.dashboard-sidebar-heading .dashboard-brand-mark {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: #512bd4;
+    color: #fff;
+    font-weight: 600;
+}
+
+.dashboard-sidebar-heading .dashboard-brand small {
+    display: block;
+    color: #bcb4cc;
+    font-size: 10px;
+    margin-top: 2px;
+}
+
+.net12-focus .focus-workbench {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+}
+
+.net12-focus .focus-settings {
+    background: #202033;
+    color: #e7e6f0;
+    padding: 20px;
+    min-width: 0;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+}
+
+.net12-focus .focus-selection-control {
+    margin-top: 16px;
+}
+
+.net12-focus .focus-selection-note {
+    margin: 6px 0 0;
+    color: #c3bed4;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.net12-focus .focus-eyebrow {
+    font-size: 9px;
+    letter-spacing: 1.4px;
+    color: #b8b4cc;
+    margin: 0 0 14px;
+}
+
+.net12-focus .focus-settings label,
+.net12-focus .focus-settings legend {
+    display: block;
+    float: none;
+    color: #c3bed4;
+    font-size: 11px;
+    margin-bottom: 9px;
+}
+
+.net12-focus .focus-settings select {
+    width: 100%;
+    min-height: 38px;
+    padding: 6px;
+    background: #333148;
+    border: 1px solid #696178;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 12px;
+}
+
+.net12-focus .focus-settings fieldset {
+    min-width: 0;
+    margin: 16px 0 0;
+    padding: 0;
+    border: 0;
+}
+
+.net12-focus .focus-range-buttons,
+.net12-focus .focus-average-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    padding: 4px;
+    background: #2d2b40;
+    border-radius: 7px;
+}
+
+.net12-focus .focus-range-buttons button,
+.net12-focus .focus-average-buttons button {
+    border: 1px solid transparent;
+    background: transparent;
+    color: #d1cadd;
+    padding: 7px 3px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.net12-focus button[data-range="14d"] {
+    grid-column: 1 / -1;
+}
+
+.net12-focus .focus-settings button[aria-pressed="true"] {
+    background: #e8dffb;
+    color: #4e298f;
+    font-weight: 600;
+}
+
+.net12-focus .focus-range-note,
+.net12-focus .focus-setting-hint {
+    color: #bcb4cc;
+    font-size: 10px;
+    line-height: 1.5;
+    margin: 8px 0 0;
+}
+
+.net12-focus .focus-settings .focus-band-toggle {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+    margin: 12px 0 0;
+}
+
+.net12-focus .focus-settings .focus-curve-toggle {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.net12-focus .focus-curve-toggle input {
+    accent-color: #997ada;
+}
+
+.net12-focus .focus-graph-settings .focus-average-buttons {
+    margin-top: 12px;
+}
+
+.net12-focus .focus-graph-settings button:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.net12-focus .focus-band-toggle input {
+    accent-color: #997ada;
+}
+
+.net12-focus .focus-band-toggle:has(input:disabled) {
+    opacity: 0.55;
+}
+
+.net12-focus .focus-cohort {
+    border-top: 1px solid #484156;
+    margin-top: 16px;
+    padding-top: 14px;
+}
+
+.net12-focus .focus-cohort dl {
+    margin: 0;
+}
+
+.net12-focus .focus-cohort dl div {
+    margin-bottom: 9px;
+}
+
+.net12-focus .focus-cohort dt {
+    color: #bcb4cc;
+    font-size: 10px;
+    font-weight: 400;
+    margin-bottom: 3px;
+}
+
+.net12-focus .focus-cohort dd {
+    margin: 0;
+    font-size: 12px;
+}
+
+.net12-focus .focus-main {
+    min-width: 0;
+    padding: 18px 24px;
+}
+
+.net12-focus .focus-heading {
+    margin-bottom: 12px;
+}
+
+.net12-focus h1 {
+    font-size: 29px;
+    letter-spacing: -1px;
+    line-height: 1.2;
+    margin: 0 0 5px;
+    font-weight: 700;
+}
+
+.net12-focus h1 span {
+    color: #512bd4;
+}
+
+.net12-focus .focus-heading p {
+    color: var(--focus-muted);
+    margin: 0;
+    font-size: 12px;
+}
+
+.net12-focus .focus-provenance {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 9px 12px;
+    background: #eeedf7;
+    border: 1px solid #dfdced;
+    border-radius: 7px;
+    color: #575068;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.net12-focus .focus-provenance a {
+    margin-left: auto;
+}
+
+.net12-focus .focus-chart-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin: 12px 0 10px;
+    color: #5c6174;
+    font-size: 10px;
+}
+
+.net12-focus .focus-chart-toolbar > div > span {
+    display: block;
+    margin-top: 2px;
+}
+
+.net12-focus .focus-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.net12-focus .focus-legend i {
+    display: inline-block;
+    width: 16px;
+    border-top: 2px solid;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+.net12-focus .focus-legend .coreclr { border-color: #4285f4; }
+.net12-focus .focus-legend .mono { border-color: #f4b400; }
+.net12-focus .focus-legend .percent { border-color: #7b4bc4; border-top-style: dashed; }
+
+.net12-focus .focus-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.net12-focus .focus-card {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    min-width: 0;
+    min-height: 244px;
+    border: 1px solid var(--focus-border);
+    border-radius: 12px;
+    background: #fff;
+}
+
+.net12-focus .focus-card-summary {
+    min-width: 0;
+    border-right: 1px solid #eeeef4;
+    padding: 18px 16px;
+}
+
+.net12-focus .focus-summary-only {
+    display: block;
+    min-height: 0;
+}
+
+.net12-focus .focus-summary-only .focus-card-summary {
+    border-right: 0;
+}
+
+.net12-focus .focus-summary-only .focus-values {
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 10px 24px;
+}
+
+.net12-focus .focus-summary-only .focus-values div {
+    gap: 12px;
+}
+
+.net12-focus .focus-graphs-off {
+    color: var(--focus-muted);
+}
+
+.net12-focus .focus-card h2 {
+    font-size: 15px;
+    font-weight: 650;
+    margin: 0 0 12px;
+}
+
+.net12-focus .focus-measurement {
+    font-size: 10px;
+    line-height: 1.35;
+    color: var(--focus-muted);
+    margin: -5px 0 10px;
+}
+
+.net12-focus .focus-kpi {
+    font-variant-numeric: tabular-nums;
+}
+
+.net12-focus .focus-percentage {
+    display: block;
+    font-size: 48px;
+    letter-spacing: -1.5px;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.net12-focus .focus-verdict {
+    display: block;
+    font-size: 16px;
+    margin-top: 5px;
+}
+
+.net12-focus .better { color: #087657; }
+.net12-focus .worse { color: #bd2344; }
+.net12-focus .neutral { color: #55596c; }
+
+.net12-focus .focus-rolling-caption {
+    font-size: 12px;
+    line-height: 1.45;
+    margin: 7px 0 0;
+    color: #697184;
+    font-variant-numeric: tabular-nums;
+}
+
+.net12-focus .focus-average-label {
+    white-space: nowrap;
+}
+
+.net12-focus .focus-summary-note {
+    font-size: 10px;
+    color: var(--focus-muted);
+    line-height: 1.5;
+    margin: 7px 0 10px;
+}
+
+.net12-focus .focus-values {
+    margin: 14px 0 0;
+    font-size: 12px;
+}
+
+.net12-focus .focus-values div {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 5px;
+    margin-top: 7px;
+}
+
+.net12-focus .focus-values dt {
+    color: var(--focus-muted);
+    font-size: 10px;
+    font-weight: 400;
+}
+
+.net12-focus .focus-values dd {
+    margin: 0;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.net12-focus .focus-dot {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    margin-right: 4px;
+}
+
+.net12-focus .focus-dot.coreclr { background: #4285f4; }
+.net12-focus .focus-dot.mono { background: #f4b400; }
+
+.net12-focus .focus-card-chart {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px 8px;
+}
+
+.net12-focus .focus-plot {
+    position: relative;
+    height: 166px;
+    min-width: 0;
+}
+
+.net12-focus .focus-plot canvas {
+    max-width: 100%;
+}
+
+.net12-focus .focus-card-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 3px 7px;
+    border-top: 1px solid #f1f2f6;
+    padding: 6px 3px 0;
+    font-size: 10px;
+    line-height: 1.5;
+    color: var(--focus-muted);
+}
+
+.net12-focus .focus-sdk {
+    overflow-wrap: anywhere;
+}
+
+.net12-focus .focus-latest-builds {
+    margin-top: 12px;
+    color: var(--focus-muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.net12-focus .focus-latest-build {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    margin: 4px 0 0;
+}
+
+.net12-focus .focus-build-metrics {
+    color: var(--focus-ink);
+}
+
+.net12-focus .focus-coverage button {
+    border: 0;
+    background: none;
+    color: #512bd4;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    padding: 2px 0;
+    font-size: inherit;
+}
+
+.net12-focus .focus-older-pair {
+    color: #8a5320;
+}
+
+.net12-focus .focus-unavailable-heading {
+    font-size: 18px;
+    color: #697184;
+    margin: 24px 0 10px;
+}
+
+.net12-focus .focus-empty {
+    padding: 18px 10px;
+    margin: 0 4px;
+    border: 1px dashed #dedfe9;
+    border-radius: 7px;
+    text-align: center;
+    color: #67677e;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.net12-focus .focus-empty p {
+    font-size: 11px;
+    margin: 8px 0 0;
+}
+
+.net12-focus .focus-coverage,
+.net12-focus .focus-methodology {
+    font-size: 11px;
+    color: var(--focus-muted);
+    line-height: 1.6;
+    margin: 14px 0 0;
+}
+
+.net12-focus .focus-methodology {
+    border-top: 1px solid var(--focus-border);
+    padding-top: 12px;
+}
+
+.net12-focus .focus-methodology summary {
+    color: #545168;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.net12-focus .focus-error {
+    padding: 12px;
+    margin: 0 0 12px;
+    border: 1px solid #d791a2;
+    background: #fff1f4;
+    color: #941d34;
+    overflow-wrap: anywhere;
+}
+
+.net12-focus .focus-error button {
+    padding: 5px 12px;
+    border: 1px solid currentColor;
+    border-radius: 5px;
+    background: #fff;
+    margin-left: 10px;
+}
+
+@media (min-width: 1536px) {
+    .net12-focus .focus-card { grid-template-columns: 252px minmax(0, 1fr); }
+    .net12-focus .focus-percentage { font-size: 54px; }
+}
+
+@media (max-width: 1100px) {
+    .net12-focus .focus-metrics { grid-template-columns: minmax(0, 1fr); }
+    .net12-focus .focus-chart-toolbar { align-items: flex-start; flex-direction: column; }
+}
+
+@media (max-width: 760px) {
+    .net12-focus .focus-workbench { display: block; }
+    .net12-focus .focus-settings { padding: 18px; height: auto; position: static; overflow: visible; }
+    .net12-focus .focus-settings fieldset { margin-top: 16px; }
+    .net12-focus .focus-range-buttons { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .net12-focus button[data-range="14d"] { grid-column: auto; }
+    .net12-focus .focus-cohort dl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .net12-focus .focus-main { padding: 18px 12px; }
+    .net12-focus .focus-provenance { align-items: flex-start; }
+    .net12-focus .focus-card { grid-template-columns: minmax(0, 1fr); }
+    .net12-focus .focus-card-summary { border-right: 0; padding: 18px; }
+    .net12-focus .focus-values { display: flex; gap: 24px; }
+    .net12-focus .focus-values div { gap: 10px; }
+    .net12-focus .focus-rolling-caption { font-size: 12px; }
+    .net12-focus .focus-plot { height: 200px; }
+}

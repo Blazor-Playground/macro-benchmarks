@@ -55,6 +55,30 @@ export function focusChartModel(metric: FocusMetricReport, averaged: boolean, sh
 
 interface BandPoint { x: number; min: number; max: number }
 
+export function wrapFocusTooltipText(text: string, maxWidth: number, measure: (text: string) => number): string[] {
+    if (!Number.isFinite(maxWidth) || maxWidth <= 0) throw new RangeError('Tooltip width must be finite and positive.');
+    const lines: string[] = [];
+    let line = '';
+    // Keep measurement units with their values when wrapping at word boundaries.
+    for (const word of text.match(/\S+(?: (?:ms|s|MB)\b)?/g) ?? []) {
+        const next = line ? `${line} ${word}` : word;
+        if (line && measure(next) > maxWidth) {
+            lines.push(line);
+            line = word;
+        } else {
+            line = next;
+        }
+        while (line.length > 1 && measure(line) > maxWidth) {
+            let end = 1;
+            while (end < line.length && measure(line.slice(0, end + 1)) <= maxWidth) end++;
+            lines.push(line.slice(0, end));
+            line = line.slice(end);
+        }
+    }
+    if (line) lines.push(line);
+    return lines;
+}
+
 export function drawFocusBand(ctx: CanvasRenderingContext2D, points: readonly BandPoint[], color: string): void {
     if (points.length < 2) return;
     ctx.save();
@@ -99,6 +123,17 @@ export class FocusCharts {
             const context = canvas.getContext('2d');
             if (!context) throw new Error(`A canvas context is unavailable for ${metric.title}.`);
             const model = focusChartModel(metric, averaged, showBands, visibility);
+            const tooltipSize = averaged ? 10 : 12;
+            const tooltipPadding = 4;
+            const wrapTooltip = (text: string, title = false) => {
+                context.save();
+                context.font = `${title ? 'bold ' : ''}${tooltipSize}px Arial`;
+                // Reserve the native color box and padding, not just the text width.
+                const inset = 2 * tooltipPadding + (title ? 0 : tooltipSize + 4);
+                const lines = wrapFocusTooltipText(text, Math.max(1, canvas.clientWidth - inset), value => context.measureText(value).width);
+                context.restore();
+                return lines;
+            };
             const plugin = {
                 id: 'focusEnvelopes',
                 beforeDatasetsDraw(chart: ChartInstance) {
@@ -157,10 +192,17 @@ export class FocusCharts {
                     plugins: {
                         legend: { display: false },
                         tooltip: {
+                            enabled: true,
+                            titleFont: { family: 'Arial', size: tooltipSize, lineHeight: averaged ? 1 : 1.1 },
+                            bodyFont: { family: 'Arial', size: tooltipSize, lineHeight: averaged ? 1 : 1.1 },
+                            padding: tooltipPadding, bodySpacing: 0, titleSpacing: 0, titleMarginBottom: 2,
+                            boxWidth: tooltipSize, boxHeight: tooltipSize, boxPadding: 2,
                             callbacks: {
                                 title(items: { dataIndex: number }[]) {
                                     const point = metric.points[items[0]?.dataIndex];
-                                    return point ? `${point.observation.sdkVersion}\nSDK day ${point.observation.day} (UTC)` : '';
+                                    return point ? [
+                                        point.observation.sdkVersion, `SDK day ${point.observation.day} (UTC)`,
+                                    ].flatMap(text => wrapTooltip(text, true)) : [];
                                 },
                                 label(item: { datasetIndex: number; dataIndex: number }) {
                                     const series = model.series[item.datasetIndex];
@@ -170,17 +212,17 @@ export class FocusCharts {
                                     const lines = [`${model.series[item.datasetIndex].label} raw: ${raw === null ? 'Not available' : format(raw)}`];
                                     const window = windowFor(point, series.key);
                                     if (averaged && window) {
-                                        lines.push(`Mean ${format(window.mean)}; min ${format(window.min)}; max ${format(window.max)}`);
-                                        lines.push(`${window.count} of 5 observations: ${window.firstDay} to ${window.lastDay}`);
+                                        const unit = series.key === 'percent' ? '%' : ` ${metric.unit}`;
+                                        const withoutUnit = (value: number) => {
+                                            const text = format(value);
+                                            return text.endsWith(unit) ? text.slice(0, -unit.length) : text;
+                                        };
+                                        lines.push(`Mean ${withoutUnit(window.mean)}; min ${withoutUnit(window.min)}; max ${format(window.max)}`);
+                                        lines.push(`${window.count}/5 points: ${window.firstDay} to ${window.lastDay}`);
                                         lines.push(`From SDK ${window.firstSdk}`);
                                     }
-                                    return lines;
+                                    return lines.flatMap(text => wrapTooltip(text));
                                 },
-                                footer: () => [
-                                    `${metric.coreclrLabel} vs ${metric.monoLabel}`,
-                                    `${metric.profile === 'mobile' ? 'Mobile (throttled)' : 'Desktop (unthrottled)'} / Chromium`,
-                                    'Historical: environment provenance unverified.',
-                                ],
                             },
                         },
                     },

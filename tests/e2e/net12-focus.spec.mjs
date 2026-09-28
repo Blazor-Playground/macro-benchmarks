@@ -700,7 +700,7 @@ test('cards have no inspection controls while hover tooltips retain measurement 
     expect(tooltip).toContain('SDK day 2026-09-19');
     expect(tooltip).toContain('CoreCLR publish raw: 767 ms');
     expect(tooltip).toContain('Mono publish raw: 401 ms');
-    expect(tooltip).toContain('5 of 5 observations');
+    expect(tooltip).toContain('5/5 points');
     expect(tooltip).not.toContain('Inspect');
 });
 

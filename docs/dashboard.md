@@ -108,6 +108,16 @@ window, on that series' axis. Boundaries are open; only fills close. One-point
 windows have zero spread. Bands are observed ranges, not confidence intervals.
 Raw mode disables bands while retaining their preference. Hover tooltips expose
 raw values, means, extrema, counts and spans; there is no inspection panel.
+Focus uses Chart.js's built-in canvas tooltip and color boxes. Text wraps to the
+canvas width; averaged mode uses compact spacing and one unit suffix for each
+mean/min/max line. Raw values, SDK/day and each series' window count and span
+remain visible. Profile and provenance stay in the card/page context rather than
+a repeated tooltip footer. No HTML overlay, custom scrolling or tooltip event
+handlers are needed.
+
+The grid uses two columns from 1280px and one below that; below 800px the settings
+stack above the cards. This leaves room for the native tooltip while preserving
+the four-card desktop layout.
 
 ## Data source and limits
 

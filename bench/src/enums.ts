@@ -57,6 +57,7 @@ export enum Stage {
     BuildRuntime = 'build-runtime',
     BuildAspNetCore = 'build-aspnetcore',
     Build = 'build',
+    CollectBuilds = 'collect-builds',
     DeployLatestApp = 'deploy-latest-app',
     Measure = 'measure',
     TransformViews = 'transform-views',

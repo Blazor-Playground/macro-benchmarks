@@ -51,6 +51,19 @@ export interface BuildManifestEntry {
     publishDir: string;
 }
 
+export interface BuildFailureSummary {
+    target: string;
+    errorLines: string[];
+}
+
+export interface BuildShardReport {
+    sdkVersion: string;
+    apps: App[];
+    completedAt: string;
+    succeeded: BuildManifestEntry[];
+    failures: BuildFailureSummary[];
+}
+
 // ── Main Context ─────────────────────────────────────────────────────────────
 
 export interface BenchContext {

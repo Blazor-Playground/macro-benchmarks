@@ -84,14 +84,20 @@ export interface CommitAndPushWithRetryOptions {
 export async function commitAndPushWithRetry(opts: CommitAndPushWithRetryOptions): Promise<boolean> {
     const { dir, addPaths, commitMessage, label, dryRun, maxRetries = 3, applyChanges } = opts;
 
-    // Initial apply (for local-only / dry-run use)
-    const initial = await applyChanges();
-    if (initial === false) return false;
-
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        await exec('git', ['-C', dir, 'pull', '--rebase'], { throwOnError: false });
+        const { exitCode: pullCode } = await exec('git', ['-C', dir, 'pull', '--rebase'], {
+            throwOnError: false,
+        });
+        if (pullCode !== 0) {
+            if (attempt < maxRetries) {
+                info(`Pull failed (attempt ${attempt}/${maxRetries}) — retrying`);
+                await new Promise(resolve => setTimeout(resolve, 250 + Math.floor(Math.random() * 500)));
+                continue;
+            }
+            err(`Failed to pull before updating ${label} after ${maxRetries} attempts`);
+            return false;
+        }
 
-        // Re-apply after pull (rebase may have clobbered local changes)
         const ok = await applyChanges();
         if (ok === false) return false;
 
@@ -124,9 +130,10 @@ export async function commitAndPushWithRetry(opts: CommitAndPushWithRetryOptions
             return true;
         }
 
+        await exec('git', ['-C', dir, 'reset', '--hard', 'HEAD~1']);
         if (attempt < maxRetries) {
             info(`Push failed (attempt ${attempt}/${maxRetries}) — pulling and retrying`);
-            await exec('git', ['-C', dir, 'reset', '--soft', 'HEAD~1'], { throwOnError: false });
+            await new Promise(resolve => setTimeout(resolve, 250 + Math.floor(Math.random() * 500)));
         }
     }
 

@@ -320,7 +320,7 @@ jobs:
     runs-on: ubuntu-latest
     container: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io/blazor-playground/macro-benchmarks' }}/browser-bench-build:latest
     permissions:
-      contents: write
+      contents: read
       packages: read
     timeout-minutes: 60
     strategy:
@@ -369,10 +369,19 @@ jobs:
         shell: bash
         run: |
           npx --prefix bench tsx bench/src/main.ts \
-            --stages check-out-tracking,download-sdk,build-runtime,build-aspnetcore,build \
+            --stages download-sdk,build-runtime,build-aspnetcore,build \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
             --app "${{ matrix.app }}" \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
+
+      - name: Upload build report (${{ matrix.app }})
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-report-${{ matrix.app }}
+          path: ${{ env.ARTIFACTS_DIR }}/results/${{ env.BENCH_RUN_ID }}/build-report.json
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Pin artifact root
         shell: bash
@@ -390,23 +399,18 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-      - name: Upload partial manifest (${{ matrix.app }})
-        uses: actions/upload-artifact@v7
-        with:
-          name: build-manifest-${{ matrix.app }}
-          path: ${{ env.ARTIFACTS_DIR }}/results/${{ env.BENCH_RUN_ID }}/build-manifest.json
-          if-no-files-found: ignore
-          retention-days: 7
-
   # ── Job 3b: Collect build manifests + generate the measure matrix ──────────
   build-collect:
     name: Collect builds (${{ needs.resolve.outputs.sdk-version }})
     needs: [resolve, build]
-    if: always() && needs.build.result == 'success'
+    if: |
+      always()
+      && needs.resolve.result == 'success'
+      && (needs.build.result == 'success' || needs.build.result == 'failure')
     runs-on: ubuntu-latest
     container: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io/blazor-playground/macro-benchmarks' }}/browser-bench-build:latest
     permissions:
-      contents: read
+      contents: write
       packages: read
     timeout-minutes: 15
     outputs:
@@ -428,41 +432,20 @@ jobs:
           name: bench-context
           path: ${{ env.ARTIFACTS_DIR }}
 
-      - name: Download partial manifests
+      - name: Download build reports
         uses: actions/download-artifact@v8
+        continue-on-error: true
         with:
-          pattern: build-manifest-*
-          path: ${{ env.ARTIFACTS_DIR }}/manifests
+          pattern: build-report-*
+          path: ${{ env.ARTIFACTS_DIR }}/build-reports
 
-      - name: Merge manifests into context + results
+      - name: Merge build reports
         shell: bash
         run: |
-          RESULTS="${ARTIFACTS_DIR}/results/${BENCH_RUN_ID}"
-          mkdir -p "$RESULTS"
-          # Concatenate every shard's build-manifest.json into one, and fold it back into
-          # bench-context (measure reads ctx.buildManifest/runId/resultsDir from there).
-          node --input-type=module -e "
-            import { readFileSync, writeFileSync, readdirSync, existsSync, statSync } from 'node:fs';
-            const mdir = '${ARTIFACTS_DIR}/manifests';
-            const find = (dir) => readdirSync(dir).flatMap(e => {
-              const p = dir + '/' + e;
-              return statSync(p).isDirectory() ? find(p) : (e === 'build-manifest.json' ? [p] : []);
-            });
-            let cells = [];
-            if (existsSync(mdir)) {
-              for (const f of find(mdir)) cells = cells.concat(JSON.parse(readFileSync(f, 'utf-8')));
-            }
-            const results = '${RESULTS}';
-            writeFileSync(results + '/build-manifest.json', JSON.stringify(cells, null, 2) + '\n');
-            const ctxPath = '${ARTIFACTS_DIR}/bench-context.json';
-            const ctx = JSON.parse(readFileSync(ctxPath, 'utf-8'));
-            ctx.buildManifest = cells;
-            ctx.runId = '${BENCH_RUN_ID}';
-            ctx.resultsDir = results;
-            writeFileSync(ctxPath, JSON.stringify(ctx, null, 2) + '\n');
-            console.error('Merged ' + cells.length + ' cells');
-          "
-          echo "${BENCH_RUN_ID}" > "${ARTIFACTS_DIR}/results/.run-id"
+          npx --prefix bench tsx bench/src/main.ts \
+            --stages check-out-tracking,collect-builds \
+            --context "${ARTIFACTS_DIR}/bench-context.json" \
+            ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 
       - name: Set matrix output
         id: matrix

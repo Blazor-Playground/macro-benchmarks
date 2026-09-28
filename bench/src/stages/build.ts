@@ -1,6 +1,5 @@
-import { readFile, writeFile, readdir, rm, mkdir, stat, unlink } from 'node:fs/promises';
+import { readFile, writeFile, readdir, rm, mkdir, stat } from 'node:fs/promises';
 import { join, basename } from 'node:path';
-import { existsSync } from 'node:fs';
 import { type BenchContext, type BuildManifestEntry } from '../context.js';
 import {
     Preset, type Runtime,
@@ -15,32 +14,9 @@ import {
 } from '../enums.js';
 import { dotnetRestore, dotnetPublish, dotnetWorkloadInstall, dotnetWorkloadList, ExecError } from '../exec.js';
 import { banner, info, err } from '../log.js';
-import { ensureBranchCheckout } from '../lib/branch-checkout.js';
-import { commitAndPushWithRetry } from '../lib/git-push.js';
+import { type BuildFailure, getBuildResultsDir, writeBuildShardReport } from '../lib/build-reports.js';
 
 // ── Build failure tracking ──────────────────────────────────────────────────
-
-interface BuildFailure {
-    target: string;
-    errorOutput: string;
-}
-
-const ERROR_LINE_PATTERN = /\b(error\s*(:|MSB|CS|NU|NETSDK|TS)\S*|Build FAILED)\b/i;
-
-function extractErrorLines(output: string): string[] {
-    const seen = new Set<string>();
-    const results: string[] = [];
-    for (const line of output.split('\n')) {
-        if (ERROR_LINE_PATTERN.test(line)) {
-            const trimmed = line.trim();
-            if (trimmed && !seen.has(trimmed)) {
-                seen.add(trimmed);
-                results.push(trimmed);
-            }
-        }
-    }
-    return results.slice(0, 50);
-}
 
 // ── Runtime flavor mapping ──────────────────────────────────────────────────
 
@@ -316,16 +292,6 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     const sdkInfoPath = join(ctx.sdkDir, 'sdk-info.json');
 
-    // Ensure tracking branch is checked out early so pushFailedMarker can use it
-    const trackingDir = join(ctx.repoRoot, 'tracking');
-    try {
-        await ensureBranchCheckout(ctx.repoRoot, 'tracking', 'tracking');
-    } catch (e) {
-        err(`Failed to check out tracking branch: ${e instanceof Error ? e.message : e}`);
-    }
-
-    await updateLockFile(ctx, trackingDir);
-
     // Partition presets
     const nonWorkloadPresets = ctx.presets.filter(p => NON_WORKLOAD_PRESETS.has(p));
     const workloadPresets = ctx.presets.filter(p => !NON_WORKLOAD_PRESETS.has(p));
@@ -386,22 +352,21 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         await buildPhase(ctx, workloadPresets, succeeded, failed);
     }
 
+    // Generate run ID and write manifest. BENCH_RUN_ID keeps the results path identical
+    // across per-app build shards so their partial manifests merge under one run.
+    const runId = process.env['BENCH_RUN_ID'] || new Date().toISOString().replace(/:/g, '-').replace(/\.\d+Z$/, 'Z');
+    const resultsDir = getBuildResultsDir(ctx);
+    await mkdir(resultsDir, { recursive: true });
+    await writeBuildShardReport(ctx, succeeded, failed);
+
     if (succeeded.length === 0) {
-        await pushFailedMarker(ctx, failed);
         throw new Error('All builds failed — nothing to measure');
     }
     if (failed.length > 0) {
         info(`${succeeded.length} builds succeeded, ${failed.length} failed`);
-        await pushFailedMarker(ctx, failed);
         throw new Error(`Build failed for: ${failed.map(f => f.target).join(', ')}`);
     }
     info(`${succeeded.length} builds succeeded`);
-
-    // Generate run ID and write manifest. BENCH_RUN_ID keeps the results path identical
-    // across per-app build shards so their partial manifests merge under one run.
-    const runId = process.env['BENCH_RUN_ID'] || new Date().toISOString().replace(/:/g, '-').replace(/\.\d+Z$/, 'Z');
-    const resultsDir = join(ctx.artifactsDir, 'results', runId);
-    await mkdir(resultsDir, { recursive: true });
 
     await writeFile(
         join(resultsDir, 'build-manifest.json'),
@@ -415,79 +380,4 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     info(`Build manifest written to ${resultsDir}`);
 
     return { ...ctx, buildManifest: succeeded, runId, resultsDir };
-}
-
-// ── Lock file update ─────────────────────────────────────────────────────────
-
-function getCiRunUrl(ctx: BenchContext): string | undefined {
-    return ctx.ciRunId
-        ? `https://github.com/${ctx.repo}/actions/runs/${ctx.ciRunId}`
-        : undefined;
-}
-
-async function updateLockFile(ctx: BenchContext, trackingDir: string): Promise<void> {
-    if (!ctx.sdkInfo?.sdkVersion) return;
-
-    const sdkVersion = ctx.sdkInfo.sdkVersion;
-    const lockFile = join(trackingDir, 'locks', `${sdkVersion}.lock`);
-    if (!existsSync(lockFile)) return;
-
-    try {
-        await commitAndPushWithRetry({
-            dir: trackingDir,
-            addPaths: ['locks/'],
-            commitMessage: `Update lock ${sdkVersion}`,
-            label: `Update lock for ${sdkVersion}`,
-            dryRun: ctx.dryRun,
-            applyChanges: async () => {
-                const current = JSON.parse(await readFile(lockFile, 'utf-8'));
-                current.ciRunId = ctx.ciRunId;
-                current.ciRunUrl = getCiRunUrl(ctx);
-                await writeFile(lockFile, JSON.stringify(current, null, 2) + '\n', 'utf-8');
-            },
-        });
-    } catch (e) {
-        err(`Failed to update lock file: ${e instanceof Error ? e.message : e}`);
-    }
-}
-
-// ── Failure marker ───────────────────────────────────────────────────────────
-
-async function pushFailedMarker(ctx: BenchContext, failures: BuildFailure[]): Promise<void> {
-    if (!ctx.sdkInfo?.sdkVersion) return;
-
-    const sdkVersion = ctx.sdkInfo.sdkVersion;
-    if (ctx.dryRun) {
-        info(`[dry-run] Skipping .failed marker for ${sdkVersion}`);
-        return;
-    }
-    const trackingDir = join(ctx.repoRoot, 'tracking');
-
-    const locksDir = join(trackingDir, 'locks');
-    await mkdir(locksDir, { recursive: true });
-
-    const lockFile = join(locksDir, `${sdkVersion}.lock`);
-    const failedFile = join(locksDir, `${sdkVersion}.failed`);
-
-    const content = {
-        failedAt: new Date().toISOString(),
-        ciRunId: ctx.ciRunId,
-        ciRunUrl: getCiRunUrl(ctx),
-        failures: failures.map(f => ({
-            target: f.target,
-            errorLines: extractErrorLines(f.errorOutput),
-        })),
-    };
-
-    await commitAndPushWithRetry({
-        dir: trackingDir,
-        addPaths: ['locks/'],
-        commitMessage: `Failed ${sdkVersion}`,
-        label: `Failed marker for ${sdkVersion}`,
-        dryRun: ctx.dryRun,
-        applyChanges: async () => {
-            await writeFile(failedFile, JSON.stringify(content, null, 2) + '\n', 'utf-8');
-            if (existsSync(lockFile)) await unlink(lockFile);
-        },
-    });
 }

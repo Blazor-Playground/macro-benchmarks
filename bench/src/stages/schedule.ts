@@ -423,6 +423,8 @@ async function pushLockFile(
 ): Promise<boolean> {
     const lockRelPath = join(LOCK_DIR, `${sdkVersion}.lock`);
     const lockAbsPath = join(trackingDir, lockRelPath);
+    const pendingLock: LockFile = JSON.parse(await readFile(lockAbsPath, 'utf-8'));
+    await unlink(lockAbsPath);
 
     return commitAndPushWithRetry({
         dir: trackingDir,
@@ -449,17 +451,10 @@ async function pushLockFile(
                 }
             }
 
-            // Read the attempt count from the locally-created lock file
-            let attempt = 1;
-            try {
-                const local: LockFile = JSON.parse(await readFile(lockAbsPath, 'utf-8'));
-                attempt = local.attempt ?? 1;
-            } catch { /* use default */ }
-
             const lockContent: LockFile = {
                 dispatchedAt: new Date().toISOString(),
                 ciRunId: ctx.ciRunId,
-                attempt,
+                attempt: pendingLock.attempt ?? 1,
             };
             await writeFile(lockAbsPath, JSON.stringify(lockContent, null, 2), 'utf-8');
         },

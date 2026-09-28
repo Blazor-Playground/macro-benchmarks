@@ -5,6 +5,7 @@ import { type BenchContext, type SdkInfo } from '../context.js';
 import { banner, info } from '../log.js';
 import { getVersionMajor, populateVersionFields } from '../lib/version-utils.js';
 import { fetchJson, githubHeaders, resolveGitHubToken, GITHUB_API } from '../lib/http.js';
+import { updateBuildLock } from '../lib/build-lock.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -339,7 +340,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         buildLabel += `_aspnet-${ctx.aspnetCoreCommit.slice(0, 10)}`;
     }
 
-    return {
+    const result = {
         ...ctx,
         sdkDir,
         dotnetBin,
@@ -349,4 +350,6 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         publishDir: join(ctx.artifactsDir, 'publish'),
         resultsDir: join(ctx.artifactsDir, 'results'),
     };
+    await updateBuildLock(result);
+    return result;
 }

@@ -1,5 +1,5 @@
 import { FocusPublicationError } from './focus-types.js';
-import { DEFAULT_FOCUS_SELECTION, focusRowKeys, resolveFocusSelection } from './focus-selection.js';
+import { DEFAULT_FOCUS_SELECTION, focusRowKeys, resolveFocusCohort, resolveFocusSelection } from './focus-selection.js';
 import type {
     FocusColumn, FocusComparison, FocusMetricDefinition, FocusMetricReport,
     FocusObservation, FocusPoint, FocusPublication, FocusRange, FocusReport, FocusSelection, FocusWindow,
@@ -157,10 +157,13 @@ export function buildFocusReport(publication: FocusPublication, app: string, ran
         });
     }
     observations.sort(orderObservations);
+    const cohort = resolveFocusCohort(flavor, publication.buckets
+        .filter(bucket => bucket.header.columns.some(isEligible))
+        .flatMap(bucket => (bucket.header.apps[app] ?? []).flatMap(key => Object.keys(bucket.metrics[key] ?? {}))));
 
     const metrics: FocusMetricReport[] = focusMetrics(app).map(definition => {
         const profile = definition.id === 'startup' ? selection.startupProfile : 'desktop';
-        const rowKeys = focusRowKeys(flavor, profile);
+        const rowKeys = focusRowKeys(cohort, profile);
         let advertised = false;
         let hasCohortRows = false;
         const allPoints: FocusPoint[] = observations.map(observation => {
@@ -201,26 +204,30 @@ export function buildFocusReport(publication: FocusPublication, app: string, ran
                 : 'This metric is not published for this app in eligible SDK 12 builds.';
         } else if (!hasCohortRows) {
             status = 'unsupported-cohort';
-            message = app === 'uno-gallery'
-                ? 'Uno has no CoreCLR comparison in this flavor. Native-relink Mono data is not substituted.'
-                : `No ${flavor.label} ${profile}/Chromium measurements. Another flavor or profile is not substituted.`;
+            message = `No ${cohort.coreclrLabel} / ${cohort.monoLabel} ${profile}/Chromium rows. Selected preset/profile gaps stay missing.`;
         } else if (points.length === 0) {
             status = 'no-history';
             message = 'No eligible SDK 12 builds in this date range. Older results are not carried forward.';
         } else if (!latest) {
             status = points.some(point => (point.mono !== null && !isPositive(point.mono))
                 || (point.coreclr !== null && !isPositive(point.coreclr))) ? 'invalid-value' : 'incomplete-pair';
+            const noCoreclr = points.every(point => point.coreclr === null);
+            const noMono = points.every(point => point.mono === null);
+            const missing = noCoreclr && noMono ? `Both ${cohort.coreclrLabel} and ${cohort.monoLabel} measurements are missing.`
+                : noCoreclr ? `${cohort.coreclrLabel} measurements are missing.`
+                    : noMono ? `${cohort.monoLabel} measurements are missing.`
+                        : 'No same-SDK runtime measurements overlap.';
             message = status === 'invalid-value'
                 ? 'Comparison unavailable: both runtime values must be finite and positive; the Mono baseline cannot be zero.'
-                : `No complete ${flavor.coreclrLabel} / ${flavor.monoLabel} ${profile} pair in this range. Missing selected preset/profile rows are not substituted.`;
+                : `No complete ${profile}/Chromium pair in this range. ${missing} Selected preset/profile gaps stay missing.`;
         }
         return {
-            ...definition, profile, coreclrPreset: flavor.coreclrPreset, monoPreset: flavor.monoPreset,
-            coreclrLabel: flavor.coreclrLabel, monoLabel: flavor.monoLabel,
+            ...definition, profile, coreclrPreset: cohort.coreclrPreset, monoPreset: cohort.monoPreset,
+            coreclrLabel: cohort.coreclrLabel, monoLabel: cohort.monoLabel,
             coreclrRowKey: rowKeys.coreclr, monoRowKey: rowKeys.mono,
-            description: `${definition.description} ${flavor.coreclrLabel} vs ${flavor.monoLabel}; ${profile}/Chromium. ${
+            description: `${definition.description} ${cohort.coreclrLabel} vs ${cohort.monoLabel}; ${profile}/Chromium. ${
                 profile === 'mobile' ? 'Mobile emulation: 3x CPU slowdown, 20 Mbps download, 5 Mbps upload, 70 ms latency.'
-                    : 'Desktop: no CPU or network throttling.'}`,
+                    : 'Desktop: no CPU or network throttling.'} ${cohort.baselineDescription}`,
             status, message, points, latest, pairCount: pairs.length,
             comparison: latest?.percent !== null && latest?.percent !== undefined ? comparisonLabel(latest.percent, definition.unit) : null,
             averageComparison: latest?.percentWindow ? comparisonLabel(latest.percentWindow.mean, definition.unit) : null,
@@ -230,7 +237,7 @@ export function buildFocusReport(publication: FocusPublication, app: string, ran
     });
     const knownObservations = observations.filter(observation => observation.day <= endDay);
     return {
-        app, apps: publication.index.apps, flavor: selection.flavor, flavorLabel: flavor.label, startupProfile: selection.startupProfile,
+        app, apps: publication.index.apps, flavor: selection.flavor, flavorLabel: flavor.label, cohort, startupProfile: selection.startupProfile,
         range, startDay, endDay, lastUpdated: publication.index.lastUpdated,
         targetFrameworks: [...new Set(knownObservations.map(o => o.variant.bundledFrameworkTfm ?? 'Unknown'))].sort(),
         availableStartDay: knownObservations[0]?.day ?? null,

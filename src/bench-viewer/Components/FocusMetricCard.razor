@@ -33,7 +33,6 @@
         else
         {
             <p class="focus-unavailable-heading">@(Loading ? "Loading..." : LoadError != null ? "Load failed" : "Unavailable")</p>
-            <p class="focus-summary-note">No baseline, metric or cohort substitution</p>
         }
         @if (!GraphsEnabled && !Loading && LoadError == null)
         {

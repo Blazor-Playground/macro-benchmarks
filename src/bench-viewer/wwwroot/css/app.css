@@ -986,7 +986,7 @@ code {
     .net12-focus .focus-provenance { align-items: flex-start; }
     .net12-focus .focus-card { grid-template-columns: minmax(0, 1fr); }
     .net12-focus .focus-card-summary { border-right: 0; padding: 18px; }
-    .net12-focus .focus-values { display: flex; gap: 24px; }
+    .net12-focus .focus-values { display: flex; flex-wrap: wrap; gap: 0 24px; }
     .net12-focus .focus-values div { gap: 10px; }
     .net12-focus .focus-rolling-caption { font-size: 12px; }
     .net12-focus .focus-plot { height: 200px; }

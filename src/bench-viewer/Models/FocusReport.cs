@@ -17,6 +17,7 @@ public sealed class FocusReport
     public string Range { get; init; } = "";
     public string Flavor { get; init; } = "";
     public string FlavorLabel { get; init; } = "";
+    public FocusCohort Cohort { get; init; } = new();
     public string StartupProfile { get; init; } = "";
     public string StartDay { get; init; } = "";
     public string EndDay { get; init; } = "";
@@ -96,6 +97,17 @@ public sealed class FocusFlavorOption
 {
     public string Id { get; init; } = "";
     public string Label { get; init; } = "";
+    public string CoreclrPreset { get; init; } = "";
+    public string MonoPreset { get; init; } = "";
+    public string CoreclrLabel { get; init; } = "";
+    public string MonoLabel { get; init; } = "";
+}
+
+public sealed class FocusCohort
+{
+    public string? BaselinePreset { get; init; }
+    public bool UsesBaseline { get; init; }
+    public string BaselineDescription { get; init; } = "";
     public string CoreclrPreset { get; init; } = "";
     public string MonoPreset { get; init; } = "";
     public string CoreclrLabel { get; init; } = "";

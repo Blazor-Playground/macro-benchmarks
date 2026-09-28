@@ -52,7 +52,7 @@ test('four visibility combinations control actual datasets, axes, bands, legend 
     await expect(percentage).not.toBeChecked();
     await expect(measurements).toBeChecked();
     await expect.poll(async () => (await state(page)).map(chart => chart.labels))
-        .toEqual(Array(4).fill(['CoreCLR R2R', 'Mono Release']));
+        .toEqual(Array(4).fill(['CoreCLR publish/R2R', 'Mono publish']));
     for (const chart of await state(page)) expect(chart.axes).toEqual(['x', 'y']);
     const defaultPaint = await repaint(page);
     expect(defaultPaint.some(item => item.kind === 'parity')).toBeFalsy();
@@ -66,8 +66,8 @@ test('four visibility combinations control actual datasets, axes, bands, legend 
     const initialRequests = requests;
     const modes = [
         { percentage: true, measurements: false, labels: ['CoreCLR vs Mono (%)'], axes: ['x', 'comparison'], legend: ['vs Mono %'], bands: ['#7b4bc4'] },
-        { percentage: true, measurements: true, labels: ['CoreCLR R2R', 'Mono Release', 'CoreCLR vs Mono (%)'], axes: ['x', 'y', 'comparison'], legend: ['CoreCLR', 'Mono', 'vs Mono %'], bands: ['#4285f4', '#f4b400', '#7b4bc4'] },
-        { percentage: false, measurements: true, labels: ['CoreCLR R2R', 'Mono Release'], axes: ['x', 'y'], legend: ['CoreCLR', 'Mono'], bands: ['#4285f4', '#f4b400'] },
+        { percentage: true, measurements: true, labels: ['CoreCLR publish/R2R', 'Mono publish', 'CoreCLR vs Mono (%)'], axes: ['x', 'y', 'comparison'], legend: ['CoreCLR', 'Mono', 'vs Mono %'], bands: ['#4285f4', '#f4b400', '#7b4bc4'] },
+        { percentage: false, measurements: true, labels: ['CoreCLR publish/R2R', 'Mono publish'], axes: ['x', 'y'], legend: ['CoreCLR', 'Mono'], bands: ['#4285f4', '#f4b400'] },
         { percentage: false, measurements: false, labels: [], axes: [], legend: [], bands: [] },
     ];
     for (const mode of modes) {
@@ -140,7 +140,7 @@ test('percentage-only tooltips use the percentage dataset and not hidden runtime
     await expect.poll(() => canvas.evaluate(element => Chart.getChart(element).tooltip.opacity)).toBe(1);
     const labels = await canvas.evaluate(element => Chart.getChart(element).tooltip.body.flatMap(item => item.lines).join('\n'));
     expect(labels).toContain('CoreCLR vs Mono (%) raw: +119.3%');
-    expect(labels).not.toContain('CoreCLR R2R raw:');
+    expect(labels).not.toContain('CoreCLR publish/R2R raw:');
     expect(labels).not.toMatch(/\d ms/);
 });
 

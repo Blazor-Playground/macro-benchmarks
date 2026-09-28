@@ -1,7 +1,8 @@
 export type FocusRange = '14d' | '1m' | '3m' | '6m' | '12m';
 export type FocusFlavor = 'release-release' | 'r2r-release' | 'r2r-aot';
 export type FocusProfile = 'desktop' | 'mobile';
-export type FocusPreset = 'no-workload' | 'aot';
+export type FocusBaselinePreset = 'no-workload' | 'native-relink';
+export type FocusPreset = FocusBaselinePreset | 'aot';
 export interface FocusGraphVisibility {
     percentage: boolean;
     measurements: boolean;
@@ -17,6 +18,11 @@ export interface FocusFlavorOption {
     monoPreset: FocusPreset;
     coreclrLabel: string;
     monoLabel: string;
+}
+export interface FocusCohort extends Omit<FocusFlavorOption, 'id' | 'label'> {
+    baselinePreset: FocusBaselinePreset | null;
+    usesBaseline: boolean;
+    baselineDescription: string;
 }
 export type FocusSeries = 'coreclr' | 'mono' | 'percent';
 export type FocusRows = Record<string, (number | null)[]>;
@@ -134,6 +140,7 @@ export interface FocusMetricReport extends FocusMetricDefinition {
 
 export interface FocusReport extends FocusSelection {
     flavorLabel: string;
+    cohort: FocusCohort;
     app: string;
     apps: string[];
     range: FocusRange;

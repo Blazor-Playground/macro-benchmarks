@@ -35,9 +35,12 @@ export function publicationFor(app, fixture = focusFixture()) {
 }
 
 export function expectedComparison(app, flavor, startupProfile, fixture = focusFixture()) {
+    // These two apps have only native baselines in this immutable fixture.
+    // Synthetic absence/partial-row cases use literal expectations in their tests.
+    const baseline = ['semi-avalonia', 'uno-gallery'].includes(app) ? 'native-relink' : 'no-workload';
     const presets = {
-        'release-release': ['no-workload', 'no-workload'],
-        'r2r-release': ['aot', 'no-workload'],
+        'release-release': [baseline, baseline],
+        'r2r-release': ['aot', baseline],
         'r2r-aot': ['aot', 'aot'],
     }[flavor];
     if (!presets) throw new Error(`Unknown fixture flavor ${flavor}`);

@@ -12,7 +12,7 @@ const near = (actual, expected) => assert(Math.abs(actual - expected) < 1e-9, `$
 const report = (app = 'havit-bootstrap', range = '14d', date = now, fixture = focusFixture()) =>
     buildFocusReport(publicationFor(app, fixture), app, range, date, { flavor: 'release-release', startupProfile: 'desktop' });
 
-test('the pinned Release/desktop Havit values and same-endpoint 5 avg match the recorded fixture', () => {
+test('the pinned publish/desktop Havit values and same-endpoint 5 avg match the recorded fixture', () => {
     const result = report();
     assert.equal(result.excludedCustomBuilds, 4);
     assert.deepEqual(result.targetFrameworks, ['net11.0']);
@@ -42,8 +42,8 @@ test('all ten applications keep four slots and truthful partial or cohort states
         'empty-browser': ['ready', 'unsupported-metric', 'ready', 'ready'],
         'blazor-perf': ['ready', 'unsupported-metric', 'ready', 'ready'],
         'micro-benchmarks': ['unsupported-metric', 'unsupported-metric', 'unsupported-metric', 'ready'],
-        'semi-avalonia': ['unsupported-cohort', 'unsupported-cohort', 'unsupported-cohort', 'unsupported-cohort'],
-        'uno-gallery': ['unsupported-cohort', 'unsupported-cohort', 'unsupported-cohort', 'unsupported-cohort'],
+        'semi-avalonia': ['ready', 'ready', 'ready', 'ready'],
+        'uno-gallery': ['incomplete-pair', 'incomplete-pair', 'incomplete-pair', 'incomplete-pair'],
     };
     for (const [app, states] of Object.entries(expected)) {
         const result = report(app);
@@ -192,7 +192,7 @@ test('an index with no eligible SDK12 observations is no history, not fabricated
     }
 });
 
-test('never substitute another preset, engine, profile, or native-only app cohort', () => {
+test('missing individual no-workload rows never substitute another preset, engine or profile', () => {
     const fixture = focusFixture();
     for (const bucket of fixture.buckets) {
         delete bucket.appMetrics['havit-bootstrap']['compile-time']['coreclr/no-workload/desktop/chrome'];
@@ -201,6 +201,25 @@ test('never substitute another preset, engine, profile, or native-only app cohor
     assert.equal(build.status, 'incomplete-pair');
     assert(build.points.every(point => point.coreclr === null && point.percent === null && point.mono > 0));
 });
+
+for (const runtimes of [['coreclr'], ['mono'], ['coreclr', 'mono']]) {
+    test(`incomplete-pair messages identify missing ${runtimes.join(' and ')} measurements`, () => {
+        const fixture = focusFixture();
+        for (const bucket of fixture.buckets) {
+            for (const runtime of runtimes) {
+                bucket.appMetrics['havit-bootstrap']['compile-time'][`${runtime}/no-workload/desktop/chrome`].fill(null);
+            }
+        }
+        const build = report('havit-bootstrap', '14d', now, fixture).metrics[3];
+        const missing = runtimes.length === 2 ? 'Both CoreCLR publish and Mono publish measurements are missing.'
+            : `${runtimes[0] === 'coreclr' ? 'CoreCLR' : 'Mono'} publish measurements are missing.`;
+        assert.equal(build.status, 'incomplete-pair');
+        assert.equal(build.message, `No complete desktop/Chromium pair in this range. ${missing} Selected preset/profile gaps stay missing.`);
+        assert.equal(build.latest, null);
+        assert.equal(build.comparison, null);
+        assert.equal(build.averageComparison, null);
+    });
+}
 
 test('invalid baselines are explicit and do not acquire an average caption', () => {
     const fixture = focusFixture();

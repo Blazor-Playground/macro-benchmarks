@@ -55,6 +55,18 @@ export const METRICS: Record<MetricKey, MetricInfo> = {
     [MetricKey.JsInteropOps]: { displayName: 'JS Interop', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.JsonParseOps]: { displayName: 'JSON Parse', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.ExceptionOps]: { displayName: 'Exception Handling', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaVirtualizedScrollOps]: { displayName: 'Avalonia Virtualized Scroll', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaControlTemplatesOps]: { displayName: 'Avalonia Control Templates', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaTextLayoutOps]: { displayName: 'Avalonia Text Layout', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaSkiaDrawingOps]: { displayName: 'Avalonia Skia Drawing', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaFpsLayoutResize]: { displayName: 'Avalonia FPS: Layout Resize', unit: 'fps', category: 'throughput' },
+    [MetricKey.AvaloniaFpsRenderTransforms]: { displayName: 'Avalonia FPS: RenderTransform Animations', unit: 'fps', category: 'throughput' },
+    [MetricKey.AvaloniaPropertySetGetOps]: { displayName: 'Avalonia Property Set/Get', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaPropertyInheritanceOps]: { displayName: 'Avalonia Inherited Property Change', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaStylesClassToggleOps]: { displayName: 'Avalonia Styles: Class Toggle', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaStylesAttachOps]: { displayName: 'Avalonia Styles: Attach', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaHitTestOps]: { displayName: 'Avalonia Hit Test', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.AvaloniaDispatcherPostOps]: { displayName: 'Avalonia Dispatcher Post', unit: 'ops/sec', category: 'throughput' },
 };
 
 export const EXTERNAL_METRICS: MetricKey[] = [
@@ -87,6 +99,18 @@ export const EXTERNAL_METRICS: MetricKey[] = [
     MetricKey.BlazorCsToJsJson,
     MetricKey.BlazorCounterHeavyWasm,
     MetricKey.BlazorCounterHeavyServer,
+    MetricKey.AvaloniaVirtualizedScrollOps,
+    MetricKey.AvaloniaControlTemplatesOps,
+    MetricKey.AvaloniaTextLayoutOps,
+    MetricKey.AvaloniaSkiaDrawingOps,
+    MetricKey.AvaloniaFpsLayoutResize,
+    MetricKey.AvaloniaFpsRenderTransforms,
+    MetricKey.AvaloniaPropertySetGetOps,
+    MetricKey.AvaloniaPropertyInheritanceOps,
+    MetricKey.AvaloniaStylesClassToggleOps,
+    MetricKey.AvaloniaStylesAttachOps,
+    MetricKey.AvaloniaHitTestOps,
+    MetricKey.AvaloniaDispatcherPostOps,
 ];
 
 export const INTERNAL_METRICS: MetricKey[] = [

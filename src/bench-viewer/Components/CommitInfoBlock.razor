@@ -154,8 +154,9 @@
         "js-interop-ops", "json-parse-ops", "exception-ops"
     };
 
+    // avalonia-bench scenarios are all ops/sec or fps.
     private static bool IsHigherBetter(string metricKey)
-        => HigherIsBetter.Contains(metricKey) || metricKey.StartsWith("blazor-");
+        => HigherIsBetter.Contains(metricKey) || metricKey.StartsWith("blazor-") || metricKey.StartsWith("avalonia-");
 
     private record struct MetricDelta(string Icon, string Text, string CssClass);
 

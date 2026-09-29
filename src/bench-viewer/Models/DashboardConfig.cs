@@ -19,6 +19,7 @@ public static class DashboardConfig
         "igniteui-light" => "Ignite UI Light",
         "uno-gallery" => "Uno Gallery",
         "semi-avalonia" => "Semi Avalonia",
+        "avalonia-bench" => "Avalonia Bench",
         "bench-viewer" => "Bench Viewer",
         _ => app
     };
@@ -40,7 +41,7 @@ public static class DashboardConfig
     public static readonly List<string> AppOrder = new()
     {
         "blazing-pizza", "havit-bootstrap", "mud-blazor", "igniteui-light", "blazor-perf", "empty-blazor",
-        "semi-avalonia", "uno-gallery",
+        "semi-avalonia", "avalonia-bench", "uno-gallery",
         "empty-browser", "empty-browser",
         "micro-benchmarks", "blazor-perf",
         "bench-viewer", 
@@ -58,6 +59,11 @@ public static class DashboardConfig
         "blazor-js-to-cs-number", "blazor-js-to-cs-string", "blazor-js-to-cs-json",
         "blazor-cs-to-js-number", "blazor-cs-to-js-string", "blazor-cs-to-js-json",
         "json-parse-ops", "js-interop-ops", "exception-ops",
+        "avalonia-fps-layout-resize", "avalonia-fps-render-transforms",
+        "avalonia-virtualized-scroll-ops", "avalonia-control-templates-ops", "avalonia-text-layout-ops", "avalonia-skia-drawing-ops",
+        "avalonia-property-set-get-ops", "avalonia-property-inheritance-ops",
+        "avalonia-styles-class-toggle-ops", "avalonia-styles-attach-ops", "avalonia-hit-test-ops",
+        "avalonia-dispatcher-post-ops",
         "time-to-reach-managed-cold", "time-to-reach-managed-warm",
         "time-to-create-dotnet-cold", "time-to-create-dotnet-warm",
         "download-size-cold", "download-size-warm",

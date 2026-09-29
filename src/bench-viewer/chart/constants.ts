@@ -74,6 +74,18 @@ export const METRIC_UNITS: Record<string, string> = {
     'blazor-too-many-components-ssr-stress': 'ops/sec',
     'blazor-too-many-components-htmlrenderer-stress': 'ops/sec',
     'blazor-too-many-components-server-stress': 'ops/sec',
+    'avalonia-virtualized-scroll-ops': 'ops/sec',
+    'avalonia-control-templates-ops': 'ops/sec',
+    'avalonia-text-layout-ops': 'ops/sec',
+    'avalonia-skia-drawing-ops': 'ops/sec',
+    'avalonia-fps-layout-resize': 'fps',
+    'avalonia-fps-render-transforms': 'fps',
+    'avalonia-property-set-get-ops': 'ops/sec',
+    'avalonia-property-inheritance-ops': 'ops/sec',
+    'avalonia-styles-class-toggle-ops': 'ops/sec',
+    'avalonia-styles-attach-ops': 'ops/sec',
+    'avalonia-hit-test-ops': 'ops/sec',
+    'avalonia-dispatcher-post-ops': 'ops/sec',
 };
 
 export const METRIC_DISPLAY: Record<string, string> = {
@@ -125,6 +137,19 @@ export const METRIC_DISPLAY: Record<string, string> = {
     'blazor-too-many-components-ssr-stress': 'Many Components (SSR ×100)',
     'blazor-too-many-components-htmlrenderer-stress': 'Many Components (HtmlRenderer ×10)',
     'blazor-too-many-components-server-stress': 'Many Components (Server ×25)',
+
+    'avalonia-virtualized-scroll-ops': 'Avalonia Virtualized Scroll',
+    'avalonia-control-templates-ops': 'Avalonia Control Templates',
+    'avalonia-text-layout-ops': 'Avalonia Text Layout',
+    'avalonia-skia-drawing-ops': 'Avalonia Skia Drawing',
+    'avalonia-fps-layout-resize': 'Avalonia FPS: Layout Resize',
+    'avalonia-fps-render-transforms': 'Avalonia FPS: RenderTransform Animations',
+    'avalonia-property-set-get-ops': 'Avalonia Property Set/Get',
+    'avalonia-property-inheritance-ops': 'Avalonia Inherited Property Change',
+    'avalonia-styles-class-toggle-ops': 'Avalonia Styles: Class Toggle',
+    'avalonia-styles-attach-ops': 'Avalonia Styles: Attach',
+    'avalonia-hit-test-ops': 'Avalonia Hit Test',
+    'avalonia-dispatcher-post-ops': 'Avalonia Dispatcher Post',
 };
 
 // OTEL counter short-names → (display, unit). Used for dynamic "{base}-otel-{counter}" metrics.
@@ -176,9 +201,15 @@ export const BUILD_METRICS = new Set([
     'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-cold', 'download-size-warm', 'server-requests-cold', 'server-requests-warm',
 ]);
 
-// Walkthrough metrics are only collected for chrome/desktop
+// Walkthrough metrics are only collected for chrome/desktop (includes avalonia-bench scenarios)
 export const WALKTHROUGH_METRICS = new Set([
     'pizza-walkthrough', 'havit-walkthrough', 'mud-walkthrough', 'uno-walkthrough', 'semi-walkthrough',
+    'avalonia-virtualized-scroll-ops', 'avalonia-control-templates-ops',
+    'avalonia-text-layout-ops', 'avalonia-skia-drawing-ops',
+    'avalonia-fps-layout-resize', 'avalonia-fps-render-transforms',
+    'avalonia-property-set-get-ops', 'avalonia-property-inheritance-ops',
+    'avalonia-styles-class-toggle-ops', 'avalonia-styles-attach-ops', 'avalonia-hit-test-ops',
+    'avalonia-dispatcher-post-ops',
 ]);
 
 // blazor-perf server/wasm benchmarks — only collected for chrome/desktop (no mobile profile).

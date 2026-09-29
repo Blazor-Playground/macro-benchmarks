@@ -141,6 +141,7 @@ test('a publication without SDK12 buckets reports no history rather than a load 
     await expect(page.locator('.focus-card canvas')).toHaveCount(0);
     await expect(page.locator('.focus-latest-builds')).toHaveCount(0);
     await expect(page.locator('.focus-empty').first()).toContainText('No eligible SDK 12 builds are published');
+    await expect(page.locator('.focus-card-summary .focus-summary-note')).toHaveCount(0);
     await page.getByRole('button', { name: '12 months', exact: true }).click();
     await expect(page.locator('.focus-card[data-status="no-history"]')).toHaveCount(4);
     await expect(page.locator('.focus-error')).toHaveCount(0);
@@ -153,7 +154,7 @@ test('default selections, flavor/profile mappings and sidebar navigation are exp
     await expect(page.locator('#focus-flavor')).toHaveValue('r2r-release');
     await expect(page.locator('#focus-startup-profile')).toHaveValue('mobile');
     await expect(page.locator('#focus-flavor option')).toHaveText([
-        'Release vs Release', 'Release/R2R vs Release', 'Release/R2R vs Release/AOT',
+        'publish vs publish', 'publish/R2R vs publish', 'publish/R2R vs publish/AOT',
     ]);
     await expect(page.locator('.focus-header')).toHaveCount(0);
     const sidebar = page.getByRole('complementary', { name: 'NET12 focus settings' });
@@ -202,6 +203,153 @@ test('all apps retain honest availability in all six selector combinations', asy
     }
 });
 
+test('native publish labels and context reach the real runtime curves and hover tooltips', async ({ page }) => {
+    await open(page);
+    await page.locator('#focus-app').selectOption('semi-avalonia');
+    for (const [flavor, labels] of [
+        ['release-release', ['CoreCLR publish (native-relink)', 'Mono publish (native-relink)']],
+        ['r2r-release', ['CoreCLR publish/R2R', 'Mono publish (native-relink)']],
+        ['r2r-aot', ['CoreCLR publish/R2R', 'Mono publish/AOT']],
+    ]) {
+        await selectComparison(page, flavor, 'mobile');
+        await assertSelectionValues(page, 'semi-avalonia', flavor, 'mobile');
+        await expect(page.locator('.focus-selection-note').first()).toHaveText(labels.join(' vs '));
+        await expect(page.locator('.focus-baseline')).toHaveText(flavor === 'r2r-aot' ? 'Not used (R2R vs AOT)' : 'native-relink');
+        await expect(page.locator('.focus-baseline')).toHaveAttribute('data-preset', 'native-relink');
+        await expect(page.locator('.focus-baseline')).toHaveAttribute('title', flavor === 'r2r-aot' ? /explicit aot presets/ : /no no-workload rows/);
+        await expect.poll(async () => (await charts(page)).map(chart => chart.labels)).toEqual(Array(4).fill(labels));
+        await expect(page.locator('[data-metric="startup"] .focus-values dt')).toHaveText(labels);
+        const canvas = page.locator('[data-metric="startup"] canvas');
+        const position = await canvas.evaluate(element => {
+            const point = Chart.getChart(element).getDatasetMeta(0).data.at(-1);
+            return { x: point.x, y: point.y };
+        });
+        await canvas.hover({ position });
+        await expect.poll(() => canvas.evaluate(element => Chart.getChart(element).tooltip.opacity)).toBe(1);
+        const tooltip = await canvas.evaluate(element => {
+            const tooltip = Chart.getChart(element).tooltip;
+            return tooltip.body.flatMap(item => item.lines).join(' ');
+        });
+        expect(tooltip).toContain(`${labels[0]} raw:`);
+        expect(tooltip).toContain(`${labels[1]} raw:`);
+        await expect(canvas).toHaveAttribute('aria-label', /mobile\/Chromium/);
+        expect(tooltip).not.toContain('Release');
+        await page.getByLabel('Actual measurements', { exact: true }).uncheck();
+        await expect.poll(async () => (await charts(page)).length).toBe(0);
+        await page.getByLabel('Actual measurements', { exact: true }).check();
+    }
+    await page.locator('#focus-app').selectOption('havit-bootstrap');
+    await selectComparison(page, 'r2r-release', 'mobile');
+    await expect(page.locator('.focus-baseline')).toHaveText('no-workload');
+    await expect(page.locator('.focus-selection-note').first()).toHaveText('CoreCLR publish/R2R vs Mono publish');
+    await assertSelectionValues(page, 'havit-bootstrap', 'r2r-release', 'mobile');
+});
+
+for (const oneSided of [false, true]) {
+    test(`${oneSided ? 'one-sided mobile' : 'all-null Firefox'} no-workload rows prevent app-wide native substitution in Blazor`, async ({ page }) => {
+        const fixture = focusFixture();
+        for (const bucket of fixture.buckets) {
+            const metrics = bucket.appMetrics['semi-avalonia'];
+            if (oneSided) {
+                metrics['time-to-reach-managed-cold']['mono/no-workload/mobile/chrome'] = bucket.header.columns.map(() => 26031);
+            } else {
+                metrics['compile-time']['mono/no-workload/desktop/firefox'] = bucket.header.columns.map(() => null);
+            }
+        }
+        await open(page, fixture);
+        await page.locator('#focus-app').selectOption('semi-avalonia');
+        await selectComparison(page, 'release-release', 'mobile');
+        await expect(page.locator('.focus-baseline')).toHaveText('no-workload');
+        await expect(page.locator('.focus-kpi')).toHaveCount(0);
+        const startup = page.locator('[data-metric="startup"]');
+        await expect(startup).toHaveAttribute('data-coreclr-row', 'coreclr/no-workload/mobile/chrome');
+        await expect(startup).toHaveAttribute('data-mono-row', 'mono/no-workload/mobile/chrome');
+        if (oneSided) {
+            await expect(startup).toHaveAttribute('data-status', 'incomplete-pair');
+            await expect.poll(async () => (await charts(page))[0]?.values[1].at(-1).y).toBe(26031);
+            expect((await charts(page))[0].values[0].every(point => point.y === null)).toBeTruthy();
+        } else {
+            await expect(page.locator('.focus-card canvas')).toHaveCount(0);
+        }
+        await selectComparison(page, 'r2r-release', 'mobile');
+        await expect(page.locator('.focus-kpi')).toHaveCount(oneSided ? 1 : 0);
+        await expect(page.locator('[data-metric="build"]')).toHaveAttribute('data-status', 'incomplete-pair');
+        await selectComparison(page, 'r2r-aot', 'mobile');
+        await expect(page.locator('.focus-kpi')).toHaveCount(4);
+        await expect(page.locator('.focus-baseline')).toHaveText('Not used (R2R vs AOT)');
+    });
+}
+
+test('native desktop data does not fill mobile gaps, and no baseline never borrows AOT', async ({ page }) => {
+    const fixture = focusFixture();
+    for (const bucket of fixture.buckets) {
+        for (const rows of Object.values(bucket.appMetrics['semi-avalonia'])) {
+            for (const key of Object.keys(rows)) if (key.includes('/native-relink/mobile/')) delete rows[key];
+        }
+        for (const rows of Object.values(bucket.appMetrics['havit-bootstrap'])) {
+            for (const key of Object.keys(rows)) if (key.includes('/no-workload/')) delete rows[key];
+        }
+    }
+    await open(page, fixture, null);
+    await expect(page.locator('.focus-baseline')).toHaveText('Unavailable');
+    await expect(page.locator('.focus-baseline')).toHaveAttribute('title', /neither no-workload nor native-relink/);
+    await expect(page.locator('.focus-kpi')).toHaveCount(0);
+    await selectComparison(page, 'r2r-aot', 'mobile');
+    await expect(page.locator('.focus-kpi')).toHaveCount(4);
+    await page.locator('#focus-app').selectOption('semi-avalonia');
+    for (const flavor of ['release-release', 'r2r-release']) {
+        await selectComparison(page, flavor, 'mobile');
+        await expect(page.locator('.focus-baseline')).toHaveText('native-relink');
+        await expect(page.locator('[data-metric="startup"] .focus-kpi')).toHaveCount(0);
+        await expect(page.locator('.focus-kpi')).toHaveCount(3);
+        await selectComparison(page, flavor, 'desktop');
+        await expect(page.locator('.focus-kpi')).toHaveCount(4);
+    }
+});
+
+test('no-workload holes stay gaps in actual Chart.js even when native rows could fill every cell', async ({ page }) => {
+    const fixture = focusFixture();
+    for (const bucket of fixture.buckets) {
+        for (const rows of Object.values(bucket.appMetrics['havit-bootstrap'])) {
+            for (const [key, values] of Object.entries(rows)) {
+                if (key.includes('/no-workload/')) rows[key.replace('/no-workload/', '/native-relink/')] = values.map(() => 999999);
+            }
+        }
+        delete bucket.appMetrics['havit-bootstrap']['compile-time']['coreclr/no-workload/desktop/chrome'];
+    }
+    const rows = fixture.buckets[1].appMetrics['havit-bootstrap']['time-to-reach-managed-cold'];
+    rows['coreclr/no-workload/mobile/chrome'][14] = null;
+    rows['mono/no-workload/mobile/chrome'][13] = null;
+    await open(page, fixture, { flavor: 'release-release', startupProfile: 'mobile' });
+    await assertSelectionValues(page, 'havit-bootstrap', 'release-release', 'mobile', fixture);
+    await expect(page.locator('.focus-baseline')).toHaveText('no-workload');
+    await expect(page.locator('[data-metric="startup"] .focus-older-pair')).toContainText('newer result incomplete');
+    await expect(page.locator('[data-metric="build"]')).toHaveAttribute('data-status', 'incomplete-pair');
+    await page.getByLabel('Percentage curve', { exact: true }).check();
+    await expect.poll(async () => (await charts(page))[0]?.labels.length).toBe(3);
+    const startup = (await charts(page))[0];
+    expect(startup.values[0].at(-1).y).toBeNull();
+    expect(startup.values[1].at(-2).y).toBeNull();
+    expect(startup.values[2].at(-1).y).toBeNull();
+    expect(startup.values[2].at(-2).y).toBeNull();
+});
+
+test('native and missing-runtime cards remain readable on 390px mobile, including enlarged text', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await open(page);
+    for (const app of ['semi-avalonia', 'uno-gallery']) {
+        await page.locator('#focus-app').selectOption(app);
+        for (const flavor of ['release-release', 'r2r-release', 'r2r-aot']) {
+            await selectComparison(page, flavor, 'mobile');
+            await expect(page.locator('.focus-card')).toHaveCount(4);
+            expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+            await page.locator('.net12-focus').evaluate(element => { element.style.zoom = '1.5'; });
+            expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+            await page.locator('.net12-focus').evaluate(element => { element.style.zoom = ''; });
+        }
+    }
+});
+
 test('older missing R2R rows stay gaps and rapid app/flavor/profile changes cannot restore stale choices', async ({ page }) => {
     await open(page, focusFixture(), null);
     await page.getByLabel('Actual measurements', { exact: true }).check();
@@ -223,7 +371,7 @@ for (const viewport of [{ width: 1280, height: 800 }, { width: 1600, height: 900
     test(`all four complete and partial cards fit ${viewport.width}x${viewport.height} at normal zoom`, async ({ page }) => {
         await page.setViewportSize(viewport);
         await open(page, focusFixture(), null);
-        for (const app of ['havit-bootstrap', 'empty-blazor']) {
+        for (const app of ['havit-bootstrap', 'empty-blazor', 'semi-avalonia', 'uno-gallery']) {
             await page.getByLabel('Application', { exact: true }).selectOption(app);
             await expect(page.locator('.focus-metrics')).toHaveAttribute('aria-busy', 'false');
             const bounds = await page.locator('.focus-card').evaluateAll(cards => cards.map(card => {
@@ -244,7 +392,7 @@ for (const viewport of [{ width: 1280, height: 800 }, { width: 1600, height: 900
     });
 }
 
-test('real Blazor deep-link preserves the explicit Release/desktop comparison and 5 avg captions', async ({ page }) => {
+test('real Blazor deep-link preserves the explicit publish/desktop comparison and 5 avg captions', async ({ page }) => {
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await open(page);
@@ -337,7 +485,7 @@ test('three dual-axis ordinal series retain same-day builds and do not mutate su
     expect(initial).toHaveLength(4);
     expect([...origins]).toEqual([new URL(page.url()).origin]);
     for (const chart of initial) {
-        expect(chart.labels).toEqual(['CoreCLR Release', 'Mono Release', 'CoreCLR vs Mono (%)']);
+        expect(chart.labels).toEqual(['CoreCLR publish', 'Mono publish', 'CoreCLR vs Mono (%)']);
         expect(chart.axes).toEqual(['y', 'y', 'comparison']);
         expect(chart.spanGaps).toEqual([false, false, false]);
         expect(chart.values[0]).toHaveLength(23);
@@ -372,7 +520,7 @@ test('all app selections keep four cards with truthful partial and unavailable e
     const cases = [
         ['blazing-pizza', 4], ['mud-blazor', 4], ['igniteui-light', 4],
         ['blazor-perf', 3], ['empty-blazor', 3], ['empty-browser', 3],
-        ['micro-benchmarks', 1], ['semi-avalonia', 0], ['uno-gallery', 0],
+        ['micro-benchmarks', 1], ['semi-avalonia', 4], ['uno-gallery', 0],
     ];
     for (const [app, available] of cases) {
         await page.getByLabel('Application', { exact: true }).selectOption(app);
@@ -381,12 +529,12 @@ test('all app selections keep four cards with truthful partial and unavailable e
         await expect(page.locator('.focus-kpi')).toHaveCount(available);
         await expect(page.locator('.focus-rolling-caption')).toHaveCount(available);
         await expect(page.locator('.focus-error')).toHaveCount(0);
-        if (available < 4) await expect(page.locator('.focus-empty').first()).toContainText('Comparison unavailable');
+        if (available < 4) await expect(page.locator('.focus-unavailable-heading').first()).toHaveText('Unavailable');
         await expect(page.locator('.focus-latest-build')).toHaveCount(available ? 1 : 0);
         expect(await page.locator('.focus-percentage').evaluateAll(values =>
             values.every(value => value.scrollWidth <= value.clientWidth))).toBeTruthy();
     }
-    await expect(page.locator('.focus-empty').first()).toContainText('no CoreCLR comparison');
+    await expect(page.locator('.focus-card-status').first()).toContainText('CoreCLR publish (native-relink) measurements are missing');
 });
 
 test('real canvas bands fill at 0.2 with open boundaries and disappear independently of summaries', async ({ page }) => {
@@ -466,6 +614,45 @@ test('short rolling counts and independent colors end at the latest valid SDK', 
     await expect(startup.locator('.focus-percentage')).toHaveText('12.0%');
 });
 
+test('both missing runtimes are explicit in chart and graphs-off summaries', async ({ page }) => {
+    const fixture = focusFixture();
+    for (const bucket of fixture.buckets) {
+        for (const runtime of ['coreclr', 'mono']) {
+            bucket.appMetrics['havit-bootstrap']['compile-time'][`${runtime}/no-workload/desktop/chrome`].fill(null);
+        }
+    }
+    await open(page, fixture);
+    const build = page.locator('[data-metric="build"]');
+    await expect(build).toHaveAttribute('data-status', 'incomplete-pair');
+    await expect(build.locator('.focus-empty')).toContainText('Both CoreCLR publish and Mono publish measurements are missing.');
+    await expect(build.locator('.focus-card-summary .focus-summary-note')).toHaveCount(0);
+    await expect(build.locator('.focus-kpi')).toHaveCount(0);
+    await expect(build.locator('.focus-rolling-caption')).toHaveCount(0);
+    await page.getByLabel('Actual measurements', { exact: true }).uncheck();
+    await expect(build.locator('.focus-summary-note')).toContainText('Both CoreCLR publish and Mono publish measurements are missing.');
+});
+
+test('loading and unsupported metrics do not acquire a cohort-gap explanation', async ({ page }) => {
+    await page.clock.setFixedTime(FOCUS_FIXTURE_TIME);
+    await routeFocusFixture(page);
+    let release;
+    const gate = new Promise(resolve => { release = resolve; });
+    await page.route('**/data/views/index.json', async route => { await gate; await route.fallback(); });
+    await page.goto(path, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('.focus-card[data-status="loading"]')).toHaveCount(4);
+    await expect(page.locator('.focus-card-summary .focus-summary-note')).toHaveCount(0);
+    await expect(page.locator('.focus-empty').first()).toContainText('Reading the published SDK 12 cohort.');
+    release();
+    await expect(page.locator('.focus-kpi')).toHaveCount(4);
+    await page.locator('#focus-app').selectOption('micro-benchmarks');
+    const walkthrough = page.locator('[data-metric="walkthrough"]');
+    await expect(walkthrough).toHaveAttribute('data-status', 'unsupported-metric');
+    await expect(walkthrough.locator('.focus-card-summary .focus-summary-note')).toHaveCount(0);
+    await expect(walkthrough.locator('.focus-empty')).toContainText('no equivalent elapsed-time walkthrough');
+    await page.getByLabel('Actual measurements', { exact: true }).uncheck();
+    await expect(walkthrough.locator('.focus-summary-note')).toContainText('no equivalent elapsed-time walkthrough');
+});
+
 test('gaps reset each window, older complete pairs are labeled and no caption is fabricated', async ({ page }) => {
     const fixture = focusFixture();
     const metrics = fixture.buckets[1].appMetrics['havit-bootstrap'];
@@ -511,9 +698,9 @@ test('cards have no inspection controls while hover tooltips retain measurement 
     });
     expect(tooltip).toContain('12.0.100-alpha.1.26469.103');
     expect(tooltip).toContain('SDK day 2026-09-19');
-    expect(tooltip).toContain('CoreCLR Release raw: 767 ms');
-    expect(tooltip).toContain('Mono Release raw: 401 ms');
-    expect(tooltip).toContain('5 of 5 observations');
+    expect(tooltip).toContain('CoreCLR publish raw: 767 ms');
+    expect(tooltip).toContain('Mono publish raw: 401 ms');
+    expect(tooltip).toContain('5/5 points');
     expect(tooltip).not.toContain('Inspect');
 });
 
@@ -527,6 +714,8 @@ for (const status of [404, 500]) {
         await page.goto(path);
         await expect(page.getByRole('alert')).toContainText(`HTTP ${status}`);
         await expect(page.locator('.focus-card[data-status="error"]')).toHaveCount(4);
+        await expect(page.locator('.focus-card-summary .focus-summary-note')).toHaveCount(0);
+        await expect(page.locator('.focus-empty').first()).toContainText('A load error is not a missing metric or a zero.');
         fail = false;
         await page.getByRole('button', { name: 'Retry', exact: true }).click();
         await expect(page.locator('.focus-percentage').first()).toHaveText('119.3%');

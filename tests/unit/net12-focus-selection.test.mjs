@@ -11,9 +11,9 @@ const near = (a, b) => assert(Math.abs(a - b) < 1e-9, `${a} != ${b}`);
 test('defaults and the three permitted runtime/preset mappings have one central definition', () => {
     assert.deepEqual(DEFAULT_FOCUS_SELECTION, { flavor: 'r2r-release', startupProfile: 'mobile' });
     assert.deepEqual(FOCUS_FLAVORS.map(f => [f.id, f.label, f.coreclrPreset, f.monoPreset]), [
-        ['release-release', 'Release vs Release', 'no-workload', 'no-workload'],
-        ['r2r-release', 'Release/R2R vs Release', 'aot', 'no-workload'],
-        ['r2r-aot', 'Release/R2R vs Release/AOT', 'aot', 'aot'],
+        ['release-release', 'publish vs publish', 'no-workload', 'no-workload'],
+        ['r2r-release', 'publish/R2R vs publish', 'aot', 'no-workload'],
+        ['r2r-aot', 'publish/R2R vs publish/AOT', 'aot', 'aot'],
     ]);
     assert.equal(focusConfiguration().defaultFlavor, DEFAULT_FOCUS_SELECTION.flavor);
     const result = buildFocusReport(publicationFor('havit-bootstrap'), 'havit-bootstrap', '14d', now());
@@ -66,7 +66,7 @@ for (const flavor of ['release-release', 'r2r-release', 'r2r-aot']) {
     }
 }
 
-test('mobile changes startup only; unavailable R2R rows stay gaps even when Release rows exist', () => {
+test('mobile changes startup only; unavailable R2R rows stay gaps even when publish rows exist', () => {
     const publication = publicationFor('havit-bootstrap');
     const desktop = buildFocusReport(publication, 'havit-bootstrap', '14d', now(), { flavor: 'r2r-release', startupProfile: 'desktop' });
     const mobile = buildFocusReport(publication, 'havit-bootstrap', '14d', now(), { flavor: 'r2r-release', startupProfile: 'mobile' });

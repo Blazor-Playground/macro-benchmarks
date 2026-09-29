@@ -7,7 +7,7 @@ or their existing route, not a mode tab.
 
 ## Focus selections
 
-Defaults are **Blazor Havit**, **Release/R2R vs Release**, **mobile startup**,
+Defaults are **Blazor Havit**, **publish/R2R vs publish**, **mobile startup**,
 and the last **14 inclusive UTC calendar days**. All published apps remain
 selectable; unavailable measurements keep their cards with an explanation.
 
@@ -15,14 +15,28 @@ Flavor direction is always **CoreCLR versus Mono**:
 
 | Choice | CoreCLR preset | Mono preset |
 |---|---|---|
-| Release vs Release | `no-workload` | `no-workload` |
-| Release/R2R vs Release | `aot` (ReadyToRun) | `no-workload` |
-| Release/R2R vs Release/AOT | `aot` (ReadyToRun) | `aot` (Mono AOT) |
+| publish vs publish | App publish baseline | App publish baseline |
+| publish/R2R vs publish | `aot` (ReadyToRun) | App publish baseline |
+| publish/R2R vs publish/AOT | `aot` (ReadyToRun) | `aot` (Mono AOT) |
 
-These are existing **configured Release** presets, not untouched/default Release
-builds. Only these explicit mappings permit different presets between runtimes;
-missing rows never fall back to another flavor. `chart/focus-selection.ts` is
-the shared authority for flavor, profile, visibility and smoothing defaults.
+These are existing **configured publish** presets, not untouched SDK defaults.
+MSBuild `Configuration=Release`, producer presets, historical row identities and
+stable flavor selection IDs are unchanged. `chart/focus-selection.ts` is the
+shared authority for effective cohorts, labels and selection defaults.
+
+The **app publish baseline** is resolved once from all its loaded eligible SDK 12
+Focus metric row identities, before cropping dates or selecting a startup
+profile. Any `no-workload` row retains `no-workload` throughout the app, including
+all-null rows or rows covering only one runtime, metric, profile or engine.
+Only when no `no-workload` rows exist can published `native-relink` rows supply
+the baseline slots. When neither preset is published, the baseline is unavailable;
+no other preset is substituted. Explicit CoreCLR R2R and Mono AOT slots always
+remain `aot`.
+
+Effective labels, comparison context, tooltips and card row metadata disclose the
+choice. There is no per-cell, per-metric or per-runtime fallback: missing selected
+rows and non-overlapping SDK variants remain gaps. A Mono-only app has no
+CoreCLR comparison.
 
 **Startup profile** affects only cold startup. Mobile emulates 3x CPU slowdown,
 20 Mbps download, 5 Mbps upload and 70 ms latency; desktop has no throttling.
@@ -94,6 +108,16 @@ window, on that series' axis. Boundaries are open; only fills close. One-point
 windows have zero spread. Bands are observed ranges, not confidence intervals.
 Raw mode disables bands while retaining their preference. Hover tooltips expose
 raw values, means, extrema, counts and spans; there is no inspection panel.
+Focus uses Chart.js's built-in canvas tooltip and color boxes. Text wraps to the
+canvas width; averaged mode uses compact spacing and one unit suffix for each
+mean/min/max line. Raw values, SDK/day and each series' window count and span
+remain visible. Profile and provenance stay in the card/page context rather than
+a repeated tooltip footer. No HTML overlay, custom scrolling or tooltip event
+handlers are needed.
+
+The grid uses two columns from 1280px and one below that; below 800px the settings
+stack above the cards. This leaves room for the native tooltip while preserving
+the four-card desktop layout.
 
 ## Data source and limits
 
@@ -186,6 +210,7 @@ npm run test:e2e
 ```
 
 - **Unit tests** recompile and import production TypeScript modules. They exercise
+  per-app baseline selection (including all-null/one-sided no-workload rows),
   pairing, dates, windows, errors, cache/lifetime handling and chart configuration.
   Network/DOM adapters are stubbed where needed; proxy tests use real loopback HTTP.
 - **Browser tests** use the source-built Blazor app, real Chart.js, controls and
@@ -195,7 +220,9 @@ npm run test:e2e
   inject HTTP or canvas errors. Canvas instrumentation forwards real drawing calls.
 - **Fixtures** retain published values from
   `854d0c7ddedde9401b223b696f99a5d753c464ee`: two SDK12 buckets, focus metrics and
-  one delta report. The expected-value helper is restricted to its frozen
+  one delta report. In this fixture, Semi Avalonia has native-relink rows for
+  both runtimes; Uno Gallery has only Mono measurements.
+  The expected-value helper is restricted to its frozen
   September 20 window and unique day/SDK pairs. Separate synthetic browser cases
   use literal expectations for date cropping/lookback and tied SDK variants.
 

@@ -32,7 +32,7 @@
                 </select>
                 @if (SelectedFlavor is { } selectedFlavor)
                 {
-                    <p class="focus-selection-note">@selectedFlavor.CoreclrLabel vs @selectedFlavor.MonoLabel</p>
+                    <p class="focus-selection-note">@(report?.Cohort.CoreclrLabel ?? selectedFlavor.CoreclrLabel) vs @(report?.Cohort.MonoLabel ?? selectedFlavor.MonoLabel)</p>
                 }
             </div>
             <div class="focus-selection-control">
@@ -75,8 +75,10 @@
                 <dl>
                     <div><dt>Channel</dt><dd>SDK 12 only</dd></div>
                     <div><dt>Actual target framework</dt><dd>@(report == null ? "Loading metadata..." : string.Join(", ", report.TargetFrameworks.DefaultIfEmpty("Unknown")))</dd></div>
+                    <div><dt>Publish baseline</dt><dd class="focus-baseline" title="@report?.Cohort.BaselineDescription"
+                        data-preset="@report?.Cohort.BaselinePreset">@(report == null ? "Loading metadata..." : !report.Cohort.UsesBaseline ? "Not used (R2R vs AOT)" : report.Cohort.BaselinePreset ?? "Unavailable")</dd></div>
                 </dl>
-                <p class="focus-setting-hint">Existing configured Release presets, not clean/default Release. CoreCLR's aot preset is R2R; Mono's is AOT. Known custom builds excluded; missing flags do not certify a stock build.</p>
+                <p class="focus-setting-hint">Configured publish presets, not SDK defaults. CoreCLR's aot is R2R; Mono's is AOT. Known custom builds excluded; missing flags do not certify a stock build.</p>
             </div>
         </aside>
         <main class="focus-main">
@@ -162,12 +164,16 @@
                     Band bounds are the raw minimum and maximum of each exact rolling window, not uncertainty estimates.</p>
                 <p>Percentage curve controls the comparison line, its axis and parity reference. Actual measurements controls both runtime curves and their units axis.
                     Smoothing and min-max bands apply only to enabled curves. Turning both off removes the charts without changing either summary, raw values or data selectors.</p>
-                <p>The flavor explicitly chooses CoreCLR and Mono presets: Release is no-workload; CoreCLR Release/R2R is aot with ReadyToRun;
-                    Mono Release/AOT is aot with Mono AOT. Different presets are intentional only in the selected mapping. These are configured Release builds, not clean/default Release.</p>
+                <p>The flavor explicitly chooses CoreCLR and Mono presets: publish uses the app's baseline; CoreCLR publish/R2R is aot with ReadyToRun;
+                    Mono publish/AOT is aot with Mono AOT. These are configured publish builds, not SDK defaults; the underlying MSBuild Configuration=Release is unchanged.</p>
+                <p>The publish baseline is chosen once per app across all its loaded SDK 12 Focus metric rows, before selecting a date range or startup profile.
+                    Any no-workload row keeps no-workload for both runtimes, even if all its values are null or it covers only one runtime, metric, profile or engine.
+                    Only apps with no no-workload rows use native-relink in publish baseline slots, when published. Effective runtime labels and the baseline context disclose this choice.
+                    Native-relink never replaces explicit R2R/AOT slots or fills individual missing values.</p>
                 <p>The startup profile selector affects only time-to-managed (cold). Mobile emulates 3x CPU slowdown, 20 Mbps download, 5 Mbps upload and 70 ms latency;
                     desktop has no throttling. This timer runs from JS bootstrap to managed-ready, not navigation to full rendering.
                     Walkthrough, download and build comparisons use their published desktop/Chromium rows for the selected flavor.
-                    Download bytes are not assumed profile-independent. Missing R2R/AOT or profile rows stay missing; there is no fallback.</p>
+                    Download bytes are not assumed profile-independent. Missing selected runtime, preset or profile rows stay missing; there is no per-point fallback.</p>
                 <p>Build time excludes restore. Download MB are decimal. SDK 12 does not imply a net12.0 target: the actual recorded TFM is shown in the settings.
                     Refresh data loads a new publication; local flavor, profile and range changes reuse the loaded all-row data.</p>
                 <p>Published headers have representative timestamps, not reliable per-cell execution provenance. The inspected Havit Mono/CoreCLR jobs used different runners.

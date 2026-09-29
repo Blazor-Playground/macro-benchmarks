@@ -970,12 +970,13 @@ code {
     .net12-focus .focus-percentage { font-size: 54px; }
 }
 
-@media (max-width: 1100px) {
+/* Keep enough canvas width for the built-in tooltip's measurement details. */
+@media (max-width: 1279px) {
     .net12-focus .focus-metrics { grid-template-columns: minmax(0, 1fr); }
     .net12-focus .focus-chart-toolbar { align-items: flex-start; flex-direction: column; }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 799px) {
     .net12-focus .focus-workbench { display: block; }
     .net12-focus .focus-settings { padding: 18px; height: auto; position: static; overflow: visible; }
     .net12-focus .focus-settings fieldset { margin-top: 16px; }
@@ -986,7 +987,7 @@ code {
     .net12-focus .focus-provenance { align-items: flex-start; }
     .net12-focus .focus-card { grid-template-columns: minmax(0, 1fr); }
     .net12-focus .focus-card-summary { border-right: 0; padding: 18px; }
-    .net12-focus .focus-values { display: flex; gap: 24px; }
+    .net12-focus .focus-values { display: flex; flex-wrap: wrap; gap: 0 24px; }
     .net12-focus .focus-values div { gap: 10px; }
     .net12-focus .focus-rolling-caption { font-size: 12px; }
     .net12-focus .focus-plot { height: 200px; }

@@ -10,9 +10,6 @@ public enum ScenarioKind
     /// <summary>JS calls <see cref="BenchScenario.RunIteration"/> in a tight loop; reported as ops/sec.</summary>
     Managed,
 
-    /// <summary>JS dispatches real DOM events; the scenario signals completion; reported as ms.</summary>
-    Input,
-
     /// <summary>
     /// The scenario animates for a fixed duration while Avalonia render ticks are counted
     /// (<see cref="BenchScenario.OnFrame"/> runs on every tick); reported as frames per second.
@@ -61,10 +58,6 @@ public abstract class BenchScenario
         HorizontalAlignment = HorizontalAlignment.Center,
         VerticalAlignment = VerticalAlignment.Center,
     };
-
-    /// <summary>Called before each input sample with a driver-specific <paramref name="parameter"/>.</summary>
-    public virtual void BeginSample(double parameter)
-        => throw new NotSupportedException($"Scenario '{Name}' is not an input scenario");
 
     /// <summary>Called on every render tick of a frames scenario; <paramref name="elapsed"/> is time since the sample started.</summary>
     public virtual void OnFrame(TimeSpan elapsed)

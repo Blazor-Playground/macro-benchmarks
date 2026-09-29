@@ -259,8 +259,10 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
     { app: A.SemiAvalonia, metric: MetricKey.SemiWalkthrough, fn: runSemiWalkthrough as WalkthroughFn, selfNav: true },
 
     // avalonia-bench scenarios (src/avalonia-bench/Scenarios + wwwroot/main.mjs)
-    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaLayoutPassOps, fn: avaloniaScenario('layout-pass') as WalkthroughFn, runs: 3 },
-    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaPointerMove, fn: avaloniaScenario('pointer-move') as WalkthroughFn, runs: 3 },
+    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaVirtualizedScrollOps, fn: avaloniaScenario('virtualized-scroll') as WalkthroughFn, runs: 3 },
+    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaControlTemplatesOps, fn: avaloniaScenario('control-templates') as WalkthroughFn, runs: 3 },
+    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaTextLayoutOps, fn: avaloniaScenario('text-layout') as WalkthroughFn, runs: 3 },
+    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaSkiaDrawingOps, fn: avaloniaScenario('skia-drawing') as WalkthroughFn, runs: 3 },
     { app: A.AvaloniaBench, metric: MetricKey.AvaloniaFpsLayoutResize, fn: avaloniaScenario('fps-layout-resize', AVALONIA_FPS_OPTIONS) as WalkthroughFn, runs: 3 },
     { app: A.AvaloniaBench, metric: MetricKey.AvaloniaFpsRenderTransforms, fn: avaloniaScenario('fps-render-transforms', AVALONIA_FPS_OPTIONS) as WalkthroughFn, runs: 3 },
     { app: A.AvaloniaBench, metric: MetricKey.AvaloniaFpsCompositionAnimations, fn: avaloniaScenario('fps-composition-animations', AVALONIA_FPS_OPTIONS) as WalkthroughFn, runs: 3 },
@@ -271,7 +273,6 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
     { app: A.AvaloniaBench, metric: MetricKey.AvaloniaStylesAttachOps, fn: avaloniaScenario('styles-attach') as WalkthroughFn, runs: 3 },
     { app: A.AvaloniaBench, metric: MetricKey.AvaloniaHitTestOps, fn: avaloniaScenario('hit-test') as WalkthroughFn, runs: 3 },
     { app: A.AvaloniaBench, metric: MetricKey.AvaloniaDispatcherPostOps, fn: avaloniaScenario('dispatcher-post') as WalkthroughFn, runs: 3 },
-    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaDispatcherInvokeAsyncOps, fn: avaloniaScenario('dispatcher-invoke-async') as WalkthroughFn, runs: 3 },
 
     // blazor-perf: WASM-only benchmarks first (need healthy server for JS module imports)
     { app: A.BlazorPerf, metric: MetricKey.BlazorCounterHeavyWasm, fn: runCounterHeavyWasm as WalkthroughFn, runs: 1, selfNav: true, wasmOnly: true },

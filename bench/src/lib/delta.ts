@@ -104,9 +104,10 @@ const HIGHER_IS_BETTER = new Set([
     'blazor-params-count-htmlrenderer', 'blazor-too-many-components-htmlrenderer',
     'blazor-params-count-htmlrenderer-stress', 'blazor-too-many-components-htmlrenderer-stress',
     'blazor-params-count-server-stress', 'blazor-too-many-components-server-stress',
-    'avalonia-layout-pass-ops', 'avalonia-property-set-get-ops', 'avalonia-property-inheritance-ops',
+    'avalonia-virtualized-scroll-ops', 'avalonia-control-templates-ops', 'avalonia-text-layout-ops',
+    'avalonia-skia-drawing-ops', 'avalonia-property-set-get-ops', 'avalonia-property-inheritance-ops',
     'avalonia-styles-class-toggle-ops', 'avalonia-styles-attach-ops', 'avalonia-hit-test-ops',
-    'avalonia-dispatcher-post-ops', 'avalonia-dispatcher-invoke-async-ops',
+    'avalonia-dispatcher-post-ops',
     'avalonia-fps-layout-resize', 'avalonia-fps-render-transforms',
     'avalonia-fps-composition-animations', 'avalonia-fps-tree-churn',
 ]);

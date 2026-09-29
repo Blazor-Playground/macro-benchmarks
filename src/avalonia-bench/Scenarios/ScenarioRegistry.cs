@@ -8,8 +8,10 @@ public static class ScenarioRegistry
 {
     public static IReadOnlyList<BenchScenario> All { get; } =
     [
-        new LayoutPassScenario(),
-        new PointerMoveScenario(),
+        new VirtualizedScrollScenario(),
+        new ControlTemplatesScenario(),
+        new TextLayoutScenario(),
+        new SkiaDrawingScenario(),
         new LayoutResizeScenario(),
         new RenderTransformAnimationScenario(),
         new CompositionAnimationScenario(),
@@ -20,7 +22,6 @@ public static class ScenarioRegistry
         new StylesAttachScenario(),
         new HitTestScenario(),
         new DispatcherPostScenario(),
-        new DispatcherInvokeAsyncScenario(),
     ];
 
     public static BenchScenario Get(string name)

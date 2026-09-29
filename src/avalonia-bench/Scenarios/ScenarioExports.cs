@@ -17,7 +17,7 @@ public static partial class ScenarioExports
     private static BenchScenario Active
         => s_active ?? throw new InvalidOperationException("No scenario prepared");
 
-    /// <summary>Returns "name:kind" pairs separated by ';' (kind is "managed", "input", "frames" or "async").</summary>
+    /// <summary>Returns "name:kind" pairs separated by ';' (kind is "managed", "frames" or "async").</summary>
     [JSExport]
     public static string ListScenarios()
         => string.Join(';', ScenarioRegistry.All.Select(s => $"{s.Name}:{s.Kind.ToString().ToLowerInvariant()}"));
@@ -39,9 +39,6 @@ public static partial class ScenarioExports
     [JSExport]
     [return: JSMarshalAs<JSType.Promise<JSType.Number>>]
     public static Task<double> RunAsyncSample(double durationMs) => Active.RunSampleAsync(durationMs);
-
-    [JSExport]
-    public static void BeginInputSample(double parameter) => Active.BeginSample(parameter);
 
     /// <summary>Runs a frames scenario for <paramref name="durationMs"/> and returns the render ticks per second.</summary>
     [JSExport]

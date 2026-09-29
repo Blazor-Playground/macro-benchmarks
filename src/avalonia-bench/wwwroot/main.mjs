@@ -28,68 +28,6 @@ function tryComplete() {
     setupManualUi();
 }
 
-// ── Scenario signals (C# → JS) ──────────────────────────────────────────────
-
-const signalWaiters = new Map();
-
-function scenarioSignal(name, value) {
-    const resolve = signalWaiters.get(name);
-    if (resolve) {
-        signalWaiters.delete(name);
-        resolve(value);
-    }
-}
-
-/** Register before dispatching input, so a synchronous signal is not missed. */
-function waitForSignal(name, timeoutMs) {
-    return new Promise((resolve, reject) => {
-        const timer = setTimeout(() => {
-            signalWaiters.delete(name);
-            reject(new Error(`Timed out waiting for scenario signal '${name}'`));
-        }, timeoutMs);
-        signalWaiters.set(name, (value) => { clearTimeout(timer); resolve(value); });
-    });
-}
-
-// ── Input drivers (one per Input scenario; return elapsed ms for one sample) ──
-
-/** The element a real pointer at (clientX, clientY) would hit inside the Avalonia container. */
-function pointerTarget(clientX, clientY) {
-    const container = document.querySelector('.avalonia-container');
-    if (!container) throw new Error('Avalonia container not found');
-    const hit = document.elementFromPoint(clientX, clientY);
-    return hit && container.contains(hit) ? hit : container;
-}
-
-/**
- * Synthetic pointer event that looks like a trusted one to Avalonia: untrusted events have an
- * empty getCoalescedEvents(), which Avalonia's input path doesn't handle, so include the event itself.
- */
-function pointerEvent(type, init) {
-    const full = { bubbles: true, cancelable: true, composed: true, pointerId: 1, pointerType: 'mouse', isPrimary: true, ...init };
-    return new PointerEvent(type, { ...full, coalescedEvents: [new PointerEvent(type, full)] });
-}
-
-const inputDrivers = {
-    // Moves across the view with strictly increasing X; C# signals once it sees the final X.
-    'pointer-move': async ({ name, timeoutMs }) => {
-        const container = document.querySelector('.avalonia-container');
-        const rect = container.getBoundingClientRect();
-        const count = 200;
-        const startX = Math.round(rect.left + rect.width / 2 - count / 2);
-        const y = Math.round(rect.top + rect.height / 2);
-        const target = pointerTarget(startX, y);
-        const signal = waitForSignal(name, timeoutMs);
-        scenarioExports.BeginInputSample(startX + count - 1 - rect.left);
-        const start = performance.now();
-        for (let i = 0; i < count; i++) {
-            target.dispatchEvent(pointerEvent('pointermove', { clientX: startX + i, clientY: y }));
-        }
-        await signal;
-        return performance.now() - start;
-    },
-};
-
 // ── Managed sampling (tight loop, ops/sec) ──────────────────────────────────
 
 function runManagedSample(durationMs) {
@@ -111,10 +49,9 @@ function listScenarios() {
     });
 }
 
-async function runScenario(name, { warmup = 1, samples = 5, sampleDurationMs = 1000, timeoutMs = 30000 } = {}) {
+async function runScenario(name, { warmup = 1, samples = 5, sampleDurationMs = 1000 } = {}) {
     const scenario = listScenarios().find(s => s.name === name);
     if (!scenario) throw new Error(`Unknown scenario '${name}'`);
-    if (scenario.kind === 'input' && !inputDrivers[name]) throw new Error(`No input driver for scenario '${name}'`);
 
     await scenarioExports.PrepareScenario(name);
     try {
@@ -122,8 +59,7 @@ async function runScenario(name, { warmup = 1, samples = 5, sampleDurationMs = 1
         for (let i = 0; i < warmup + samples; i++) {
             const value = scenario.kind === 'managed' ? runManagedSample(sampleDurationMs)
                 : scenario.kind === 'frames' ? await scenarioExports.RunFrameSample(sampleDurationMs)
-                : scenario.kind === 'async' ? await scenarioExports.RunAsyncSample(sampleDurationMs)
-                : await inputDrivers[name]({ name, timeoutMs });
+                : await scenarioExports.RunAsyncSample(sampleDurationMs);
             if (i >= warmup) values.push(value);
         }
         return values;
@@ -134,7 +70,7 @@ async function runScenario(name, { warmup = 1, samples = 5, sampleDurationMs = 1
 
 // ── Manual run UI (only with ?ui, so automated runs load no extra DOM) ──────
 
-const UNITS = { managed: 'ops/s', async: 'ops/s', frames: 'fps', input: 'ms' };
+const UNITS = { managed: 'ops/s', async: 'ops/s', frames: 'fps' };
 
 function setupManualUi() {
     if (!new URLSearchParams(globalThis.location?.search ?? '').has('ui')) return;
@@ -250,7 +186,6 @@ async function outer() {
         bench: {
             setManagedReady,
             setFirstFrameRendered,
-            scenarioSignal,
         }
     });
 

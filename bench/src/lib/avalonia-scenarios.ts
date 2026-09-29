@@ -1,7 +1,7 @@
 /**
  * avalonia-scenarios.ts — generic driver for avalonia-bench scenarios.
  *
- * Scenario logic lives in the app itself (C# in src/avalonia-bench/Scenarios, JS input drivers in
+ * Scenario logic lives in the app itself (C# in src/avalonia-bench/Scenarios, JS glue in
  * src/avalonia-bench/wwwroot/main.mjs) and is exposed as `globalThis.avaloniaBench.run(name, opts)`.
  * This module only runs a scenario inside the page (single page.evaluate, so Playwright round-trips
  * are not measured) and reduces its per-sample values to a median.

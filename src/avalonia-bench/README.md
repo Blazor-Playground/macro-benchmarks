@@ -12,12 +12,20 @@ HarfBuzz ship as static libraries, so only the `native-relink` and `aot` presets
 
 ## Scenarios
 
-Scenarios run in the page through `globalThis.avaloniaBench.run(name, opts)`. There are two kinds:
+Scenarios run in the page through `globalThis.avaloniaBench.run(name, opts)`. There are three kinds:
 
 - **Managed** (`ScenarioKind.Managed`): JS calls `RunIteration()` in a tight loop. Each call returns
   how many operations it performed (e.g. 100 hit tests), and the sample value is operations/sec.
   Batch small operations inside one iteration so JS↔C# interop doesn't dominate. Examples:
-  - `layout-pass`: invalidate ~200 TextBlocks and run a layout pass.
+  - `virtualized-scroll`: an ItemsControl with a VirtualizingStackPanel over 10,000 items (code-built
+    ScrollViewer/ItemsControl templates); scroll by ~7 items and run a layout pass, recycling containers.
+    Rows draw a colored bar.
+  - `control-templates`: add 40 Buttons with a code-built `ControlTheme` (template with template
+    bindings, nested `:pointerover`/`:pressed`/`:disabled` styles, a content template for icon
+    content), run a layout pass, remove them.
+  - `text-layout`: 10 wrapped `TextLayout`s of pseudo-random sentences (HarfBuzz shaping, line breaking).
+  - `skia-drawing`: 120 paths/shapes with gradients, dashed strokes and transforms drawn into a
+    640x400 `RenderTargetBitmap` (CPU raster, so independent of the browser's GPU).
   - `property-set-get`: styled (style + local priority), direct and reference-type property
     set/clear/get on 1000 `AvaloniaObject`s.
   - `property-inheritance`: change an inherited attached property at the root of ~2100 controls
@@ -30,16 +38,6 @@ Scenarios run in the page through `globalThis.avaloniaBench.run(name, opts)`. Th
   value. Use this for work that has to yield to the dispatcher or browser event loop, where a JS
   tight loop would block the queue. Examples:
   - `dispatcher-post`: batches of 1000 `Post` calls at mixed priorities, each awaited until drained.
-  - `dispatcher-invoke-async`: chained `await InvokeAsync(...)` round-trips.
-- **Input** (`ScenarioKind.Input`): a JS driver in `inputDrivers` (main.mjs) dispatches real DOM
-  events on the element under the pointer, inside `.avalonia-container`. The C# side calls
-  `BenchInterop.ScenarioSignal` once it has seen the expected input, and the sample value is
-  elapsed ms. Example: `pointer-move`.
-  - Build pointer events with `pointerEvent()`: synthetic events need `coalescedEvents`, or
-    Avalonia's input path throws.
-  - Avalonia may merge consecutive moves, so detect completion by state (for example, final
-    position), not by counting events.
-
 - **Frames** (`ScenarioKind.Frames`): the scenario animates for the sample duration while
   `RunFrameSample` counts Avalonia render ticks (`TopLevel.RequestAnimationFrame`) and reports
   frames per second. `OnFrame` runs on every tick for per-frame work; `Start`/`Stop` start and
@@ -55,12 +53,14 @@ Scenarios run in the page through `globalThis.avaloniaBench.run(name, opts)`. Th
   All four draw only small solid rectangles, so the cost is in layout, animation, composition and
   tree management rather than Skia drawing.
 
+Only `text-layout` shapes text. The other scenarios draw rectangles, so their numbers aren't mixed
+with text shaping.
+
 To add a scenario:
 
 1. Add a `BenchScenario` subclass under `Scenarios/` and register it in `ScenarioRegistry`.
-2. For an input scenario, add a driver with the same name to `inputDrivers` in `wwwroot/main.mjs`.
-3. Add a `MetricKey` in `bench/src/enums.ts` and its entry in `bench/src/lib/metrics.ts`.
-4. Add a `WALKTHROUGHS` row in `bench/src/stages/measure.ts` using `avaloniaScenario('<name>')`.
+2. Add a `MetricKey` in `bench/src/enums.ts` and its entry in `bench/src/lib/metrics.ts`.
+3. Add a `WALKTHROUGHS` row in `bench/src/stages/measure.ts` using `avaloniaScenario('<name>')`.
 
 Scenarios run on Chrome/desktop only, like other walkthroughs.
 

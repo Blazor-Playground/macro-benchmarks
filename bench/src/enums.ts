@@ -113,8 +113,10 @@ export enum MetricKey {
     JsInteropOps = 'js-interop-ops',
     JsonParseOps = 'json-parse-ops',
     ExceptionOps = 'exception-ops',
-    AvaloniaLayoutPassOps = 'avalonia-layout-pass-ops',
-    AvaloniaPointerMove = 'avalonia-pointer-move',
+    AvaloniaVirtualizedScrollOps = 'avalonia-virtualized-scroll-ops',
+    AvaloniaControlTemplatesOps = 'avalonia-control-templates-ops',
+    AvaloniaTextLayoutOps = 'avalonia-text-layout-ops',
+    AvaloniaSkiaDrawingOps = 'avalonia-skia-drawing-ops',
     AvaloniaFpsLayoutResize = 'avalonia-fps-layout-resize',
     AvaloniaFpsRenderTransforms = 'avalonia-fps-render-transforms',
     AvaloniaFpsCompositionAnimations = 'avalonia-fps-composition-animations',
@@ -125,7 +127,6 @@ export enum MetricKey {
     AvaloniaStylesAttachOps = 'avalonia-styles-attach-ops',
     AvaloniaHitTestOps = 'avalonia-hit-test-ops',
     AvaloniaDispatcherPostOps = 'avalonia-dispatcher-post-ops',
-    AvaloniaDispatcherInvokeAsyncOps = 'avalonia-dispatcher-invoke-async-ops',
 }
 
 // ── App Routing Configuration ────────────────────────────────────────────────

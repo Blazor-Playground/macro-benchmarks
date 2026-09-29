@@ -9,18 +9,22 @@
     <BundledNETCoreAppPackageVersion Condition="Exists('$(_BundledVersionsFile)')">$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(_BundledVersionsFile)')), '&lt;BundledNETCoreAppPackageVersion&gt;([^&lt;]+)&lt;').Groups[1].Value)</BundledNETCoreAppPackageVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <!-- The SDK's bundled framework TFM is authoritative: early in a major the SDK version can be
-         12.0.x while the shipped framework (and runtime pack) is still net11.0. -->
+    <!-- The SDK's bundled framework TFM is normally authoritative. During the initial .NET 12
+         transition, however, the SDK still reported net11.0 even after its runtime and ASP.NET
+         packages became net12.0-only. Temporarily force net12.0 for that inconsistent payload. -->
     <_BundledVersionsFile Condition="'$(_BundledVersionsFile)' == ''">$(MSBuildBinPath)\Microsoft.NETCoreSdk.BundledVersions.props</_BundledVersionsFile>
     <_SdkTfm Condition="'$(BundledNETCoreAppTargetFramework)' != ''">$(BundledNETCoreAppTargetFramework)</_SdkTfm>
     <_SdkTfm Condition="'$(_SdkTfm)' == '' and Exists('$(_BundledVersionsFile)')">net$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(_BundledVersionsFile)')), '&lt;BundledNETCoreAppTargetFrameworkVersion&gt;([^&lt;]+)&lt;').Groups[1].Value)</_SdkTfm>
     <_SdkTfm Condition="'$(_SdkTfm)' == ''">net$(NETCoreSdkVersion.Split('.')[0]).$(NETCoreSdkVersion.Split('.')[1])</_SdkTfm>
-    <BenchmarkTargetFramework Condition="'$(BenchmarkTargetFramework)' == ''">$(_SdkTfm)</BenchmarkTargetFramework>
     <!-- Major of the runtime pack that carries the emscripten/LLVM native toolchain (e.g. 12 for
          12.0.0-alpha). This governs which native assets (SkiaSharp/HarfBuzz) are ABI-compatible,
          independent of the framework TFM (a 12.0.100 SDK can still bundle net11.0). -->
     <_RuntimeMajor Condition="'$(BundledNETCoreAppPackageVersion)' != ''">$(BundledNETCoreAppPackageVersion.Split('.')[0])</_RuntimeMajor>
     <_RuntimeMajor Condition="'$(_RuntimeMajor)' == ''">$(NETCoreSdkVersion.Split('.')[0])</_RuntimeMajor>
+    <_UseNet12TargetFrameworkWorkaround Condition="'$(_SdkTfm)' == 'net11.0' and '$(_RuntimeMajor)' == '12'">true</_UseNet12TargetFrameworkWorkaround>
+    <BenchmarkTargetFramework Condition="'$(BenchmarkTargetFramework)' == '' and '$(_UseNet12TargetFrameworkWorkaround)' == 'true'">net12.0</BenchmarkTargetFramework>
+    <BenchmarkTargetFramework Condition="'$(BenchmarkTargetFramework)' == ''">$(_SdkTfm)</BenchmarkTargetFramework>
+    <NETCoreAppMaximumVersion Condition="'$(_UseNet12TargetFrameworkWorkaround)' == 'true'">12.0</NETCoreAppMaximumVersion>
   </PropertyGroup>
 
   <PropertyGroup>

@@ -108,11 +108,13 @@ function getCoreClrNativeArgs(ctx: BenchContext, effectiveRuntime: Runtime, pres
 }
 
 // Uno.Gallery is single-TFM, but Uno.Sdk needs the TFM as an early global property (it reads it
-// before Directory.Build.props sets $(BenchmarkTargetFramework)). Use the SDK's bundled framework
-// TFM (e.g. net11.0 for a 12.0.100-alpha SDK that still ships net11), never the SDK major, so we
-// don't target above NETCoreAppMaximumVersion (NETSDK1045).
+// before Directory.Build.props sets $(BenchmarkTargetFramework)). Keep this transition workaround
+// aligned with versions.props until .NET 12 SDK metadata stops advertising a net11.0 maximum.
 function unoTargetFramework(ctx: BenchContext): string {
-    const fw = ctx.sdkInfo.bundledFrameworkTfm || `net${ctx.sdkInfo.major}.0`;
+    const bundledFramework = ctx.sdkInfo.bundledFrameworkTfm || `net${ctx.sdkInfo.major}.0`;
+    const fw = bundledFramework === 'net11.0' && ctx.sdkInfo.major === 12
+        ? 'net12.0'
+        : bundledFramework;
     return `${fw}-browserwasm`;
 }
 

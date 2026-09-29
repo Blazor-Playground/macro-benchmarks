@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-29T14:28:53.430Z",
+  "lastUpdated": "2026-09-29T16:04:56.769Z",
   "activeRelease": "net12",
   "releases": [
     "net8",
@@ -13,6 +13,7 @@
     "2026-08-24"
   ],
   "apps": [
+    "avalonia-bench",
     "blazing-pizza",
     "blazor-perf",
     "empty-blazor",
@@ -266,6 +267,33 @@
       "download-size-cold",
       "download-size-warm",
       "memory-peak",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ],
+    "avalonia-bench": [
+      "avalonia-control-templates-ops",
+      "avalonia-dispatcher-post-ops",
+      "avalonia-fps-layout-resize",
+      "avalonia-fps-render-transforms",
+      "avalonia-hit-test-ops",
+      "avalonia-property-inheritance-ops",
+      "avalonia-property-set-get-ops",
+      "avalonia-skia-drawing-ops",
+      "avalonia-styles-attach-ops",
+      "avalonia-styles-class-toggle-ops",
+      "avalonia-text-layout-ops",
+      "avalonia-virtualized-scroll-ops",
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-cold",
+      "download-size-warm",
+      "memory-peak",
+      "server-requests-cold",
+      "server-requests-warm",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
       "time-to-reach-managed-cold",
       "time-to-reach-managed-warm",
       "wasm-memory-size"

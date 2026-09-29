@@ -68,8 +68,6 @@ public class MetricInfo
         ["avalonia-skia-drawing-ops"] = new("avalonia-skia-drawing-ops", "Avalonia Skia Drawing", "ops/sec", "throughput"),
         ["avalonia-fps-layout-resize"] = new("avalonia-fps-layout-resize", "Avalonia FPS: Layout Resize", "fps", "throughput"),
         ["avalonia-fps-render-transforms"] = new("avalonia-fps-render-transforms", "Avalonia FPS: RenderTransform Animations", "fps", "throughput"),
-        ["avalonia-fps-composition-animations"] = new("avalonia-fps-composition-animations", "Avalonia FPS: Composition Animations", "fps", "throughput"),
-        ["avalonia-fps-tree-churn"] = new("avalonia-fps-tree-churn", "Avalonia FPS: Visual Tree Churn", "fps", "throughput"),
         ["avalonia-property-set-get-ops"] = new("avalonia-property-set-get-ops", "Avalonia Property Set/Get", "ops/sec", "throughput"),
         ["avalonia-property-inheritance-ops"] = new("avalonia-property-inheritance-ops", "Avalonia Inherited Property Change", "ops/sec", "throughput"),
         ["avalonia-styles-class-toggle-ops"] = new("avalonia-styles-class-toggle-ops", "Avalonia Styles: Class Toggle", "ops/sec", "throughput"),

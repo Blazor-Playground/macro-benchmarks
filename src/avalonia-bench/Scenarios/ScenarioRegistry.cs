@@ -14,8 +14,6 @@ public static class ScenarioRegistry
         new SkiaDrawingScenario(),
         new LayoutResizeScenario(),
         new RenderTransformAnimationScenario(),
-        new CompositionAnimationScenario(),
-        new TreeChurnScenario(),
         new PropertySetGetScenario(),
         new PropertyInheritanceScenario(),
         new StylesClassToggleScenario(),

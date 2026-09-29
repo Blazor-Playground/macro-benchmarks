@@ -265,8 +265,6 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
     { app: A.AvaloniaBench, metric: MetricKey.AvaloniaSkiaDrawingOps, fn: avaloniaScenario('skia-drawing') as WalkthroughFn, runs: 3 },
     { app: A.AvaloniaBench, metric: MetricKey.AvaloniaFpsLayoutResize, fn: avaloniaScenario('fps-layout-resize', AVALONIA_FPS_OPTIONS) as WalkthroughFn, runs: 3 },
     { app: A.AvaloniaBench, metric: MetricKey.AvaloniaFpsRenderTransforms, fn: avaloniaScenario('fps-render-transforms', AVALONIA_FPS_OPTIONS) as WalkthroughFn, runs: 3 },
-    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaFpsCompositionAnimations, fn: avaloniaScenario('fps-composition-animations', AVALONIA_FPS_OPTIONS) as WalkthroughFn, runs: 3 },
-    { app: A.AvaloniaBench, metric: MetricKey.AvaloniaFpsTreeChurn, fn: avaloniaScenario('fps-tree-churn', AVALONIA_FPS_OPTIONS) as WalkthroughFn, runs: 3 },
     { app: A.AvaloniaBench, metric: MetricKey.AvaloniaPropertySetGetOps, fn: avaloniaScenario('property-set-get') as WalkthroughFn, runs: 3 },
     { app: A.AvaloniaBench, metric: MetricKey.AvaloniaPropertyInheritanceOps, fn: avaloniaScenario('property-inheritance') as WalkthroughFn, runs: 3 },
     { app: A.AvaloniaBench, metric: MetricKey.AvaloniaStylesClassToggleOps, fn: avaloniaScenario('styles-class-toggle') as WalkthroughFn, runs: 3 },

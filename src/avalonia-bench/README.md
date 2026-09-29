@@ -47,11 +47,9 @@ Scenarios run in the page through `globalThis.avaloniaBench.run(name, opts)`. Th
   - `fps-render-transforms`: ~1500 Borders, each with two Avalonia keyframe animations on the UI
     thread: Opacity, and an attached `Progress` property that drives rotate/scale transforms.
     Animations must target visuals, and there is no animator for `RenderTransform` itself.
-  - `fps-composition-animations`: the same visuals animated by compositor keyframe animations.
-  - `fps-tree-churn`: 80 of ~800 nested subtrees removed and recreated every frame.
 
-  All four draw only small solid rectangles, so the cost is in layout, animation, composition and
-  tree management rather than Skia drawing.
+  Both draw only small solid rectangles, so the cost is in layout, animation and composition rather
+  than Skia drawing.
 
 Only `text-layout` shapes text. The other scenarios draw rectangles, so their numbers aren't mixed
 with text shaping.

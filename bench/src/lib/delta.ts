@@ -109,7 +109,6 @@ const HIGHER_IS_BETTER = new Set([
     'avalonia-styles-class-toggle-ops', 'avalonia-styles-attach-ops', 'avalonia-hit-test-ops',
     'avalonia-dispatcher-post-ops',
     'avalonia-fps-layout-resize', 'avalonia-fps-render-transforms',
-    'avalonia-fps-composition-animations', 'avalonia-fps-tree-churn',
 ]);
 
 function getDirection(metric: string, deltaPct: number): 'regression' | 'improvement' | 'neutral' {

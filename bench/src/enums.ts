@@ -119,8 +119,6 @@ export enum MetricKey {
     AvaloniaSkiaDrawingOps = 'avalonia-skia-drawing-ops',
     AvaloniaFpsLayoutResize = 'avalonia-fps-layout-resize',
     AvaloniaFpsRenderTransforms = 'avalonia-fps-render-transforms',
-    AvaloniaFpsCompositionAnimations = 'avalonia-fps-composition-animations',
-    AvaloniaFpsTreeChurn = 'avalonia-fps-tree-churn',
     AvaloniaPropertySetGetOps = 'avalonia-property-set-get-ops',
     AvaloniaPropertyInheritanceOps = 'avalonia-property-inheritance-ops',
     AvaloniaStylesClassToggleOps = 'avalonia-styles-class-toggle-ops',

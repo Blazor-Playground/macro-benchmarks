@@ -55,8 +55,6 @@ interquartile mean of 3 runs, and each run is the median of several samples.
 | `avalonia-skia-drawing-ops` | ops/sec | Paths, shapes, gradients and transforms drawn into a CPU `RenderTargetBitmap` |
 | `avalonia-fps-layout-resize` | fps | ~1200 Borders resized every frame (full measure/arrange) |
 | `avalonia-fps-render-transforms` | fps | ~1500 Borders with UI-thread keyframe animations (transform, opacity) |
-| `avalonia-fps-composition-animations` | fps | ~1500 Borders with compositor keyframe animations |
-| `avalonia-fps-tree-churn` | fps | 80 of ~800 subtrees removed and recreated every frame |
 | `avalonia-property-set-get-ops` | ops/sec | Styled, direct and style-priority property operations |
 | `avalonia-property-inheritance-ops` | ops/sec | Inherited property changes at the root of ~2100 controls |
 | `avalonia-styles-class-toggle-ops` | ops/sec | Class changes under ~160 global style rules |

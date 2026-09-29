@@ -59,7 +59,7 @@ public static class DashboardConfig
         "blazor-js-to-cs-number", "blazor-js-to-cs-string", "blazor-js-to-cs-json",
         "blazor-cs-to-js-number", "blazor-cs-to-js-string", "blazor-cs-to-js-json",
         "json-parse-ops", "js-interop-ops", "exception-ops",
-        "avalonia-fps-layout-resize", "avalonia-fps-render-transforms", "avalonia-fps-composition-animations", "avalonia-fps-tree-churn",
+        "avalonia-fps-layout-resize", "avalonia-fps-render-transforms",
         "avalonia-virtualized-scroll-ops", "avalonia-control-templates-ops", "avalonia-text-layout-ops", "avalonia-skia-drawing-ops",
         "avalonia-property-set-get-ops", "avalonia-property-inheritance-ops",
         "avalonia-styles-class-toggle-ops", "avalonia-styles-attach-ops", "avalonia-hit-test-ops",

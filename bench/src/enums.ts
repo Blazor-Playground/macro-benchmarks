@@ -201,7 +201,7 @@ export const NON_BLAZOR_REDUCED_PRESETS = new Set<Preset>([Preset.NativeRelink, 
  * the `aot` preset needs `WasmBuildNative=true` and therefore the wasm-tools workload, unlike other
  * apps whose CoreCLR R2R build is native-free (WasmBuildNative=false) and workload-free.
  */
-export const NATIVE_COMPONENT_APPS = new Set<App>([App.UnoGallery, App.SemiAvalonia]);
+export const NATIVE_COMPONENT_APPS = new Set<App>([App.UnoGallery, App.SemiAvalonia, App.AvaloniaBench]);
 
 
 export function shouldSkipDeployment(runtime: Runtime, app: App, preset: Preset, ctx: BenchContext): string | null {
@@ -261,10 +261,6 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     if (AVALONIA_APPS.has(app) && runtime !== Runtime.Mono
         && !(runtime === Runtime.CoreCLR && ctx.sdkInfo.major >= 12)) {
         return `Avalonia app '${app}' is Mono-only before .NET 12 (CoreCLR wasm native relink starts in .NET 12)`;
-    }
-    // CoreCLR `aot` (ReadyToRun) builds with WasmBuildNative=false, so Skia can't be linked.
-    if (AVALONIA_APPS.has(app) && runtime === Runtime.CoreCLR && preset === Preset.Aot) {
-        return `Avalonia app '${app}' needs native relink, which CoreCLR ReadyToRun (preset 'aot') does not do`;
     }
     if (runtime === Runtime.CoreCLR && !coreclrWasmAvailable(ctx.sdkInfo) && app !== App.BlazorPerf) {
         if (ctx.sdkInfo.major < 11) {

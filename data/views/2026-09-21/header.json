@@ -105,7 +105,7 @@
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/36016509599"
     },
     {
-      "sdkVersion": "12.0.100-alpha.1.26476.102",
+      "sdkVersion": "12.0.100-alpha.1.26476.101",
       "runtimeGitHash": "dd89a9974aa52252793e60841fb4f3527e4e72d3",
       "aspnetCoreGitHash": "94d0e3cdaf12c0995cef8096e6e7f541a2a8dbc8",
       "sdkGitHash": "3b1d59fe28a146e203859d99925810e77cbffb9c",
@@ -116,9 +116,9 @@
       "aspnetCoreCommitDateTime": "2026-09-24T00:07:23Z",
       "aspnetCoreCommitAuthor": "github-actions[bot]",
       "aspnetCoreCommitMessage": "Merge pull request #69456 from dotnet/requarantine-http2connectiontests-abortedstream-66309-f34fb2b9098d6015",
-      "aspnetCoreVersion": "12.0.0-alpha.1.26476.102",
-      "runtimePackVersion": "12.0.0-alpha.1.26476.102",
-      "workloadVersion": "12.0.0-alpha.1.26476.102",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26476.101",
+      "runtimePackVersion": "12.0.0-alpha.1.26476.101",
+      "workloadVersion": "12.0.0-alpha.1.26476.101",
       "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
       "releaseDate": "2026-09-26",
       "major": 12,
@@ -126,9 +126,9 @@
       "patch": 100,
       "channel": "12.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-09-29T14:55:04.272Z",
-      "ciRunId": "36582494913",
-      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/36582494913"
+      "benchmarkDateTime": "2026-09-29T15:28:08.053Z",
+      "ciRunId": "36583075819",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/36583075819"
     },
     {
       "sdkVersion": "12.0.100-alpha.1.26477.101",

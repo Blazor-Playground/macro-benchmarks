@@ -25,6 +25,9 @@
     <BenchmarkTargetFramework Condition="'$(BenchmarkTargetFramework)' == '' and '$(_UseNet12TargetFrameworkWorkaround)' == 'true'">net12.0</BenchmarkTargetFramework>
     <BenchmarkTargetFramework Condition="'$(BenchmarkTargetFramework)' == ''">$(_SdkTfm)</BenchmarkTargetFramework>
     <NETCoreAppMaximumVersion Condition="'$(_UseNet12TargetFrameworkWorkaround)' == 'true'">12.0</NETCoreAppMaximumVersion>
+    <!-- The matching workload manifest still selects its current WebAssembly targets only for
+         net11.0. Select that same current target set after forcing the project to net12.0. -->
+    <TargetsCurrent Condition="'$(_UseNet12TargetFrameworkWorkaround)' == 'true'">true</TargetsCurrent>
   </PropertyGroup>
 
   <PropertyGroup>

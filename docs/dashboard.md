@@ -161,6 +161,22 @@ types and SPA fallback. Ctrl-C closes it and removes its temporary mount
 symlinks, not published files. `PORT` selects a port (default: an available one);
 `VIEWER_WWWROOT` overrides the published root.
 
+### Direct links on GitHub Pages
+
+GitHub Pages serves static files, not Blazor routes. On a direct visit to
+`/macro-benchmarks/net12-focus` or `/macro-benchmarks/delta`, the published
+`404.html` redirects to the **project root**, carrying the requested path, query
+and fragment in a `redirect` parameter. Before Blazor starts, the viewer restores
+that same-project URL with `history.replaceState`, without another request.
+Recovery rejects malformed URLs, destinations outside the dashboard base path
+or origin, and embedded credentials with a console warning.
+Normal in-app navigation needs no redirect.
+
+Publish and deploy the updated viewer assets together, including `404.html`,
+`index.html` and the fingerprinted modules. The local helper's automatic SPA
+fallback does not reproduce Pages' initial 404; browser tests explicitly
+exercise that response and the subsequent route restoration.
+
 ### Choose the data source
 
 Set `VIEWER_DATA_URL` when starting the helper:

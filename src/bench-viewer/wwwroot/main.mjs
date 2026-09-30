@@ -3,6 +3,7 @@
 
 import * as chartInterop from './chart/chart-interop.js';
 import * as focusInterop from './chart/focus-interop.js';
+import { restorePagesRoute } from './pages-navigation.mjs';
 
 function setManagedReady() {
     globalThis.dotnet_managed_ready = performance.now();
@@ -24,6 +25,7 @@ function setManagedReady() {
 }
 
 async function outer() {
+    restorePagesRoute(document.baseURI, window.location, window.history);
     globalThis.js_loaded = performance.now();
 
     await Blazor.start({

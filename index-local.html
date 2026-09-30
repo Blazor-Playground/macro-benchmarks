@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>.NET WASM Benchmark Dashboard</title>
     <base href="/" />
-    <link href="_framework/dotnet.h6qfj8l1x0.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-SdXCF2MSrZYlJLVdMidQL9OPJTyQDwvOsdpFJw3K0GY=" />
+    <link href="_framework/dotnet.z1i7a45ew3.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-JwEfoUS/G4N5SS1qeBUGD/qSpv/SXHmoodmL/6aerLE=" />
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
@@ -16,9 +16,9 @@
     <script src="lib/chartjs/hammer.min.4uqs2me7ef.js"></script>
     <script type="importmap">{
   "imports": {
-    "./_framework/dotnet.js": "./_framework/dotnet.h6qfj8l1x0.js",
     "./_framework/dotnet.native.js": "./_framework/dotnet.native.je1otc1dfl.js",
     "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.tde8f9s28r.js",
+    "./_framework/dotnet.js": "./_framework/dotnet.z1i7a45ew3.js",
     "./chart/chart-factory.js": "./chart/chart-factory.bswn49jcrz.js",
     "./chart/chart-interop.js": "./chart/chart-interop.stfl6r9dj8.js",
     "./chart/constants.js": "./chart/constants.tictwkbre1.js",
@@ -41,16 +41,17 @@
     "./lib/chartjs/chartjs-adapter-date-fns.bundle.min.js": "./lib/chartjs/chartjs-adapter-date-fns.bundle.min.3fzizwo9jc.js",
     "./lib/chartjs/chartjs-plugin-zoom.min.js": "./lib/chartjs/chartjs-plugin-zoom.min.uqvkc91v5r.js",
     "./lib/chartjs/hammer.min.js": "./lib/chartjs/hammer.min.4uqs2me7ef.js",
-    "./main.mjs": "./main.bjip4pk7q3.mjs"
+    "./main.mjs": "./main.fk9smjb4dt.mjs",
+    "./pages-navigation.mjs": "./pages-navigation.4nf4ou2den.mjs"
   },
   "scopes": {},
   "integrity": {
-    "./_framework/dotnet.h6qfj8l1x0.js": "sha256-SdXCF2MSrZYlJLVdMidQL9OPJTyQDwvOsdpFJw3K0GY=",
-    "./_framework/dotnet.js": "sha256-SdXCF2MSrZYlJLVdMidQL9OPJTyQDwvOsdpFJw3K0GY=",
+    "./_framework/dotnet.js": "sha256-JwEfoUS/G4N5SS1qeBUGD/qSpv/SXHmoodmL/6aerLE=",
     "./_framework/dotnet.native.je1otc1dfl.js": "sha256-5aV8jzdWd6/+s7Z3+vM1Hty7cRBQ06wZTOKFgnyNH0Y=",
     "./_framework/dotnet.native.js": "sha256-5aV8jzdWd6/+s7Z3+vM1Hty7cRBQ06wZTOKFgnyNH0Y=",
     "./_framework/dotnet.runtime.js": "sha256-L5KTB6fRmvqNeUS6FLw+fXkRpf4pY5PjaPhPw1iHfaA=",
     "./_framework/dotnet.runtime.tde8f9s28r.js": "sha256-L5KTB6fRmvqNeUS6FLw+fXkRpf4pY5PjaPhPw1iHfaA=",
+    "./_framework/dotnet.z1i7a45ew3.js": "sha256-JwEfoUS/G4N5SS1qeBUGD/qSpv/SXHmoodmL/6aerLE=",
     "./chart/chart-factory.bswn49jcrz.js": "sha256-u31ngV8kePF27rW+zM5repy2jVVoe7cLKe0u8iWYn+E=",
     "./chart/chart-factory.js": "sha256-u31ngV8kePF27rW+zM5repy2jVVoe7cLKe0u8iWYn+E=",
     "./chart/chart-interop.js": "sha256-oNqzJQrLOjrfx8kZn7SMTO62bga5eHIC0zZ+iKneQ0g=",
@@ -95,8 +96,10 @@
     "./lib/chartjs/chartjs-plugin-zoom.min.uqvkc91v5r.js": "sha256-tv2LCZ11b3ZRARYonNt57j5KpHRbn81Mis4TTLVWVEA=",
     "./lib/chartjs/hammer.min.4uqs2me7ef.js": "sha256-3HDSH0r/gwYSX4FTdgIFq3LSz1bVN9d7MaK1xG8fSmw=",
     "./lib/chartjs/hammer.min.js": "sha256-3HDSH0r/gwYSX4FTdgIFq3LSz1bVN9d7MaK1xG8fSmw=",
-    "./main.bjip4pk7q3.mjs": "sha256-6U1GjpzUpVy4cGlHNOA9m7uNFtYQUPwpPfUXXOQYnHw=",
-    "./main.mjs": "sha256-6U1GjpzUpVy4cGlHNOA9m7uNFtYQUPwpPfUXXOQYnHw="
+    "./main.fk9smjb4dt.mjs": "sha256-kS4OXsfzmOPJtuw5uS14W7PHDod0Y1vNd+DuG18H2BU=",
+    "./main.mjs": "sha256-kS4OXsfzmOPJtuw5uS14W7PHDod0Y1vNd+DuG18H2BU=",
+    "./pages-navigation.4nf4ou2den.mjs": "sha256-0CcV7DiPvmaLAgwtymx7NlvttcpBKnwZHOS+Ustba9Q=",
+    "./pages-navigation.mjs": "sha256-0CcV7DiPvmaLAgwtymx7NlvttcpBKnwZHOS+Ustba9Q="
   }
 }</script>
 </head>
@@ -116,7 +119,7 @@
         <span class="dismiss">🗙</span>
     </div>
     <script src="_framework/blazor.webassembly.js" autostart="false"></script>
-    <script src="main.bjip4pk7q3.mjs" type="module"></script>
+    <script src="main.fk9smjb4dt.mjs" type="module"></script>
 </body>
 
 </html>

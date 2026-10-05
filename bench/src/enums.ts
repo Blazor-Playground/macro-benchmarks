@@ -251,7 +251,8 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
         return `Needs native parts recompiled for new LLVM https://github.com/unoplatform/uno/issues/23626`;
     }
 
-    if (app == App.SemiAvalonia) {
+    if (app == App.SemiAvalonia || app == App.AvaloniaBench) {
+        // see also bench\src\main.ts
         return `WASM0001 SkiaSharp.SkiaApi.sk_manageddrawable_set_procs https://github.com/dotnet/runtime/issues/135200`;
     }
 

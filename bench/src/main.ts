@@ -1,7 +1,7 @@
 import { buildContext } from './args.js';
 import { type BenchContext } from './context.js';
 import { saveContext } from './context.js';
-import { Stage } from './enums.js';
+import { App, Stage } from './enums.js';
 import { writeFallbackBuildShardReport } from './lib/build-reports.js';
 import { runStages } from './stages/index.js';
 
@@ -14,7 +14,9 @@ async function main(): Promise<void> {
 
         // Emit the effective app list (dry-run aware) for the CI build shard matrix, then exit.
         if (process.argv.includes('--print-apps')) {
-            console.log(JSON.stringify(ctx.apps));
+            // TODO until https://github.com/dotnet/runtime/issues/135200
+            const apps = ctx.apps.filter(app => app !== App.SemiAvalonia && app !== App.AvaloniaBench);
+            console.log(JSON.stringify(apps));
             return;
         }
 

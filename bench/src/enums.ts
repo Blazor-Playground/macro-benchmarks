@@ -250,6 +250,11 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     if ((app === App.SemiAvalonia || app === App.UnoGallery) && ctx.sdkInfo.major == 11) {
         return `Needs native parts recompiled for new LLVM https://github.com/unoplatform/uno/issues/23626`;
     }
+
+    if (app == App.SemiAvalonia) {
+        return `WASM0001 SkiaSharp.SkiaApi.sk_manageddrawable_set_procs https://github.com/dotnet/runtime/issues/135200`;
+    }
+
     // Uno.Gallery only runs on Mono: its WASM bootstrap calls dotnet.js APIs (withRuntimeOptions)
     // the CoreCLR runtime doesn't provide, so it builds but fails to start on CoreCLR.
     if (app === App.UnoGallery && runtime !== Runtime.Mono) {

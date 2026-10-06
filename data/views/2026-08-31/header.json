@@ -1,6 +1,32 @@
 {
   "columns": [
     {
+      "sdkVersion": "12.0.100-alpha.1.26456.103",
+      "runtimeGitHash": "25f20c2fd360fc0d7c126e50f7c784f8338d6faf",
+      "aspnetCoreGitHash": "a8530751b5e88a2b881a9f8f7b2889bc56f4b19c",
+      "sdkGitHash": "ed8295c1a79236410c1972c8781407caffd089ae",
+      "vmrGitHash": "6d12eaff065a8a79e10851022b22a2079da6fe44",
+      "runtimeCommitDateTime": "2026-09-03T21:59:06Z",
+      "runtimeCommitAuthor": "Victor Irzak",
+      "runtimeCommitMessage": "Add regression test for expired self-signed trusted chain",
+      "aspnetCoreCommitDateTime": "2026-09-04T00:10:42Z",
+      "aspnetCoreCommitAuthor": "rikki3",
+      "aspnetCoreCommitMessage": "Move step 3 warning above the referenced command (#66614)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26456.103",
+      "runtimePackVersion": "12.0.0-alpha.1.26456.103",
+      "workloadVersion": "12.0.0-alpha.1.26456.103",
+      "bootstrapSdkVersion": "11.0.100-rc.1.26420.103",
+      "releaseDate": "2026-09-06",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-10-06T09:36:48.728Z",
+      "ciRunId": "37441632463",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/37441632463"
+    },
+    {
       "sdkVersion": "12.0.100-alpha.1.26457.104",
       "runtimeGitHash": "25f20c2fd360fc0d7c126e50f7c784f8338d6faf",
       "aspnetCoreGitHash": "a8530751b5e88a2b881a9f8f7b2889bc56f4b19c",

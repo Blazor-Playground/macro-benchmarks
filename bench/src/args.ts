@@ -3,10 +3,11 @@ import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 import {
     Runtime, Preset, Engine, Profile, App, Stage,
-    ALL_RUNTIMES, ALL_PRESETS, ALL_ENGINES, ALL_PROFILES, ALL_APPS, ALL_STAGES, DEFAULT_APPS,
+    ALL_RUNTIMES, ALL_PRESETS, ALL_ENGINES, ALL_PROFILES, ALL_APPS, ALL_STAGES, getDefaultApps,
     parseRuntime, parsePreset, parseEngine, parseProfile, parseApp, parseStage,
 } from './enums.js';
 import { type BenchContext, loadContext } from './context.js';
+import { getVersionMajor } from './lib/version-utils.js';
 
 // ── Help Text ────────────────────────────────────────────────────────────────
 
@@ -214,12 +215,15 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
     const engines = parseCommaSeparated(values.engine!, parseEngine);
     const profiles = parseCommaSeparated(values.profile!, parseProfile);
     const runtimes = parseCommaSeparated(values.runtime!, parseRuntime);
+    const sdkChannel = values['sdk-channel'] || loaded.sdkChannel || '12.0';
+    const sdkVersion = values['sdk-version'] || loaded.sdkVersion || '';
+    const sdkMajor = loaded.sdkInfo?.major ?? getVersionMajor(sdkVersion || sdkChannel);
 
     // Apply dry-run defaults
     const effectiveApps = apps.length > 0 ? apps
         : dryRun
             ? [App.MicroBenchmarks]
-            : [...DEFAULT_APPS];
+            : getDefaultApps(sdkMajor);
     const effectivePresets = presets.length > 0 ? presets
         : dryRun
             ? [Preset.DevLoop]
@@ -245,8 +249,8 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
         verbose: values.verbose ?? false,
 
         // SDK & Runtime
-        sdkChannel: values['sdk-channel'] || loaded.sdkChannel || '12.0',
-        sdkVersion: values['sdk-version'] || loaded.sdkVersion || '',
+        sdkChannel,
+        sdkVersion,
         runtimes: effectiveRuntimes,
         runtimePack: values['runtime-pack'] || loaded.runtimePack || '',
         runtimeCommit: values['runtime-commit'] || loaded.runtimeCommit || '',

@@ -51,23 +51,32 @@ const TEMPORARILY_DISABLED_APPS = new Map<App, string>([
     [App.AvaloniaBench, 'WASM0001 SkiaSharp.SkiaApi.sk_manageddrawable_set_procs https://github.com/dotnet/runtime/issues/135200'],
 ]);
 
-export function getAppDisableReason(app: App): string | null {
-    return TEMPORARILY_DISABLED_APPS.get(app) ?? null;
+export function getAppDisableReason(app: App, sdkMajor?: number): string | null {
+    const temporaryReason = TEMPORARILY_DISABLED_APPS.get(app);
+    if (temporaryReason) {
+        return temporaryReason;
+    }
+    if (app === App.UnoGallery && sdkMajor === 12) {
+        return 'Uno native assets are not yet compatible with .NET 12';
+    }
+    return null;
 }
 
-export const DEFAULT_APPS = [
-    App.EmptyBrowser,
-    App.MicroBenchmarks,
-    App.EmptyBlazor,
-    App.BlazingPizza,
-    App.HavitBootstrap,
-    App.MudBlazor,
-    App.SemiAvalonia,
-    App.AvaloniaBench,
-    App.UnoGallery,
-    App.IgniteUILight,
-    App.BlazorPerf,
-].filter(app => getAppDisableReason(app) === null);
+export function getDefaultApps(sdkMajor?: number): App[] {
+    return [
+        App.EmptyBrowser,
+        App.MicroBenchmarks,
+        App.EmptyBlazor,
+        App.BlazingPizza,
+        App.HavitBootstrap,
+        App.MudBlazor,
+        App.SemiAvalonia,
+        App.AvaloniaBench,
+        App.UnoGallery,
+        App.IgniteUILight,
+        App.BlazorPerf,
+    ].filter(app => getAppDisableReason(app, sdkMajor) === null);
+}
 
 export enum Stage {
     CheckOutTracking = 'check-out-tracking',
@@ -265,7 +274,7 @@ export function shouldSkipMeasurement(runtime: Runtime, app: App, preset: Preset
  * or null if the combination is valid.
  */
 export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx: BenchContext): string | null {
-    const disabledReason = getAppDisableReason(app);
+    const disabledReason = getAppDisableReason(app, ctx.sdkInfo.major);
     if (disabledReason) {
         return disabledReason;
     }

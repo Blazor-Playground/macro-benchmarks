@@ -28,16 +28,16 @@ async function outer() {
             dotnet.withModuleConfig({
                 onRuntimeInitialized: () => {
                     console.log("Blazor runtime initialized");
-                },
-                onDotnetReady: () => {
-                    globalThis.dotnet_created = performance.now();
-                    const { setModuleImports } = globalThis.getDotnetRuntime(0);
-                    setModuleImports('main.mjs', {
-                        bench: {
-                            setManagedReady
-                        }
-                    });
                 }
+            });
+            dotnet.withDotnetReady(() => {
+                globalThis.dotnet_created = performance.now();
+                const { setModuleImports } = globalThis.getDotnetRuntime(0);
+                setModuleImports('main.mjs', {
+                    bench: {
+                        setManagedReady
+                    }
+                });
             });
         }
     });

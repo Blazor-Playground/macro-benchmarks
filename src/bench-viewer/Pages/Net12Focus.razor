@@ -1,8 +1,14 @@
 @page "/net12-focus"
 @implements IAsyncDisposable
 
-<PageTitle>NET12 focus - .NET WASM Benchmarks</PageTitle>
+<PageTitle>@(Local ? "Local runtime comparison - NET12 focus" : "NET12 focus - .NET WASM Benchmarks")</PageTitle>
 
+@if (Local)
+{
+    <LocalRuntimeComparison />
+}
+else
+{
 <div class="net12-focus" data-focus-owner="@owner">
     <div class="focus-workbench">
         <aside class="focus-settings" aria-label="NET12 focus settings">
@@ -183,3 +189,4 @@
         </main>
     </div>
 </div>
+}

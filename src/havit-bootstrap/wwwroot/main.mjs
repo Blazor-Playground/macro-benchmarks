@@ -20,6 +20,16 @@ function setManagedReady() {
     }
 }
 
+function registerBenchmarkImports() {
+    globalThis.dotnet_created = performance.now();
+    const { setModuleImports } = globalThis.getDotnetRuntime(0);
+    setModuleImports('main.mjs', {
+        bench: {
+            setManagedReady
+        }
+    });
+}
+
 async function outer() {
     globalThis.onConsole = [];
     globalThis.console.logOriginal = globalThis.console.log;
@@ -37,16 +47,10 @@ async function outer() {
             dotnet.withModuleConfig({
                 onRuntimeInitialized: () => {
                     console.log("Blazor runtime initialized");
+                    // Some Mono builds omit onDotnetReady; later callbacks still reset timing.
+                    registerBenchmarkImports();
                 },
-                onDotnetReady: () => {
-                    globalThis.dotnet_created = performance.now();
-                    const { setModuleImports } = globalThis.getDotnetRuntime(0);
-                    setModuleImports('main.mjs', {
-                        bench: {
-                            setManagedReady
-                        }
-                    });
-                }
+                onDotnetReady: registerBenchmarkImports
             });
         }
     });

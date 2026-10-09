@@ -24,7 +24,7 @@ export interface FocusCohort extends Omit<FocusFlavorOption, 'id' | 'label'> {
     usesBaseline: boolean;
     baselineDescription: string;
 }
-export type FocusSeries = 'coreclr' | 'mono' | 'percent';
+export type FocusSeries = 'coreclr' | 'mono' | 'percent' | 'coreclrBefore';
 export type FocusRows = Record<string, (number | null)[]>;
 
 export interface FocusIndex {
@@ -99,6 +99,7 @@ export interface FocusComparison {
 }
 
 export interface FocusPoint {
+    coreclrBefore?: number | null;
     observation: FocusObservation;
     position: number;
     coreclr: number | null;
@@ -120,6 +121,9 @@ export interface FocusMetricDefinition {
 }
 
 export interface FocusMetricReport extends FocusMetricDefinition {
+    comparisonLabel?: string;
+    coreclrBeforeLabel?: string;
+    secondaryComparison?: FocusComparison | null;
     profile: FocusProfile;
     coreclrPreset: FocusPreset;
     monoPreset: FocusPreset;
@@ -139,6 +143,7 @@ export interface FocusMetricReport extends FocusMetricDefinition {
 }
 
 export interface FocusReport extends FocusSelection {
+    comparisonKind?: 'local';
     flavorLabel: string;
     cohort: FocusCohort;
     app: string;

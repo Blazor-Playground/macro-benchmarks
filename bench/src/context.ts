@@ -105,6 +105,8 @@ export interface BenchContext {
     replica: string;
     deadlineMs: number;
     headless: boolean;
+    /** Local experiments can opt into installed Chrome instead of Playwright's pinned Chromium. */
+    chromiumChannel?: 'chrome';
 
     // ── Docker ──
     skipDockerBuild: boolean;

@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <WasmCommonTargetsPath>$(LocalMonoWebAssemblySdkDir)/Sdk/</WasmCommonTargetsPath>
+    <WasmNativeWorkload>true</WasmNativeWorkload>
+  </PropertyGroup>
+  <Import Project="$(LocalMonoAotTasksDir)/Sdk/Sdk.props" />
+  <Import Project="$(LocalMonoTargetsDir)/Sdk/Sdk.props" />
+  <Import Project="$(LocalMonoWebAssemblySdkDir)/Sdk/Sdk.props" />
+  <Import Project="$(LocalMonoWebAssemblySdkDir)/Sdk/Sdk.targets" />
+  <ItemGroup>
+    <MonoAotCrossCompiler Remove="@(MonoAotCrossCompiler)" />
+    <MonoAotCrossCompiler Include="$(LocalMonoAotCompiler)" RuntimeIdentifier="browser-wasm" />
+  </ItemGroup>
+</Project>

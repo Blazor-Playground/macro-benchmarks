@@ -281,6 +281,7 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
         replica: values['replica'] || loaded.replica || '',
         deadlineMs: parseIntStrict(values['deadline-minutes']!, 'deadline-minutes') * 60_000 || 0,
         headless: !(values['no-headless'] ?? false),
+        chromiumChannel: loaded.chromiumChannel,
 
         // Docker
         skipDockerBuild: values['skip-docker-build'] ?? false,

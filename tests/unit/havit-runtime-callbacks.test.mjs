@@ -5,7 +5,7 @@ import { test } from 'node:test';
 
 const source = await readFile(new URL('../../src/havit-bootstrap/wwwroot/main.mjs', import.meta.url), 'utf8');
 
-async function boot(useLegacyReady) {
+async function boot(useBuilderReady) {
     let clock = 0;
     const registrations = [];
     let initializedAt, readyAt;
@@ -18,12 +18,17 @@ async function boot(useLegacyReady) {
         }),
         Blazor: {
             start: async options => {
-                let callbacks;
-                options.configureRuntime({ withModuleConfig: config => { callbacks = config; } });
+                let callbacks, builderReady;
+                options.configureRuntime({
+                    withModuleConfig: config => { callbacks = config; },
+                    withDotnetReady: callback => { builderReady = callback; },
+                });
+                assert.equal(callbacks.onDotnetReady, undefined);
+                assert.equal(typeof builderReady, 'function');
                 callbacks.onRuntimeInitialized();
                 initializedAt = context.dotnet_created;
-                if (useLegacyReady) {
-                    callbacks.onDotnetReady();
+                if (useBuilderReady) {
+                    builderReady();
                     readyAt = context.dotnet_created;
                 }
                 registrations.at(-1).imports.bench.setManagedReady();
@@ -34,7 +39,7 @@ async function boot(useLegacyReady) {
     return { context, registrations, initializedAt, readyAt };
 }
 
-test('Mono can reach managed-ready when the legacy dotnetReady callback is not invoked', async () => {
+test('Mono can reach managed-ready if a ready callback is not invoked', async () => {
     const { context, registrations } = await boot(false);
     assert.equal(registrations.length, 1);
     assert.equal(registrations[0].name, 'main.mjs');
@@ -43,7 +48,7 @@ test('Mono can reach managed-ready when the legacy dotnetReady callback is not i
     assert.ok(context.bench_results['time-to-reach-managed'] > 0);
 });
 
-test('CoreCLR preserves its later legacy dotnetReady timestamp and import registration', async () => {
+test('CoreCLR preserves the later dedicated builder-ready timestamp and import registration', async () => {
     const { context, registrations, initializedAt, readyAt } = await boot(true);
     assert.equal(registrations.length, 2);
     assert.ok(readyAt > initializedAt);

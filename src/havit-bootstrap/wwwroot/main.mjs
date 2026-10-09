@@ -47,11 +47,11 @@ async function outer() {
             dotnet.withModuleConfig({
                 onRuntimeInitialized: () => {
                     console.log("Blazor runtime initialized");
-                    // Some Mono builds omit onDotnetReady; later callbacks still reset timing.
+                    // Some Mono builds omit ready callbacks; later callbacks still reset timing.
                     registerBenchmarkImports();
-                },
-                onDotnetReady: registerBenchmarkImports
+                }
             });
+            dotnet.withDotnetReady(registerBenchmarkImports);
         }
     });
 }

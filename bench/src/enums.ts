@@ -46,6 +46,38 @@ export enum App {
     AvaloniaBench = 'avalonia-bench',
 }
 
+const TEMPORARILY_DISABLED_APPS = new Map<App, string>([
+    [App.SemiAvalonia, 'WASM0001 SkiaSharp.SkiaApi.sk_manageddrawable_set_procs https://github.com/dotnet/runtime/issues/135200'],
+    [App.AvaloniaBench, 'WASM0001 SkiaSharp.SkiaApi.sk_manageddrawable_set_procs https://github.com/dotnet/runtime/issues/135200'],
+]);
+
+export function getAppDisableReason(app: App, sdkMajor?: number): string | null {
+    const temporaryReason = TEMPORARILY_DISABLED_APPS.get(app);
+    if (temporaryReason) {
+        return temporaryReason;
+    }
+    if (app === App.UnoGallery && sdkMajor === 12) {
+        return 'Uno native assets are not yet compatible with .NET 12';
+    }
+    return null;
+}
+
+export function getDefaultApps(sdkMajor?: number): App[] {
+    return [
+        App.EmptyBrowser,
+        App.MicroBenchmarks,
+        App.EmptyBlazor,
+        App.BlazingPizza,
+        App.HavitBootstrap,
+        App.MudBlazor,
+        App.SemiAvalonia,
+        App.AvaloniaBench,
+        App.UnoGallery,
+        App.IgniteUILight,
+        App.BlazorPerf,
+    ].filter(app => getAppDisableReason(app, sdkMajor) === null);
+}
+
 export enum Stage {
     CheckOutTracking = 'check-out-tracking',
     DockerImage = 'docker-image',
@@ -242,6 +274,11 @@ export function shouldSkipMeasurement(runtime: Runtime, app: App, preset: Preset
  * or null if the combination is valid.
  */
 export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx: BenchContext): string | null {
+    const disabledReason = getAppDisableReason(app, ctx.sdkInfo.major);
+    if (disabledReason) {
+        return disabledReason;
+    }
+
     // blazor-perf hosts a CoreCLR Kestrel server, so its server-side metrics ALWAYS run on
     // CoreCLR — a CoreCLR build must exist even when CoreCLR WASM is unavailable. In that case the
     // WASM *client* of that build falls back to Mono via clientRuntimeFor() (see build.ts); the
@@ -250,6 +287,7 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     if ((app === App.SemiAvalonia || app === App.UnoGallery) && ctx.sdkInfo.major == 11) {
         return `Needs native parts recompiled for new LLVM https://github.com/unoplatform/uno/issues/23626`;
     }
+
     // Uno.Gallery only runs on Mono: its WASM bootstrap calls dotnet.js APIs (withRuntimeOptions)
     // the CoreCLR runtime doesn't provide, so it builds but fails to start on CoreCLR.
     if (app === App.UnoGallery && runtime !== Runtime.Mono) {

@@ -12,6 +12,11 @@
 
 The wrapper scripts check for Node.js ≥ 24, install `bench/` npm dependencies if needed, then invoke `tsx bench/src/main.ts` with the given arguments.
 
+For local runtime source builds, use the separate
+[bootstrap/iterate workflow](local-runtime-measurements.md), not the SDK pipeline
+options below. `compare-local-runtime.mjs --help` lists its advanced options,
+including check-only prerequisites and saved-results display.
+
 ## Options
 
 ### Pipeline control

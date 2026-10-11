@@ -215,6 +215,29 @@ Use an exact commit instead of `origin/gh-pages` to retain an immutable snapshot
 An empty/rebuilding publication remains empty; the helper never chooses an older
 snapshot silently.
 
+## Local runtime comparisons
+
+For [local runtime measurements](local-runtime-measurements.md), publish the viewer
+as above, then install the comparison's portable data bundle:
+
+```bash
+mkdir -p artifacts/bench-viewer/wwwroot/data
+cp <comparison-directory>/dashboard.json \
+  artifacts/bench-viewer/wwwroot/data/local-runtime-comparison.json
+node --import ./bench/node_modules/tsx/dist/loader.mjs tests/helpers/serve-viewer.mjs
+```
+
+Open the printed `/net12-focus` URL with `?local=true`. This explicit mode reads
+only `data/local-runtime-comparison.json`; it does not publish data or change the
+normal SDK/custom-build filters.
+
+The local view defaults to mobile startup and desktop for other metrics. Each
+curve identifies its recorded mode: CoreCLR after, Mono before and CoreCLR before.
+The headline compares after with Mono; the smaller line compares CoreCLR after
+with CoreCLR before. Without Mono, the headline uses after vs before.
+Recorded commits, dirty state, SDK/pack/TFM and setup warnings remain visible;
+local experiments are not relabeled as official SDK history.
+
 ## Tests
 
 ```bash

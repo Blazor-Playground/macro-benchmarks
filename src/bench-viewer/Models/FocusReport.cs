@@ -10,8 +10,47 @@ public sealed class FocusLoadResult
     public FocusReport? Report { get; init; }
 }
 
+public sealed class LocalFocusLoadResult
+{
+    public string Status { get; init; } = "";
+    public FocusReport? Report { get; init; }
+    public LocalFocusMetadata? Metadata { get; init; }
+}
+
+public sealed class LocalFocusMetadata
+{
+    public bool HasMonoReference { get; init; }
+    public string PrimaryFormula { get; init; } = "";
+    public string MonoCommit { get; init; } = "";
+    public string MonoSdk { get; init; } = "";
+    public string MonoPack { get; init; } = "";
+    public int? MonoColdSamples { get; init; }
+    public string Title { get; init; } = "";
+    public string Note { get; init; } = "";
+    public string Runtime { get; init; } = "";
+    public string Variant { get; init; } = "";
+    public string BeforeLabel { get; init; } = "";
+    public string AfterLabel { get; init; } = "";
+    public string MonoLabel { get; init; } = "";
+    public List<string> Profiles { get; init; } = new();
+    public string BeforeCommit { get; init; } = "";
+    public string AfterCommit { get; init; } = "";
+    public bool? BeforeDirty { get; init; }
+    public bool? AfterDirty { get; init; }
+    public string BeforeSdk { get; init; } = "";
+    public string AfterSdk { get; init; } = "";
+    public string BeforePack { get; init; } = "";
+    public string AfterPack { get; init; } = "";
+    public int? BeforeColdSamples { get; init; }
+    public int? AfterColdSamples { get; init; }
+    public double? BeforeWarm { get; init; }
+    public double? AfterWarm { get; init; }
+    public List<string> Warnings { get; init; } = new();
+}
+
 public sealed class FocusReport
 {
+    public string ComparisonKind { get; init; } = "";
     public string App { get; init; } = "";
     public List<string> Apps { get; init; } = new();
     public string Range { get; init; } = "";
@@ -31,6 +70,9 @@ public sealed class FocusReport
 
 public sealed class FocusMetricReport
 {
+    public string CoreclrBeforeLabel { get; init; } = "";
+    public FocusComparison? SecondaryComparison { get; init; }
+    public string ComparisonLabel { get; init; } = "";
     public string Id { get; init; } = "";
     public string Title { get; init; } = "";
     public string? Key { get; init; }
@@ -116,6 +158,7 @@ public sealed class FocusCohort
 
 public sealed class FocusPoint
 {
+    public double? CoreclrBefore { get; init; }
     public FocusObservation Observation { get; init; } = new();
     public int Position { get; init; }
     public double? Coreclr { get; init; }
@@ -152,4 +195,5 @@ public sealed class FocusObservation
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 [JsonSerializable(typeof(FocusLoadResult))]
 [JsonSerializable(typeof(FocusConfiguration))]
+[JsonSerializable(typeof(LocalFocusLoadResult))]
 internal partial class FocusJsonContext : JsonSerializerContext;

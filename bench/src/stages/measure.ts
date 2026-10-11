@@ -1080,6 +1080,7 @@ async function measureBrowser(
                 '--disable-backgrounding-occluded-windows',
             ] : undefined;
             const launchBrowser = () => browserType.launch({
+                channel: isChromium ? ctx.chromiumChannel : undefined,
                 headless: ctx.headless,
                 args: launchArgs,
             });

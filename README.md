@@ -67,6 +67,12 @@ Prerequisites: Node.js ≥ 24, .NET SDK (downloaded automatically).
 
 Use `--help` for all options.
 
+To measure Havit against local runtime changes, run
+`node bench/bootstrap.mjs <path-to-local-runtime-build>`, then
+`node bench/iterate.mjs` after edits. Composite R2R is the default; clean controls
+are cached without switching your checkout.
+See [Local runtime measurements](docs/local-runtime-measurements.md).
+
 ## CI/CD
 
 - **benchmark.yml** — Daily + manual: resolve → build → measure → deploy results ([recent runs](https://github.com/blazor-playground/macro-benchmarks/actions/workflows/benchmark.yml))

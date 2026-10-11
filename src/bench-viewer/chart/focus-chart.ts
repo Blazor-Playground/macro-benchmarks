@@ -11,6 +11,7 @@ const SERIES: ReadonlyArray<{ key: FocusSeries; label: string; color: string; ax
 ];
 
 function windowFor(point: FocusPoint, series: FocusSeries): FocusWindow | null {
+    if (series === 'coreclrBefore') return null;
     if (series === 'coreclr') return point.coreclrWindow;
     if (series === 'mono') return point.monoWindow;
     return point.percentWindow;
@@ -18,13 +19,18 @@ function windowFor(point: FocusPoint, series: FocusSeries): FocusWindow | null {
 
 function rawValue(point: FocusPoint, series: FocusSeries): number | null {
     if (series === 'percent') return point.percent;
-    return isPositive(point[series]) ? point[series] : null;
+    const value = point[series] ?? null;
+    return isPositive(value) ? value : null;
 }
 
 export function focusChartModel(metric: FocusMetricReport, averaged: boolean, showBands: boolean, visibility: FocusGraphVisibility = DEFAULT_FOCUS_GRAPH_VISIBILITY) {
-    const series = SERIES.filter(config => config.key === 'percent' ? visibility.percentage : visibility.measurements).map(config => ({
+    const configurations = metric.coreclrBeforeLabel
+        ? [...SERIES, { key: 'coreclrBefore' as const, label: metric.coreclrBeforeLabel, color: '#72a5c4', axis: 'y' }]
+        : SERIES;
+    const series = configurations.filter(config => config.key === 'percent' ? visibility.percentage : visibility.measurements).map(config => ({
         ...config,
-        label: config.key === 'coreclr' ? metric.coreclrLabel : config.key === 'mono' ? metric.monoLabel : config.label,
+        label: config.key === 'coreclr' ? metric.coreclrLabel : config.key === 'mono' ? metric.monoLabel
+            : config.key === 'percent' ? metric.comparisonLabel ?? config.label : config.label,
         data: metric.points.map(point => {
             const raw = rawValue(point, config.key);
             const value = averaged ? windowFor(point, config.key)?.mean ?? null : raw;
@@ -37,7 +43,7 @@ export function focusChartModel(metric: FocusMetricReport, averaged: boolean, sh
     let percentMin = 0;
     let percentMax = 0;
     for (const point of metric.points) {
-        for (const key of ['coreclr', 'mono'] as const) {
+        for (const key of ['coreclr', 'mono', 'coreclrBefore'] as const) {
             runtimeMax = Math.max(runtimeMax, rawValue(point, key) ?? 0, windowFor(point, key)?.max ?? 0);
         }
         percentMin = Math.min(percentMin, point.percent ?? 0, point.percentWindow?.min ?? 0);
@@ -201,7 +207,7 @@ export class FocusCharts {
                                 title(items: { dataIndex: number }[]) {
                                     const point = metric.points[items[0]?.dataIndex];
                                     return point ? [
-                                        point.observation.sdkVersion, `SDK day ${point.observation.day} (UTC)`,
+                                        point.observation.sdkVersion, `${report.comparisonKind === 'local' ? 'Comparison' : 'SDK'} day ${point.observation.day} (UTC)`,
                                     ].flatMap(text => wrapTooltip(text, true)) : [];
                                 },
                                 label(item: { datasetIndex: number; dataIndex: number }) {

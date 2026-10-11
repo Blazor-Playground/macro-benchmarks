@@ -2,6 +2,7 @@ import { buildFocusReport } from './focus-data.js';
 import { FocusCharts } from './focus-chart.js';
 import { FocusLoader } from './focus-loader.js';
 import { DEFAULT_FOCUS_GRAPH_VISIBILITY, DEFAULT_FOCUS_SELECTION, focusConfiguration, resolveFocusSelection } from './focus-selection.js';
+import { localFocusReport } from './local-focus.js';
 import type { FocusFlavor, FocusGraphVisibility, FocusProfile, FocusPublication, FocusRange, FocusReport, FocusSelection } from './focus-types.js';
 
 export class FocusSession {
@@ -52,6 +53,30 @@ export class FocusSession {
         }
     }
 
+    async loadLocal(baseUri: string, startupProfile: FocusProfile): Promise<string> {
+        if (this.disposed) throw new Error('This focus view has been disposed.');
+        this.controller?.abort();
+        const controller = new AbortController();
+        this.controller = controller;
+        const generation = ++this.generation;
+        this.charts.dispose();
+        this.publication = null;
+        this.report = null;
+        try {
+            const response = await fetch(new URL('data/local-runtime-comparison.json', baseUri), {
+                cache: 'no-store', signal: controller.signal,
+            });
+            if (!response.ok) throw new Error(`Local comparison data returned HTTP ${response.status}. Copy a dashboard.json bundle into the local viewer first.`);
+            const result = localFocusReport(await response.json(), startupProfile);
+            if (controller.signal.aborted || generation !== this.generation || this.disposed) return JSON.stringify({ status: 'cancelled' });
+            this.report = result.report;
+            return JSON.stringify(result);
+        } catch (error) {
+            if (controller.signal.aborted || this.disposed) return JSON.stringify({ status: 'cancelled' });
+            throw error;
+        }
+    }
+
     dispose(): void {
         this.disposed = true;
         this.generation++;
@@ -84,6 +109,9 @@ export function loadFocusReport(id: string, app: string, range: FocusRange, flav
     return sessionFor(id).load(app, range, force, { flavor, startupProfile });
 }
 
+export async function loadLocalFocusReport(id: string, baseUri: string, startupProfile: FocusProfile): Promise<string> {
+    return sessionFor(id).loadLocal(baseUri, startupProfile);
+}
 export function renderFocusCharts(id: string, averaged: boolean, bands: boolean, percentage: boolean, measurements: boolean): void {
     sessionFor(id).render(id, averaged, bands, { percentage, measurements });
 }

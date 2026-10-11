@@ -1,0 +1,23 @@
+<Project>
+  <!-- Late overrides leave unrelated SDK pack versions unchanged. -->
+  <ItemGroup>
+    <KnownFrameworkReference Update="Microsoft.NETCore.App"
+                             DefaultRuntimeFrameworkVersion="$(LocalRuntimePackVersion)"
+                             LatestRuntimeFrameworkVersion="$(LocalRuntimePackVersion)" />
+    <KnownWebAssemblySdkPack Update="Microsoft.NET.Sdk.WebAssembly.Pack"
+                             WebAssemblySdkPackVersion="$(LocalWebAssemblySdkPackVersion)" />
+  </ItemGroup>
+
+  <Target Name="SelectLocalMonoRuntimePack" BeforeTargets="ProcessFrameworkReferences"
+          Condition="'$(RuntimeFlavor)' == 'Mono'">
+    <ItemGroup>
+      <KnownRuntimePack Update="@(KnownRuntimePack)"
+                        LatestRuntimeFrameworkVersion="$(LocalRuntimePackVersion)"
+                        Condition="'%(KnownRuntimePack.RuntimePackLabels)' == 'Mono'" />
+    </ItemGroup>
+  </Target>
+
+  <PropertyGroup Condition="'$(LocalMonoWebAssemblySdkDir)' != ''">
+    <AfterMicrosoftNETSdkTargets>$(AfterMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)local-mono-aot.targets</AfterMicrosoftNETSdkTargets>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,194 @@
+@implements IAsyncDisposable
+@attribute [System.Runtime.Versioning.SupportedOSPlatform("browser")]
+@using JSException = System.Runtime.InteropServices.JavaScript.JSException
+@using System.Text.Json
+@using BenchViewer.Interop
+@using BenchViewer.Models
+@inject NavigationManager Navigation
+
+<div class="net12-focus" data-local-comparison="true">
+    <div class="focus-workbench">
+        <aside class="focus-settings" aria-label="Local runtime comparison settings">
+            <DashboardSidebarHeader Active="focus" />
+            <h2>Local before / after</h2>
+            <p class="focus-selection-note">Blazor Havit · @(metadata?.Runtime ?? "Loading")</p>
+            <label for="local-focus-profile">Startup profile</label>
+            <select id="local-focus-profile" value="@profile" @onchange="ChangeProfile" disabled="@loading">
+                @foreach (var available in metadata?.Profiles ?? ["desktop", "mobile"])
+                {
+                    <option value="@available">@available</option>
+                }
+            </select>
+            <p class="focus-setting-hint">Main percentage: @metadata?.PrimaryFormula. Other cards use desktop/Chromium rows.
+                @if (metadata?.HasMonoReference == true) { <span>The smaller line is CoreCLR after vs CoreCLR before.</span> }</p>
+            <fieldset>
+                <legend>Graph settings</legend>
+                <label class="focus-curve-toggle"><input type="checkbox" checked="@showMeasurements" @onchange="ToggleMeasurements" />Actual measurements</label>
+                <label class="focus-curve-toggle"><input type="checkbox" checked="@showPercentage" @onchange="TogglePercentage" />Percentage change</label>
+            </fieldset>
+            <div class="focus-cohort">
+                <p class="focus-eyebrow">RECORDED PROVENANCE</p>
+                @if (metadata != null)
+                {
+                    <dl>
+                        <div><dt>Before mode</dt><dd>@metadata.BeforeLabel</dd></div>
+                        <div><dt>After mode</dt><dd>@metadata.AfterLabel</dd></div>
+                        <div><dt>Before source</dt><dd>@Short(metadata.BeforeCommit) · @SourceState(metadata.BeforeDirty)</dd></div>
+                        <div><dt>After source</dt><dd>@Short(metadata.AfterCommit) · @SourceState(metadata.AfterDirty)</dd></div>
+                        <div><dt>Before SDK</dt><dd>@metadata.BeforeSdk</dd></div>
+                        <div><dt>After SDK</dt><dd>@metadata.AfterSdk</dd></div>
+                        <div><dt>Runtime packs</dt><dd>@metadata.BeforePack / @metadata.AfterPack</dd></div>
+                        <div><dt>Actual TFM</dt><dd>@string.Join(", ", report?.TargetFrameworks ?? [])</dd></div>
+                        @if (metadata.HasMonoReference)
+                        {
+                            <div><dt>Mono before mode</dt><dd>@metadata.MonoLabel</dd></div>
+                            <div><dt>Mono before source</dt><dd>@Short(metadata.MonoCommit) · clean</dd></div>
+                            <div><dt>Mono before SDK</dt><dd>@metadata.MonoSdk</dd></div>
+                            <div><dt>Mono before pack</dt><dd>@metadata.MonoPack</dd></div>
+                        }
+                    </dl>
+                }
+            </div>
+            <button type="button" @onclick="Load">Reload local data</button>
+            <button type="button" @onclick="ReturnToPublished">Published NET12 view</button>
+        </aside>
+        <main class="focus-main">
+            <div class="focus-heading">
+                <h1>NET12 focus<span>.</span> Local experiment</h1>
+                <p>@(metadata?.Title ?? "Loading local before/after results")</p>
+            </div>
+            <div class="focus-provenance">
+                <span><strong>Local custom runtime builds, not official daily results.</strong>
+                    @(string.IsNullOrEmpty(metadata?.Note) ? "Explicit before/after measurements; no data is published online." : metadata.Note)
+                </span>
+            </div>
+            @foreach (var warning in metadata?.Warnings ?? [])
+            {
+                <p class="focus-error" role="alert">@warning</p>
+            }
+            <div class="focus-chart-toolbar">
+                <div>
+                    <strong>Blazor Havit · @profile</strong>
+                    @if (metadata != null)
+                    {
+                        <span>Cold samples: before @metadata.BeforeColdSamples / after @metadata.AfterColdSamples.
+                            Warm startup: @FormatMs(metadata.BeforeWarm) → @FormatMs(metadata.AfterWarm).</span>
+                        @if (metadata.HasMonoReference)
+                        {
+                            <span>Mono before cold samples: @metadata.MonoColdSamples. Main % is CoreCLR after versus Mono before.</span>
+                        }
+                    }
+                </div>
+                <div class="focus-legend">
+                    <span><i class="mono"></i>@(metadata?.HasMonoReference == true ? metadata.MonoLabel : metadata?.BeforeLabel)</span>
+                    <span><i class="coreclr"></i>@metadata?.AfterLabel</span>
+                    @if (metadata?.HasMonoReference == true)
+                    {
+                        <span><i style="background:#72a5c4"></i>@metadata?.BeforeLabel</span>
+                    }
+                </div>
+            </div>
+            @if (error != null)
+            {
+                <div class="focus-error" role="alert"><strong>Unable to load local comparison.</strong> @error</div>
+            }
+            <div class="focus-metrics" aria-busy="@(loading ? "true" : "false")">
+                @foreach (var metric in report?.Metrics ?? FocusMetricReport.Placeholders)
+                {
+                    <FocusMetricCard Metric="@metric" Owner="@owner" IsLocalComparison="true"
+                        ShowPercentage="@showPercentage" ShowMeasurements="@showMeasurements" Loading="@loading" LoadError="@error" />
+                }
+            </div>
+            <p class="focus-coverage">One local before/after pair, not SDK history. Build time is Havit publish time, excluding runtime source builds and restore.
+                Green/red marks the direction of change, not statistical significance. Retain the raw result samples and inspect the startup hook before interpreting a validation regression.</p>
+        </main>
+    </div>
+</div>
+
+@code {
+    private string owner = "";
+    private string profile = "mobile";
+    private bool loading = true;
+    private bool disposed;
+    private long generation;
+    private bool renderCharts;
+    private bool showMeasurements = true;
+    private bool showPercentage;
+    private string? error;
+    private FocusReport? report;
+    private LocalFocusMetadata? metadata;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (disposed) return;
+        if (firstRender) await Load();
+        else if (renderCharts && report != null && error == null && !loading)
+        {
+            renderCharts = false;
+            try { FocusInterop.Render(owner, false, false, showPercentage, showMeasurements); }
+            catch (JSException exception) { Fail(exception); StateHasChanged(); }
+        }
+    }
+
+    private async Task Load()
+    {
+        var request = ++generation;
+        loading = true;
+        error = null;
+        renderCharts = false;
+        StateHasChanged();
+        try
+        {
+            if (owner.Length == 0) owner = FocusInterop.Create(Navigation.BaseUri);
+            var json = await FocusInterop.LoadLocal(owner, Navigation.BaseUri, profile);
+            if (disposed || request != generation) return;
+            var result = JsonSerializer.Deserialize(json, FocusJsonContext.Default.LocalFocusLoadResult)
+                ?? throw new JsonException("The local comparison response was empty.");
+            if (result.Status == "cancelled") return;
+            if (result.Status != "ready" || result.Report?.Metrics.Count != 4 || result.Metadata == null)
+                throw new JsonException("The local comparison response was incomplete.");
+            report = result.Report;
+            metadata = result.Metadata;
+            loading = false;
+            renderCharts = true;
+        }
+        catch (JSException exception) { if (!disposed && request == generation) Fail(exception); }
+        catch (JsonException exception) { if (!disposed && request == generation) Fail(exception); }
+        if (!disposed && request == generation) StateHasChanged();
+    }
+
+    private void Fail(Exception exception)
+    {
+        Console.Error.WriteLine($"Local runtime comparison: {exception}");
+        error = exception.Message;
+        loading = false;
+        renderCharts = false;
+    }
+
+    private async Task ChangeProfile(ChangeEventArgs args)
+    {
+        var selected = args.Value?.ToString();
+        if (selected is not ("desktop" or "mobile"))
+        {
+            Fail(new ArgumentException("Select Desktop or Mobile for startup."));
+            return;
+        }
+        profile = selected;
+        await Load();
+    }
+
+    private void ToggleMeasurements(ChangeEventArgs args) { showMeasurements = args.Value is true; renderCharts = report != null; }
+    private void TogglePercentage(ChangeEventArgs args) { showPercentage = args.Value is true; renderCharts = report != null; }
+    private void ReturnToPublished() => Navigation.NavigateTo("net12-focus", forceLoad: true);
+    private static string Short(string value) => value[..Math.Min(12, value.Length)];
+    private static string SourceState(bool? dirty) => dirty is true ? "modified" : dirty is false ? "clean" : "unknown";
+    private static string FormatMs(double? value) => value is null ? "unavailable" : $"{value.Value:N0} ms";
+
+    public ValueTask DisposeAsync()
+    {
+        disposed = true;
+        generation++;
+        if (owner.Length > 0) FocusInterop.Dispose(owner);
+        return ValueTask.CompletedTask;
+    }
+}

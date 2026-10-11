@@ -11,6 +11,7 @@ namespace BenchViewer.Pages;
 [SupportedOSPlatform("browser")]
 public partial class Net12Focus
 {
+    [SupplyParameterFromQuery(Name = "local")] public bool Local { get; set; }
     [Inject] private NavigationManager Navigation { get; set; } = default!;
 
     private static readonly (string Value, string Label)[] Ranges =
@@ -32,6 +33,7 @@ public partial class Net12Focus
     private string? error;
     private List<string> apps = new();
     private FocusReport? report;
+    private bool localModeWasActive;
 
     private IReadOnlyList<FocusMetricReport> CurrentMetrics => report?.Metrics ?? FocusMetricReport.Placeholders;
     private FocusFlavorOption? SelectedFlavor => configuration?.Flavors.FirstOrDefault(option => option.Id == flavor);
@@ -62,8 +64,19 @@ public partial class Net12Focus
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (disposed) return;
-        if (firstRender)
+        if (Local)
         {
+            localModeWasActive = true;
+            if (owner.Length > 0)
+            {
+                FocusInterop.Dispose(owner);
+                owner = "";
+            }
+            return;
+        }
+        if (firstRender || localModeWasActive)
+        {
+            localModeWasActive = false;
             try
             {
                 Initialize();

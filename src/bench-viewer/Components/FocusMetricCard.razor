@@ -17,6 +17,12 @@
                 <span class="focus-percentage">@comparison.Magnitude</span>
                 <span class="focus-verdict">@comparison.Verdict</span>
             </div>
+            @if (IsLocalComparison && Metric.SecondaryComparison is { } secondary)
+            {
+                <p class="focus-rolling-caption" aria-label="CoreCLR after versus CoreCLR before">
+                    CoreCLR change vs its before: <span class="@secondary.Tone">@secondary.Magnitude @secondary.Verdict</span>
+                </p>
+            }
             @if (Metric.AverageComparison is { } average && Metric.Latest?.PercentWindow is { } window)
             {
                 <p class="focus-rolling-caption" title="@AverageDescription(average, window)" aria-label="@AverageDescription(average, window)"
@@ -28,6 +34,10 @@
             <dl class="focus-values">
                 <div><dt><span class="focus-dot coreclr"></span>@Metric.CoreclrLabel</dt><dd>@Metric.FormatValue(Metric.Latest?.Coreclr)</dd></div>
                 <div><dt><span class="focus-dot mono"></span>@Metric.MonoLabel</dt><dd>@Metric.FormatValue(Metric.Latest?.Mono)</dd></div>
+                @if (IsLocalComparison && Metric.CoreclrBeforeLabel.Length > 0)
+                {
+                    <div><dt><span class="focus-dot" style="background:#72a5c4"></span>@Metric.CoreclrBeforeLabel</dt><dd>@Metric.FormatValue(Metric.Latest?.CoreclrBefore)</dd></div>
+                }
             </dl>
         }
         else
@@ -87,15 +97,18 @@
     [Parameter] public bool ShowMeasurements { get; set; }
     [Parameter] public bool Loading { get; set; }
     [Parameter] public string? LoadError { get; set; }
+    [Parameter] public bool IsLocalComparison { get; set; }
     private string ProfileLabel => Metric.Profile == "mobile" ? "Mobile" : "Desktop";
     private bool GraphsEnabled => ShowPercentage || ShowMeasurements;
     private bool HasVisibleData => (ShowPercentage && Metric.Points.Any(point => point.Percent.HasValue))
         || (ShowMeasurements && Metric.HasSeries);
     private string ChartDescription =>
-        $"{Metric.Title}. {Metric.Description} History: {(Averaged ? "trailing means of up to five SDK observations" : "raw SDK observations")}. "
-        + (ShowMeasurements ? $"CoreCLR and Mono in {Metric.Unit}. " : "")
-        + (ShowPercentage ? "CoreCLR vs Mono on the signed percent axis with zero parity. " : "")
-        + "SDK build order, not elapsed time. Hover a series for raw values and window counts.";
+        $"{Metric.Title}. {Metric.Description} "
+        + (IsLocalComparison ? "Local before/after pair. " : $"History: {(Averaged ? "trailing means of up to five SDK observations" : "raw SDK observations")}. ")
+        + (ShowMeasurements ? $"{Metric.CoreclrLabel} and {Metric.MonoLabel} in {Metric.Unit}. " : "")
+        + (IsLocalComparison && Metric.CoreclrBeforeLabel.Length > 0 ? $"{Metric.CoreclrBeforeLabel} is a third measured reference; CoreCLR change is secondary. " : "")
+        + (ShowPercentage ? $"{(IsLocalComparison ? Metric.ComparisonLabel : "CoreCLR vs Mono")} on the signed percent axis with zero parity. " : "")
+        + (IsLocalComparison ? "Hover a series for recorded values." : "SDK build order, not elapsed time. Hover a series for raw values and window counts.");
 
     private static string AverageDescription(FocusComparison comparison, FocusWindow window) =>
         $"Rolling comparison: {comparison.Magnitude} {comparison.Verdict}. {window.Count} of 5 available consecutive SDK measurements, "

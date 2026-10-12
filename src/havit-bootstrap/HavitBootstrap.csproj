@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
-    <TargetFramework>$(BenchmarkTargetFramework)</TargetFramework>
-    <DashName>havit-bootstrap</DashName>
+    <TargetFramework>net11.0</TargetFramework>
     <AssemblyName>Havit.Blazor.Documentation</AssemblyName>
     <RootNamespace>Havit.Blazor.Documentation</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -11,20 +10,15 @@
     <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
     <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
     <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
-<!--
-    <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
-    <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
-    <NoWarn>$(NoWarn);1701;1702;SA1134;VSTHRD003;VSTHRD200</NoWarn>
--->
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="$(MicrosoftAspNetCoreVersion)" />
-    <PackageReference Include="Havit.Blazor.Components.Web" Version="$(HavitBlazorVersion)" />
-    <PackageReference Include="Havit.Blazor.Components.Web.Bootstrap" Version="$(HavitBlazorVersion)" />
-    <PackageReference Include="Havit.Blazor.Components.Web.Bootstrap.Smart" Version="$(HavitBlazorSmartVersion)" />
-    <PackageReference Include="Havit.Blazor.Components.Web.ECharts" Version="$(HavitBlazorVersion)" />
-    <PackageReference Include="Havit.Blazor.GoogleTagManager" Version="$(HavitBlazorVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="12.0.0-alpha.1.26472.116" />
+    <PackageReference Include="Havit.Blazor.Components.Web" Version="4.23.0" />
+    <PackageReference Include="Havit.Blazor.Components.Web.Bootstrap" Version="4.23.0" />
+    <PackageReference Include="Havit.Blazor.Components.Web.Bootstrap.Smart" Version="4.23.0-preview04" />
+    <PackageReference Include="Havit.Blazor.Components.Web.ECharts" Version="4.23.0" />
+    <PackageReference Include="Havit.Blazor.GoogleTagManager" Version="4.23.0" />
   </ItemGroup>
 
 </Project>

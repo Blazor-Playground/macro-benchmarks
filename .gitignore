@@ -1,23 +1,7 @@
-bin
-obj
+bin/
+obj/
 artifacts/
-
-*.binlog
-
-# Node
+.dotnet/
 node_modules/
-
-# Playwright
-test-results/
-playwright-report/
-
-# gh-pages worktree
-gh-pages/
-tracking/
-dist/
-!src/igniteui-light/wwwroot/lib/bootstrap/dist/
-src/bench-viewer/wwwroot/chart/*.js
-.playwright-mcp
-
-# System files
+*.binlog
 .DS_Store

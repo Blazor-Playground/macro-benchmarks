@@ -17,6 +17,9 @@
 
     protected override void OnAfterRender(bool firstRender)
     {
-        Console.WriteLine($"App rendered after navigation. FirstRender: {firstRender}");
+        if (firstRender)
+        {
+            SetRendered();
+        }
     }
 }

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using System;
 using System.Runtime.InteropServices.JavaScript;
 using System.Threading.Tasks;
 
@@ -16,4 +15,7 @@ public partial class App : ComponentBase
 
     [JSImport("bench.setManagedReady", "main.mjs")]
     internal static partial void SetManagedReady();
+
+    [JSImport("bench.setRendered", "main.mjs")]
+    internal static partial void SetRendered();
 }

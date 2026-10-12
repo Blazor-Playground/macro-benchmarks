@@ -1,86 +1,31 @@
-# .NET Browser WASM Benchmark Suite
+# Havit startup and size
 
-Daily performance tracking for .NET WebAssembly in browsers. Automatically builds sample apps against the latest nightly .NET SDK, measures load time, download size, and memory across engines and build configurations, then publishes the results to a [live dashboard](https://blazor-playground.github.io/macro-benchmarks/).
+The Havit app runs on browser CoreCLR. Requires Node.js 22+. Same commands on macOS, Windows and Linux.
 
-## Apps benchmarked
+For an agent or CI check, run from the repository root:
 
-| App | Description |
-|-----|-------------|
-| **empty-browser** | Minimal .NET WASM console app — baseline for startup and size |
-| **empty-blazor** | Bare Blazor WebAssembly app — framework overhead baseline |
-| **blazing-pizza** | Real-world Blazor PWA with routing, local storage |
-| **micro-benchmarks** | JS↔C# interop, JSON parsing, and exception-handling ops/sec |
-| **havit-bootstrap** | Havit Blazor Bootstrap component library |
-| **mud-blazor** | MUD Blazor Material Design component library |
-| **igniteui-light** | Infragistics FOSS component library |
-
-## Pipeline stages
-
-The benchmarking CLI (`bench.ps1` / `bench.sh`) orchestrates these stages:
-
-1. **enumerate-daily-packs / enumerate-release-packs** — Query NuGet feeds for available SDK versions
-2. **resolve-sdk** — Pick an SDK (latest, by version, or by commit) and fetch runtime/SDK commit SHAs
-3. **download-sdk** — Install the .NET SDK via dotnet-install scripts
-4. **build** — `dotnet publish` each (app × preset × runtime) combination
-5. **measure** — Launch browsers (Chrome/Firefox via Playwright) or CLI engines (V8/Node), collect metrics
-6. **transform-views** — Aggregate result JSON into weekly/release views for the dashboard
-7. **update-views** — Commit views to the gh-pages branch
-
-Default: `resolve-sdk,download-sdk,build,measure,transform-views`
-
-## Build presets
-
-| Preset | Config | Native | Description |
-|--------|--------|:------:|-------------|
-| dev-loop | Debug | — | Fast inner-loop; no trimming, no compression |
-| no-workload | Release | — | Baseline release; trimmed, no native build |
-| native-relink | Release | ✓ | Native WASM via Emscripten, no AOT |
-| aot | Release | ✓ | Full Mono AOT — slow startup, fastest execution |
-| invariant | Release | ✓ | Invariant globalization (no ICU data) |
-
-## Metrics collected
-
-- **Compile time** — wall-clock `dotnet publish` duration
-- **Disk size** — native `.wasm` and managed `.dll` sizes
-- **Download size** — compressed bytes over the wire (Chrome CDP)
-- **Time to managed** — cold (first load) and warm (min of reloads) to `dotnet_managed_ready`
-- **Memory peak** — max JS heap observed during load
-- **Walkthrough timing** — interactive navigation scenarios (pizza, havit, mud)
-- **Microbenchmark ops/sec** — JS interop, JSON parse, exception handling
-
-## Running locally
-
-Prerequisites: Node.js ≥ 24, .NET SDK (downloaded automatically).
-
-```powershell
-# Windows
-.\bench.ps1 --verbose --stages enumerate-daily-packs,enumerate-release-packs,resolve-sdk,download-sdk,build,measure --preset dev-loop --app blazing-pizza --dry-run
-
-.\bench.ps1 --sdk-version 12.0.100-alpha.1.26460.113 --runtime-pr 132419 --runtime coreclr --stages enumerate-daily-packs,resolve-sdk,download-sdk,build-runtime,build,measure --app semi-avalonia --preset aot --engine chrome --dry-run
+```sh
+npm ci
+npm run verify
 ```
 
-```bash
-# Linux / macOS
-./bench.sh --verbose --stages resolve-sdk,download-sdk,build,measure --preset dev-loop --app blazing-pizza --dry-run
+`verify` runs the unit tests, publishes and measures both Debug and Release, and exits. Each build measures five cold/warm Chromium pairs and fails if the app does not render the Getting started page. The SDK and Chromium are installed automatically if missing. Results are written to `artifacts/results`; the last build and its binlog are in `artifacts/publish` and `artifacts/publish.binlog`.
+
+To open the app interactively, run one of these instead of `verify`:
+
+```sh
+npm run debug  # interpreted app with R2R CoreLib
+npm start      # Release with full composite R2R
 ```
 
-Use `--help` for all options.
+Run one command at a time. Both commands publish, measure five cold/warm pairs and serve the app at `http://127.0.0.1:5000`. Expect the Getting started page. Stop with Ctrl+C, edit the app and rerun. Linux may need `npx playwright install-deps chromium`.
 
-## CI/CD
+The pinned .NET 12 SDK targets `net11.0`. The project selects the matching .NET 12 WebAssembly pack because the SDK's default pack for `net11.0` does not support composite R2R. Debug interprets app assemblies with only CoreLib compiled as R2R; Release compiles all assemblies with composite R2R. Builds clear intermediates to avoid a preview SDK incremental R2R bug.
 
-- **benchmark.yml** — Daily + manual: resolve → build → measure → deploy results ([recent runs](https://github.com/blazor-playground/macro-benchmarks/actions/workflows/benchmark.yml))
-- **docker-build.yml** — Weekly: builds `browser-bench-build` and `browser-bench-measure` container images
-- **schedule.yml** — Dispatches benchmarks for SDK channels
+`npm run debug` selects the Debug build configuration; the static server does not provide a managed-debugger proxy.
 
-## Repository layout
+Results go to `artifacts/results`. Cold starts a new browser; warm reuses its cache. `managedMs` ends at managed initialization; `renderedMs` ends after the first root render and two animation frames. Both start at navigation. Raw/Brotli payload sizes count each asset once; startup transfer counts actual traffic.
 
-```
-bench/           TypeScript CLI — pipeline orchestration and measurement
-src/             .NET sample apps and MSBuild configuration
-docker/          Container images for CI (Ubuntu 24.04, Node 24, Playwright, V8)
-artifacts/       Local build outputs, results, and downloaded SDKs
-tracking/        Cache branch for SDK enumeration state
-gh-pages/        Dashboard (Blazor WASM) + published app snapshots + result views
-```
+Compare timings on the same idle machine, not against fixed thresholds. R2R can still fall back to interpretation.
 
-See [docs/](docs/) for detailed documentation.
+Local runtime builds can use `npm start -- "-p:RuntimePackDir=/path/to/runtime-pack" "-p:Crossgen2InBuildDir=/path/to/crossgen2"`. Use SDK-compatible packs. Build log is `artifacts/publish.binlog`; tests use `npm test`. MIT licenses remain in `LICENSE` and `src/havit-bootstrap/LICENSE`.

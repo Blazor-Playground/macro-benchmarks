@@ -1,27 +1,19 @@
 {
-    "name": "macro-benchmarks",
+    "name": "havit-r2r",
     "version": "0.1.0",
     "private": true,
-    "description": ".NET Browser WASM Benchmark Suite",
     "type": "module",
     "scripts": {
-        "test": "node --test tests/unit/*.test.mjs",
-        "test:e2e": "npx playwright test tests/e2e/"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/blazor-playground/macro-benchmarks.git"
+        "start": "node bench.mjs",
+        "debug": "node bench.mjs --debug",
+        "test": "node --test bench.test.mjs",
+        "verify": "npm test && node bench.mjs --debug --once && node bench.mjs --once"
     },
     "license": "MIT",
     "engines": {
-        "node": ">=24.0.0"
+        "node": ">=22.0.0"
     },
     "devDependencies": {
         "playwright": "1.58.2"
-    },
-    "dependencies": {
-        "chartjs-adapter-date-fns": "^3.0.0",
-        "chartjs-plugin-zoom": "^2.2.0",
-        "date-fns": "^3.6.0"
     }
 }

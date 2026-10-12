@@ -1,0 +1,7 @@
+{
+  "sdk": {
+    "version": "12.0.100-alpha.1.26509.106",
+    "rollForward": "disable",
+    "allowPrerelease": true
+  }
+}

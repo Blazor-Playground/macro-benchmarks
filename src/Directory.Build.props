@@ -1,42 +1,67 @@
 <Project>
-  <Import Project="versions.props" />
-  <Import Project="presets.props" />
-  <Import Project="runtimes.props" />
-
-  <!-- GitHub repository (owner/name) — override via -p:GitHubRepo=org/repo or GITHUB_REPOSITORY env var -->
   <PropertyGroup>
-    <GitHubRepo Condition="'$(GitHubRepo)' == '' and '$(GITHUB_REPOSITORY)' != ''">$(GITHUB_REPOSITORY)</GitHubRepo>
-    <GitHubRepo Condition="'$(GitHubRepo)' == ''">blazor-playground/macro-benchmarks</GitHubRepo>
-  </PropertyGroup>
-
-  <!-- Prevent MSB5022: ILLink/WASM tasks need IBuildEngine callbacks, so
-       they must run in-process rather than in the out-of-proc task host. -->
-  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    <UseMonoRuntime>false</UseMonoRuntime>
+    <RuntimeFlavor>CoreCLR</RuntimeFlavor>
+    <PublishReadyToRun Condition="'$(Configuration)' == 'Release'">true</PublishReadyToRun>
+    <PublishReadyToRunComposite Condition="'$(Configuration)' == 'Release'">true</PublishReadyToRunComposite>
+    <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">true</PublishReadyToRun>
+    <PublishReadyToRunComposite Condition="'$(Configuration)' == 'Debug'">false</PublishReadyToRunComposite>
+    <WasmBuildNative>false</WasmBuildNative>
+    <UsingBrowserRuntimeWorkload>false</UsingBrowserRuntimeWorkload>
+    <PublishTrimmed Condition="'$(Configuration)' == 'Release'">true</PublishTrimmed>
+    <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">false</PublishTrimmed>
+    <EnableAggressiveTrimming Condition="'$(Configuration)' == 'Release'">true</EnableAggressiveTrimming>
+    <EnableAggressiveTrimming Condition="'$(Configuration)' == 'Debug'">false</EnableAggressiveTrimming>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <MSBuildDisableTaskHost>true</MSBuildDisableTaskHost>
-  </PropertyGroup>
-
-  <!-- bin/obj location: artifacts/{bin,obj}/{app}/{BuildLabel}/{RuntimeFlavor}/{BenchmarkPreset} -->
-  <PropertyGroup>
-    <BuildLabel Condition="'$(BuildLabel)' == ''">local</BuildLabel>
-    <ArtifactsPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'artifacts', 'bin', '$(MSBuildProjectName)', '$(BuildLabel)', '$(RuntimeFlavor)', '$(BenchmarkPreset)'))</ArtifactsPath>
-    <BaseIntermediateOutputPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'artifacts', 'obj', '$(MSBuildProjectName)', '$(BuildLabel)', '$(RuntimeFlavor)', '$(BenchmarkPreset)'))</BaseIntermediateOutputPath>
-  </PropertyGroup>
-
-  <!-- disable importmap + fingerprint -->
-  <PropertyGroup Condition="'$(BenchmarkTargetFramework)' == 'net8.0' or '$(BenchmarkTargetFramework)' == 'net9.0' or '$(DashName)' == 'uno-gallery'">
-    <WasmFingerprintAssets>false</WasmFingerprintAssets>
-    <BlazorFingerprintBlazorJs>false</BlazorFingerprintBlazorJs>
-    <OverrideHtmlAssetPlaceholders>false</OverrideHtmlAssetPlaceholders>
-  </PropertyGroup>
-  <!-- enable importmap + fingerprint -->
-  <PropertyGroup Condition="'$(BenchmarkTargetFramework)' != 'net8.0' and '$(BenchmarkTargetFramework)' != 'net9.0' and '$(DashName)' != 'uno-gallery'">
     <WasmFingerprintAssets>true</WasmFingerprintAssets>
     <BlazorFingerprintBlazorJs>true</BlazorFingerprintBlazorJs>
     <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
   </PropertyGroup>
-  <ItemGroup Condition="'$(BenchmarkTargetFramework)' != 'net8.0' and '$(BenchmarkTargetFramework)' != 'net9.0' and '$(DashName)' != 'uno-gallery'">
+  <ItemGroup>
     <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />
     <StaticWebAssetFingerprintPattern Include="MJS" Pattern="*.mjs" Expression="#[.{fingerprint}]!" />
   </ItemGroup>
 
+  <Target Name="ValidateBenchmarkConfiguration" BeforeTargets="PrepareForBuild">
+    <Error Condition="'$(Configuration)' != 'Debug' and '$(Configuration)' != 'Release'"
+           Text="This repro requires Debug or Release." />
+    <Error Condition="'$(UseMonoRuntime)' != 'false' or '$(RuntimeFlavor)' != 'CoreCLR' or '$(WasmBuildNative)' != 'false'"
+           Text="This repro requires the CoreCLR browser runtime without native relinking." />
+    <Error Condition="'$(Configuration)' == 'Debug' and ('$(PublishReadyToRun)' != 'true' or '$(PublishReadyToRunComposite)' != 'false' or '$(PublishTrimmed)' != 'false')"
+           Text="Debug must interpret untrimmed app assemblies and compile only CoreLib with ReadyToRun." />
+    <Error Condition="'$(Configuration)' == 'Release' and ('$(PublishReadyToRun)' != 'true' or '$(PublishReadyToRunComposite)' != 'true' or '@(PublishReadyToRunExclude)' != '' or '@(PublishReadyToRunPartialAssemblies)' != '' or '@(PublishReadyToRunCompositeExclusions)' != '')"
+           Text="Release requires full composite ReadyToRun without assembly exclusions." />
+  </Target>
+
+  <Target Name="ExcludeNonCoreLibFromReadyToRun"
+          BeforeTargets="_PrepareForReadyToRunCompilation"
+          DependsOnTargets="_ComputeAssembliesToPostprocessOnPublish"
+          Condition="'$(Configuration)' == 'Debug'">
+    <ItemGroup>
+      <PublishReadyToRunExclude Include="@(ResolvedFileToPublish->'%(Filename)%(Extension)')"
+                                Condition="'%(ResolvedFileToPublish.PostprocessAssembly)' == 'true' and '%(ResolvedFileToPublish.Filename)' != 'System.Private.CoreLib'" />
+    </ItemGroup>
+  </Target>
+
+  <!-- The SDK's net11.0 default pack predates browser composite R2R. -->
+  <Target Name="UseMatchingWebAssemblyPack" BeforeTargets="ProcessFrameworkReferences">
+    <ItemGroup>
+      <KnownWebAssemblySdkPack Update="@(KnownWebAssemblySdkPack)"
+                               Condition="'%(KnownWebAssemblySdkPack.TargetFramework)' == 'net11.0'">
+        <WebAssemblySdkPackVersion>12.0.0-alpha.1.26509.106</WebAssemblySdkPackVersion>
+      </KnownWebAssemblySdkPack>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="UpdateRuntimePack" AfterTargets="ResolveFrameworkReferences"
+          Condition="'$(RuntimePackDir)' != ''">
+    <Error Condition="!Exists('$(RuntimePackDir)/runtimes/browser-wasm/native/dotnet.native.wasm')"
+           Text="RuntimePackDir must point to an extracted CoreCLR browser-wasm runtime pack." />
+    <ItemGroup>
+      <ResolvedRuntimePack PackageDirectory="$(RuntimePackDir)"
+                           Condition="'%(ResolvedRuntimePack.FrameworkName)' == 'Microsoft.NETCore.App'" />
+    </ItemGroup>
+  </Target>
 </Project>

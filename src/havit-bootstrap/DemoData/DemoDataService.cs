@@ -56,6 +56,12 @@ public partial class DemoDataService : IDemoDataService
 		await Task.Delay(80, cancellationToken); // simulate server call
 
 		IEnumerable<EmployeeDto> filteredEmployees = GetFilteredEmployees(filter);
+#if HAVIT_DEBUGGER_FILTER_WORKLOAD
+		if (filter.Name == "John" && System.Diagnostics.Debugger.IsAttached)
+		{
+			System.Diagnostics.Debugger.Break();
+		}
+#endif
 		var data = filteredEmployees.Skip(startIndex).Take(count ?? Int32.MaxValue).ToList();
 		return new()
 		{

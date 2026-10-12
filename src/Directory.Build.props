@@ -19,6 +19,28 @@
     <BlazorFingerprintBlazorJs>true</BlazorFingerprintBlazorJs>
     <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(WasmDebuggerWorkload)' == 'true'">
+    <HavitDebuggerScenario Condition="'$(HavitDebuggerScenario)' == ''">url-helper-primitive</HavitDebuggerScenario>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)../artifacts/debugger/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)../artifacts/debugger/bin/$(MSBuildProjectName)/</BaseOutputPath>
+    <RestorePackagesPath>$(MSBuildThisFileDirectory)../artifacts/debugger/packages/</RestorePackagesPath>
+    <DefaultItemExcludes>$(DefaultItemExcludes);bin/**;obj/**</DefaultItemExcludes>
+    <PublishReadyToRun>false</PublishReadyToRun>
+    <PublishReadyToRunComposite>false</PublishReadyToRunComposite>
+    <RunAOTCompilation>false</RunAOTCompilation>
+    <PublishTrimmed>false</PublishTrimmed>
+    <EnableAggressiveTrimming>false</EnableAggressiveTrimming>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <CopyOutputSymbolsToPublishDirectory>true</CopyOutputSymbolsToPublishDirectory>
+    <WasmDebugLevel>-1</WasmDebugLevel>
+    <WasmEnableWebcil>false</WasmEnableWebcil>
+    <WasmPreloadAssets>false</WasmPreloadAssets>
+    <WasmBuildOnlyAfterPublish>true</WasmBuildOnlyAfterPublish>
+    <DefineConstants>$(DefineConstants);HAVIT_DEBUGGER_WORKLOAD</DefineConstants>
+    <DefineConstants Condition="'$(HavitDebuggerScenario)' == 'url-helper-primitive'">$(DefineConstants);HAVIT_DEBUGGER_URL_WORKLOAD</DefineConstants>
+    <DefineConstants Condition="'$(HavitDebuggerScenario)' == 'grid-filtering'">$(DefineConstants);HAVIT_DEBUGGER_FILTER_WORKLOAD</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />
     <StaticWebAssetFingerprintPattern Include="MJS" Pattern="*.mjs" Expression="#[.{fingerprint}]!" />
@@ -29,8 +51,16 @@
            Text="This repro requires Debug or Release." />
     <Error Condition="'$(UseMonoRuntime)' != 'false' or '$(RuntimeFlavor)' != 'CoreCLR' or '$(WasmBuildNative)' != 'false'"
            Text="This repro requires the CoreCLR browser runtime without native relinking." />
-    <Error Condition="'$(Configuration)' == 'Debug' and ('$(PublishReadyToRun)' != 'true' or '$(PublishReadyToRunComposite)' != 'false' or '$(PublishTrimmed)' != 'false')"
+    <Error Condition="'$(WasmDebuggerWorkload)' != 'true' and '$(Configuration)' == 'Debug' and ('$(PublishReadyToRun)' != 'true' or '$(PublishReadyToRunComposite)' != 'false' or '$(PublishTrimmed)' != 'false')"
            Text="Debug must interpret untrimmed app assemblies and compile only CoreLib with ReadyToRun." />
+    <Error Condition="'$(WasmDebuggerWorkload)' == 'true' and ('$(Configuration)' != 'Debug' or '$(PublishReadyToRun)' != 'false' or '$(PublishReadyToRunComposite)' != 'false' or '$(RunAOTCompilation)' != 'false' or '$(PublishTrimmed)' != 'false')"
+           Text="The debugger workload requires Debug and fully interpreted untrimmed assemblies." />
+    <Error Condition="'$(WasmDebuggerWorkload)' == 'true' and ('$(WasmEnableWebcil)' != 'false' or '$(WasmDebugLevel)' != '-1' or '$(DebugType)' != 'portable' or '$(CopyOutputSymbolsToPublishDirectory)' != 'true' or '$(WasmPreloadAssets)' != 'false' or '$(WasmBuildOnlyAfterPublish)' != 'true')"
+           Text="The debugger workload requires plain DLLs, portable published PDBs, WasmDebugLevel=-1, and the matched publish resource contract." />
+    <Error Condition="'$(WasmDebuggerWorkload)' == 'true' and '$(RuntimePackDir)' == ''"
+           Text="The debugger workload requires the complete matched prototype RuntimePackDir and its WebAssembly SDK pack." />
+    <Error Condition="'$(WasmDebuggerWorkload)' == 'true' and '$(HavitDebuggerScenario)' != 'url-helper-primitive' and '$(HavitDebuggerScenario)' != 'grid-filtering'"
+           Text="HavitDebuggerScenario must be url-helper-primitive or grid-filtering." />
     <Error Condition="'$(Configuration)' == 'Release' and ('$(PublishReadyToRun)' != 'true' or '$(PublishReadyToRunComposite)' != 'true' or '@(PublishReadyToRunExclude)' != '' or '@(PublishReadyToRunPartialAssemblies)' != '' or '@(PublishReadyToRunCompositeExclusions)' != '')"
            Text="Release requires full composite ReadyToRun without assembly exclusions." />
   </Target>
@@ -38,7 +68,7 @@
   <Target Name="ExcludeNonCoreLibFromReadyToRun"
           BeforeTargets="_PrepareForReadyToRunCompilation"
           DependsOnTargets="_ComputeAssembliesToPostprocessOnPublish"
-          Condition="'$(Configuration)' == 'Debug'">
+          Condition="'$(WasmDebuggerWorkload)' != 'true' and '$(Configuration)' == 'Debug'">
     <ItemGroup>
       <PublishReadyToRunExclude Include="@(ResolvedFileToPublish->'%(Filename)%(Extension)')"
                                 Condition="'%(ResolvedFileToPublish.PostprocessAssembly)' == 'true' and '%(ResolvedFileToPublish.Filename)' != 'System.Private.CoreLib'" />
@@ -48,9 +78,15 @@
   <!-- The SDK's net11.0 default pack predates browser composite R2R. -->
   <Target Name="UseMatchingWebAssemblyPack" BeforeTargets="ProcessFrameworkReferences">
     <ItemGroup>
+      <KnownFrameworkReference Update="@(KnownFrameworkReference)"
+                               Condition="'$(WasmDebuggerWorkload)' == 'true' and '%(KnownFrameworkReference.Identity)' == 'Microsoft.NETCore.App' and '%(KnownFrameworkReference.TargetFramework)' == 'net11.0'">
+        <DefaultRuntimeFrameworkVersion>12.0.0-dev</DefaultRuntimeFrameworkVersion>
+        <LatestRuntimeFrameworkVersion>12.0.0-dev</LatestRuntimeFrameworkVersion>
+      </KnownFrameworkReference>
       <KnownWebAssemblySdkPack Update="@(KnownWebAssemblySdkPack)"
                                Condition="'%(KnownWebAssemblySdkPack.TargetFramework)' == 'net11.0'">
-        <WebAssemblySdkPackVersion>12.0.0-alpha.1.26509.106</WebAssemblySdkPackVersion>
+        <WebAssemblySdkPackVersion Condition="'$(WasmDebuggerWorkload)' != 'true'">12.0.0-alpha.1.26509.106</WebAssemblySdkPackVersion>
+        <WebAssemblySdkPackVersion Condition="'$(WasmDebuggerWorkload)' == 'true'">12.0.0-dev</WebAssemblySdkPackVersion>
       </KnownWebAssemblySdkPack>
     </ItemGroup>
   </Target>

@@ -5,53 +5,85 @@ import { createServer } from 'node:http';
 import { dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
+import { prepareLocalRuntime, verifyLocalPackages } from './local-runtime.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const artifacts = join(root, 'artifacts');
-const sdk = JSON.parse(await readFile(join(root, 'global.json'), 'utf8')).sdk.version;
+const pinnedSdk = JSON.parse(await readFile(join(root, 'global.json'), 'utf8')).sdk.version;
 const windows = process.platform === 'win32';
-const dotnet = join(root, '.dotnet', windows ? 'dotnet.exe' : 'dotnet');
+const pinnedDotnet = join(root, '.dotnet', windows ? 'dotnet.exe' : 'dotnet');
 const publish = join(artifacts, 'publish');
 const webRoot = join(publish, 'wwwroot');
 
-function run(command, args) {
+function run(command, args, options = {}) {
     const { error, status, signal } = spawnSync(command, args, {
-        cwd: root, stdio: 'inherit',
-        env: { ...process.env, DOTNET_ROOT: join(root, '.dotnet'), DOTNET_NOLOGO: '1' },
+        cwd: options.cwd ?? root, stdio: 'inherit',
+        env: { ...process.env, DOTNET_ROOT: join(root, '.dotnet'), DOTNET_NOLOGO: '1', ...options.env },
     });
     if (error) throw error;
     if (status !== 0) throw new Error(`${command} failed with ${signal ?? status}`);
 }
 
-async function setup() {
+export function parseOptions(args) {
+    const options = { debug: false, once: false, verify: false, runtimeRepo: undefined, publishArgs: [] };
+    for (let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        if (arg === '--runtime-repo' || arg.startsWith('--runtime-repo=')) {
+            if (options.runtimeRepo !== undefined) throw new Error('--runtime-repo can be supplied only once.');
+            options.runtimeRepo = arg === '--runtime-repo' ? args[++i] : arg.slice('--runtime-repo='.length);
+            if (!options.runtimeRepo || options.runtimeRepo.startsWith('--')) {
+                throw new Error('--runtime-repo requires a dotnet/runtime checkout path.');
+            }
+        } else if (arg === '--debug') options.debug = true;
+        else if (arg === '--once') options.once = true;
+        else if (arg === '--verify') options.verify = true;
+        else options.publishArgs.push(arg);
+    }
+    if (options.verify && (options.debug || options.once)) {
+        throw new Error('--verify already runs Debug and Release once.');
+    }
+    if (options.runtimeRepo && options.publishArgs.length) {
+        throw new Error('Extra publish arguments are not supported with --runtime-repo.');
+    }
+    return options;
+}
+
+async function setup(runtimeRepo) {
     await mkdir(artifacts, { recursive: true });
-    if (!existsSync(join(root, '.dotnet', 'sdk', sdk))) {
+    if (!runtimeRepo && !existsSync(join(root, '.dotnet', 'sdk', pinnedSdk))) {
         const script = windows ? 'dotnet-install.ps1' : 'dotnet-install.sh';
         const response = await fetch(`https://dot.net/v1/${script}`);
         if (!response.ok) throw new Error(`SDK installer download failed: HTTP ${response.status}`);
         const path = join(artifacts, script);
         await writeFile(path, await response.text());
         run(windows ? 'powershell.exe' : 'bash', windows
-            ? ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-Version', sdk,
+            ? ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-Version', pinnedSdk,
                 '-InstallDir', join(root, '.dotnet'), '-AzureFeed', 'https://ci.dot.net/public', '-NoPath']
-            : [path, '--version', sdk, '--install-dir', join(root, '.dotnet'),
+            : [path, '--version', pinnedSdk, '--install-dir', join(root, '.dotnet'),
                 '--azure-feed', 'https://ci.dot.net/public', '--no-path']);
     }
-    run(dotnet, ['--version']);
+    if (!runtimeRepo) run(pinnedDotnet, ['--version']);
     run(process.execPath, [join(root, 'node_modules', 'playwright', 'cli.js'), 'install', 'chromium']);
 }
 
-async function build(args, configuration) {
+async function build(args, configuration, runtimeRepo) {
+    const local = runtimeRepo && await prepareLocalRuntime(runtimeRepo, configuration, root, artifacts);
     await rm(publish, { recursive: true, force: true });
     // This preview SDK can omit CoreLib on incremental R2R publish, even after dotnet clean.
     await rm(join(root, 'src', 'havit-bootstrap', 'obj'), { recursive: true, force: true });
     await rm(join(root, 'src', 'havit-bootstrap', 'bin'), { recursive: true, force: true });
+    const project = join(root, 'src', 'havit-bootstrap', 'HavitBootstrap.csproj');
+    if (local) {
+        run(local.dotnet, ['restore', project, `/p:Configuration=${configuration}`, ...local.properties, '-m:1'], local);
+        await verifyLocalPackages(local);
+    }
     const publishArgs = [
-        'publish', 'src/havit-bootstrap/HavitBootstrap.csproj', '-c', configuration,
-        '-o', publish, `-bl:${join(artifacts, 'publish.binlog')}`, '-m:1', ...args,
+        'publish', local ? project : 'src/havit-bootstrap/HavitBootstrap.csproj', '-c', configuration,
+        '-o', publish, `-bl:${join(artifacts, 'publish.binlog')}`, '-m:1',
+        ...(local ? ['--no-restore'] : []), ...args, ...(local?.properties ?? []),
     ];
-    run(dotnet, publishArgs);
-    return { sdk, arguments: publishArgs };
+    run(local?.dotnet ?? pinnedDotnet, publishArgs, local);
+    return { sdk: local?.sdk ?? pinnedSdk, arguments: publishArgs, ...(local ? { runtime: local.source } : {}) };
 }
 
 export async function fileSizes(directory) {
@@ -237,23 +269,23 @@ async function measure(url, buildInfo) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-    const args = process.argv.slice(2);
-    const debug = args.includes('--debug');
-    const once = args.includes('--once');
-    await setup();
-    const buildInfo = await build(args.filter(arg => arg !== '--debug' && arg !== '--once'), debug ? 'Debug' : 'Release');
-    const server = await startServer(webRoot, 5000);
-    try {
-        await measure(server.url, buildInfo);
-    } catch (error) {
-        await server.close();
-        throw error;
-    }
-    if (once) {
-        await server.close();
-    } else {
-        console.log(`Havit: ${server.url} (Ctrl+C to stop)`);
-        process.once('SIGINT', () => server.close());
-        process.once('SIGTERM', () => server.close());
+    const options = parseOptions(process.argv.slice(2));
+    if (options.verify) run(process.execPath, ['--test', join(root, 'bench.test.mjs')]);
+    await setup(options.runtimeRepo);
+    for (const configuration of options.verify ? ['Debug', 'Release'] : [options.debug ? 'Debug' : 'Release']) {
+        const buildInfo = await build(options.publishArgs, configuration, options.runtimeRepo);
+        const server = await startServer(webRoot, 5000);
+        let measured = false;
+        try {
+            await measure(server.url, buildInfo);
+            measured = true;
+        } finally {
+            if (!measured || options.verify || options.once) await server.close();
+        }
+        if (!options.verify && !options.once) {
+            console.log(`Havit: ${server.url} (Ctrl+C to stop)`);
+            process.once('SIGINT', () => server.close());
+            process.once('SIGTERM', () => server.close());
+        }
     }
 }

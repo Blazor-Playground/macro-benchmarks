@@ -7,7 +7,7 @@
         "start": "node bench.mjs",
         "debug": "node bench.mjs --debug",
         "test": "node --test bench.test.mjs",
-        "verify": "npm test && node bench.mjs --debug --once && node bench.mjs --once"
+        "verify": "node bench.mjs --verify"
     },
     "license": "MIT",
     "engines": {

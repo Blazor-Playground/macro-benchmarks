@@ -46,7 +46,8 @@
   </Target>
 
   <!-- The SDK's net11.0 default pack predates browser composite R2R. -->
-  <Target Name="UseMatchingWebAssemblyPack" BeforeTargets="ProcessFrameworkReferences">
+  <Target Name="UseMatchingWebAssemblyPack" BeforeTargets="ProcessFrameworkReferences"
+          Condition="'$(LocalWebAssemblySdkPackVersion)' == ''">
     <ItemGroup>
       <KnownWebAssemblySdkPack Update="@(KnownWebAssemblySdkPack)"
                                Condition="'%(KnownWebAssemblySdkPack.TargetFramework)' == 'net11.0'">

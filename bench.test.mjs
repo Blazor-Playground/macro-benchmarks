@@ -1,11 +1,73 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { get } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { brotliCompressSync, gzipSync } from 'node:zlib';
-import { fileSizes, startServer, summarize } from './bench.mjs';
+import { fileSizes, parseOptions, startServer, summarize } from './bench.mjs';
+import { findPackage, localNugetConfig, localProperties, verifyLocalPackages } from './local-runtime.mjs';
+
+test('local runtime is forwarded to Release, Debug and verify without changing default publish arguments', () => {
+    assert.deepEqual(parseOptions(['-p:SomeOption=true']), {
+        debug: false, once: false, verify: false, runtimeRepo: undefined, publishArgs: ['-p:SomeOption=true'],
+    });
+    for (const args of [
+        ['--runtime-repo', '/runtime'],
+        ['--debug', '--runtime-repo', '/runtime'],
+        ['--verify', '--runtime-repo', '/runtime'],
+    ]) {
+        const options = parseOptions(args);
+        assert.equal(options.runtimeRepo, '/runtime');
+        assert.deepEqual(options.publishArgs, []);
+    }
+    assert.throws(() => parseOptions(['--runtime-repo']), /requires a dotnet\/runtime checkout/);
+    assert.throws(() => parseOptions(['--verify', '--debug']), /already runs Debug and Release/);
+    assert.throws(() => parseOptions(['--runtime-repo', '/runtime', '-p:RuntimePackDir=/old']), /not supported/);
+});
+
+test('local packages and compiler overrides select matching artifacts and reject stale restore', async t => {
+    const directory = await mkdtemp(join(tmpdir(), 'havit local-'));
+    t.after(() => rm(directory, { recursive: true, force: true }));
+    const shipping = join(directory, 'Shipping');
+    const cache = join(directory, 'cache');
+    await mkdir(shipping);
+    const runtimeId = 'Microsoft.NETCore.App.Runtime.browser-wasm';
+    const wasmId = 'Microsoft.NET.Sdk.WebAssembly.Pack';
+    const version = '12.0.0-alpha.1.26512.139';
+    for (const id of [runtimeId, wasmId]) {
+        await writeFile(join(shipping, `${id}.${version}.nupkg`), `${id} locally built`);
+        await writeFile(join(shipping, `${id}.${version}.symbols.nupkg`), 'symbols');
+    }
+    const runtimePack = await findPackage(shipping, runtimeId);
+    const wasmSdk = await findPackage(shipping, wasmId);
+    for (const pack of [runtimePack, wasmSdk]) {
+        const destination = join(cache, pack.id.toLowerCase(), pack.version.toLowerCase());
+        await mkdir(destination, { recursive: true });
+        await writeFile(join(destination, `${pack.id.toLowerCase()}.${pack.version.toLowerCase()}.nupkg`),
+            await readFile(pack.path));
+    }
+    await verifyLocalPackages({ env: { NUGET_PACKAGES: cache }, packages: [runtimePack, wasmSdk] });
+    for (const configuration of ['Release', 'Debug']) {
+        const tasks = join(directory, 'Crossgen2Tasks', configuration);
+        const compiler = join(directory, `browser.wasm.${configuration}`, 'arm64', 'crossgen2');
+        const properties = localProperties({
+            runtimePack, wasmSdk, crossgen2Tasks: tasks, crossgen2Dir: compiler,
+            targets: join(directory, 'src', 'local-runtime.targets'), configPath: join(directory, 'NuGet.config'),
+        });
+        assert.ok(properties.includes(`/p:LocalRuntimePackVersion=${version}`));
+        assert.ok(properties.includes(`/p:LocalWebAssemblySdkPackVersion=${version}`));
+        assert.ok(properties.includes(`/p:Crossgen2InBuildDir=${compiler}`));
+        assert.ok(properties.includes(`/p:Crossgen2SdkOverrideTargetsPath=${join(tasks, 'Microsoft.NET.CrossGen.targets')}`));
+    }
+    assert.match(localNugetConfig(shipping, '<add key="dotnet-public" value="https://example.com/v3/index.json" />'),
+        /<packageSource key="local-runtime">[\s\S]*<package pattern="Microsoft.NETCore.App.Runtime.browser-wasm" \/>[\s\S]*<package pattern="Microsoft.NET.Sdk.WebAssembly.Pack" \/>/);
+    await writeFile(join(cache, runtimeId.toLowerCase(), version, `${runtimeId.toLowerCase()}.${version}.nupkg`), 'old pack');
+    await assert.rejects(verifyLocalPackages({ env: { NUGET_PACKAGES: cache }, packages: [runtimePack, wasmSdk] }),
+        /does not match the local build/);
+    await writeFile(join(shipping, `${runtimeId}.12.0.0-alpha.1.26513.100.nupkg`), 'newer pack');
+    await assert.rejects(findPackage(shipping, runtimeId), /Expected one/);
+});
 
 test('summary uses numeric order and supports odd/even counts without mutating samples', () => {
     for (const [values, expected] of [

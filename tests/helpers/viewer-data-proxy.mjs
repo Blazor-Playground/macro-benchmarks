@@ -2,12 +2,12 @@ import { createServer, request as httpRequest } from 'node:http';
 
 const dataPrefix = '/macro-benchmarks/data/views/';
 
-export async function startViewerDataProxy(staticPort, dataRoot, port = 0, logError = console.error) {
-    const root = new URL(dataRoot);
-    if (!['http:', 'https:'].includes(root.protocol) || root.username || root.password || root.search || root.hash) {
+export async function startViewerDataProxy(staticPort, dataRoot, port = 0, logError = console.error, loadLocalComparison) {
+    const root = dataRoot ? new URL(dataRoot) : null;
+    if (root && (!['http:', 'https:'].includes(root.protocol) || root.username || root.password || root.search || root.hash)) {
         throw new Error('VIEWER_DATA_URL must be an HTTP(S) data directory without credentials, query or fragment.');
     }
-    if (!root.pathname.endsWith('/')) root.pathname += '/';
+    if (root && !root.pathname.endsWith('/')) root.pathname += '/';
 
     const server = createServer((request, response) => {
         if (request.method !== 'GET' && request.method !== 'HEAD') {
@@ -16,7 +16,24 @@ export async function startViewerDataProxy(staticPort, dataRoot, port = 0, logEr
             return;
         }
         const path = new URL(request.url, 'http://127.0.0.1').pathname;
-        if (!path.startsWith(dataPrefix)) {
+        if (loadLocalComparison && path === '/macro-benchmarks/data/local-runtime-comparison.json') {
+            Promise.resolve().then(loadLocalComparison).then(data => {
+                if (response.destroyed) return;
+                response.writeHead(200, {
+                    'Content-Type': 'application/json', 'Cache-Control': 'no-store',
+                    'Cross-Origin-Opener-Policy': 'same-origin', 'Cross-Origin-Embedder-Policy': 'require-corp',
+                    'X-Viewer-Data-Source': data.comparisonPath,
+                });
+                response.end(request.method === 'HEAD' ? undefined : JSON.stringify(data));
+            }).catch(error => {
+                if (response.destroyed) return;
+                logError(`Current local comparison failed: ${error.message}`);
+                response.writeHead(500, { 'Content-Type': 'text/plain', 'Cache-Control': 'no-store' });
+                response.end(`Current local comparison is unavailable: ${error.message}. No copied snapshot was substituted.`);
+            });
+            return;
+        }
+        if (!root || !path.startsWith(dataPrefix)) {
             const upstream = httpRequest({
                 hostname: '127.0.0.1', port: staticPort, method: request.method, path: request.url,
                 headers: {

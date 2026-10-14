@@ -45,6 +45,39 @@ node bench/iterate.mjs -- --cold-runs 3 --warm-runs 2
 require another bootstrap; version-2 mixed-mode settings migrate with a notice
 to matching variants.
 
+### Add daily before measurements
+
+After bootstrap or an iteration, add recent clean-main controls:
+
+```bash
+node bench/bootstrap.mjs --measure-recent-days=7
+```
+
+Uses the saved setup and **preserves the current after evidence**, including pooled
+timings. Repeat to reuse valid caches and retry failures; increase `7` to extend
+the range. `--force-before` remeasures requested controls. Existing dates outside
+the range remain.
+
+The window is **today plus N−1 preceding UTC days**. Selection pins local
+`refs/remotes/origin/main` and takes its first-parent snapshot at each UTC day end;
+today stops at command start. Fetch/deepen that ref yourself if needed. No upstream
+fetch occurs, and a stale ref cannot replace newer saved snapshots. Same-commit
+dates may share cached evidence: chart dates are source dates, not capture dates
+or independent timing samples.
+
+Default history uses CoreCLR composite and Mono interpreter controls. Builds run
+sequentially in **two owned reusable clones**, not one clone per date; your after
+checkout is never switched. Native builds and each revision's SDK bootstrap still
+need substantial time/space. Failed or unsupported dates remain gaps, retaining
+logs and successful Mono evidence. Partial history is saved, but any failed date
+makes the command fail; no different variant is substituted.
+
+To collect history during the first bootstrap, add the option to
+`node bench/bootstrap.mjs <runtime-path>`. Supplying a path starts a new bootstrap
+and measures after; omit it to add history only. Change variant, SDK or sampling
+with `iterate` before collecting. Later iterations retain history only for matching
+runtime modes, build overrides and control layout.
+
 ## Prerequisites
 
 Install Node.js 24+, Git, ZIP-capable tar, and the runtime's
@@ -113,8 +146,10 @@ measures after.
 `--force-before` refreshes automatic controls for that invocation. Missing owned
 source clones are recreated; modified or out-of-root clones cause an error.
 Missing evidence invalidates reuse; corrupt records fail explicitly.
-Do not run concurrent comparisons against the same runtime checkout. After a
-forced interruption, remove only `.comparison-lock` once no comparison is running.
+Do not run concurrent comparisons/history collections against the same output or
+runtime checkout. After a forced interruption, remove only `.comparison-lock`
+and/or `.history-lock` once no associated process is running. Successful control
+caches and the saved pinned selection/progress remain available for a retry.
 
 Requested refs in new managed clones stay pending until checkout is confirmed.
 If selection fails, iteration is blocked. Select the intended revision yourself
@@ -125,14 +160,27 @@ confirmed selection can be retried with `iterate`.
 
 ```bash
 node bench/runtime-bench.mjs results
+# Same-base view instead of historical controls:
+node bench/runtime-bench.mjs results --view matched
 # Select another saved comparison:
 node bench/compare-local-runtime.mjs --display-results <comparison.json>
 ```
 
-Bare `--display-results` selects the latest **after measurement timestamp**.
-It reads saved evidence without building, checking prerequisites or querying live
-Git. Removed indexed comparisons warn and skip; surviving corruption remains an
-error.
+Bootstrap and iterate publish one current result through
+`artifacts/local-runtime/current-result.json`. It points to that run's
+`comparison.json`, which references the raw results, passed statuses and hashes.
+The CLI and local viewer load the same verified evidence. `dashboard.json` is an
+export, not a second results source; **Reload local data** updates an open viewer.
+
+Bare `--display-results` uses the current result; `--output` selects the latest
+**after measurement timestamp** within that explicit directory.
+Reading results needs no builds, prerequisite checks or live Git. Broken current
+evidence is an error, not a fallback to an older result.
+
+When the current comparison includes historical evidence references,
+the default summary uses its latest passed historical controls and fixed after
+reference, matching the UI's history view. `--view matched` uses the saved
+same-base pair. The CLI prints the selected view, date and comparison path.
 
 The summary matches default NET12 focus:
 
@@ -170,6 +218,9 @@ shorter default for an existing experiment.
 | `artifacts/local-runtime-comparisons/before/` | Verified control cache records |
 | `artifacts/local-runtime-comparisons/before-source/` | Owned source-clone pointers |
 | `artifacts/local-runtime-comparisons/comparison-*/` | Build logs, `comparison.json`, portable `dashboard.json` |
+| `artifacts/local-runtime-comparisons/before-build-*/` | Historical control build logs |
+| `artifacts/local-runtime-comparisons/history/` | Pinned daily selections/progress and owned reusable historical sources |
+| `artifacts/local-runtime/current-result.json` | Atomic pointer shared by CLI and local preview |
 | `artifacts/local-runtime/<run>/` | Inputs, selected SDK/feed config, manifest, publish, logs and raw/aggregated results |
 
 Havit intermediates use `artifacts/{obj,bin}/HavitBootstrap/<build-label>/`.
@@ -280,6 +331,16 @@ Shipping contains versioned `Microsoft.NETCore.App.Runtime.browser-wasm`
 (CoreCLR) or `Microsoft.NETCore.App.Runtime.Mono.browser-wasm` (Mono), plus
 `Microsoft.NET.Sdk.WebAssembly.Pack` packages.
 
+If changing WebAssembly SDK targets, rebuild that package explicitly from the
+runtime checkout before iterating; CoreCLR's `packs.product` does not package it.
+Use `Rebuild`, because unchanged nuspec timestamps can otherwise retain old content:
+
+```bash
+./.dotnet/dotnet msbuild src/mono/nuget/Microsoft.NET.Sdk.WebAssembly.Pack/Microsoft.NET.Sdk.WebAssembly.Pack.pkgproj \
+  -t:Rebuild -p:Configuration=Release -p:TargetOS=browser \
+  -p:TargetArchitecture=wasm -p:RuntimeFlavor=CoreCLR
+```
+
 Mono AOT also needs the WebAssembly native SDK, MonoAOTCompiler/MonoTargets task
 packages, `mono-aot-cross[.exe]` and provisioned Emscripten. Their versions must
 match the WebAssembly pack. Use `--emsdk` for a nonstandard tool-cache location.
@@ -306,5 +367,10 @@ Mono AOT execution remains unverified by the local validation.
   is not a successful measurement.
 - Cached controls cannot account for current host contention. Refresh them when
   needed and keep SDK, browser, configuration and host conditions comparable.
+- Havit feature-detects `withDotnetReady`, warning before using the legacy ready
+  callback on older runtimes. Initialization still registers imports when a
+  runtime omits ready callbacks; inspect this hook when comparing revisions.
+- Keep the host awake during publish and measurement. After suspension, rerun
+  affected measurements rather than interpreting sleep time as a regression.
 
 Validation results and limits are in [Local runtime validation](local-runtime-validation.md).

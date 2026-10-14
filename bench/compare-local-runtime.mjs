@@ -9,8 +9,8 @@ import { parseArgs } from 'node:util';
 import { normalizeVariant, parseOptions as parsePublishOptions, publish } from './local-runtime.mjs';
 import { runCommand, statusLine } from './local-command.mjs';
 import { checkPrerequisites, probeBrowsers, reportPrerequisites } from './local-prerequisites.mjs';
-import { writeLocalComparisonData } from './local-comparison-data.mjs';
-import { displaySavedResults, findLatestComparison, formatResults, registerComparison } from './local-results.mjs';
+import { loadLocalComparisonData, writeLocalComparisonData } from './local-comparison-data.mjs';
+import { currentComparisonPath, displaySavedResults, findLatestComparison, formatResults, readCurrentComparison, registerComparison } from './local-results.mjs';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cloneOptions = process.platform === 'win32' ? ['--config', 'core.longpaths=true'] : [];
@@ -36,7 +36,7 @@ node bench/compare-local-runtime.mjs [options] [-- <measurement options>]
   --output <directory>        Default: artifacts/${comparisonDirectory}
   --force-before              Rebuild/remeasure even if a valid baseline is cached
   --check-prerequisites       Only report missing tools/dependencies and how to install them
-  --display-results [file]    Print saved numbers; without a file, select the latest measured comparison
+  --display-results [file]    Print saved numbers; without a file, use the shared current result
                              --output can restrict the latest-result search to a directory
   --help                      Show this help
 
@@ -350,14 +350,33 @@ async function baselineCheckout({ output, sessionDir, runtimeRepo, beforeSha, or
     return checkout;
 }
 
-export async function compare(options, {
+export async function compare(options, dependencies = {}) {
+    return await runComparison(options, dependencies);
+}
+
+export async function measureBefore(options, commit, dependencies = {}) {
+    if (!/^[a-f0-9]{40,64}$/i.test(commit)) throw new Error('A historical baseline requires a full pinned commit.');
+    return await runComparison(options, dependencies, commit);
+}
+
+function baselineKey(setup) {
+    // The selection strategy does not change the bits built at a pinned commit.
+    return digest(JSON.stringify({ ...setup, baselineStrategy: 'merge-base', afterVariant: undefined }));
+}
+
+async function runComparison(options, {
     run = runCommand, publishRuntime = publish, getBrowserIdentity = browserIdentity,
     getBenchmarkDigest = benchmarkDigest,
     registerResult = registerComparison,
+    getPreviousComparison = readCurrentComparison,
+    getBaselineCheckout = baselineCheckout,
     onSourceSelected = async () => {},
-} = {}) {
+} = {}, pinnedCommit) {
     const output = resolve(options.output);
     await mkdir(output, { recursive: true });
+    if (!pinnedCommit && existsSync(join(output, '.history-lock'))) {
+        throw new Error(`History collection is running or was interrupted: ${join(output, '.history-lock')}`);
+    }
     const lock = join(output, '.comparison-lock');
     try {
         await mkdir(lock);
@@ -366,6 +385,9 @@ export async function compare(options, {
         throw error;
     }
     try {
+        if (!pinnedCommit && existsSync(join(output, '.history-lock'))) {
+            throw new Error(`History collection is running or was interrupted: ${join(output, '.history-lock')}`);
+        }
         const browsers = await getBrowserIdentity(options.measureArgs);
         const runtimeRepo = resolve(options['runtime-repo'] ?? join(output, `runtime-${options.runtime}`));
         if (!existsSync(runtimeRepo)) {
@@ -380,7 +402,9 @@ export async function compare(options, {
         }
         const afterSha = git(runtimeRepo, ['rev-parse', 'HEAD']);
         await onSourceSelected({ runtimeRepo, commit: afterSha });
-        const beforeSha = git(runtimeRepo, ['merge-base', 'HEAD', 'refs/remotes/origin/main']);
+        const beforeSha = pinnedCommit
+            ? git(runtimeRepo, ['rev-parse', '--verify', `${pinnedCommit}^{commit}`])
+            : git(runtimeRepo, ['merge-base', 'HEAD', 'refs/remotes/origin/main']);
         const origin = sourceRemote(git(runtimeRepo, ['remote', 'get-url', 'origin']));
         let monoBefore;
         if (options['mono-before']) {
@@ -391,7 +415,8 @@ export async function compare(options, {
                 throw new Error('--mono-before requires a measured pristine Mono source build at the same merge-base baseline commit.');
             }
         }
-        console.log(`Before: ${beforeSha} (merge base with local origin/main, separate clean checkout)\nAfter: ${afterSha} plus working-tree changes in ${runtimeRepo}`);
+        console.log(pinnedCommit ? `Historical before: ${beforeSha} (pinned snapshot, separate clean checkout; no after build)`
+            : `Before: ${beforeSha} (merge base with local origin/main, separate clean checkout)\nAfter: ${afterSha} plus working-tree changes in ${runtimeRepo}`);
         let sdkVersion = null;
         if (options.sdk) {
             const sdk = resolve(options.sdk);
@@ -399,7 +424,8 @@ export async function compare(options, {
                 ['--version'], { cwd: sdk, encoding: 'utf8' }).trim();
         }
         const setup = {
-            version: 1, beforeSha, beforeRef: 'refs/remotes/origin/main', baselineStrategy: 'merge-base', origin,
+            version: 1, beforeSha, beforeRef: 'refs/remotes/origin/main',
+            baselineStrategy: pinnedCommit ? 'daily-first-parent' : 'merge-base', origin,
             runtime: options.runtime, variant: options['before-variant'] ?? options.variant,
             afterVariant: options.variant,
             configuration: options.configuration, sdk: options.sdk ? resolve(options.sdk) : null, sdkVersion,
@@ -415,14 +441,21 @@ export async function compare(options, {
             benchmark: await getBenchmarkDigest(),
         };
         const warnings = monoBefore ? await monoBaselineWarnings(monoBefore, { ...setup, monoVariant: 'no-workload' }) : [];
-        const key = digest(JSON.stringify({ ...setup, afterVariant: undefined }));
+        const key = baselineKey(setup);
         const cacheDir = join(output, 'before');
         await mkdir(cacheDir, { recursive: true });
         const cachePath = join(cacheDir, `${key}.json`);
         let before = options['force-before'] ? null : await loadBaseline(cachePath, key);
-        const sessionDir = await mkdtemp(join(output, 'comparison-'));
-        await mkdir(join(sessionDir, 'logs'));
+        let sessionDir;
+        const ensureSession = async () => {
+            if (!sessionDir) {
+                sessionDir = await mkdtemp(join(output, pinnedCommit ? 'before-build-' : 'comparison-'));
+                await mkdir(join(sessionDir, 'logs'));
+            }
+            return sessionDir;
+        };
         const buildAndMeasure = async (checkout, label, runtime = options.runtime, variant = options.variant) => {
+            await ensureSession();
             const buildOptions = { ...options, runtime, variant };
             for (const subset of buildSubsets(buildOptions)) {
                 const args = [subset, '-os', 'browser', '-arch', 'wasm', '-c', buildOptions.configuration,
@@ -437,16 +470,16 @@ export async function compare(options, {
             return measurementRecord(manifest);
         };
         const measureBaseline = async (runtime, variant, label, baselineSetup) => {
-            const baselineKey = digest(JSON.stringify({ ...baselineSetup, afterVariant: undefined }));
-            const path = join(cacheDir, `${baselineKey}.json`);
-            let record = options['force-before'] ? null : await loadBaseline(path, baselineKey);
+            const cacheKey = baselineKey(baselineSetup);
+            const path = join(cacheDir, `${cacheKey}.json`);
+            let record = options['force-before'] ? null : await loadBaseline(path, cacheKey);
             if (record) {
                 console.log(statusLine(`${label} ${beforeSha}: reuse ${record.resultsDir}`, 'CACHED'));
                 return record;
             }
-            const checkout = await baselineCheckout({ output, sessionDir, runtimeRepo, beforeSha, origin, runtime,
+            const checkout = await getBaselineCheckout({ output, sessionDir: await ensureSession(), runtimeRepo, beforeSha, origin, runtime,
                 configuration: options.configuration, run });
-            record = { key: baselineKey, setup: baselineSetup, ...await buildAndMeasure(checkout, label, runtime, variant) };
+            record = { key: cacheKey, setup: baselineSetup, ...await buildAndMeasure(checkout, label, runtime, variant) };
             const temporary = join(sessionDir, `${label}-cache.json`);
             await writeFile(temporary, JSON.stringify(record, null, 2) + '\n');
             await rename(temporary, path);
@@ -461,6 +494,7 @@ export async function compare(options, {
         } else {
             before = await measureBaseline(options.runtime, setup.variant, 'before', setup);
         }
+        if (pinnedCommit) return { before, monoBefore, setup, warnings };
         const after = await buildAndMeasure(runtimeRepo, 'after');
         if (before.sdkVersion !== after.sdkVersion) {
             warnings.push(`Before SDK ${before.sdkVersion} differs from after SDK ${after.sdkVersion}. ` +
@@ -472,12 +506,31 @@ export async function compare(options, {
         }
         const comparisonPath = join(sessionDir, 'comparison.json');
         const comparison = { setup, before, after, monoBefore, runtimeRepo, afterSha, warnings };
+        const previous = await getPreviousComparison();
+        if (previous?.comparison.beforeHistory && previous.comparison.runtimeRepo === runtimeRepo) {
+            const data = await loadLocalComparisonData(previous.comparison);
+            const monoVariant = monoBefore ? JSON.parse(await readFile(monoBefore.manifestPath, 'utf8')).variant : undefined;
+            if (data.after.manifest.variant === options.variant &&
+                data.before.manifest.variant === setup.variant &&
+                data.after.manifest.runtime === options.runtime &&
+                !!data.monoBefore === !!monoBefore &&
+                data.monoBefore?.manifest.variant === monoVariant &&
+                ['configuration', 'sdk', 'tfm', 'aspnetVersion', 'excludedSources']
+                    .every(key => JSON.stringify(previous.comparison.setup[key]) === JSON.stringify(setup[key]))) {
+                comparison.beforeHistory = previous.comparison.beforeHistory;
+                comparison.historySelection = previous.comparison.historySelection;
+                warnings.push('Historical controls are retained from the previous comparison; their recorded SDK, source and sampling remain unchanged.');
+            } else {
+                console.log('Previous before history uses different build settings/runtime modes/controls; not attaching it to this experiment.');
+            }
+        }
         await writeFile(comparisonPath, JSON.stringify(comparison, null, 2) + '\n');
         const dashboardPath = join(sessionDir, 'dashboard.json');
         const data = await writeLocalComparisonData(comparison, dashboardPath);
+        const summary = formatResults(data);
         await registerResult(comparisonPath);
-        console.log(formatResults(data));
-        console.log(`Before results: ${before.resultsDir}\nAfter results: ${after.resultsDir}\nComparison: ${comparisonPath}\nLocal dashboard data: ${dashboardPath}`);
+        console.log(summary);
+        console.log(`Before results: ${before.resultsDir}\nAfter results: ${after.resultsDir}\nCurrent comparison (CLI and local viewer): ${comparisonPath}\nDashboard export (not the current-result source): ${dashboardPath}`);
         return { before, after, comparisonPath };
     } finally {
         await rmdir(lock);
@@ -490,7 +543,7 @@ if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.m
         if (options.help) console.log(help);
         else if (options['display-results'] !== undefined) {
             const path = options['display-results'] ? resolve(options['display-results'])
-                : await findLatestComparison(options.resultsOutput);
+                : options.resultsOutput ? await findLatestComparison(options.resultsOutput) : await currentComparisonPath();
             await displaySavedResults(path);
         }
         else {

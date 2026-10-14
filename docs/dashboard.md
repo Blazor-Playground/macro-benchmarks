@@ -268,18 +268,18 @@ snapshot silently.
 ## Local runtime comparisons
 
 For [local runtime measurements](local-runtime-measurements.md), publish the viewer
-as above, then install the comparison's portable data bundle:
+as above, then start the helper:
 
 ```bash
-mkdir -p artifacts/bench-viewer/wwwroot/data
-cp <comparison-directory>/dashboard.json \
-  artifacts/bench-viewer/wwwroot/data/local-runtime-comparison.json
 node --import ./bench/node_modules/tsx/dist/loader.mjs tests/helpers/serve-viewer.mjs
 ```
 
-Open the printed `/net12-focus` URL with `?local=true`. This explicit mode reads
-only `data/local-runtime-comparison.json`; it does not publish data or change the
-normal SDK/custom-build filters.
+Open the printed `/net12-focus` URL with `?local=true`. The helper serves
+`data/local-runtime-comparison.json` from the CLI's shared
+`artifacts/local-runtime/current-result.json` pointer, verifying statuses and
+hashes on every request. **Reload local data** picks up new results; broken evidence
+is an error, never a copied-snapshot fallback. `dashboard.json` is an explicit
+static/offline export. Local mode does not publish data or change SDK filters.
 
 The local view defaults to mobile startup and desktop for other metrics. Each
 curve identifies its recorded mode: CoreCLR after, Mono before and CoreCLR before.
@@ -287,6 +287,17 @@ The headline compares after with Mono; the smaller line compares CoreCLR after
 with CoreCLR before. Without Mono, the headline uses after vs before.
 Recorded commits, dirty state, SDK/pack/TFM and setup warnings remain visible;
 local experiments are not relabeled as official SDK history.
+
+[Daily bootstrap](local-runtime-measurements.md#add-daily-before-measurements)
+adds `beforeHistory` evidence references to the selected comparison. Before dots
+use UTC source-snapshot dates; after is a dashed fixed reference without repeated
+observation dots. Its capture date, source changes and aggregation count stay
+separate in labels/tooltips. Percentages compare historical controls with that
+fixed reference, not independently measured after runs. **Matched pair** requires
+a clean before at the same base commit and mode.
+
+Failed/pending/running dates are gaps. Failed dates show an error with expandable
+build details. Compatible iterations retain history and update the after reference.
 
 ## Tests
 

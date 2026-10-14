@@ -56,6 +56,14 @@ Measurement:
   --deadline-minutes <n>   Time budget for measure stage (default: 0 = no limit)
   --no-headless            Launch browsers in headed mode
 
+Clean Debug (measure-dev-loop; no publish, installs or tracking updates):
+  --debug-dotnet <path>    Installed dotnet executable (default: context SDK or dotnet on PATH)
+  --debug-runs <n>         Predetermined trials per scenario/runtime (default: 5; fewer = smoke only)
+  --debug-scenarios <list> first-run,incremental-run,rebuild,hot-reload,walkthrough (default: all)
+  --debug-browser-channel <name> Installed browser channel (default: bundled Playwright Chromium)
+  --debug-views-dir <path> Local transform-debug-views output (default: artifacts/debug-views)
+                           Clean dev-loop defaults: empty-blazor,havit-bootstrap; mono,coreclr; desktop/chrome.
+
 Docker:
   --skip-docker-build      Reuse existing Docker images
   --force-docker-build     Rebuild Docker images even if they exist
@@ -117,6 +125,11 @@ const ARG_OPTIONS = {
     'replica': { type: 'string' as const, default: '' },
     'deadline-minutes': { type: 'string' as const, default: '0' },
     'no-headless': { type: 'boolean' as const, default: false },
+    'debug-dotnet': { type: 'string' as const, default: '' },
+    'debug-runs': { type: 'string' as const, default: '5' },
+    'debug-scenarios': { type: 'string' as const, default: 'first-run,incremental-run,rebuild,hot-reload,walkthrough' },
+    'debug-browser-channel': { type: 'string' as const, default: '' },
+    'debug-views-dir': { type: 'string' as const, default: '' },
 
     // Docker
     'skip-docker-build': { type: 'boolean' as const, default: false },
@@ -210,6 +223,7 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
 
     // Parse comma-separated filters
     const stages = parseCommaSeparated(values.stages!, parseStage);
+    const cleanDebug = stages.includes(Stage.MeasureDevLoop);
     const apps = parseCommaSeparated(values.app!, parseApp);
     const presets = parseCommaSeparated(values.preset!, parsePreset);
     const engines = parseCommaSeparated(values.engine!, parseEngine);
@@ -221,18 +235,22 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
 
     // Apply dry-run defaults
     const effectiveApps = apps.length > 0 ? apps
+        : cleanDebug ? [App.EmptyBlazor, App.HavitBootstrap]
         : dryRun
             ? [App.MicroBenchmarks]
             : getDefaultApps(sdkMajor);
     const effectivePresets = presets.length > 0 ? presets
+        : cleanDebug ? [Preset.DevLoop]
         : dryRun
             ? [Preset.DevLoop]
-            : [...Object.values(Preset)];
+            : [...ALL_PRESETS];
     const effectiveEngines = engines.length > 0 ? engines
+        : cleanDebug ? [Engine.Chrome]
         : dryRun
             ? [Engine.Chrome]
             : [...Object.values(Engine)];
     const effectiveProfiles = profiles.length > 0 ? profiles
+        : cleanDebug ? [Profile.Desktop]
         : [...Object.values(Profile)];
     const effectiveRuntimes = runtimes.length > 0 ? runtimes
         : dryRun
@@ -241,6 +259,20 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
 
     const repoRoot = process.env['REPO_ROOT'] ?? loaded.repoRoot ?? findRepoRoot();
     const artifactsDir = process.env['ARTIFACTS_DIR'] ?? loaded.artifactsDir ?? resolve(repoRoot, 'artifacts');
+    const debugRuns = Number(values['debug-runs']);
+    const debugScenarios = values['debug-scenarios']!.split(',').map(value => value.trim());
+    if (!Number.isInteger(debugRuns) || debugRuns < 1 || debugRuns > 50) {
+        throw new Error('--debug-runs must be an integer from 1 to 50');
+    }
+    if (new Set(debugScenarios).size !== debugScenarios.length
+        || debugScenarios.some(value => !['first-run', 'incremental-run', 'rebuild', 'hot-reload', 'walkthrough'].includes(value))) {
+        throw new Error('Invalid or duplicate --debug-scenarios');
+    }
+    if (cleanDebug && (dryRun || effectivePresets.some(p => p !== Preset.DevLoop)
+        || effectiveEngines.some(e => e !== Engine.Chrome) || effectiveProfiles.some(p => p !== Profile.Desktop)
+        || stages.some(stage => ![Stage.MeasureDevLoop, Stage.TransformDebugViews].includes(stage)))) {
+        throw new Error('measure-dev-loop requires dev-loop/desktop/chrome, no --dry-run, and only optional transform-debug-views. Use --debug-runs 1 for a real smoke run.');
+    }
 
     const ctx: BenchContext = {
         // Pipeline control
@@ -282,6 +314,11 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
         deadlineMs: parseIntStrict(values['deadline-minutes']!, 'deadline-minutes') * 60_000 || 0,
         headless: !(values['no-headless'] ?? false),
         chromiumChannel: loaded.chromiumChannel,
+        debugRuns,
+        debugScenarios,
+        debugDotnet: values['debug-dotnet'] || loaded.dotnetBin || 'dotnet',
+        debugBrowserChannel: values['debug-browser-channel'] || '',
+        debugViewsDir: resolve(values['debug-views-dir'] || resolve(artifactsDir, 'debug-views')),
 
         // Docker
         skipDockerBuild: values['skip-docker-build'] ?? false,

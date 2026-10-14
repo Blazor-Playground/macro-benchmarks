@@ -47,6 +47,7 @@ export interface BuildManifestEntry {
     preset: Preset;
     runtime: Runtime;
     compileTimeMs: number;
+    presetRevision?: string;
     integrity: { fileCount: number; totalBytes: number };
     publishDir: string;
 }
@@ -107,6 +108,11 @@ export interface BenchContext {
     headless: boolean;
     /** Local experiments can opt into installed Chrome instead of Playwright's pinned Chromium. */
     chromiumChannel?: 'chrome';
+    debugRuns?: number;
+    debugScenarios?: string[];
+    debugDotnet?: string;
+    debugBrowserChannel?: string;
+    debugViewsDir?: string;
 
     // ── Docker ──
     skipDockerBuild: boolean;

@@ -22,6 +22,7 @@ test('collectBuildShardReports merges successful cells and failures', async () =
                 preset: Preset.DevLoop,
                 runtime: Runtime.Mono,
                 compileTimeMs: 100,
+                presetRevision: 'sdk-debug-defaults-v1',
                 integrity: { fileCount: 1, totalBytes: 2 },
                 publishDir: '/publish/empty',
             }],
@@ -45,6 +46,7 @@ test('collectBuildShardReports merges successful cells and failures', async () =
         );
 
         assert.equal(result.succeeded.length, 1);
+        assert.equal(result.succeeded[0].presetRevision, 'sdk-debug-defaults-v1');
         assert.deepEqual(result.failures, [{
             target: 'mud-blazor/dev-loop',
             errorLines: ['error NU1202: incompatible package'],

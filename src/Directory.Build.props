@@ -11,7 +11,7 @@
 
   <!-- Prevent MSB5022: ILLink/WASM tasks need IBuildEngine callbacks, so
        they must run in-process rather than in the out-of-proc task host. -->
-  <PropertyGroup>
+  <PropertyGroup Condition="'$(BenchmarkPreset)' != 'DevLoop'">
     <MSBuildDisableTaskHost>true</MSBuildDisableTaskHost>
   </PropertyGroup>
 
@@ -23,18 +23,18 @@
   </PropertyGroup>
 
   <!-- disable importmap + fingerprint -->
-  <PropertyGroup Condition="'$(BenchmarkTargetFramework)' == 'net8.0' or '$(BenchmarkTargetFramework)' == 'net9.0' or '$(DashName)' == 'uno-gallery'">
+  <PropertyGroup Condition="'$(BenchmarkPreset)' != 'DevLoop' and ('$(BenchmarkTargetFramework)' == 'net8.0' or '$(BenchmarkTargetFramework)' == 'net9.0' or '$(DashName)' == 'uno-gallery')">
     <WasmFingerprintAssets>false</WasmFingerprintAssets>
     <BlazorFingerprintBlazorJs>false</BlazorFingerprintBlazorJs>
     <OverrideHtmlAssetPlaceholders>false</OverrideHtmlAssetPlaceholders>
   </PropertyGroup>
   <!-- enable importmap + fingerprint -->
-  <PropertyGroup Condition="'$(BenchmarkTargetFramework)' != 'net8.0' and '$(BenchmarkTargetFramework)' != 'net9.0' and '$(DashName)' != 'uno-gallery'">
+  <PropertyGroup Condition="'$(BenchmarkPreset)' != 'DevLoop' and '$(BenchmarkTargetFramework)' != 'net8.0' and '$(BenchmarkTargetFramework)' != 'net9.0' and '$(DashName)' != 'uno-gallery'">
     <WasmFingerprintAssets>true</WasmFingerprintAssets>
     <BlazorFingerprintBlazorJs>true</BlazorFingerprintBlazorJs>
     <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
   </PropertyGroup>
-  <ItemGroup Condition="'$(BenchmarkTargetFramework)' != 'net8.0' and '$(BenchmarkTargetFramework)' != 'net9.0' and '$(DashName)' != 'uno-gallery'">
+  <ItemGroup Condition="'$(BenchmarkPreset)' != 'DevLoop' and '$(BenchmarkTargetFramework)' != 'net8.0' and '$(BenchmarkTargetFramework)' != 'net9.0' and '$(DashName)' != 'uno-gallery'">
     <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />
     <StaticWebAssetFingerprintPattern Include="MJS" Pattern="*.mjs" Expression="#[.{fingerprint}]!" />
   </ItemGroup>

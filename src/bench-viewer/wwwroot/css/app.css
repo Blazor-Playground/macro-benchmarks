@@ -632,6 +632,70 @@ code {
     padding: 18px 24px;
 }
 
+.debug-dashboard .focus-measurement,
+.debug-dashboard .debug-result-status,
+.debug-dashboard .debug-build-detail,
+.debug-dashboard .debug-provenance,
+.debug-dashboard .debug-properties {
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.debug-dashboard .debug-reason,
+.debug-dashboard .debug-properties dd {
+    overflow-wrap: anywhere;
+    font-size: 10px;
+}
+
+.debug-dashboard .debug-result-status {
+    color: var(--focus-muted);
+    margin-bottom: 6px;
+}
+
+.debug-dashboard .debug-properties {
+    max-width: 100%;
+}
+
+.debug-dashboard .debug-metric-group {
+    margin-top: 22px;
+}
+
+.debug-dashboard .debug-metric-group > h2 {
+    font-size: 17px;
+    font-weight: 650;
+    margin: 0 0 4px;
+}
+
+.debug-dashboard .debug-group-description {
+    color: var(--focus-muted);
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 0 0 12px;
+}
+
+.debug-dashboard .debug-boundary {
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.5;
+    margin: -4px 0 10px;
+}
+
+.debug-dashboard .focus-card .focus-measurement {
+    font-size: 12px;
+    line-height: 1.5;
+    margin-top: 0;
+}
+
+.debug-dashboard .debug-build-breakdown {
+    margin: 10px 0;
+    font-size: 11px;
+}
+
+.debug-dashboard .debug-build-breakdown summary {
+    color: var(--focus-muted);
+    cursor: pointer;
+}
+
 .net12-focus .focus-heading {
     margin-bottom: 12px;
 }
@@ -751,7 +815,8 @@ code {
     color: var(--focus-muted);
 }
 
-.net12-focus .focus-card h2 {
+.net12-focus .focus-card h2,
+.debug-dashboard .focus-card h3 {
     font-size: 15px;
     font-weight: 650;
     margin: 0 0 12px;

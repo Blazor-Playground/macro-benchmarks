@@ -102,16 +102,8 @@
         return value switch
         {
             "dev-loop" => "Configuration=Debug\n"
-                + "WasmBuildNative=false\n"
-                + "PublishTrimmed=false\n"
-                + "CompressionEnabled=false\n"
-                + "WasmEnableWebcil=false\n"
-                + "WasmIncludeFullIcuData=true\n"
-                + "WasmEmitSymbolMap=true\n"
-                + "DebugSymbols=true\n"
-                + "MetricsSupport=true\n"
-                + "EventSourceSupport=true\n"
-                + "StackTraceSupport=true",
+                + "SDK-default features; no preset build-property overrides.\n"
+                + "Earlier dev-loop records used tuned settings; historical values retain their original configuration.",
             "no-workload" => "Configuration=Release\n"
                 + "WasmBuildNative=false\n"
                 + "PublishTrimmed=true",

@@ -164,11 +164,15 @@ export function startStaticServer(webRoot: string, port = 0): Promise<StaticServ
  * - wasm: *.wasm files in _framework/
  * - dlls: *.dll files in _framework/
  */
-export async function measureFileSizes(webRoot: string, compressed: boolean): Promise<FileSizes> {
+export async function measureFileSizes(webRoot: string, compressed: boolean | 'auto'): Promise<FileSizes> {
     let diskSizeNative = 0;
     let diskSizeAssemblies = 0;
 
     const entries = await readdir(webRoot, { recursive: true, withFileTypes: true });
+    const useCompressed = compressed === 'auto'
+        ? entries.some(entry => entry.isFile() && (entry.parentPath || entry.path).includes('_framework')
+            && (entry.name.endsWith('.wasm.br') || entry.name.endsWith('.dll.br')))
+        : compressed;
     for (const entry of entries) {
         if (!entry.isFile()) continue;
         const parentPath = entry.parentPath || entry.path;
@@ -180,7 +184,7 @@ export async function measureFileSizes(webRoot: string, compressed: boolean): Pr
         const inFramework = relativePath.includes('_framework');
 
         if (inFramework) {
-            if (compressed) {
+            if (useCompressed) {
                 if (entry.name.startsWith('dotnet.native') && entry.name.endsWith('.wasm.br')) {
                     diskSizeNative += s.size;
                 } else if (entry.name.endsWith('.dll.br') || entry.name.endsWith('.wasm.br')) {

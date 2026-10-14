@@ -2,32 +2,39 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { runInNewContext } from 'node:vm';
 import { test } from 'node:test';
+import { withRuntimeReady } from '../../src/runtime-ready.mjs';
 
 const source = await readFile(new URL('../../src/havit-bootstrap/wwwroot/main.mjs', import.meta.url), 'utf8');
+const executable = source.replace("import { withRuntimeReady } from './runtime-ready.mjs';", '');
 
-async function boot(useBuilderReady) {
+async function boot(useBuilderReady, dedicated = true, apiReadyAtInitialize = true) {
     let clock = 0;
     const registrations = [];
     let initializedAt, readyAt;
+    let apiReady = apiReadyAtInitialize;
     const context = {
         console: { log: () => {} },
+        withRuntimeReady,
         performance: { now: () => ++clock },
-        getDotnetRuntime: () => ({
+        getDotnetRuntime: () => apiReady ? ({
             Module: { HEAPU8: { byteLength: 4096 } },
             setModuleImports: (name, imports) => registrations.push({ name, imports }),
-        }),
+        }) : {},
         Blazor: {
             start: async options => {
-                let callbacks, builderReady;
+                const callbacks = {};
+                let builderReady;
                 options.configureRuntime({
-                    withModuleConfig: config => { callbacks = config; },
-                    withDotnetReady: callback => { builderReady = callback; },
+                    withModuleConfig: config => { Object.assign(callbacks, config); },
+                    ...(dedicated ? { withDotnetReady: callback => { builderReady = callback; } } : {}),
                 });
-                assert.equal(callbacks.onDotnetReady, undefined);
+                if (dedicated) assert.equal(callbacks.onDotnetReady, undefined);
+                else builderReady = callbacks.onDotnetReady;
                 assert.equal(typeof builderReady, 'function');
                 callbacks.onRuntimeInitialized();
                 initializedAt = context.dotnet_created;
                 if (useBuilderReady) {
+                    apiReady = true;
                     builderReady();
                     readyAt = context.dotnet_created;
                 }
@@ -35,7 +42,7 @@ async function boot(useBuilderReady) {
             },
         },
     };
-    await runInNewContext(`(async () => { ${source} })()`, context);
+    await runInNewContext(`(async () => { ${executable} })()`, context);
     return { context, registrations, initializedAt, readyAt };
 }
 
@@ -53,5 +60,20 @@ test('CoreCLR preserves the later dedicated builder-ready timestamp and import r
     assert.equal(registrations.length, 2);
     assert.ok(readyAt > initializedAt);
     assert.equal(context.dotnet_created, readyAt);
+    assert.equal(context.bench_complete, true);
+});
+
+test('older SDKs register the ready callback without losing the runtime-initialized fallback', async () => {
+    const { context, registrations, initializedAt, readyAt } = await boot(true, false);
+    assert.equal(registrations.length, 2);
+    assert.ok(readyAt > initializedAt);
+    assert.equal(context.bench_complete, true);
+});
+
+test('CoreCLR defers imports when its API is not available during native runtime initialization', async () => {
+    const { context, registrations, initializedAt, readyAt } = await boot(true, false, false);
+    assert.equal(initializedAt, undefined);
+    assert.ok(readyAt > 0);
+    assert.equal(registrations.length, 1);
     assert.equal(context.bench_complete, true);
 });

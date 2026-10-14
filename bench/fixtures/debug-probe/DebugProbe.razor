@@ -1,0 +1,22 @@
+@namespace MacroBenchmarks.DebugProbe
+@using System
+@using System.Diagnostics
+@using System.Reflection.Metadata
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+
+<aside id="debug-benchmark-probe" data-version="@BenchmarkEdit.Version()">
+    <span>Benchmark edit: @BenchmarkEdit.Version()</span>
+    <button id="debug-benchmark-counter" @onclick="() => counter++">State: @counter</button>
+</aside>
+
+@code {
+    private int counter;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("debugBenchmark.rendered", BenchmarkEdit.Version(), ProbeState.RuntimeId,
+            ProbeState.Generation, counter, Debugger.IsAttached, MetadataUpdater.IsSupported,
+            Type.GetType("Mono.RuntimeStructs") != null ? "mono" : "coreclr");
+    }
+}

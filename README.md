@@ -33,7 +33,7 @@ Default: `resolve-sdk,download-sdk,build,measure,transform-views`
 
 | Preset | Config | Native | Description |
 |--------|--------|:------:|-------------|
-| dev-loop | Debug | — | Fast inner-loop; no trimming, no compression |
+| dev-loop | Debug | SDK default | Clean Debug; sets only Configuration=Debug |
 | no-workload | Release | — | Baseline release; trimmed, no native build |
 | native-relink | Release | ✓ | Native WASM via Emscripten, no AOT |
 | aot | Release | ✓ | Full Mono AOT — slow startup, fastest execution |
@@ -48,6 +48,11 @@ Default: `resolve-sdk,download-sdk,build,measure,transform-views`
 - **Memory peak** — max JS heap observed during load
 - **Walkthrough timing** — interactive navigation scenarios (pizza, havit, mud)
 - **Microbenchmark ops/sec** — JS interop, JSON parse, exception handling
+
+**NET12 dev-loop** (`/net12-debug`) measures clean-Debug run-to-render,
+hot reload, incremental rebuild and optional walkthroughs using the existing
+`dev-loop` preset. See [metric definitions](docs/metrics.md#clean-debug-developer-loop)
+and [local commands](docs/cli-reference.md#clean-debug).
 
 ## Running locally
 

@@ -1,7 +1,15 @@
 import { RUNTIME_COLORS } from './constants.js';
 import { formatFocusValue, isPositive, signedPercent } from './focus-data.js';
 import { DEFAULT_FOCUS_GRAPH_VISIBILITY } from './focus-selection.js';
-import type { FocusGraphVisibility, FocusMetricReport, FocusPoint, FocusReport, FocusSeries, FocusWindow } from './focus-types.js';
+import type { FocusGraphVisibility, FocusMetricReport, FocusPoint, FocusSeries, FocusWindow } from './focus-types.js';
+
+export type ComparisonPoint = Omit<FocusPoint, 'observation'> & {
+    observation: { sdkVersion: string; day: string };
+};
+export type ComparisonMetric = Pick<FocusMetricReport, 'id' | 'title' | 'unit' | 'divisor' | 'coreclrLabel' | 'monoLabel'
+    | 'comparisonLabel' | 'coreclrBeforeLabel'> & {
+    points: ComparisonPoint[];
+};
 
 export const FOCUS_BAND_OPACITY = 0.2;
 const SERIES: ReadonlyArray<{ key: FocusSeries; label: string; color: string; axis: string }> = [
@@ -10,20 +18,20 @@ const SERIES: ReadonlyArray<{ key: FocusSeries; label: string; color: string; ax
     { key: 'percent', label: 'CoreCLR vs Mono (%)', color: '#7b4bc4', axis: 'comparison' },
 ];
 
-function windowFor(point: FocusPoint, series: FocusSeries): FocusWindow | null {
+function windowFor(point: ComparisonPoint, series: FocusSeries): FocusWindow | null {
     if (series === 'coreclrBefore') return null;
     if (series === 'coreclr') return point.coreclrWindow;
     if (series === 'mono') return point.monoWindow;
     return point.percentWindow;
 }
 
-function rawValue(point: FocusPoint, series: FocusSeries): number | null {
+function rawValue(point: ComparisonPoint, series: FocusSeries): number | null {
     if (series === 'percent') return point.percent;
     const value = point[series] ?? null;
     return isPositive(value) ? value : null;
 }
 
-export function focusChartModel(metric: FocusMetricReport, averaged: boolean, showBands: boolean, visibility: FocusGraphVisibility = DEFAULT_FOCUS_GRAPH_VISIBILITY) {
+export function focusChartModel(metric: ComparisonMetric, averaged: boolean, showBands: boolean, visibility: FocusGraphVisibility = DEFAULT_FOCUS_GRAPH_VISIBILITY) {
     const configurations = metric.coreclrBeforeLabel
         ? [...SERIES, { key: 'coreclrBefore' as const, label: metric.coreclrBeforeLabel, color: '#72a5c4', axis: 'y' }]
         : SERIES;
@@ -117,7 +125,7 @@ export class FocusCharts {
         this.charts.length = 0;
     }
 
-    render(owner: string, report: FocusReport, averaged: boolean, showBands: boolean, visibility: FocusGraphVisibility = DEFAULT_FOCUS_GRAPH_VISIBILITY): void {
+    render(owner: string, report: { metrics: ComparisonMetric[]; comparisonKind?: 'local' }, averaged: boolean, showBands: boolean, visibility: FocusGraphVisibility = DEFAULT_FOCUS_GRAPH_VISIBILITY): void {
         this.dispose();
         if (!visibility.percentage && !visibility.measurements) return;
         for (const metric of report.metrics) {

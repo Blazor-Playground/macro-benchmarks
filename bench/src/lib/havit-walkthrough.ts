@@ -291,6 +291,7 @@ const browserHavitWalkthrough = (args: unknown): Promise<number> => {
  */
 export async function runHavitWalkthrough(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
     const { page, url, timeout: t, verbose = false } = opts;
+    if (!page) throw new Error('The Havit walkthrough requires a browser page');
     const log = verbose ? (msg: string) => debug(`Havit: ${msg}`) : () => { };
 
     try {

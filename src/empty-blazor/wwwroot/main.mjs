@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+import { withRuntimeReady } from './runtime-ready.mjs';
+
 function setManagedReady() {
     globalThis.dotnet_managed_ready = performance.now();
     globalThis.bench_results = {
@@ -30,7 +32,7 @@ async function outer() {
                     console.log("Blazor runtime initialized");
                 }
             });
-            dotnet.withDotnetReady(() => {
+            withRuntimeReady(dotnet, () => {
                 globalThis.dotnet_created = performance.now();
                 const { setModuleImports } = globalThis.getDotnetRuntime(0);
                 setModuleImports('main.mjs', {

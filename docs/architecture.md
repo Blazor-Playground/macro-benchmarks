@@ -31,7 +31,7 @@ artifacts/          Local build outputs, downloaded SDKs, and result JSON
 
 ## Dashboard views
 
-The Blazor viewer has Home, NET12 focus and delta routes, all using the
+The Blazor viewer has Home, NET12 focus, NET12 dev-loop and delta routes, using the
 app-relative `data/views/` root. Home and Focus share left-pane navigation;
 delta reports remain linked from point details. Focus owns separate charts and
 pure comparison/window logic, without changing the benchmark producer.
@@ -40,7 +40,7 @@ sources and tests of the source-built viewer.
 
 ## Pipeline stages
 
-The CLI defines 14 stages, executed in the order specified by `--stages`:
+The CLI executes stages in the order specified by `--stages`:
 
 ### Data enumeration
 | Stage | Purpose |
@@ -66,6 +66,9 @@ The CLI defines 14 stages, executed in the order specified by `--stages`:
 | Stage | Purpose |
 |-------|---------|
 | `measure` | For each (app × preset × engine × profile): start HTTP server, launch browser/CLI, collect all metrics, write result JSON |
+| `measure-dev-loop` | Live clean-Debug build/run/edit/render measurements with isolated source copies and paired runtimes |
+| `transform-debug-views` | Local, provenance-preserving clean-Debug static views without tracking or Git updates |
+| `publish-debug-views` | Explicit Debug publication; recompute the merge against the latest gh-pages state on every retry |
 | `transform-views` | Load result JSON, generate weekly/release view grids for the dashboard |
 | `update-views` | Commit views to gh-pages branch, push |
 
@@ -75,6 +78,33 @@ The CLI defines 14 stages, executed in the order specified by `--stages`:
 | `docker-image` | Build and push CI container images to GHCR |
 | `schedule` | Mark completed SDKs as `.done`, dispatch benchmarks for untested packs |
 | `enumerate-commits` | List dotnet/runtime commits (reserved) |
+
+## Developer-loop pipeline
+
+`measure-dev-loop` owns source snapshots and live build/run/watch processes on
+the same host as Chromium. It uses an installed SDK without publishing,
+tracking or cache updates. Publish and live commands share
+`bench/src/lib/build-settings.ts`; only their measurement lifecycles differ.
+The existing `dev-loop` preset sets `Configuration=Debug`. Shared SDK targeting
+compatibility remains in `versions.props`, separate from feature settings.
+
+Tagged batches retain every attempt, source/configuration provenance and
+render/update evidence. `transform-debug-views` writes immutable generations
+under `data/views/debug/`, separate from scalar publish grids.
+`publish-debug-views` requires a clean dedicated `gh-pages` checkout and uses
+`commitAndPushWithRetry`: each retry pulls and recomputes the batch union.
+The manual workflow pairs runtimes on one runner; publication is opt-in.
+
+The `/net12-debug` page owns a separate loader/session and typed C#/TS reports,
+sharing navigation and the chart renderer, not publish cohorts or timing rules.
+See [metrics](metrics.md#clean-debug-developer-loop) and [dashboard](dashboard.md).
+
+### Shared app startup
+
+Blazor entrypoints use `src/runtime-ready.mjs`: the dedicated builder callback
+when available, otherwise an explicitly reported older-SDK callback. MSBuild
+stages it into each app's generated `wwwroot` before static-asset discovery.
+Havit registers imports only after the runtime API is available.
 
 ## BenchContext
 
@@ -106,6 +136,7 @@ The entrypoint script symlinks pre-installed `node_modules` from `/opt/bench-dep
 | `benchmark.yml` | Daily 04:00 UTC, PR, manual | resolve → build → measure (matrix: app × preset) → aggregate → schedule |
 | `docker-build.yml` | Weekly, push to `docker/`/`bench/`, manual | Build and push container images to GHCR |
 | `schedule.yml` | Manual | Enumerate packs → dispatch benchmarks for untested SDK versions |
+| `debug-benchmark.yml` | Manual | Paired dev-loop measurement → artifacts → optional publication |
 
 ### benchmark.yml job flow
 

@@ -100,7 +100,10 @@ async function loadResults(ctx: BenchContext): Promise<LoadedResult[]> {
 
     for (const { path: filepath, filename } of resultFiles) {
         const raw = await readFile(filepath, 'utf-8');
+        if (filename.startsWith('debug-')) continue;
         const data: ResultFile = JSON.parse(raw);
+        if (data && typeof data === 'object' && 'kind' in data
+            && (data.kind === 'debug-dev-loop' || data.kind === 'debug-view')) continue;
         const m = data.meta;
 
         requireField(m.runtimeGitHash, 'runtimeGitHash', filename);

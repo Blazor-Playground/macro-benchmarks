@@ -9,6 +9,11 @@ export interface MetricInfo {
 }
 
 export const METRICS: Record<MetricKey, MetricInfo> = {
+    [MetricKey.DebugFirstRun]: { displayName: 'Debug first run to first render', unit: 'ms', category: 'time' },
+    [MetricKey.DebugIncrementalRun]: { displayName: 'Debug incremental run to first render', unit: 'ms', category: 'time' },
+    [MetricKey.DebugHotReload]: { displayName: 'Debug hot reload edit to render', unit: 'ms', category: 'time' },
+    [MetricKey.DebugRebuild]: { displayName: 'Debug rebuild edit to render', unit: 'ms', category: 'time' },
+    [MetricKey.DebugIncrementalBuild]: { displayName: 'Debug incremental build', unit: 'ms', category: 'time' },
     [MetricKey.CompileTime]: { displayName: 'Compile Time', unit: 'ms', category: 'time' },
     [MetricKey.DiskSizeNative]: { displayName: 'Disk Size (WASM)', unit: 'bytes', category: 'size' },
     [MetricKey.DiskSizeAssemblies]: { displayName: 'Disk Size (DLLs)', unit: 'bytes', category: 'size' },

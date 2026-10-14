@@ -1,0 +1,73 @@
+<article class="focus-card @(!GraphsEnabled ? "focus-summary-only" : "")" data-metric="@Metric.Id" data-status="@Metric.Status">
+    <div class="focus-card-summary">
+        <h3>@Metric.Title</h3>
+        <p class="debug-boundary">@Metric.Boundary</p>
+        <p class="focus-measurement">@Metric.Description</p>
+        @if (Metric.Comparison is { } comparison)
+        {
+            <div class="focus-kpi @comparison.Tone" aria-label="@($"{Metric.Title}: {comparison.Magnitude} {comparison.Verdict}")">
+                <span class="focus-percentage">@comparison.Magnitude</span><span class="focus-verdict">@comparison.Verdict</span>
+            </div>
+        }
+        <dl class="focus-values">
+            @foreach (var (label, result) in new[] { ("CoreCLR Debug", Metric.Coreclr), ("Mono Debug", Metric.Mono) })
+            {
+                <div><dt>@label</dt><dd>@Metric.Format(result?.ValueMs)</dd></div>
+                <div class="debug-result-status">
+                    @(result == null ? "Not collected" : $"{result.Status}: {result.Successful}/{result.Requested} successful trials")
+                    @if (result?.ValueMs != null) { <span> (median)</span> }
+                </div>
+                @if (!string.IsNullOrEmpty(result?.Reason)) { <p class="debug-reason">@result.Reason</p> }
+            }
+        </dl>
+        @if (Metric.Id == "rebuild")
+        {
+            <details class="debug-build-breakdown">
+                <summary>Build time breakdown</summary>
+                <p class="debug-build-detail"><strong>Build only:</strong> CoreCLR @Metric.Format(Metric.BuildCoreclr?.ValueMs);
+                    Mono @Metric.Format(Metric.BuildMono?.ValueMs). Part of the loop above, not a separate end-to-end metric.</p>
+            </details>
+        }
+        @if (Metric.Comparison == null) { <p class="focus-summary-note">@Metric.Message</p> }
+        @if (Metric.OlderPair) { <p class="focus-older-pair">Latest complete pair; newer batch is incomplete</p> }
+        @if (Metric.Smoke || (!Metric.Controlled && !Metric.LocalPaired))
+        {
+            <p class="debug-result-status">@(Metric.Smoke ? "Smoke run: not a performance comparison." : "No controlled paired-runner result.")</p>
+        }
+        else if (Metric.LocalPaired)
+        {
+            <p class="debug-result-status">Full local paired run · same host, not CI or hardware-isolated</p>
+        }
+        @if (Metric.Sdk != null)
+        {
+            <p class="debug-provenance">SDK @Metric.Sdk · SDK day @Metric.Day<br />Batch started @Metric.MeasuredAt; per-trial UTC times are in the raw evidence.</p>
+            <details class="debug-properties">
+                <summary>Evaluated Debug settings</summary>
+                @foreach (var (label, result) in new[] { ("CoreCLR", Metric.Coreclr), ("Mono", Metric.Mono) })
+                {
+                    <strong>@label</strong>
+                    <dl>@foreach (var property in result?.Properties ?? new()) { <dt>@property.Key</dt><dd>@(property.Value.Length == 0 ? "(SDK default / unset)" : property.Value)</dd> }</dl>
+                }
+            </details>
+        }
+    </div>
+    @if (GraphsEnabled)
+    {
+        <div class="focus-card-chart">
+            @if (Metric.Points.Any(p => (Measurements && (p.Mono > 0 || p.Coreclr > 0)) || (Percentage && p.Percent != null)))
+            {
+                <div class="focus-plot"><canvas id="@($"focus-{Owner}-{Metric.Id}")" role="img"
+                    aria-label="@($"{Metric.Title}. Recorded median durations in {Metric.Unit}; SDK observation order, not elapsed time.")"></canvas></div>
+            }
+            else { <div class="focus-empty"><strong>No comparable history</strong><p>@Metric.Message</p></div> }
+        </div>
+    }
+</article>
+
+@code {
+    [Parameter, EditorRequired] public DebugMetricReport Metric { get; set; } = new();
+    [Parameter] public string Owner { get; set; } = "";
+    [Parameter] public bool Measurements { get; set; }
+    [Parameter] public bool Percentage { get; set; }
+    private bool GraphsEnabled => Measurements || Percentage;
+}

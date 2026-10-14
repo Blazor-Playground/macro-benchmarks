@@ -112,7 +112,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         if (ctx.verbose) debug(`webRoot: ${webRoot}, isInternal: ${isInternal}`);
 
         // Measure file sizes (once per app×preset, shared across engines)
-        const fileSizes = isInternal ? null : await measureFileSizes(webRoot, entry.preset !== Preset.DevLoop);
+        const fileSizes = isInternal ? null : await measureFileSizes(webRoot, entry.preset === Preset.DevLoop ? 'auto' : true);
         if (ctx.verbose && fileSizes) {
             debug(`File sizes — native: ${fileSizes.diskSizeNative}, assemblies: ${fileSizes.diskSizeAssemblies}`);
         }
@@ -184,6 +184,7 @@ function buildMeta(
         ...ctx.sdkInfo,
         runtime: entry.runtime,
         preset: entry.preset,
+        ...(entry.presetRevision ? { presetRevision: entry.presetRevision } : {}),
         profile,
         engine,
         app: entry.app,

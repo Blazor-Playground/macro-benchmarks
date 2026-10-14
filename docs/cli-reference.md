@@ -59,6 +59,18 @@ Comma-separated lists that restrict which combinations get built and measured.
 | `--warm-runs <n>` | `5` | Number of warm/cold reload iterations |
 | `--no-headless` | `false` | Launch browsers in headed mode (for debugging) |
 
+### Live developer-loop measurement
+
+These options apply to `measure-dev-loop`, not a separate build flavor.
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--debug-dotnet <path>` | Context SDK or `dotnet` on PATH | Installed SDK executable |
+| `--debug-runs <n>` | `5` | Fixed trials per runtime/scenario; fewer than five are smoke-only |
+| `--debug-scenarios <list>` | All | `first-run,incremental-run,rebuild,hot-reload,walkthrough` |
+| `--debug-browser-channel <name>` | Bundled Chromium | Use `chrome` for installed Chrome |
+| `--debug-views-dir <path>` | `artifacts/debug-views` | Local transformed-view destination |
+
 ### Docker
 
 | Flag | Description |
@@ -90,6 +102,50 @@ Comma-separated lists that restrict which combinations get built and measured.
 | `--artifacts-dir <path>` | CI artifacts input directory for result aggregation |
 
 ## Examples
+
+### Clean Debug
+
+Use an installed SDK12, Node 24+, root and `bench/` dependencies, and Chromium or
+Chrome. These stages restore app dependencies outside timing, without SDK/workload
+installation, publishing or tracking/cache/Git updates.
+
+```bash
+export PATH="/opt/homebrew/bin:$PATH"
+bench/node_modules/.bin/tsx bench/src/main.ts \
+  --stages measure-dev-loop,transform-debug-views \
+  --debug-dotnet /absolute/path/to/dotnet \
+  --app empty-blazor --preset dev-loop --runtime mono,coreclr \
+  --debug-runs 1 --debug-browser-channel chrome
+```
+
+One trial is correctness smoke; use `--debug-runs 5` for a full batch.
+Defaults are `dev-loop`, both supported apps, Mono/CoreCLR and desktop Chromium.
+`--sdk-version` can enforce an exact installed version. Full local pairs remain
+labeled shared-host/non-CI. Avoid overlapping benchmarks, builds or tests.
+
+`--dry-run` and combinations with install, tracking, publish or legacy transform
+stages are rejected. `--timeout` bounds waits. Cancellation retains trial evidence
+and closes only owned processes.
+
+Raw results are `artifacts/debug-results/debug-*.json`. To inspect failures,
+transform the retained records separately:
+
+```bash
+export PATH="/opt/homebrew/bin:$PATH"
+bench/node_modules/.bin/tsx bench/src/main.ts --stages transform-debug-views \
+  --artifacts-dir artifacts/debug-results --debug-views-dir artifacts/debug-views
+```
+
+Publication is separate: `--stages publish-debug-views --artifacts-dir <raw-dir>`
+requires a clean `gh-pages/` checkout tracking `origin/gh-pages` and changes only
+`data/views/debug/`. Do not generate files in that checkout first.
+`--dry-run` skips publication. Retries pull and recompute the batch union.
+
+The manual **Clean Debug benchmark** workflow retains evidence on failure.
+It defaults to one-trial smoke with publication off; opt-in publication requires
+five trials. No collection schedule is added.
+
+### Other pipeline examples
 
 ```powershell
 # Full dry run — validates pipeline without building or measuring

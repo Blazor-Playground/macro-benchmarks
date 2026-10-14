@@ -35,7 +35,7 @@ async function outer() {
                     console.log("Blazor runtime initialized");
                 }
             });
-            dotnet.withDotnetReady(() => {
+            const ready = () => {
                 globalThis.dotnet_created = performance.now();
                 const { setModuleImports } = globalThis.getDotnetRuntime(0);
                 setModuleImports('chart-interop.js', chartInterop);
@@ -45,7 +45,13 @@ async function outer() {
                         setManagedReady
                     }
                 });
-            });
+            };
+            if (typeof dotnet.withDotnetReady === 'function') {
+                dotnet.withDotnetReady(ready);
+            } else {
+                console.warn('Viewer SDK uses the legacy ready callback.');
+                dotnet.withModuleConfig({ onDotnetReady: ready });
+            }
         }
     });
 }

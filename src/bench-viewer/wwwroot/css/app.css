@@ -702,6 +702,7 @@ code {
 }
 
 .net12-focus .focus-legend .coreclr { border-color: #4285f4; }
+.net12-focus .focus-legend .reference { border-top-style: dashed; }
 .net12-focus .focus-legend .mono { border-color: #f4b400; }
 .net12-focus .focus-legend .percent { border-color: #7b4bc4; border-top-style: dashed; }
 

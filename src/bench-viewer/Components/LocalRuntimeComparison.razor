@@ -12,6 +12,14 @@
             <DashboardSidebarHeader Active="focus" />
             <h2>Local before / after</h2>
             <p class="focus-selection-note">Blazor Havit · @(metadata?.Runtime ?? "Loading")</p>
+            @if (metadata?.HasHistory == true)
+            {
+                <label for="local-focus-view">Comparison view</label>
+                <select id="local-focus-view" value="@view" @onchange="ChangeView" disabled="@loading">
+                    <option value="history">Before history + fixed after reference</option>
+                    <option value="matched">Matched pair (same base commit)</option>
+                </select>
+            }
             <label for="local-focus-profile">Startup profile</label>
             <select id="local-focus-profile" value="@profile" @onchange="ChangeProfile" disabled="@loading">
                 @foreach (var available in metadata?.Profiles ?? ["desktop", "mobile"])
@@ -33,8 +41,13 @@
                     <dl>
                         <div><dt>Before mode</dt><dd>@metadata.BeforeLabel</dd></div>
                         <div><dt>After mode</dt><dd>@metadata.AfterLabel</dd></div>
+                        @if (metadata.ComparisonPath.Length > 0)
+                        {
+                            <div><dt>Saved result</dt><dd title="@metadata.ComparisonPath">@metadata.ComparisonPath</dd></div>
+                        }
                         <div><dt>Before source</dt><dd>@Short(metadata.BeforeCommit) · @SourceState(metadata.BeforeDirty)</dd></div>
                         <div><dt>After source</dt><dd>@Short(metadata.AfterCommit) · @SourceState(metadata.AfterDirty)</dd></div>
+                        <div><dt>After measured</dt><dd>@MeasuredDay · UTC</dd></div>
                         <div><dt>Before SDK</dt><dd>@metadata.BeforeSdk</dd></div>
                         <div><dt>After SDK</dt><dd>@metadata.AfterSdk</dd></div>
                         <div><dt>Runtime packs</dt><dd>@metadata.BeforePack / @metadata.AfterPack</dd></div>
@@ -62,9 +75,29 @@
                     @(string.IsNullOrEmpty(metadata?.Note) ? "Explicit before/after measurements; no data is published online." : metadata.Note)
                 </span>
             </div>
+            @if (metadata?.IsHistory == true)
+            {
+                <div class="focus-provenance" data-fixed-reference="true">
+                    <span><strong>Dashed after reference · measured @MeasuredDay (UTC).</strong>
+                        Base @Short(metadata.AfterCommit)@if (metadata.AfterDirty == true) { <span> + local changes</span> }.
+                        @if (metadata.AfterRounds is { } rounds) { <span>Pooled from @rounds rounds.</span> }
+                        Before dots are source snapshots, not repeats of this after tree.
+                    </span>
+                </div>
+            }
             @foreach (var warning in metadata?.Warnings ?? [])
             {
-                <p class="focus-error" role="alert">@warning</p>
+                @if (warning.Contains('\n'))
+                {
+                    <details class="focus-error" role="alert">
+                        <summary>@warning[..warning.IndexOf('\n')]</summary>
+                        <pre style="white-space:pre-wrap;overflow-wrap:anywhere">@warning[(warning.IndexOf('\n') + 1)..]</pre>
+                    </details>
+                }
+                else
+                {
+                    <p class="focus-error" role="alert">@warning</p>
+                }
             }
             <div class="focus-chart-toolbar">
                 <div>
@@ -81,7 +114,7 @@
                 </div>
                 <div class="focus-legend">
                     <span><i class="mono"></i>@(metadata?.HasMonoReference == true ? metadata.MonoLabel : metadata?.BeforeLabel)</span>
-                    <span><i class="coreclr"></i>@metadata?.AfterLabel</span>
+                    <span><i class="coreclr @(metadata?.IsHistory == true ? "reference" : "")"></i>@metadata?.AfterLabel</span>
                     @if (metadata?.HasMonoReference == true)
                     {
                         <span><i style="background:#72a5c4"></i>@metadata?.BeforeLabel</span>
@@ -99,7 +132,7 @@
                         ShowPercentage="@showPercentage" ShowMeasurements="@showMeasurements" Loading="@loading" LoadError="@error" />
                 }
             </div>
-            <p class="focus-coverage">One local before/after pair, not SDK history. Build time is Havit publish time, excluding runtime source builds and restore.
+            <p class="focus-coverage">Local source measurements, not published SDK history. Build time is Havit publish time, excluding runtime source builds and restore.
                 Green/red marks the direction of change, not statistical significance. Retain the raw result samples and inspect the startup hook before interpreting a validation regression.</p>
         </main>
     </div>
@@ -108,6 +141,7 @@
 @code {
     private string owner = "";
     private string profile = "mobile";
+    private string view = "history";
     private bool loading = true;
     private bool disposed;
     private long generation;
@@ -140,7 +174,7 @@
         try
         {
             if (owner.Length == 0) owner = FocusInterop.Create(Navigation.BaseUri);
-            var json = await FocusInterop.LoadLocal(owner, Navigation.BaseUri, profile);
+            var json = await FocusInterop.LoadLocal(owner, Navigation.BaseUri, profile, view);
             if (disposed || request != generation) return;
             var result = JsonSerializer.Deserialize(json, FocusJsonContext.Default.LocalFocusLoadResult)
                 ?? throw new JsonException("The local comparison response was empty.");
@@ -177,6 +211,19 @@
         await Load();
     }
 
+    private async Task ChangeView(ChangeEventArgs args)
+    {
+        var selected = args.Value?.ToString();
+        if (selected is not ("history" or "matched"))
+        {
+            Fail(new ArgumentException("Select before history or a matched pair."));
+            return;
+        }
+        view = selected;
+        await Load();
+    }
+
+    private string MeasuredDay => metadata?.AfterMeasuredAt is { Length: >= 10 } value ? value[..10] : "unknown";
     private void ToggleMeasurements(ChangeEventArgs args) { showMeasurements = args.Value is true; renderCharts = report != null; }
     private void TogglePercentage(ChangeEventArgs args) { showPercentage = args.Value is true; renderCharts = report != null; }
     private void ReturnToPublished() => Navigation.NavigateTo("net12-focus", forceLoad: true);

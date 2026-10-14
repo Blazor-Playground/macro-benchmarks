@@ -51,7 +51,12 @@ async function outer() {
                     registerBenchmarkImports();
                 }
             });
-            dotnet.withDotnetReady(registerBenchmarkImports);
+            if (typeof dotnet.withDotnetReady === 'function') {
+                dotnet.withDotnetReady(registerBenchmarkImports);
+            } else {
+                console.warn('Local runtime builder lacks withDotnetReady; using the legacy ready callback.');
+                dotnet.withModuleConfig({ onDotnetReady: registerBenchmarkImports });
+            }
         }
     });
 }

@@ -16,7 +16,7 @@ internal static partial class FocusInterop
     internal static partial Task<string> Load(string id, string app, string range, string flavor, string startupProfile, bool force);
 
     [JSImport("loadLocalFocusReport", ModuleName)]
-    internal static partial Task<string> LoadLocal(string id, string baseUri, string startupProfile);
+    internal static partial Task<string> LoadLocal(string id, string baseUri, string startupProfile, string view);
 
     [JSImport("renderFocusCharts", ModuleName)]
     internal static partial void Render(string id, bool averaged, bool bands, bool percentage, bool measurements);

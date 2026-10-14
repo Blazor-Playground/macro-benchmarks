@@ -93,3 +93,28 @@ test('static viewer navigation and headers stay local while invalid data request
     await assert.rejects(startViewerDataProxy(1, 'file:///data/'), /HTTP/);
     await assert.rejects(startViewerDataProxy(1, 'https://user:secret@example.invalid/data/'), /without credentials/);
 });
+
+test('local comparison is loaded on every request and never uses an independent copied bundle', async t => {
+    const local = await serve(t, (_request, response) => { response.end('stale copied viewer data'); });
+    let current = { comparisonPath: '/saved/first/comparison.json', after: { cold: 5000 } };
+    const errors = [];
+    let failure;
+    const proxy = await startViewerDataProxy(local.port, undefined, 0, message => errors.push(message), () => {
+        if (failure) throw failure;
+        return current;
+    });
+    t.after(() => proxy.close());
+    const endpoint = `http://127.0.0.1:${proxy.port}/macro-benchmarks/data/local-runtime-comparison.json`;
+    let response = await fetch(endpoint);
+    assert.deepEqual(await response.json(), current);
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+    assert.equal(response.headers.get('x-viewer-data-source'), current.comparisonPath);
+    current = { comparisonPath: '/saved/second/comparison.json', after: { cold: 4663 } };
+    response = await fetch(endpoint);
+    assert.deepEqual(await response.json(), current);
+    failure = new Error('Changed measurement hash');
+    response = await fetch(endpoint);
+    assert.equal(response.status, 500);
+    assert.match(await response.text(), /Changed measurement hash.*No copied snapshot was substituted/);
+    assert.equal(errors.length, 1);
+});

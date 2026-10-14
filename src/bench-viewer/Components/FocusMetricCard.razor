@@ -23,6 +23,10 @@
                     CoreCLR change vs its before: <span class="@secondary.Tone">@secondary.Magnitude @secondary.Verdict</span>
                 </p>
             }
+            @if (Metric.FixedReference != null)
+            {
+                <p class="focus-rolling-caption">Fixed after reference vs latest historical baseline; not a matched-tree pair.</p>
+            }
             @if (Metric.AverageComparison is { } average && Metric.Latest?.PercentWindow is { } window)
             {
                 <p class="focus-rolling-caption" title="@AverageDescription(average, window)" aria-label="@AverageDescription(average, window)"
@@ -32,7 +36,7 @@
                 </p>
             }
             <dl class="focus-values">
-                <div><dt><span class="focus-dot coreclr"></span>@Metric.CoreclrLabel</dt><dd>@Metric.FormatValue(Metric.Latest?.Coreclr)</dd></div>
+                <div><dt><span class="focus-dot coreclr"></span>@Metric.CoreclrLabel</dt><dd>@Metric.FormatValue(Metric.FixedReference is { } reference ? reference.Value : Metric.Latest?.Coreclr)</dd></div>
                 <div><dt><span class="focus-dot mono"></span>@Metric.MonoLabel</dt><dd>@Metric.FormatValue(Metric.Latest?.Mono)</dd></div>
                 @if (IsLocalComparison && Metric.CoreclrBeforeLabel.Length > 0)
                 {
@@ -104,11 +108,13 @@
         || (ShowMeasurements && Metric.HasSeries);
     private string ChartDescription =>
         $"{Metric.Title}. {Metric.Description} "
-        + (IsLocalComparison ? "Local before/after pair. " : $"History: {(Averaged ? "trailing means of up to five SDK observations" : "raw SDK observations")}. ")
+        + (Metric.FixedReference != null ? "Historical before source snapshots with a separately measured dashed after reference, without after observation markers. "
+            : IsLocalComparison ? "Local before/after pair. " : $"History: {(Averaged ? "trailing means of up to five SDK observations" : "raw SDK observations")}. ")
         + (ShowMeasurements ? $"{Metric.CoreclrLabel} and {Metric.MonoLabel} in {Metric.Unit}. " : "")
         + (IsLocalComparison && Metric.CoreclrBeforeLabel.Length > 0 ? $"{Metric.CoreclrBeforeLabel} is a third measured reference; CoreCLR change is secondary. " : "")
         + (ShowPercentage ? $"{(IsLocalComparison ? Metric.ComparisonLabel : "CoreCLR vs Mono")} on the signed percent axis with zero parity. " : "")
-        + (IsLocalComparison ? "Hover a series for recorded values." : "SDK build order, not elapsed time. Hover a series for raw values and window counts.");
+        + (Metric.FixedReference != null ? "Hover before points for their source day; the fixed reference retains its own measured date and tree."
+            : IsLocalComparison ? "Hover a series for recorded values." : "SDK build order, not elapsed time. Hover a series for raw values and window counts.");
 
     private static string AverageDescription(FocusComparison comparison, FocusWindow window) =>
         $"Rolling comparison: {comparison.Magnitude} {comparison.Verdict}. {window.Count} of 5 available consecutive SDK measurements, "

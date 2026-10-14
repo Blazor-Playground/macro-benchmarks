@@ -6,23 +6,27 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { brotliCompressSync, gzipSync } from 'node:zlib';
 import { fileSizes, parseOptions, startServer, summarize } from './bench.mjs';
-import { findPackage, localNugetConfig, localProperties, verifyLocalPackages } from './local-runtime.mjs';
+import { findPackage, localNugetConfig, localProperties, runtimeBuildCommands, verifyLocalPackages } from './local-runtime.mjs';
 
-test('local runtime is forwarded to Release, Debug and verify without changing default publish arguments', () => {
+test('local command runs both configurations and requires a runtime checkout', () => {
     assert.deepEqual(parseOptions(['-p:SomeOption=true']), {
-        debug: false, once: false, verify: false, runtimeRepo: undefined, publishArgs: ['-p:SomeOption=true'],
+        debug: false, once: false, local: false, runtimeRepo: undefined, publishArgs: ['-p:SomeOption=true'],
     });
-    for (const args of [
-        ['--runtime-repo', '/runtime'],
-        ['--debug', '--runtime-repo', '/runtime'],
-        ['--verify', '--runtime-repo', '/runtime'],
-    ]) {
-        const options = parseOptions(args);
-        assert.equal(options.runtimeRepo, '/runtime');
-        assert.deepEqual(options.publishArgs, []);
+    assert.deepEqual(parseOptions(['--local', '--runtime-repo', '/runtime']), {
+        debug: false, once: false, local: true, runtimeRepo: '/runtime', publishArgs: [],
+    });
+    for (const configuration of ['Debug', 'Release']) {
+        const commands = runtimeBuildCommands('/runtime', configuration);
+        assert.deepEqual(commands.map(({ args }) => args.at(process.platform === 'win32' ? 3 : 0)),
+            ['clr+libs+host', 'packs.product']);
+        for (const { args } of commands) {
+            assert.deepEqual(args.slice(-7),
+                ['-os', 'browser', '-arch', 'wasm', '-c', configuration, '/p:RuntimeFlavor=CoreCLR']);
+        }
     }
     assert.throws(() => parseOptions(['--runtime-repo']), /requires a dotnet\/runtime checkout/);
-    assert.throws(() => parseOptions(['--verify', '--debug']), /already runs Debug and Release/);
+    assert.throws(() => parseOptions(['--local']), /requires --runtime-repo/);
+    assert.throws(() => parseOptions(['--local', '--debug', '--runtime-repo', '/runtime']), /already runs Debug and Release/);
     assert.throws(() => parseOptions(['--runtime-repo', '/runtime', '-p:RuntimePackDir=/old']), /not supported/);
 });
 

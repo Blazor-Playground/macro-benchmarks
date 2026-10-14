@@ -6,8 +6,9 @@
     "scripts": {
         "start": "node bench.mjs",
         "debug": "node bench.mjs --debug",
+        "local": "node bench.mjs --local",
         "test": "node --test bench.test.mjs",
-        "verify": "node bench.mjs --verify"
+        "verify": "npm test && node bench.mjs --debug --once && node bench.mjs --once"
     },
     "license": "MIT",
     "engines": {

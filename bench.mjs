@@ -5,7 +5,7 @@ import { createServer } from 'node:http';
 import { dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
-import { prepareLocalRuntime, verifyLocalPackages } from './local-runtime.mjs';
+import { prepareLocalRuntime, runtimeBuildCommands, verifyLocalPackages } from './local-runtime.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const artifacts = join(root, 'artifacts');
@@ -25,7 +25,7 @@ function run(command, args, options = {}) {
 }
 
 export function parseOptions(args) {
-    const options = { debug: false, once: false, verify: false, runtimeRepo: undefined, publishArgs: [] };
+    const options = { debug: false, once: false, local: false, runtimeRepo: undefined, publishArgs: [] };
     for (let i = 0; i < args.length; i++) {
         const arg = args[i];
         if (arg === '--runtime-repo' || arg.startsWith('--runtime-repo=')) {
@@ -36,16 +36,32 @@ export function parseOptions(args) {
             }
         } else if (arg === '--debug') options.debug = true;
         else if (arg === '--once') options.once = true;
-        else if (arg === '--verify') options.verify = true;
+        else if (arg === '--local') options.local = true;
         else options.publishArgs.push(arg);
     }
-    if (options.verify && (options.debug || options.once)) {
-        throw new Error('--verify already runs Debug and Release once.');
+    if (options.local && (!options.runtimeRepo || options.debug || options.once)) {
+        throw new Error('--local requires --runtime-repo and already runs Debug and Release once.');
     }
     if (options.runtimeRepo && options.publishArgs.length) {
         throw new Error('Extra publish arguments are not supported with --runtime-repo.');
     }
     return options;
+}
+
+function runtimeCheckout(checkout) {
+    const runtimeRepo = resolve(checkout);
+    if (!existsSync(join(runtimeRepo, '.git')) ||
+        !existsSync(join(runtimeRepo, windows ? 'build.cmd' : 'build.sh'))) {
+        throw new Error('--runtime-repo must point to a dotnet/runtime Git checkout with its build script.');
+    }
+    return runtimeRepo;
+}
+
+function buildRuntime(checkout, configuration) {
+    const runtimeRepo = runtimeCheckout(checkout);
+    for (const { command, args } of runtimeBuildCommands(runtimeRepo, configuration)) {
+        run(command, args, { cwd: runtimeRepo, env: { DOTNET_ROOT: join(runtimeRepo, '.dotnet') } });
+    }
 }
 
 async function setup(runtimeRepo) {
@@ -270,9 +286,10 @@ async function measure(url, buildInfo) {
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
     const options = parseOptions(process.argv.slice(2));
-    if (options.verify) run(process.execPath, ['--test', join(root, 'bench.test.mjs')]);
+    if (options.local) runtimeCheckout(options.runtimeRepo);
     await setup(options.runtimeRepo);
-    for (const configuration of options.verify ? ['Debug', 'Release'] : [options.debug ? 'Debug' : 'Release']) {
+    for (const configuration of options.local ? ['Debug', 'Release'] : [options.debug ? 'Debug' : 'Release']) {
+        if (options.local) buildRuntime(options.runtimeRepo, configuration);
         const buildInfo = await build(options.publishArgs, configuration, options.runtimeRepo);
         const server = await startServer(webRoot, 5000);
         let measured = false;
@@ -280,9 +297,9 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
             await measure(server.url, buildInfo);
             measured = true;
         } finally {
-            if (!measured || options.verify || options.once) await server.close();
+            if (!measured || options.local || options.once) await server.close();
         }
-        if (!options.verify && !options.once) {
+        if (!options.local && !options.once) {
             console.log(`Havit: ${server.url} (Ctrl+C to stop)`);
             process.once('SIGINT', () => server.close());
             process.once('SIGTERM', () => server.close());

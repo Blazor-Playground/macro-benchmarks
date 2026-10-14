@@ -7,6 +7,15 @@ import { join, resolve } from 'node:path';
 const runtimeId = 'Microsoft.NETCore.App.Runtime.browser-wasm';
 const wasmSdkId = 'Microsoft.NET.Sdk.WebAssembly.Pack';
 
+export function runtimeBuildCommands(checkout, configuration) {
+    const windows = process.platform === 'win32';
+    const command = windows ? 'cmd.exe' : join(resolve(checkout), 'build.sh');
+    const flags = ['-os', 'browser', '-arch', 'wasm', '-c', configuration, '/p:RuntimeFlavor=CoreCLR'];
+    return ['clr+libs+host', 'packs.product'].map(target => ({
+        command, args: [...(windows ? ['/d', '/c', 'build.cmd'] : []), target, ...flags],
+    }));
+}
+
 function requireFile(path, instruction) {
     if (!existsSync(path)) throw new Error(`Missing ${path}\n${instruction}`);
     return path;

@@ -51,6 +51,32 @@
       "benchmarkDateTime": "2026-10-13T22:27:08.056Z",
       "ciRunId": "38474903121",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/38474903121"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26513.120",
+      "runtimeGitHash": "0d73c1f21ea32da5ae2d5e1acc4dbb98d0f3e2de",
+      "aspnetCoreGitHash": "77e4202bed594e8c1063e697b289221e57858bd5",
+      "sdkGitHash": "bdf6a59a376b141815580500d147c31b95d63a64",
+      "vmrGitHash": "24cc5a9af7968a85649eadfe0d011b2952e06eae",
+      "runtimeCommitDateTime": "2026-10-11T23:06:25Z",
+      "runtimeCommitAuthor": "Miha Zupan",
+      "runtimeCommitMessage": "Reduce Kerberos fuzzer duplication (#135514)",
+      "aspnetCoreCommitDateTime": "2026-10-12T11:54:09Z",
+      "aspnetCoreCommitAuthor": "Jakub Florkowski",
+      "aspnetCoreCommitMessage": "Fix FieldIdentifier.GetHashCode() NullReferenceException for default struct (#65573)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26513.120",
+      "runtimePackVersion": "12.0.0-alpha.1.26513.120",
+      "workloadVersion": "12.0.0-alpha.1.26513.120",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26480.102",
+      "releaseDate": "2026-10-13",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-10-14T02:50:47.390Z",
+      "ciRunId": "38500882519",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/38500882519"
     }
   ],
   "apps": {

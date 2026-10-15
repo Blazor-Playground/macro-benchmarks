@@ -12,20 +12,6 @@
   <!-- Preset DevLoop -->
   <PropertyGroup Condition="'$(BenchmarkPreset)' == 'DevLoop'">
     <Configuration>Debug</Configuration>
-    <WasmBuildNative>false</WasmBuildNative>
-
-    <WasmEmitSymbolMap>true</WasmEmitSymbolMap>
-    <MetricsSupport>true</MetricsSupport>
-    <EventSourceSupport>true</EventSourceSupport>
-    <StackTraceSupport>true</StackTraceSupport>
-    <DebugSymbols>true</DebugSymbols>
-    <CompressionEnabled>false</CompressionEnabled>
-    <WasmEnableWebcil>false</WasmEnableWebcil>
-    <WasmIncludeFullIcuData>true</WasmIncludeFullIcuData>
-
-    <EnableAggressiveTrimming>false</EnableAggressiveTrimming>
-    <PublishTrimmed>false</PublishTrimmed>
-    <UsingBrowserRuntimeWorkload>false</UsingBrowserRuntimeWorkload>
   </PropertyGroup>
 
   <!-- Preset NoWorkload -->

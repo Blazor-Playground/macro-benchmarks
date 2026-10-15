@@ -1,5 +1,42 @@
 # Dashboard and NET12 focus
 
+## NET12 dev-loop
+
+**NET12 dev-loop** at `/net12-debug` uses the existing configuration-only Debug
+preset. Havit is the default app; Empty Blazor is also supported. Measurements
+use desktop/unthrottled Chromium without a managed debugger. The
+[issue's scenarios](https://github.com/dotnet/runtime/issues/133691) are grouped by
+what the user is waiting for:
+
+- **Run to first render:** first `dotnet run` and incremental `dotnet run`.
+  Both timers start with the command, after any edit and previous shutdown.
+- **Incremental development loop:** hot reload and incremental rebuild.
+  Both start at saving an edit; only rebuild stops and restarts the app.
+- **Walkthrough (optional):** interactions after startup, excluding initial loading.
+
+Cards show timer boundaries, medians, trial counts and failure/unsupported
+reasons. Build-only time is an expandable rebuild breakdown, not another primary
+metric. See [exact timing definitions](metrics.md#clean-debug-developer-loop).
+
+Results come only from `data/views/debug/`; publish and historical tuned DevLoop
+data never fill missing cells. Missing or malformed resources are visible errors.
+Graphs show per-batch medians without smoothing; percentages default off.
+
+Percentages use the latest complete, non-smoke, paired same-runner batch with
+matching actual TFMs. Positive means longer duration. Older pairs and local
+shared-host experiments are labeled; colors do not imply significance.
+Smoke/partial batches have no comparative headline. Supported Mono hot-reload
+values remain visible when CoreCLR is unsupported.
+
+Select an environment/source/methodology cohort. Each runtime's SDK host RID
+separates native, translated and unknown SDK hosts. SDK day and measurement UTC
+are distinct; reruns remain separate observations. Raw evidence retains each
+trial and its evaluated settings.
+
+For a local preview, copy transformed `index.json` and `generations/` into
+the source-built viewer's `wwwroot/data/views/debug/`, or use `VIEWER_DATA_URL`.
+Test fixtures are synthetic protocol data, not measurements.
+
 The Blazor viewer is in `src/bench-viewer`. Home and `/net12-focus` share
 branding and mode links at the top of their left pane. Home keeps its app tabs,
 filters and update links. Delta reports remain accessible through point details

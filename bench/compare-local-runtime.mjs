@@ -13,6 +13,9 @@ import { writeLocalComparisonData } from './local-comparison-data.mjs';
 import { displaySavedResults, findLatestComparison, formatResults, registerComparison } from './local-results.mjs';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const cloneOptions = process.platform === 'win32' ? ['--config', 'core.longpaths=true'] : [];
+const comparisonDirectory = process.platform === 'win32' ? 'c' : 'local-runtime-comparisons';
+export const defaultComparisonOutput = join(repoRoot, 'artifacts', comparisonDirectory);
 const help = `Build and measure Havit before/after a runtime change (Node.js >= 24).
 
 node bench/compare-local-runtime.mjs [options] [-- <measurement options>]
@@ -30,7 +33,7 @@ node bench/compare-local-runtime.mjs [options] [-- <measurement options>]
   --aspnet-version <version>   Optional ASP.NET package override for both publishes
   --exclude-source <name>     Explicit public NuGet source exclusion for both app publishes (repeatable)
   --mono-before <manifest>    Optional measured pristine Mono control at the same baseline commit
-  --output <directory>        Default: artifacts/local-runtime-comparisons
+  --output <directory>        Default: artifacts/${comparisonDirectory}
   --force-before              Rebuild/remeasure even if a valid baseline is cached
   --check-prerequisites       Only report missing tools/dependencies and how to install them
   --display-results [file]    Print saved numbers; without a file, select the latest measured comparison
@@ -65,7 +68,7 @@ export function parseCompareOptions(args) {
             'aspnet-version': { type: 'string' },
             'exclude-source': { type: 'string', multiple: true },
             'mono-before': { type: 'string' },
-            output: { type: 'string', default: join(repoRoot, 'artifacts', 'local-runtime-comparisons') },
+            output: { type: 'string', default: defaultComparisonOutput },
             'force-before': { type: 'boolean', default: false },
             'check-prerequisites': { type: 'boolean', default: false },
             'display-results': { type: 'string' },
@@ -329,8 +332,10 @@ async function baselineCheckout({ output, sessionDir, runtimeRepo, beforeSha, or
         }
     }
     if (!checkout) {
-        checkout = join(sessionDir, runtime === 'mono' ? 'runtime-before-mono' : 'runtime-before');
-        await run('git', ['clone', '--local', '--no-hardlinks', '--no-checkout', runtimeRepo, checkout], { cwd: sessionDir });
+        // MSVC's generated PDB paths still have a MAX_PATH limit.
+        checkout = join(sessionDir, process.platform === 'win32' ? runtime :
+            runtime === 'mono' ? 'runtime-before-mono' : 'runtime-before');
+        await run('git', ['clone', '--local', '--no-hardlinks', '--no-checkout', runtimeRepo, checkout, ...cloneOptions], { cwd: sessionDir });
         // SourceLink must retain the source origin, not the local filesystem clone.
         git(checkout, ['remote', 'set-url', 'origin', origin]);
         await run('git', ['checkout', '--detach', beforeSha], { cwd: checkout });
@@ -365,7 +370,7 @@ export async function compare(options, {
         const runtimeRepo = resolve(options['runtime-repo'] ?? join(output, `runtime-${options.runtime}`));
         if (!existsSync(runtimeRepo)) {
             if (options['runtime-repo']) throw new Error(`Runtime checkout not found: ${runtimeRepo}`);
-            await run('git', ['clone', 'https://github.com/dotnet/runtime.git', runtimeRepo], { cwd: output });
+            await run('git', ['clone', 'https://github.com/dotnet/runtime.git', runtimeRepo, ...cloneOptions], { cwd: output });
             if (options['runtime-ref']) {
                 const ref = git(runtimeRepo, ['rev-parse', '--verify', '--end-of-options', `${options['runtime-ref']}^{commit}`]);
                 await run('git', ['checkout', '--detach', ref], { cwd: runtimeRepo });
@@ -423,7 +428,7 @@ export async function compare(options, {
                 const args = [subset, '-os', 'browser', '-arch', 'wasm', '-c', buildOptions.configuration,
                     `/p:RuntimeFlavor=${runtime === 'coreclr' ? 'CoreCLR' : 'Mono'}`];
                 const command = process.platform === 'win32' ? 'cmd.exe' : 'bash';
-                const commandArgs = process.platform === 'win32' ? ['/d', '/c', 'build.cmd', ...args] : ['./build.sh', ...args];
+                const commandArgs = process.platform === 'win32' ? ['/d', '/c', '.\\build.cmd', ...args] : ['./build.sh', ...args];
                 await run(command, commandArgs, {
                     cwd: checkout, logPath: join(sessionDir, 'logs', `${label}-${subset.replaceAll('+', '-')}.log`),
                 });

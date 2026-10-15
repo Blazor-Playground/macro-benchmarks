@@ -243,7 +243,7 @@ test('missing profile rows and invalid values remain unavailable instead of cros
 test('display-only accepts optional file and scoped latest selection but rejects build options', () => {
     assert.equal(parseCompareOptions(['--display-results'])['display-results'], '');
     assert.equal(parseCompareOptions(['--display-results', '/saved/comparison.json'])['display-results'], '/saved/comparison.json');
-    assert.equal(parseCompareOptions(['--display-results', '--output', '/saved']).resultsOutput, '/saved');
+    assert.equal(parseCompareOptions(['--display-results', '--output', '/saved']).resultsOutput, resolve('/saved'));
     assert.throws(() => parseCompareOptions(['--display-results', '--runtime-repo', '/source']), /cannot be combined/);
     assert.throws(() => parseCompareOptions(['--display-results', '--', '--warm-runs', '2']), /cannot be combined/);
 });
@@ -266,6 +266,17 @@ test('registered custom outputs and older artifact comparison roots are discover
         await readFile(first.path, 'utf8'));
     await registerComparison(latest.path, artifacts);
     assert.equal(await findLatestComparison(undefined, artifacts), latest.path);
+});
+
+test('unregistered Windows default comparison outputs can be discovered', async t => {
+    const { root, save } = await fixture(t);
+    const saved = await save('windows', '2026-10-08T12:00:00Z');
+    const artifacts = join(root, 'artifacts');
+    const directory = join(artifacts, 'c', 'comparison-windows');
+    await mkdir(directory, { recursive: true });
+    const path = join(directory, 'comparison.json');
+    await writeFile(path, await readFile(saved.path, 'utf8'));
+    assert.equal(await findLatestComparison(undefined, artifacts), path);
 });
 
 test('removed indexed comparisons are warned and skipped without hiding malformed or missing result evidence', async t => {

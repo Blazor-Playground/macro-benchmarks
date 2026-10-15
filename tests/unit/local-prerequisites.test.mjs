@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 import {
     checkPrerequisites, probeBrowsers, probeCommand, probeTar, reportPrerequisites,
@@ -88,6 +89,29 @@ test('Windows checks developer tools and Python 3, giving Developer Command Prom
     assert.match(report.checks.find(check => check.name === 'python').detail, /Python 3 required/);
     assert.ok(report.checks.some(check => check.name === 'powershell'));
     assert.ok(!report.checks.some(check => check.name === 'bash'));
+});
+
+test('tsx preflight imports a file URL, including paths with spaces and URL-reserved characters', async t => {
+    const root = await mkdtemp(join(tmpdir(), 'bench loader #%-'));
+    t.after(() => rm(root, { recursive: true, force: true }));
+    const loader = join(root, 'bench', 'node_modules', 'tsx', 'dist', 'loader.mjs');
+    await mkdir(join(loader, '..'), { recursive: true });
+    await writeFile(loader, 'export {};\n');
+    let imported = false;
+    const report = await checkPrerequisites(options, dependencies({
+        root,
+        probe: (command, args, platform) => {
+            if (command !== process.execPath) return dependencies().probe(command);
+            assert.equal(args[0], '--import');
+            assert.ok(args[1].startsWith('file:///'));
+            assert.equal(fileURLToPath(args[1]), loader);
+            imported = true;
+            return probeCommand(command, args, platform);
+        },
+    }));
+    assert.equal(imported, true);
+    assert.equal(report.ok, true);
+    assert.equal(report.checks.find(check => check.name.includes('tsx')).detail, 'loader usable');
 });
 
 test('only selected browsers are checked; system Chrome gets installation advice rather than an automatic download', async () => {

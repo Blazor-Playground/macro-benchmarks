@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { test } from 'node:test';
 import {
     buildSubsets, compare, loadBaseline, measurementRecord, monoBaselineWarnings, parseCompareOptions,
@@ -14,7 +14,7 @@ function git(cwd, ...args) {
     return execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8' }).trim();
 }
 
-async function fixture(t) {
+async function fixture(t, { longPath = false } = {}) {
     const root = await mkdtemp(join(tmpdir(), 'runtime-comparison-'));
     t.after(() => rm(root, { recursive: true, force: true }));
     const runtime = join(root, 'runtime with changes');
@@ -23,11 +23,14 @@ async function fixture(t) {
     git(runtime, 'init', '--quiet');
     git(runtime, 'config', 'user.name', 'Fixture');
     git(runtime, 'config', 'user.email', 'fixture@example.invalid');
+    if (process.platform === 'win32') git(runtime, 'config', 'core.longpaths', 'true');
     git(runtime, 'remote', 'add', 'origin', 'https://github.com/dotnet/runtime.git');
+    await writeFile(join(runtime, '.gitattributes'), '* -text\n');
     await writeFile(join(runtime, 'global.json'), '{"sdk":{"version":"12.0.100"}}');
     await writeFile(join(runtime, 'tracked.txt'), 'baseline\n');
     await writeFile(join(runtime, 'build.sh'), '#!/usr/bin/env bash\nprintf "fixture build %s\\n" "$*"\n');
     await writeFile(join(runtime, 'build.cmd'), '@echo fixture build %*\r\n');
+    if (longPath) await writeFile(join(runtime, `${'long-path-'.repeat(24)}.txt`), 'long path fixture\n');
     git(runtime, 'add', '.');
     git(runtime, 'commit', '--quiet', '-m', 'baseline fixture');
     const baseline = git(runtime, 'rev-parse', 'HEAD');
@@ -53,7 +56,10 @@ async function fixture(t) {
         registerResult: async () => {},
         run: async (command, args, options) => {
             calls.push({ command, args, cwd: options.cwd });
-            return runCommand(command, args, { ...options, writeLine: () => {} });
+            return runCommand(command, args, {
+                ...options, writeLine: () => {},
+                env: { ...process.env, NoDefaultCurrentDirectoryInExePath: '1' },
+            });
         },
         publishRuntime: async options => {
             published.push({
@@ -94,6 +100,7 @@ async function fixture(t) {
 
 test('comparison option validation and build subsets', () => {
     const options = parseCompareOptions([]);
+    assert.equal(options.output, resolve('artifacts', process.platform === 'win32' ? 'c' : 'local-runtime-comparisons'));
     assert.equal(options.runtime, 'coreclr');
     assert.equal(options.variant, 'composite');
     assert.equal(options['before-variant'], 'composite');
@@ -142,6 +149,7 @@ test('first comparison builds both revisions; second reuses before and builds/me
     const first = await compare(f.options, f.dependencies);
     assert.equal(f.published.length, 2);
     assert.equal(f.published[0].label, 'before');
+    if (process.platform === 'win32') assert.equal(basename(f.published[0].checkout), 'coreclr');
     assert.equal(f.published[0].tracked, 'baseline\n');
     assert.equal(git(f.published[0].checkout, 'remote', 'get-url', 'origin'), 'https://github.com/dotnet/runtime.git');
     assert.equal(f.published[1].tracked, 'unstaged change\n');
@@ -172,6 +180,9 @@ test('matched composite experiment caches Mono interpreter and CoreCLR composite
     const f = await fixture(t);
     const options = { ...f.options, variant: 'composite', 'before-variant': 'composite', 'include-mono-before': true };
     const first = await compare(options, f.dependencies);
+    if (process.platform === 'win32') {
+        assert.deepEqual(f.published.slice(0, 2).map(({ checkout }) => basename(checkout)), ['mono', 'coreclr']);
+    }
     assert.deepEqual(f.published.map(({ label, runtime, variant }) => ({ label, runtime, variant })), [
         { label: 'mono-before', runtime: 'mono', variant: 'no-workload' },
         { label: 'before', runtime: 'coreclr', variant: 'composite' },
@@ -372,12 +383,12 @@ test('missing origin/main or unavailable browser fails before any build, releasi
 });
 
 test('managed clone checks out a requested ref once and refuses to switch an existing clone', async t => {
-    const f = await fixture(t);
+    const f = await fixture(t, { longPath: process.platform === 'win32' });
     git(f.runtime, 'branch', 'main', f.baseline);
     const original = f.dependencies.run;
     f.dependencies.run = async (command, args, options) => {
         if (command === 'git' && args[0] === 'clone' && args[1] === 'https://github.com/dotnet/runtime.git') {
-            return original(command, ['clone', f.runtime, args[2]], options);
+            return original(command, ['clone', f.runtime, ...args.slice(2)], options);
         }
         return original(command, args, options);
     };
@@ -386,6 +397,14 @@ test('managed clone checks out a requested ref once and refuses to switch an exi
     assert.equal(first.before.setup.beforeSha, f.baseline);
     assert.equal(f.published[1].tracked, 'committed change\n');
     assert.equal(f.published[1].checkout, join(f.output, 'runtime-coreclr'));
+    if (process.platform === 'win32') {
+        for (const { checkout } of f.published) {
+            const path = join(checkout, `${'long-path-'.repeat(24)}.txt`);
+            assert.ok(path.length > 260);
+            assert.equal(git(checkout, 'config', '--local', '--get', 'core.longpaths'), 'true');
+            assert.equal(await readFile(path, 'utf8'), 'long path fixture\n');
+        }
+    }
     await assert.rejects(compare(options, f.dependencies), /refusing to switch/);
     f.published.length = 0;
     await compare({ ...options, 'runtime-ref': undefined }, f.dependencies);

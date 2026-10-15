@@ -17,7 +17,8 @@ node bench/iterate.mjs
 ```
 
 The path is the **dotnet/runtime checkout root**, not `artifacts/` or Shipping.
-Omit it to create a managed checkout under `artifacts/local-runtime-comparisons/`.
+Omit it to create a managed checkout under `artifacts/local-runtime-comparisons/`
+(`artifacts/c/` on Windows to reduce native build path lengths).
 Bootstrap starts potentially expensive native builds; allow enough disk space
 for two clean controls and the changed build.
 
@@ -58,6 +59,30 @@ npm ci --prefix bench
 # Only if installed Chrome is unavailable:
 npx playwright install chromium
 ```
+
+On Windows, use a **Developer Command Prompt for Visual Studio** with the
+Desktop development with C++ workload installed, so `cl.exe` and the Windows SDK
+are available. Run the same Node commands there, using Windows paths:
+
+```cmd
+node bench\bootstrap.mjs C:\src\runtime
+node bench\iterate.mjs
+```
+
+Managed Windows clones enable Git's `core.longpaths` locally before checkout;
+no global Git settings are changed. Windows control checkouts use shorter
+`mono`/`coreclr` directory names to leave room for generated native build paths.
+Windows must also have Win32 long paths enabled as described in the
+[runtime prerequisites](https://github.com/dotnet/runtime/blob/main/docs/workflow/requirements/windows-requirements.md#enable-long-paths).
+Prefer short checkout/output paths because MSVC still limits some generated
+PDB paths; use `--output <short-directory>` if a build reports path-length errors.
+The same compiler-generated-file failure with long paths already enabled is
+tracked in [dotnet/runtime#110407](https://github.com/dotnet/runtime/issues/110407).
+Do not use MinGW `CC`/`CXX` overrides for the Windows host tools; clear them in
+the Developer Command Prompt (`set CC=` and `set CXX=`) to use Visual Studio.
+App restores and publishes explicitly use AnyCPU so the prompt's host-platform
+settings do not override the `browser-wasm` target and cause
+[NETSDK1032](https://learn.microsoft.com/dotnet/core/tools/sdk-errors/netsdk1032).
 
 Every run checks tools, dependencies, browser launch and baseline history before
 building. Missing prerequisites are reported with installation commands; nothing
@@ -135,6 +160,10 @@ remain plain. Colors indicate direction, not statistical significance.
 ### Output locations
 
 All generated outputs are ignored by Git.
+On Windows, use `artifacts/c/` in place of
+`artifacts/local-runtime-comparisons/` in the table below. Saved iteration settings
+retain their output directory; rerun bootstrap or pass `--output` to select the
+shorter default for an existing experiment.
 
 | Location | Contents |
 |---|---|

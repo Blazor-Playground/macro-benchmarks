@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { statusLine } from './local-command.mjs';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -137,7 +137,7 @@ export async function checkPrerequisites({ runtimeRepo, sdk, engines, systemChro
     const hasPlaywright = exists(join(root, 'node_modules', 'playwright', 'package.json'));
     add('Benchmark npm dependencies (Playwright)', { ok: hasPlaywright, detail: hasPlaywright ? 'installed' : 'missing' }, 'npm ci');
     const tsxLoader = join(root, 'bench', 'node_modules', 'tsx', 'dist', 'loader.mjs');
-    const tsx = exists(tsxLoader) ? probe(process.execPath, ['--import', tsxLoader, '--eval', ''], platform)
+    const tsx = exists(tsxLoader) ? probe(process.execPath, ['--import', pathToFileURL(tsxLoader).href, '--eval', ''], platform)
         : { ok: false, detail: 'missing' };
     if (tsx.ok) tsx.detail = 'loader usable';
     add('Bench CLI npm dependencies (tsx)', tsx, 'npm ci --prefix bench');

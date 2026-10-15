@@ -18,6 +18,7 @@ dist/
 !src/igniteui-light/wwwroot/lib/bootstrap/dist/
 src/bench-viewer/wwwroot/chart/*.js
 src/bench-viewer/wwwroot/lib/bootstrap/
+src/*/wwwroot/runtime-ready.mjs
 .playwright-mcp
 
 # System files

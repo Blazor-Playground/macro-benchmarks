@@ -105,7 +105,7 @@ export function orderObservations(a: FocusObservation, b: FocusObservation): num
         || a.id.localeCompare(b.id);
 }
 
-export function rollingWindows(values: readonly (number | null)[], observations: readonly FocusObservation[], size = FOCUS_WINDOW_SIZE): (FocusWindow | null)[] {
+export function rollingWindows(values: readonly (number | null)[], observations: readonly { sdkVersion: string; day: string }[], size = FOCUS_WINDOW_SIZE): (FocusWindow | null)[] {
     if (!Number.isInteger(size) || size < 1) throw new RangeError('Window size must be a positive integer.');
     if (values.length !== observations.length) throw new RangeError('Every value needs an observation.');
     let window: number[] = [];

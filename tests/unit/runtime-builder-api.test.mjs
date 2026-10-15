@@ -2,11 +2,20 @@ import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import test from 'node:test';
+import test, { mock } from 'node:test';
 import { runInNewContext } from 'node:vm';
+import { withRuntimeReady } from '../../src/runtime-ready.mjs';
 
 const srcRoot = fileURLToPath(new URL('../../src/', import.meta.url));
 const legacyCallback = /\bon(?:ConfigLoaded|DotnetReady|DownloadResourceProgress)\s*:/;
+
+async function executableMain(app) {
+    const [source, bridge] = await Promise.all([
+        readFile(join(srcRoot, app, 'wwwroot', 'main.mjs'), 'utf8'),
+        readFile(join(srcRoot, 'runtime-ready.mjs'), 'utf8'),
+    ]);
+    return `${bridge.replace(/^export /gm, '')}\n${source.replace(/^import .+;$/gm, '')}`;
+}
 
 async function collectMainModules(directory) {
     const modules = [];
@@ -33,14 +42,9 @@ test('Blazor apps use dedicated runtime builder callback APIs', async () => {
 
         blazorAppCount++;
         const appPath = relative(srcRoot, path);
-        if (['bench-viewer', 'havit-bootstrap'].some(app => appPath === join(app, 'wwwroot', 'main.mjs'))) {
-            assert.match(source, /typeof dotnet\.withDotnetReady === 'function'/, `${appPath} compatibility must be feature-gated`);
-            assert.doesNotMatch(source, /\bon(?:ConfigLoaded|DownloadResourceProgress)\s*:/, `${appPath} uses another legacy callback`);
-        } else {
-            assert.doesNotMatch(source, legacyCallback, `${appPath} uses a legacy module callback`);
-        }
+        assert.doesNotMatch(source, legacyCallback, `${appPath} uses a legacy module callback`);
         if (source.includes('setModuleImports(')) {
-            assert.match(source, /\.withDotnetReady\s*\(/, `${appPath} must register imports from withDotnetReady`);
+            assert.match(source, /withRuntimeReady\s*\(dotnet,/, `${appPath} must use the shared runtime ready API bridge`);
         }
     }
 
@@ -48,14 +52,13 @@ test('Blazor apps use dedicated runtime builder callback APIs', async () => {
 });
 
 test('viewer ready registration works with modern and retained older SDK builders', async () => {
-    const source = await readFile(join(srcRoot, 'bench-viewer', 'wwwroot', 'main.mjs'), 'utf8');
-    const executable = source.replace(/^import .+;$/gm, '');
+    const executable = await executableMain('bench-viewer');
     for (const modern of [true, false]) {
         const registrations = [];
         const warnings = [];
         let tick = 0;
         const context = {
-            chartInterop: {}, focusInterop: {}, restorePagesRoute: () => {},
+            chartInterop: {}, focusInterop: {}, debugInterop: {}, restorePagesRoute: () => {},
             document: { baseURI: 'http://local/', getElementById: () => null },
             window: { location: {}, history: {} },
             console: { log: () => {}, warn: message => warnings.push(message) },
@@ -77,14 +80,14 @@ test('viewer ready registration works with modern and retained older SDK builder
             } },
         };
         await runInNewContext(`(async () => { ${executable} })()`, context);
-        assert.deepEqual(registrations.map(entry => entry.name), ['chart-interop.js', 'focus-interop.js', 'main.mjs']);
+        assert.deepEqual(registrations.map(entry => entry.name), ['chart-interop.js', 'focus-interop.js', 'debug-interop.js', 'main.mjs']);
         assert.equal(context.bench_complete, true);
         assert.equal(warnings.length, modern ? 0 : 1);
     }
 });
 
 test('Havit registers imports and preserves ready timing with modern, legacy and omitted ready callbacks', async () => {
-    const source = await readFile(join(srcRoot, 'havit-bootstrap', 'wwwroot', 'main.mjs'), 'utf8');
+    const source = await executableMain('havit-bootstrap');
     for (const [modern, firesReady] of [[true, true], [false, true], [false, false]]) {
         const registrations = [];
         const warnings = [];
@@ -116,4 +119,22 @@ test('Havit registers imports and preserves ready timing with modern, legacy and
         assert.equal(context.bench_complete, true);
         assert.equal(warnings.length, modern ? 0 : 1);
     }
+});
+
+test('ready registration prefers the dedicated builder API and falls back only when it is absent', () => {
+    const callback = () => {};
+    let registered;
+    withRuntimeReady({
+        withDotnetReady: value => { registered = value; },
+        withModuleConfig: () => { throw new Error('Legacy callback must not be selected for a modern runtime'); },
+    }, callback);
+    assert.equal(registered, callback);
+    const warning = mock.method(console, 'warn', () => {});
+    try {
+        let moduleConfig;
+        withRuntimeReady({ withModuleConfig: value => { moduleConfig = value; } }, callback);
+        assert.equal(moduleConfig.onDotnetReady, callback);
+        assert.equal(warning.mock.callCount(), 1);
+        assert.throws(() => withRuntimeReady({}, callback), /no supported managed-ready/);
+    } finally { warning.mock.restore(); }
 });

@@ -1,5 +1,59 @@
 # Metrics and Measurement
 
+## Clean Debug developer loop
+
+The [issue's Debug scenarios](https://github.com/dotnet/runtime/issues/133691)
+use the existing configuration-only `dev-loop` preset. Empty Blazor and Havit
+are supported on macOS/Linux with Chromium.
+
+| Key | Timed boundary (raw milliseconds; lower is better) |
+|---|---|
+| `debug-first-run-to-first-render` | Spawn `dotnet run` through host receipt of the first real route-render acknowledgement |
+| `debug-incremental-run-to-first-render` | Spawn fresh `dotnet run` after an edit is saved and the previous run is stopped, retaining previous build outputs, through updated first render |
+| `debug-rebuild-edit-to-render` | Save controlled edit, stop, incremental `dotnet build`, `dotnet run --no-build`, navigate and render |
+| `debug-incremental-build` | The incremental build subprocess's start through successful exit, validated by subsequent rendered output |
+| `debug-hot-reload-edit-to-render` | Save a managed method-body edit through applied-delta and changed-render acknowledgement, without reload/restart |
+| `havit-walkthrough` | Existing in-browser Havit navigation scenario on the clean-Debug development host; initial load excluded |
+
+**Incremental run starts at the command; rebuild starts at the edit.**
+Run excludes saving and previous shutdown. Rebuild includes shutdown and uses
+a scripted build/restart, not automatic `dotnet watch` restart. Its build-only
+duration is a breakdown, not another end-to-end scenario.
+
+Dependencies are restored before timing; the normal `dotnet run` restore check
+is included. The browser is prelaunched. First-run compilation outputs are clean;
+incremental scenarios retain outputs and a warm browser cache at the same
+loopback origin. Service workers are blocked. Desktop is unthrottled and no
+managed debugger is attached. First render means the real initial route and
+the probe's DOM commit plus two animation-frame callbacks, **not LCP or physical
+display presentation**. Host and browser clocks are never subtracted.
+
+Hot reload waits for watch's `Waiting for changes` readiness before editing;
+watch startup is untimed. A method-body edit must advance the applied-delta
+generation, change rendered output, preserve component state and retain
+document/runtime/host identities. Navigation or replaced contexts reject the
+sample. Runtime capability is probed; CoreCLR support is tracked in
+[dotnet/runtime#134337](https://github.com/dotnet/runtime/issues/134337).
+Failures, unsupported cases and timeouts remain outcomes, never zero timings or
+reload substitutes.
+
+Five predetermined trials alternate runtime order on one runner. Aggregation is
+the median without outlier removal; every outcome is retained, with no automatic
+retry. Fewer trials are smoke-only. Complete local pairs may show descriptive
+comparisons labeled shared-host/non-CI; partial or unclassified local data may not.
+Watcher mode and logging are recorded.
+
+Raw `debug-dev-loop` records retain methodology `debug-sdk-defaults-v1`,
+SDK/source/browser/runner provenance, evaluated settings, phase offsets and
+per-attempt evidence. Missing hashes stay unknown. Local pairs record
+`comparisonScope=local-paired` and `controlled=false`.
+
+Edits occur only in isolated copies. Cancellation closes owned browser/app/watch
+processes, restores source and persists the cancelled attempt; repeated signals
+do not skip cleanup. Shared SDK build servers are never stopped.
+See [pipeline/publication architecture](architecture.md#developer-loop-pipeline)
+and [local commands](cli-reference.md#clean-debug).
+
 ## Metrics reference
 
 ### Build and size metrics

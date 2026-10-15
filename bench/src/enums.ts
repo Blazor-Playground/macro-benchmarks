@@ -93,12 +93,20 @@ export enum Stage {
     CollectBuilds = 'collect-builds',
     DeployLatestApp = 'deploy-latest-app',
     Measure = 'measure',
+    MeasureDevLoop = 'measure-dev-loop',
+    TransformDebugViews = 'transform-debug-views',
+    PublishDebugViews = 'publish-debug-views',
     TransformViews = 'transform-views',
     UpdateViews = 'update-views',
     Schedule = 'schedule',
 }
 
 export enum MetricKey {
+    DebugFirstRun = 'debug-first-run-to-first-render',
+    DebugIncrementalRun = 'debug-incremental-run-to-first-render',
+    DebugHotReload = 'debug-hot-reload-edit-to-render',
+    DebugRebuild = 'debug-rebuild-edit-to-render',
+    DebugIncrementalBuild = 'debug-incremental-build',
     CompileTime = 'compile-time',
     DiskSizeNative = 'disk-size-native',
     DiskSizeAssemblies = 'disk-size-assemblies',

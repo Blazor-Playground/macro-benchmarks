@@ -397,7 +397,8 @@ test('real Blazor deep-link preserves the explicit publish/desktop comparison an
     page.on('pageerror', error => errors.push(error.message));
     await open(page);
     await expect(page.getByRole('link', { name: 'NET12 focus', exact: true })).toHaveAttribute('aria-current', 'page');
-    await expect(page.getByRole('navigation', { name: 'Dashboard views' }).getByRole('link')).toHaveCount(2);
+    await expect(page.getByRole('navigation', { name: 'Dashboard views' }).getByRole('link')).toHaveCount(3);
+    await expect(page.getByRole('link', { name: 'NET12 dev-loop', exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Delta reports', exact: true })).toHaveCount(0);
     await expect(page.getByLabel('Application', { exact: true })).toHaveValue('havit-bootstrap');
     await expect(page.getByRole('button', { name: '14 days', exact: true })).toHaveAttribute('aria-pressed', 'true');

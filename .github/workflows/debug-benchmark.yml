@@ -1,0 +1,101 @@
+name: Clean Debug benchmark
+on:
+  workflow_dispatch:
+    inputs:
+      sdk_version:
+        description: 'Exact SDK12 nightly version (shared targeting compatibility, SDK-default Debug features)'
+        required: true
+        type: string
+      app:
+        description: 'Initial supported application'
+        type: choice
+        options: [empty-blazor, havit-bootstrap]
+        default: empty-blazor
+      trials:
+        description: 'Predetermined trials (1 is smoke-only; 5 for comparisons)'
+        type: choice
+        options: ['1', '5']
+        default: '1'
+      publish:
+        description: 'Publish the resulting clean-Debug view after a successful job'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      DEBUG_SDK_VERSION: ${{ inputs.sdk_version }}
+      DEBUG_APP: ${{ inputs.app }}
+      DEBUG_TRIALS: ${{ inputs.trials }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install one pinned SDK outside the timed region
+        shell: bash
+        run: |
+          [[ "$DEBUG_SDK_VERSION" =~ ^12\.0\.[0-9]+(-[a-z]+\.[0-9]+\.[0-9]+\.[0-9]+)?$ ]] || exit 1
+          curl -fsSL https://dot.net/v1/dotnet-install.sh -o "$RUNNER_TEMP/debug-dotnet-install.sh"
+          bash "$RUNNER_TEMP/debug-dotnet-install.sh" --version "$DEBUG_SDK_VERSION" \
+            --install-dir "$RUNNER_TEMP/debug-dotnet" --azure-feed https://ci.dot.net/public
+      - name: Prepare browser and producer
+        run: |
+          npm ci --no-audit --no-fund
+          npm ci --prefix bench --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Measure sequential paired runtimes on this runner
+        run: |
+          bench/node_modules/.bin/tsx bench/src/main.ts --stages measure-dev-loop \
+            --debug-dotnet "$RUNNER_TEMP/debug-dotnet/dotnet" --sdk-version "$DEBUG_SDK_VERSION" \
+            --app "$DEBUG_APP" --preset dev-loop --runtime mono,coreclr --debug-runs "$DEBUG_TRIALS" --timeout 300000
+      - name: Build local Debug views
+        if: always() && !cancelled()
+        run: |
+          bench/node_modules/.bin/tsx bench/src/main.ts --stages transform-debug-views \
+            --artifacts-dir artifacts/debug-results --debug-views-dir artifacts/debug-views
+      - name: Retain results and bounded logs, including failures
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: clean-debug-results
+          path: |
+            artifacts/debug-results/
+            artifacts/debug-views/
+            artifacts/debug-runs/**/trial.log
+          retention-days: 14
+          if-no-files-found: error
+
+  publish:
+    needs: measure
+    if: inputs.publish && inputs.trials == '5'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          ref: gh-pages
+          path: gh-pages
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/download-artifact@v8
+        with:
+          name: clean-debug-results
+          path: artifacts/debug-publication
+      - name: Prepare publisher
+        run: |
+          npm ci --no-audit --no-fund
+          npm ci --prefix bench --no-audit --no-fund
+      - name: Merge and publish Debug views with recomputation on retry
+        run: |
+          bench/node_modules/.bin/tsx bench/src/main.ts --stages publish-debug-views \
+            --artifacts-dir artifacts/debug-publication/debug-results

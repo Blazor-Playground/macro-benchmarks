@@ -8,24 +8,14 @@ import {
     APP_CONFIG,
     NON_WORKLOAD_PRESETS,
     NATIVE_COMPONENT_APPS,
-    PRESET_MAP, PRESET_CONFIG,
+    PRESET_MAP,
     shouldSkipBuild,
     clientRuntimeFor,
 } from '../enums.js';
 import { dotnetRestore, dotnetPublish, dotnetWorkloadInstall, dotnetWorkloadList, ExecError } from '../exec.js';
 import { banner, info, err } from '../log.js';
 import { type BuildFailure, getBuildResultsDir, writeBuildShardReport } from '../lib/build-reports.js';
-
-// ── Build failure tracking ──────────────────────────────────────────────────
-
-// ── Runtime flavor mapping ──────────────────────────────────────────────────
-
-function getRuntimeProps(runtime: Runtime): string[] {
-    if (runtime === R.NativeAOTLLVM) {
-        return ['/p:UsingNativeAOT=true'];
-    }
-    return [`/p:RuntimeFlavor=${runtime === R.CoreCLR ? 'CoreCLR' : 'Mono'}`];
-}
+import { buildExecutionArgs, buildSettings, DEV_LOOP_REVISION, msbuildArgs } from '../lib/build-settings.js';
 
 // MSBuildProjectName drives the artifacts/{bin,obj}/<name>/<label>/<flavor>/<preset> layout
 // (see src/Directory.Build.props). appDir may be a .csproj (projectPath apps) or a directory.
@@ -128,13 +118,12 @@ function getRestoreArgs(
     // blazor-perf: when no usable CoreCLR WASM runtime exists, build the Client with Mono WASM
     // (server-side always runs on CoreCLR regardless of this flag)
     const effectiveRuntime = clientRuntimeFor(app, runtime, ctx.sdkInfo);
+    const { Configuration: _configuration, ...restoreSettings } = buildSettings(preset, effectiveRuntime);
     const args = [
         appDir,
-        `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,
-        ...getRuntimeProps(effectiveRuntime),
+        ...msbuildArgs(restoreSettings),
         `/p:BuildLabel=${ctx.buildLabel}`,
-        '/p:MSBuildDisableTaskHost=true',
-        '-m:1',
+        ...buildExecutionArgs(preset),
     ];
     if (ctx.runtimePackDirs?.[effectiveRuntime]) {
         args.push(`/p:RuntimePackDir=${ctx.runtimePackDirs[effectiveRuntime]}`);
@@ -181,15 +170,10 @@ function getPublishArgs(
         args.push('--self-contained', '-r', rid);
     }
     args.push(
-        `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,
-        '-c', PRESET_CONFIG[preset],
-        ...getRuntimeProps(effectiveRuntime),
+        ...msbuildArgs(buildSettings(preset, effectiveRuntime)),
         `/p:BuildLabel=${ctx.buildLabel!}`,
         ...(ctx.repo ? [`/p:GitHubRepo=${ctx.repo}`] : []),
-        '/p:MSBuildDisableTaskHost=true',
-        '/p:DisableParallelEmccCompile=true',
-        '/p:DisableParallelAot=true',
-        '-m:1',
+        ...buildExecutionArgs(preset, true),
         `-bl:${publishDir}/publish.binlog`,
         '-o', publishDir,
     );
@@ -270,7 +254,8 @@ async function buildPhase(
                     const integrity = await computeIntegrity(publishDir);
                     info(`  ${app}/${preset}: ${integrity.fileCount} files, ${(integrity.totalBytes / 1024 / 1024).toFixed(1)} MB, ${compileTimeMs}ms`);
 
-                    succeeded.push({ app: app as App, preset, runtime, compileTimeMs, integrity, publishDir });
+                    succeeded.push({ app: app as App, preset, runtime, compileTimeMs, integrity, publishDir,
+                        ...(preset === Preset.DevLoop ? { presetRevision: DEV_LOOP_REVISION } : {}) });
                 } catch (e) {
                     err(`Build failed for ${app}/${preset}: ${e instanceof Error ? e.message : e}`);
                     const errorOutput = e instanceof ExecError

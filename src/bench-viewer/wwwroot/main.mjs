@@ -4,6 +4,8 @@
 import * as chartInterop from './chart/chart-interop.js';
 import * as focusInterop from './chart/focus-interop.js';
 import { restorePagesRoute } from './pages-navigation.mjs';
+import * as debugInterop from './chart/debug-interop.js';
+import { withRuntimeReady } from './runtime-ready.mjs';
 
 function setManagedReady() {
     globalThis.dotnet_managed_ready = performance.now();
@@ -35,23 +37,18 @@ async function outer() {
                     console.log("Blazor runtime initialized");
                 }
             });
-            const ready = () => {
+            withRuntimeReady(dotnet, () => {
                 globalThis.dotnet_created = performance.now();
                 const { setModuleImports } = globalThis.getDotnetRuntime(0);
                 setModuleImports('chart-interop.js', chartInterop);
                 setModuleImports('focus-interop.js', focusInterop);
+                setModuleImports('debug-interop.js', debugInterop);
                 setModuleImports('main.mjs', {
                     bench: {
                         setManagedReady
                     }
                 });
-            };
-            if (typeof dotnet.withDotnetReady === 'function') {
-                dotnet.withDotnetReady(ready);
-            } else {
-                console.warn('Viewer SDK uses the legacy ready callback.');
-                dotnet.withModuleConfig({ onDotnetReady: ready });
-            }
+            });
         }
     });
 }

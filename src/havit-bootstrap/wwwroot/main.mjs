@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+import { withRuntimeReady } from './runtime-ready.mjs';
+
 function setManagedReady() {
     globalThis.dotnet_managed_ready = performance.now();
     globalThis.bench_results = {
@@ -48,15 +50,14 @@ async function outer() {
                 onRuntimeInitialized: () => {
                     console.log("Blazor runtime initialized");
                     // Some Mono builds omit ready callbacks; later callbacks still reset timing.
-                    registerBenchmarkImports();
+                    if (typeof globalThis.getDotnetRuntime(0)?.setModuleImports === 'function') {
+                        registerBenchmarkImports();
+                    } else {
+                        console.log("Runtime imports are not ready; waiting for the managed-ready callback.");
+                    }
                 }
             });
-            if (typeof dotnet.withDotnetReady === 'function') {
-                dotnet.withDotnetReady(registerBenchmarkImports);
-            } else {
-                console.warn('Local runtime builder lacks withDotnetReady; using the legacy ready callback.');
-                dotnet.withModuleConfig({ onDotnetReady: registerBenchmarkImports });
-            }
+            withRuntimeReady(dotnet, registerBenchmarkImports);
         }
     });
 }

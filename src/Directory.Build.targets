@@ -1,4 +1,14 @@
 <Project>
+    <Target Name="StageBenchmarkRuntimeReady" BeforeTargets="ResolveProjectStaticWebAssets"
+            Condition="'$(UsingMicrosoftNETSdkBlazorWebAssembly)' == 'true'">
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)runtime-ready.mjs"
+              DestinationFolder="$(MSBuildProjectDirectory)/wwwroot" SkipUnchangedFiles="true" />
+        <ItemGroup>
+            <Content Include="wwwroot/runtime-ready.mjs" Exclude="@(Content)" />
+            <FileWrites Include="wwwroot/runtime-ready.mjs" />
+        </ItemGroup>
+    </Target>
+
     <Target Name="SetBenchmarkPreset" BeforeTargets="Build">
         <Message Text="Using BenchmarkPreset: '$(BenchmarkPreset)'" Importance="High" />
         <Message Text="Using RuntimePackDir: '$(RuntimePackDir)'" Importance="High"
@@ -47,7 +57,7 @@
       TODO: remove once the SDK prunes native/r2r for the non-R2R path (dotnet/runtime#132466).
     -->
     <Target Name="PruneCoreClrR2RImagesForInterp"
-            Condition="'$(RuntimeIdentifier)' == 'browser-wasm' and '$(RuntimeFlavor)' == 'CoreCLR' and '$(PublishReadyToRun)' != 'true'"
+            Condition="'$(BenchmarkPreset)' != 'DevLoop' and '$(RuntimeIdentifier)' == 'browser-wasm' and '$(RuntimeFlavor)' == 'CoreCLR' and '$(PublishReadyToRun)' != 'true'"
             BeforeTargets="ProcessPublishFilesForWasm;_ComputeWasmBuildCandidates">
         <ItemGroup>
             <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)"
@@ -67,7 +77,7 @@
       TODO: remove once dotnet/runtime#133413 + dotnet/sdk#55785 flow into the daily SDK (the
       wasm-tools workload will then acquire crossgen2 and set $(Crossgen2ToolPath)).
     -->
-    <ItemGroup Condition="'$(RuntimeFlavor)' == 'CoreCLR'
+    <ItemGroup Condition="'$(BenchmarkPreset)' != 'DevLoop' and '$(RuntimeFlavor)' == 'CoreCLR'
                           and '$(WasmBuildNative)' == 'true'
                           and '$(Crossgen2InBuildDir)' == ''
                           and '$(DisableRepoWasmCrossgen2)' != 'true'">
@@ -78,7 +88,7 @@
 
     <Target Name="ProvideWasmCrossgen2ForNativeRelink"
             BeforeTargets="_CoreCLRGenerateManagedToNative"
-            Condition="'$(RuntimeIdentifier)' == 'browser-wasm'
+            Condition="'$(BenchmarkPreset)' != 'DevLoop' and '$(RuntimeIdentifier)' == 'browser-wasm'
                        and '$(RuntimeFlavor)' == 'CoreCLR'
                        and '$(WasmBuildNative)' == 'true'
                        and '$(Crossgen2InBuildDir)' == ''

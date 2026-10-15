@@ -18,8 +18,9 @@ Cards show timer boundaries, medians, trial counts and failure/unsupported
 reasons. Build-only time is an expandable rebuild breakdown, not another primary
 metric. See [exact timing definitions](metrics.md#clean-debug-developer-loop).
 
-Results come only from `data/views/debug/`; publish and historical tuned DevLoop
-data never fill missing cells. Missing or malformed resources are visible errors.
+Published results come from `data/views/debug/`; local dev-loop results use
+`data/local-debug/`. These sources never substitute for one another, and publish
+or historical tuned DevLoop data never fills missing cells. Malformed resources are errors.
 Graphs show per-batch medians without smoothing; percentages default off.
 
 Percentages use the latest complete, non-smoke, paired same-runner batch with
@@ -33,9 +34,10 @@ separates native, translated and unknown SDK hosts. SDK day and measurement UTC
 are distinct; reruns remain separate observations. Raw evidence retains each
 trial and its evaluated settings.
 
-For a local preview, copy transformed `index.json` and `generations/` into
-the source-built viewer's `wwwroot/data/views/debug/`, or use `VIEWER_DATA_URL`.
-Test fixtures are synthetic protocol data, not measurements.
+The preview helper reads local dev-loop views directly from `artifacts/debug-views`
+(the `transform-debug-views` output). Set `VIEWER_LOCAL_DEBUG_ROOT` for another
+output directory; no copy into the viewer is needed. `VIEWER_DATA_URL` selects
+published data independently. Test fixtures are synthetic, not measurements.
 
 The Blazor viewer is in `src/bench-viewer`. Home and `/net12-focus` share
 branding and mode links at the top of their left pane. Home keeps its app tabs,
@@ -261,12 +263,16 @@ as above, then start the helper:
 node --import ./bench/node_modules/tsx/dist/loader.mjs tests/helpers/serve-viewer.mjs
 ```
 
-Open the printed `/net12-focus` URL with `?local=true`. The helper serves
+Open the printed `VIEWER_LOCAL_URL` (`/net12-focus?local=true`). The helper serves
 `data/local-runtime-comparison.json` from the CLI's shared
 `artifacts/local-runtime/current-result.json` pointer, verifying statuses and
 hashes on every request. **Reload local data** picks up new results; broken evidence
 is an error, never a copied-snapshot fallback. `dashboard.json` is an explicit
 static/offline export. Local mode does not publish data or change SDK filters.
+The sidebar adds **Local NET12 focus** and **Local NET12 dev-loop** only when each
+local dataset is available. Published buttons keep their original destinations;
+local buttons use `?local=true`. Discovery failures are shown, not treated as
+missing data. Reload the page after creating a new local dataset.
 
 The local view defaults to mobile startup and desktop for other metrics. Each
 curve identifies its recorded mode: CoreCLR after, Mono before and CoreCLR before.

@@ -149,7 +149,7 @@ export function parseDebugPayload(value: unknown, index: DebugIndex, app: string
 
 export class DebugLoader {
     private cache = new Map<string, DebugPublication>();
-    constructor(private readonly root: URL, private readonly request: typeof fetch = (url, init) => globalThis.fetch(url, init)) {}
+    constructor(readonly root: URL, private readonly request: typeof fetch = (url, init) => globalThis.fetch(url, init)) {}
     private async json(path: string, signal: AbortSignal): Promise<unknown> {
         const response = await this.request(new URL(path, this.root), { signal, cache: 'no-store' });
         if (!response.ok) throw new Error(`Debug ${path}: HTTP ${response.status}. No legacy measurements were substituted.`);

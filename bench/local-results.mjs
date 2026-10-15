@@ -8,6 +8,10 @@ import { terminalStylesEnabled } from './local-command.mjs';
 
 const artifactsRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'artifacts');
 
+export class NoSavedComparisonError extends Error {
+    code = 'NO_SAVED_COMPARISON';
+}
+
 export async function registerComparison(path, artifacts = artifactsRoot) {
     path = resolve(path);
     await loadLocalComparisonData(JSON.parse(await readFile(path, 'utf8')));
@@ -132,7 +136,7 @@ export async function findLatestComparison(output, artifacts = artifactsRoot, wr
         }
         if (timestamp > measuredAt) { measuredAt = timestamp; latest = path; }
     }
-    if (!latest) throw new Error('No measured comparisons found. Supply --display-results <comparison.json> or select a results directory with --output.');
+    if (!latest) throw new NoSavedComparisonError('No measured comparisons found. Supply --display-results <comparison.json> or select a results directory with --output.');
     return latest;
 }
 const metrics = [

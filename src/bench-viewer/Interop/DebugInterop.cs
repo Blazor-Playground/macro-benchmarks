@@ -6,7 +6,7 @@ internal static partial class DebugInterop
 {
     private const string ModuleName = "debug-interop.js";
     [JSImport("createDebugSession", ModuleName)]
-    internal static partial string Create(string baseUri);
+    internal static partial string Create(string baseUri, bool local);
     [JSImport("loadDebugReport", ModuleName)]
     internal static partial Task<string> Load(string id, string app, string range, bool force);
     [JSImport("renderDebugCharts", ModuleName)]

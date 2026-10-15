@@ -1,7 +1,7 @@
 import { access, mkdir, mkdtemp, rmdir, symlink, unlink } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { startStaticServer } from '../../bench/src/lib/measure-utils.ts';
-import { startViewerDataProxy } from './viewer-data-proxy.mjs';
+import { readLocalDebugFile, startViewerDataProxy } from './viewer-data-proxy.mjs';
 import { loadCurrentComparisonData } from '../../bench/local-results.mjs';
 
 const wwwroot = resolve(process.env.VIEWER_WWWROOT ?? 'artifacts/bench-viewer/wwwroot');
@@ -11,10 +11,14 @@ const site = await mkdtemp(resolve('artifacts/viewer-site-'));
 await symlink(wwwroot, join(site, 'macro-benchmarks'), 'dir');
 await symlink(join(wwwroot, 'index.html'), join(site, 'index.html'));
 const dataUrl = process.env.VIEWER_DATA_URL;
+const localDebugRoot = resolve(process.env.VIEWER_LOCAL_DEBUG_ROOT ?? 'artifacts/debug-views');
 const staticServer = await startStaticServer(site, 0);
 const server = await startViewerDataProxy(staticServer.port, dataUrl, Number(process.env.PORT ?? 0),
-    console.error, () => loadCurrentComparisonData());
+    console.error, () => loadCurrentComparisonData(), path => readLocalDebugFile(localDebugRoot, path));
 console.log(`VIEWER_URL=http://127.0.0.1:${server.port}/macro-benchmarks/net12-focus`);
+console.log(`VIEWER_LOCAL_URL=http://127.0.0.1:${server.port}/macro-benchmarks/net12-focus?local=true`);
+console.log(`VIEWER_LOCAL_DEBUG_URL=http://127.0.0.1:${server.port}/macro-benchmarks/net12-debug?local=true`);
+console.log(`VIEWER_LOCAL_DEBUG_ROOT=${localDebugRoot}`);
 console.log(`VIEWER_WWWROOT=${wwwroot}`);
 console.log(`VIEWER_SITE=${site}`);
 console.log(`VIEWER_PID=${process.pid}`);

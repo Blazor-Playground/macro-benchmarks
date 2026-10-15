@@ -315,7 +315,7 @@ export async function publish(options) {
         `/p:LocalWebAssemblySdkPackVersion=${local.wasmSdk.version}`,
         `/p:BenchmarkPreset=${preset === 'aot' ? 'Aot' : 'NoWorkload'}`,
         `/p:RuntimeFlavor=${options.runtime === 'coreclr' ? 'CoreCLR' : 'Mono'}`,
-        '/p:Configuration=Release', `/p:BuildLabel=${label}`,
+        '/p:Configuration=Release', '/p:Platform=AnyCPU', '/p:PlatformTarget=AnyCPU', `/p:BuildLabel=${label}`,
         `/p:RestoreConfigFile=${configPath}`, '/p:UsingBrowserRuntimeWorkload=false',
         '/p:MSBuildDisableTaskHost=true', '/p:UseSharedCompilation=false',
         '-m:1', '/nr:false',
@@ -405,7 +405,7 @@ export async function publish(options) {
     if (options.measure) {
         const tsx = requireFile(join(repoRoot, 'bench', 'node_modules', 'tsx', 'dist', 'loader.mjs'),
             'Run npm ci --prefix bench, then rerun measurement using the saved manifest.');
-        await runStep(process.execPath, ['--import', tsx, join(repoRoot, 'bench', 'src', 'scripts', 'measure-local-runtime.ts'),
+        await runStep(process.execPath, ['--import', pathToFileURL(tsx).href, join(repoRoot, 'bench', 'src', 'scripts', 'measure-local-runtime.ts'),
             manifestPath, ...options.measureArgs], repoRoot, env, join(runDir, 'logs', 'measure.log'));
     }
     return manifestPath;

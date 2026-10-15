@@ -49,7 +49,7 @@ async function sourceSelectionFixture(t) {
         run: async (command, args, { cwd }) => {
             if (command !== 'git') { builds++; throw new Error('fixture source build failed'); }
             const redirected = args[0] === 'clone' && args[1] === 'https://github.com/dotnet/runtime.git'
-                ? ['clone', source, args[2]] : args;
+                ? ['clone', source, ...args.slice(2)] : args;
             execFileSync(command, redirected, { cwd, stdio: 'pipe' });
         },
     });

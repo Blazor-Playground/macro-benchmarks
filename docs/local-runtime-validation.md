@@ -71,3 +71,50 @@ remain in ignored local artifacts:
 `artifacts/runtime-bootstrap-proof/plain-default-workflow-check.md`,
 `plain-default-check/check.json`, and per-run build/measurement logs.
 They are not dependencies of the contributor workflow.
+
+## Windows x64 validation
+
+Validated on 2026-10-15 using dotnet/runtime
+`ce202f8f8183262f77bf094a5860390f3af92a2d`, Node.js 24.13.1,
+Visual Studio 2026 18.2 and installed Chrome 155.0.8059.40.
+
+The real bootstrap workflow was resumed after a machine restart with
+`node bench\iterate.mjs` from a Visual Studio Developer Command Prompt.
+Existing clean control checkouts and incremental native build outputs were
+reused, without mocking builds or seeding measurement caches. Chrome updated
+from 153 to 155 during the restart, so controls were remeasured rather than
+reusing incompatible browser results.
+
+Mono interpreter before and CoreCLR composite before/after all built, packaged,
+published and passed Chrome desktop/mobile measurements: 10 cold and 5 warm
+samples per profile, and one desktop walkthrough. All three source checkouts
+were clean at the same revision; this validates the workflow, not a runtime
+performance change. Saved-results display also passed.
+
+A subsequent `node bench\bootstrap.mjs artifacts\windows-runtime` exited 0,
+reused both measured controls and incrementally rebuilt/published/measured after
+again. The control manifests were unchanged and the after manifest was fresh.
+
+The run exposed and corrected Windows loader file URLs, hardened command lookup,
+Git long-path configuration, native build output path lengths and inherited
+`Platform=x64` settings affecting browser publishes. A separate intermittent
+CoreCLR startup failure came from Havit registering imports before the runtime
+API was ready; the early Mono fallback now checks availability while the
+dedicated ready callback remains authoritative.
+
+Repository tests passed (168), as did the benchmark CLI tests (13).
+Real logs and evidence remain in ignored artifacts:
+`artifacts/windows-bootstrap-ready-fix.log`,
+`artifacts/windows-bootstrap-final.log`,
+`artifacts/c/comparison-XcnwhY/comparison.json`,
+`artifacts/c/comparison-lROyMH/comparison.json`, and the per-publish logs/results.
+
+PR preparation on 2026-10-16 incorporated current `main`, including its shared
+runtime-ready callback compatibility fix. Repository tests passed (181), along
+with the 13 bootstrap-related CLI tests. The full CLI suite had 30 passing,
+one skipped and one failing test: the unchanged upstream dev-loop process
+cleanup test invokes Unix `ps` on Windows (`spawn ps ENOENT`).
+A fresh CoreCLR composite publish and desktop/mobile smoke measurement also
+passed on this updated base using the existing native outputs (one cold/warm
+sample per profile and one desktop walkthrough). Its log is
+`artifacts/windows-pr-publish-smoke.log`.

@@ -4,13 +4,12 @@ import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
-import { compare, measurementOptions, parseCompareOptions } from './compare-local-runtime.mjs';
+import { compare, defaultComparisonOutput, measurementOptions, parseCompareOptions } from './compare-local-runtime.mjs';
 import { checkPrerequisites, probeCommand, probeTar, reportPrerequisites } from './local-prerequisites.mjs';
 import { displaySavedResults, findLatestComparison, variantName } from './local-results.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const statePath = join(root, 'artifacts', 'local-runtime', 'quick-start.json');
-const output = join(root, 'artifacts', 'local-runtime-comparisons');
 const help = `Runtime contributor quick start (run from macro-benchmarks; Node.js >= 24):
 
   node bench/bootstrap.mjs [runtime-path] [comparison options] [-- measurement options]
@@ -78,7 +77,7 @@ export async function selectDefaults({
 }
 
 export async function quickStart(action, runtimePath, {
-    stateFile = statePath, outputDir = output, defaults = selectDefaults,
+    stateFile = statePath, outputDir = defaultComparisonOutput, defaults = selectDefaults,
     check = checkPrerequisites, report = reportPrerequisites, run = compare,
 } = {}, extraArgs = []) {
     let settings;

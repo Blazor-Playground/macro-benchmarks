@@ -54,6 +54,7 @@ export async function findLatestComparison(output, artifacts = artifactsRoot, wr
             candidates.add(record.path);
             indexed.add(record.path);
         }
+        await collect(join(artifacts, 'c'));
         await collect(join(artifacts, 'local-runtime-comparisons'));
         // Discover earlier unregistered local runs without traversing runtime sources/build outputs.
         for (const entry of await entries(artifacts)) {

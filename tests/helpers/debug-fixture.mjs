@@ -1,4 +1,6 @@
 // Synthetic protocol fixtures, not measured performance results.
+import { routeLocalNavigation } from './local-navigation-fixture.mjs';
+
 export const debugKeys = [
     'debug-first-run-to-first-render', 'debug-incremental-run-to-first-render',
     'debug-rebuild-edit-to-render', 'debug-incremental-build', 'debug-hot-reload-edit-to-render', 'havit-walkthrough',
@@ -51,10 +53,12 @@ export function debugResources(batches = [debugBatch(), debugBatch('empty-blazor
     ]);
 }
 
-export async function routeDebugFixture(page, resources = debugResources()) {
+export async function routeDebugFixture(page, resources = debugResources(), local = false) {
     await page.clock.setFixedTime(new Date('2026-09-30T12:00:00Z'));
-    await page.route('**/data/views/debug/**', route => {
-        const key = new URL(route.request().url()).pathname.split('/data/views/debug/')[1];
+    await routeLocalNavigation(page, { debug: local });
+    const prefix = local ? '/data/local-debug/' : '/data/views/debug/';
+    await page.route(`**${prefix}**`, route => {
+        const key = new URL(route.request().url()).pathname.split(prefix)[1];
         return resources.has(key) ? route.fulfill({ json: resources.get(key) })
             : route.fulfill({ status: 404, body: 'No fixture resource' });
     });

@@ -1,13 +1,13 @@
 import { RUNTIME_COLORS } from './constants.js';
 import { formatFocusValue, isPositive, signedPercent } from './focus-data.js';
 import { DEFAULT_FOCUS_GRAPH_VISIBILITY } from './focus-selection.js';
-import type { FocusGraphVisibility, FocusMetricReport, FocusPoint, FocusSeries, FocusWindow } from './focus-types.js';
+import type { FocusFixedReference, FocusGraphVisibility, FocusMetricReport, FocusPoint, FocusSeries, FocusWindow } from './focus-types.js';
 
 export type ComparisonPoint = Omit<FocusPoint, 'observation'> & {
     observation: { sdkVersion: string; day: string };
 };
 export type ComparisonMetric = Pick<FocusMetricReport, 'id' | 'title' | 'unit' | 'divisor' | 'coreclrLabel' | 'monoLabel'
-    | 'comparisonLabel' | 'coreclrBeforeLabel'> & {
+    | 'comparisonLabel' | 'coreclrBeforeLabel' | 'fixedReference'> & {
     points: ComparisonPoint[];
 };
 
@@ -35,7 +35,8 @@ export function focusChartModel(metric: ComparisonMetric, averaged: boolean, sho
     const configurations = metric.coreclrBeforeLabel
         ? [...SERIES, { key: 'coreclrBefore' as const, label: metric.coreclrBeforeLabel, color: '#72a5c4', axis: 'y' }]
         : SERIES;
-    const series = configurations.filter(config => config.key === 'percent' ? visibility.percentage : visibility.measurements).map(config => ({
+    const series = configurations.filter(config => !(metric.fixedReference && config.key === 'coreclr') &&
+        (config.key === 'percent' ? visibility.percentage : visibility.measurements)).map(config => ({
         ...config,
         label: config.key === 'coreclr' ? metric.coreclrLabel : config.key === 'mono' ? metric.monoLabel
             : config.key === 'percent' ? metric.comparisonLabel ?? config.label : config.label,
@@ -47,7 +48,7 @@ export function focusChartModel(metric: ComparisonMetric, averaged: boolean, sho
         windows: metric.points.map(point => windowFor(point, config.key)),
     }));
     // Keep domains stable across presentation toggles, including lookback-window extrema.
-    let runtimeMax = 0;
+    let runtimeMax = metric.fixedReference?.value ?? 0;
     let percentMin = 0;
     let percentMax = 0;
     for (const point of metric.points) {
@@ -60,11 +61,21 @@ export function focusChartModel(metric: ComparisonMetric, averaged: boolean, sho
     const padding = Math.max((percentMax - percentMin) * 0.1, 5);
     return {
         series, bands: averaged && showBands && series.length > 0, bandOpacity: FOCUS_BAND_OPACITY,
+        reference: visibility.measurements ? metric.fixedReference ?? null : null,
         runtimeMax: Math.max(runtimeMax / metric.divisor * 1.1, 1),
         percentMin: percentMin - padding, percentMax: percentMax + padding,
         xMin: metric.points.length === 1 ? -0.5 : 0,
         xMax: metric.points.length === 1 ? 0.5 : Math.max(metric.points.length - 1, 1),
     };
+}
+
+export function fixedReferenceTooltip(reference: FocusFixedReference, metric: ComparisonMetric): string[] {
+    return [
+        `${reference.label}: ${reference.value === null ? 'Not available' : formatFocusValue(reference.value, metric)}`,
+        `Measured ${reference.measuredAt.slice(0, 10)} (UTC)`,
+        `Base ${reference.commit.slice(0, 12)}${reference.dirty === true ? ' + local changes' : reference.dirty === null ? ' (source state unknown)' : ''}`,
+        ...(reference.rounds === null ? [] : [`Pooled from ${reference.rounds} rounds`]),
+    ];
 }
 
 interface BandPoint { x: number; min: number; max: number }
@@ -129,7 +140,7 @@ export class FocusCharts {
         this.dispose();
         if (!visibility.percentage && !visibility.measurements) return;
         for (const metric of report.metrics) {
-            if (!metric.points.some(point =>
+            if (!(visibility.measurements && isPositive(metric.fixedReference?.value ?? null)) && !metric.points.some(point =>
                 (visibility.percentage && point.percent !== null)
                 || (visibility.measurements && (isPositive(point.coreclr) || isPositive(point.mono))))) continue;
             const canvas = document.getElementById(`focus-${owner}-${metric.id}`);
@@ -187,6 +198,17 @@ export class FocusCharts {
                         ctx.font = '9px sans-serif';
                         ctx.fillText('0% parity', chartArea.left + 4, parity - 4);
                     }
+                    if (model.reference?.value !== null && model.reference?.value !== undefined) {
+                        const y = scales.y.getPixelForValue(model.reference.value / metric.divisor);
+                        ctx.strokeStyle = RUNTIME_COLORS.coreclr;
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([6, 4]);
+                        ctx.beginPath();
+                        ctx.moveTo(chartArea.left, y);
+                        ctx.lineTo(chartArea.right, y);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                    }
                     ctx.restore();
                 },
             };
@@ -215,7 +237,7 @@ export class FocusCharts {
                                 title(items: { dataIndex: number }[]) {
                                     const point = metric.points[items[0]?.dataIndex];
                                     return point ? [
-                                        point.observation.sdkVersion, `${report.comparisonKind === 'local' ? 'Comparison' : 'SDK'} day ${point.observation.day} (UTC)`,
+                                        point.observation.sdkVersion, `${metric.fixedReference ? 'Before source' : report.comparisonKind === 'local' ? 'Comparison' : 'SDK'} day ${point.observation.day} (UTC)`,
                                     ].flatMap(text => wrapTooltip(text, true)) : [];
                                 },
                                 label(item: { datasetIndex: number; dataIndex: number }) {
@@ -237,12 +259,15 @@ export class FocusCharts {
                                     }
                                     return lines.flatMap(text => wrapTooltip(text));
                                 },
+                                footer: () => metric.fixedReference
+                                    ? fixedReferenceTooltip(metric.fixedReference, metric).flatMap(text => wrapTooltip(text)) : [],
                             },
                         },
                     },
                     scales: {
                         x: {
                             type: 'linear', min: model.xMin, max: model.xMax,
+                            title: { display: !!metric.fixedReference, text: 'Before source snapshot date (UTC)', font: { size: 8 } },
                             grid: { display: false },
                             ticks: {
                                 stepSize: Math.max(1, Math.ceil((metric.points.length - 1) / 3)),

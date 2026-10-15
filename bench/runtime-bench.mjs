@@ -4,9 +4,11 @@ import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import { parseArgs } from 'node:util';
 import { compare, measurementOptions, parseCompareOptions } from './compare-local-runtime.mjs';
 import { checkPrerequisites, probeCommand, probeTar, reportPrerequisites } from './local-prerequisites.mjs';
-import { displaySavedResults, findLatestComparison, variantName } from './local-results.mjs';
+import { currentComparisonPath, displaySavedResults, variantName } from './local-results.mjs';
+import { collectRecentBefore, recentDayCount, selectRecentCommits } from './local-history.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const statePath = join(root, 'artifacts', 'local-runtime', 'quick-start.json');
@@ -18,22 +20,47 @@ const help = `Runtime contributor quick start (run from macro-benchmarks; Node.j
     Omit runtime-path to clone dotnet/runtime for the after checkout.
   node bench/iterate.mjs [comparison options] [-- measurement options]
     Rebuild and measure the remembered checkout/options; reuse valid before controls.
-  node bench/runtime-bench.mjs results
-    Print the latest saved numbers without building or checking prerequisites.
+  node bench/bootstrap.mjs --measure-recent-days=7
+    Add clean daily before controls using the saved setup; preserve the current after.
+  node bench/runtime-bench.mjs results [--view history|matched]
+    Print the current shared result without building or checking prerequisites.
 
-origin/main is the local tracking ref; fetch it yourself if needed. No automatic fetch.
+origin/main is the local tracking ref; fetch it yourself if needed. No automatic upstream fetch.
 Defaults: Mono interpreter control + CoreCLR publish/R2R composite BEFORE and AFTER.
 Use --variant r2r to switch both CoreCLR sides to non-composite R2R.
 Release, Chrome/desktop+mobile, 10 cold + 5 warm loads,
 1 Havit walkthrough. Installed Google Chrome is preferred; otherwise use Playwright
 Chromium. Missing prerequisites are reported with install commands, never installed.
 Results match NET12 focus: mobile startup, desktop walkthrough/download/publish.
+When the current comparison has history, results defaults to the UI's
+latest historical baseline versus fixed after. --view matched selects its same-base pair.
 Options such as --variant r2r, --variant composite or --sdk are forwarded and remembered.
+Recent days include today (UTC); pin local origin/main once, selecting its
+first-parent snapshot at each UTC day end (today: invocation time). No automatic fetch.
+Repeat to reuse valid controls and retry failed dates. Historical clones are owned,
+separate from your changed checkout. Native builds may take substantial time/space.
 Old interpreter-only settings require another bootstrap to select this experiment.`;
 
 function splitArguments(args) {
     const separator = args.indexOf('--');
     return separator < 0 ? [args, []] : [args.slice(0, separator), args.slice(separator + 1)];
+}
+
+export function historyArguments(action, args) {
+    const [options, measurement] = splitArguments(args);
+    const forwarded = [];
+    let days;
+    for (let index = 0; index < options.length; index++) {
+        const arg = options[index];
+        if (arg !== '--measure-recent-days' && !arg.startsWith('--measure-recent-days=')) {
+            forwarded.push(arg);
+            continue;
+        }
+        if (action !== 'bootstrap') throw new Error('--measure-recent-days is a bootstrap option.');
+        if (days !== undefined) throw new Error('Specify --measure-recent-days only once.');
+        days = recentDayCount(arg.includes('=') ? arg.slice(arg.indexOf('=') + 1) : options[++index]);
+    }
+    return { days, args: [...forwarded, ...(args.includes('--') ? ['--', ...measurement] : [])] };
 }
 
 function rememberedArguments(options) {
@@ -79,17 +106,29 @@ export async function selectDefaults({
 
 export async function quickStart(action, runtimePath, {
     stateFile = statePath, outputDir = output, defaults = selectDefaults,
-    check = checkPrerequisites, report = reportPrerequisites, run = compare,
+    check = checkPrerequisites, report = reportPrerequisites, run = compare, collect = collectRecentBefore,
+    now = () => new Date(), selectHistory = selectRecentCommits,
 } = {}, extraArgs = []) {
+    const history = historyArguments(action, extraArgs);
+    const startedAt = now();
+    let historyPlan;
+    extraArgs = history.args;
     let settings;
-    if (action === 'bootstrap') {
+    let remembered = action === 'iterate';
+    if (action === 'bootstrap' && history.days !== undefined && !runtimePath) {
+        try {
+            settings = JSON.parse(await readFile(stateFile, 'utf8'));
+            remembered = true;
+        } catch (error) { if (error.code !== 'ENOENT') throw error; }
+    }
+    if (action === 'bootstrap' && !remembered) {
         settings = {
             version: 3, runtimeRepo: resolve(runtimePath ?? join(outputDir, 'runtime-coreclr')),
             output: resolve(outputDir), ...await defaults(),
         };
-    } else if (action === 'iterate') {
+    } else if (remembered) {
         try {
-            settings = JSON.parse(await readFile(stateFile, 'utf8'));
+            settings ??= JSON.parse(await readFile(stateFile, 'utf8'));
         } catch (error) {
             if (error.code === 'ENOENT') throw new Error('Run node bench/bootstrap.mjs [runtime-path] once before iterating.');
             throw error;
@@ -114,7 +153,7 @@ export async function quickStart(action, runtimePath, {
         }
     } else throw new Error('Choose bootstrap, iterate, or results. Use --help for the two-command workflow.');
 
-    const initialArgs = action === 'iterate' ? settings.compareArgs :
+    const initialArgs = remembered ? settings.compareArgs :
         ['--output', settings.output, '--runtime', 'coreclr', '--variant', 'composite',
             '--include-mono-before',
             ...(runtimePath ? ['--runtime-repo', settings.runtimeRepo] : []),
@@ -125,6 +164,9 @@ export async function quickStart(action, runtimePath, {
     if (options.runtime !== 'coreclr') throw new Error('Quick start compares CoreCLR after with NET12 controls; use compare-local-runtime.mjs for Mono experiments.');
     if (options['display-results'] !== undefined || options['check-prerequisites'] || options.help) {
         throw new Error('Use runtime-bench.mjs results or compare-local-runtime.mjs --check-prerequisites for read-only commands.');
+    }
+    if (history.days !== undefined && options['runtime-ref'] && remembered) {
+        throw new Error('History uses the remembered checkout; --runtime-ref is only for a new bootstrap clone.');
     }
     options.output = resolve(options.output);
     for (const path of ['sdk', 'mono-before']) if (options[path]) options[path] = resolve(options[path]);
@@ -143,27 +185,41 @@ export async function quickStart(action, runtimePath, {
         });
         report(prerequisites);
         if (!prerequisites.ok) throw new Error('Resolve the missing prerequisites above and repeat this command. Nothing was installed.');
-        console.log(`Before: separate clean checkout at the merge base with local origin/main\nAfter runtime: ${settings.runtimeRepo}\n` +
+        console.log(`${history.days !== undefined && remembered ? 'After: preserve the current saved measurement; fill daily before controls'
+            : 'Before: separate clean checkout at the merge base with local origin/main'}\nAfter runtime: ${settings.runtimeRepo}\n` +
             `Browser: ${settings.systemChrome ? 'installed Google Chrome' : 'Playwright Chromium'}\n` +
             `Modes: CoreCLR ${variantName({ runtime: 'coreclr', variant: options['before-variant'] })} before; ` +
             `CoreCLR ${variantName({ runtime: 'coreclr', variant: options.variant })} after` +
             `${options['mono-before'] ? '; saved Mono before control' : options['include-mono-before'] ? '; Mono interpreter before' : ''}.\n` +
             `${options.configuration} / ${measurement.engine}/${measurement.profile}; ` +
             `${measurement['cold-runs']} cold, ${measurement['warm-runs']} warm, ${measurement['walkthrough-runs']} walkthrough.`);
-        await saveSettings(stateFile, settings);
-        console.log(`Remembered checkout/settings: ${stateFile}`);
-        return await run(options, {
+        const hooks = {
             getBrowserIdentity: async () => prerequisites.browsers,
             onSourceSelected: async ({ runtimeRepo, commit }) => {
-                if (!settings.pendingRuntimeRef) return;
-                if (resolve(runtimeRepo) !== settings.runtimeRepo || !/^[a-f0-9]{40,64}$/i.test(commit)) {
-                    throw new Error('Runtime ref selection returned an unexpected checkout or commit; iteration remains blocked.');
+                if (settings.pendingRuntimeRef) {
+                    if (resolve(runtimeRepo) !== settings.runtimeRepo || !/^[a-f0-9]{40,64}$/i.test(commit)) {
+                        throw new Error('Runtime ref selection returned an unexpected checkout or commit; iteration remains blocked.');
+                    }
+                    settings.pendingRuntimeRef = undefined;
+                    settings.selectedRuntimeCommit = commit;
+                    await saveSettings(stateFile, settings);
                 }
-                settings.pendingRuntimeRef = undefined;
-                settings.selectedRuntimeCommit = commit;
-                await saveSettings(stateFile, settings);
+                if (history.days !== undefined) historyPlan = selectHistory(runtimeRepo, history.days, startedAt);
             },
-        });
+        };
+        let result;
+        if (history.days === undefined || !remembered) {
+            await saveSettings(stateFile, settings);
+            console.log(`Remembered checkout/settings: ${stateFile}`);
+            result = await run(options, hooks);
+        }
+        if (history.days !== undefined) {
+            result = await collect({ ...options, 'runtime-repo': settings.runtimeRepo, 'runtime-ref': undefined },
+                history.days, { now: () => startedAt, ...(historyPlan ? { select: () => historyPlan } : {}),
+                    measurementDependencies: { getBrowserIdentity: hooks.getBrowserIdentity } });
+            await saveSettings(stateFile, settings);
+        }
+        return result;
     } finally {
         if (previousTar === undefined) delete process.env.BENCH_TAR;
         else process.env.BENCH_TAR = previousTar;
@@ -180,8 +236,9 @@ export async function runQuickStartCli(args = process.argv.slice(2)) {
                 throw new Error('Only bootstrap accepts one optional runtime path. Use --help.');
             }
             if (action === 'results') {
-                if (rest.length) throw new Error('Use compare-local-runtime.mjs --display-results for saved-result selection options.');
-                await displaySavedResults(await findLatestComparison());
+                const { values } = parseArgs({ args: rest, options: { view: { type: 'string' } } });
+                if (values.view !== undefined && !['history', 'matched'].includes(values.view)) throw new Error('Choose results view history or matched.');
+                await displaySavedResults(await currentComparisonPath(), console.log, { view: values.view });
             } else await quickStart(action, runtimePath, undefined, rest);
         }
     } catch (error) {

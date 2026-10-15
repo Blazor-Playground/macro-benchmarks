@@ -1,11 +1,11 @@
 @page "/net12-debug"
 @implements IDisposable
 
-<PageTitle>NET12 dev-loop - .NET WASM Benchmarks</PageTitle>
+<PageTitle>@(Local ? "Local NET12 dev-loop" : "NET12 dev-loop") - .NET WASM Benchmarks</PageTitle>
 <div class="net12-focus debug-dashboard">
     <div class="focus-workbench">
         <aside class="focus-settings" aria-label="NET12 dev-loop settings">
-            <DashboardSidebarHeader Active="debug" />
+            <DashboardSidebarHeader Active="@(Local ? "local-debug" : "debug")" />
             <label for="debug-app">Application</label>
             <select id="debug-app" value="@app" @onchange="ChangeApp">
                 @foreach (var id in report?.Apps ?? ["empty-blazor", "havit-bootstrap"])
@@ -16,7 +16,7 @@
             <div class="focus-selection-control">
                 <label for="debug-cohort">Recorded environment / methodology</label>
                 <select id="debug-cohort" value="@cohort" @onchange="ChangeCohort" disabled="@(report?.Cohorts.Count is not > 0)">
-                    @if (report?.Cohorts.Count is not > 0) { <option>No clean-Debug cohort published</option> }
+                    @if (report?.Cohorts.Count is not > 0) { <option>No clean-Debug cohort available</option> }
                     @foreach (var item in report?.Cohorts ?? [])
                     {
                         <option value="@item.Id">@item.Label</option>
@@ -56,8 +56,9 @@
                 <p>Debug scenarios from <a href="https://github.com/dotnet/runtime/issues/133691">dotnet/runtime#133691</a>: run to first render, development loop and optional walkthrough.</p>
             </div>
             <div class="focus-provenance">
+                @if (Local) { <strong>Local result files, separate from the published dataset.</strong> }
                 <strong>Complete, non-smoke, same-runner pairs only. Local results are experiments, not isolated CI baselines.</strong>
-                <a href="net12-debug#debug-methodology">Metric definitions</a>
+                <a href="@(Local ? "net12-debug?local=true#debug-methodology" : "net12-debug#debug-methodology")">Metric definitions</a>
             </div>
             <div class="focus-chart-toolbar">
                 <strong>@DashboardConfig.AppName(app)</strong>
@@ -85,7 +86,7 @@
                         </div>
                     </section>
                 }
-                <p class="focus-coverage">Publication refreshed @report.LastUpdated. SDK build day is separate from actual measurement UTC.</p>
+                <p class="focus-coverage">Data refreshed @report.LastUpdated. SDK build day is separate from actual measurement UTC.</p>
                 @if (report.RawDataPath != null)
                 {
                     <p><a href="@report.RawDataPath" target="_blank" rel="noopener">Raw batch and per-trial evidence</a></p>

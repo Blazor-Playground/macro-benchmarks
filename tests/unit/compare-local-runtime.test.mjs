@@ -9,6 +9,7 @@ import {
     buildSubsets, compare, loadBaseline, measurementRecord, monoBaselineWarnings, parseCompareOptions,
 } from '../../bench/compare-local-runtime.mjs';
 import { formatCommand, runCommand, statusLine } from '../../bench/local-command.mjs';
+import { currentComparisonPath, loadCurrentComparisonData, registerComparison } from '../../bench/local-results.mjs';
 
 function git(cwd, ...args) {
     return execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8' }).trim();
@@ -139,7 +140,10 @@ test('command runner reports success, nonzero failure, and spawn failure with lo
 
 test('first comparison builds both revisions; second reuses before and builds/measures only changed checkout', async t => {
     const f = await fixture(t);
+    const artifacts = join(f.root, 'artifacts');
+    f.dependencies.registerResult = path => registerComparison(path, artifacts);
     const first = await compare(f.options, f.dependencies);
+    assert.equal(await currentComparisonPath(artifacts), first.comparisonPath);
     assert.equal(f.published.length, 2);
     assert.equal(f.published[0].label, 'before');
     assert.equal(f.published[0].tracked, 'baseline\n');
@@ -156,6 +160,9 @@ test('first comparison builds both revisions; second reuses before and builds/me
     f.calls.length = 0;
     f.published.length = 0;
     const second = await compare({ ...f.options, measureArgs: ['--warm-runs', '1', '--cold-runs', '1', '--verbose'] }, f.dependencies);
+    assert.equal(await currentComparisonPath(artifacts), second.comparisonPath);
+    assert.equal((await loadCurrentComparisonData(artifacts)).after.manifest.runDir,
+        dirname(second.after.manifestPath));
     assert.equal(second.before.manifestPath, first.before.manifestPath);
     assert.equal(f.published.length, 1);
     assert.equal(f.published[0].label, 'after');

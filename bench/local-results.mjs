@@ -8,7 +8,13 @@ import { terminalStylesEnabled } from './local-command.mjs';
 
 const artifactsRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'artifacts');
 
+export class NoSavedComparisonError extends Error {
+    code = 'NO_SAVED_COMPARISON';
+}
+
 export async function registerComparison(path, artifacts = artifactsRoot) {
+    path = resolve(path);
+    await loadLocalComparisonData(JSON.parse(await readFile(path, 'utf8')));
     const directory = join(artifacts, 'local-runtime', 'comparison-index');
     await mkdir(directory, { recursive: true });
     const name = createHash('sha256').update(resolve(path)).digest('hex');
@@ -19,6 +25,53 @@ export async function registerComparison(path, artifacts = artifactsRoot) {
     } finally {
         await rm(temporary, { force: true });
     }
+    const current = join(artifacts, 'local-runtime', 'current-result.json');
+    const pending = `${current}-${randomUUID()}.tmp`;
+    try {
+        await writeFile(pending, JSON.stringify({ schemaVersion: 1, path }));
+        await rename(pending, current);
+    } finally {
+        await rm(pending, { force: true });
+    }
+}
+
+async function currentPointer(artifacts) {
+    const path = join(artifacts, 'local-runtime', 'current-result.json');
+    let text;
+    try {
+        text = await readFile(path, 'utf8');
+    } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+        return null;
+    }
+    const record = JSON.parse(text);
+    if (record.schemaVersion !== 1 || typeof record.path !== 'string' || !record.path) {
+        throw new Error(`Invalid current-result pointer: ${path}`);
+    }
+    return record.path;
+}
+
+export async function readCurrentComparison(artifacts = artifactsRoot) {
+    const path = await currentPointer(artifacts);
+    return path === null ? null : { path, comparison: JSON.parse(await readFile(path, 'utf8')) };
+}
+
+export async function readLegacyComparison(artifacts = artifactsRoot) {
+    const path = await findLatestComparison(undefined, artifacts);
+    return { path, comparison: JSON.parse(await readFile(path, 'utf8')) };
+}
+
+export async function currentComparisonPath(artifacts = artifactsRoot, writeWarning = console.warn) {
+    const path = await currentPointer(artifacts);
+    if (path !== null) return path;
+    writeWarning('No current-result pointer yet; selecting the latest legacy comparison by measurement timestamp.');
+    return await findLatestComparison(undefined, artifacts, writeWarning);
+}
+
+export async function loadCurrentComparisonData(artifacts = artifactsRoot) {
+    const path = await currentComparisonPath(artifacts);
+    const data = await loadLocalComparisonData(JSON.parse(await readFile(path, 'utf8')));
+    return { ...data, comparisonPath: path };
 }
 
 async function entries(path) {
@@ -82,7 +135,7 @@ export async function findLatestComparison(output, artifacts = artifactsRoot, wr
         }
         if (timestamp > measuredAt) { measuredAt = timestamp; latest = path; }
     }
-    if (!latest) throw new Error('No measured comparisons found. Supply --display-results <comparison.json> or select a results directory with --output.');
+    if (!latest) throw new NoSavedComparisonError('No measured comparisons found. Supply --display-results <comparison.json> or select a results directory with --output.');
     return latest;
 }
 const metrics = [
@@ -130,7 +183,33 @@ function table(rows, emphasize, emphasizeChange, emphasizedColumns) {
     ]).flat().join('\n');
 }
 
-export function formatResults(data, { bold = terminalStylesEnabled(), color = terminalStylesEnabled() } = {}) {
+export function formatResults(data, { bold = terminalStylesEnabled(), color = terminalStylesEnabled(), view } = {}) {
+    if (view !== undefined && !['history', 'matched'].includes(view)) throw new Error('Choose results view history or matched.');
+    let historyDay;
+    let historyUnavailable = false;
+    if (data.beforeHistory !== undefined && view !== 'matched') {
+        if (!Array.isArray(data.beforeHistory) || !data.beforeHistory.length) throw new Error('Invalid saved baseline history.');
+        const passed = data.beforeHistory.filter(entry => entry.status === 'passed').sort((a, b) => a.day.localeCompare(b.day));
+        const latest = passed.at(-1);
+        for (const entry of passed) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(entry.day) || !Number.isFinite(Date.parse(entry.day)) ||
+                entry.before?.manifest.sdkInfo?.runtimeGitHash !== entry.commit ||
+                entry.before.manifest.sdkInfo.localRuntime?.source?.dirty !== false ||
+                entry.before.manifest.variant !== data.after.manifest.variant ||
+                (entry.monoBefore && (entry.monoBefore.manifest.sdkInfo.runtimeGitHash !== entry.commit ||
+                    entry.monoBefore.manifest.sdkInfo.localRuntime?.source?.dirty !== false))) {
+                throw new Error(`Invalid saved historical baseline: ${entry.day}`);
+            }
+        }
+        if (latest) {
+            historyDay = latest.day;
+            data = { ...data, before: latest.before, monoBefore: latest.monoBefore };
+        } else historyUnavailable = true;
+    } else if (view === 'matched' && (data.before.manifest.sdkInfo.runtimeGitHash !== data.after.manifest.sdkInfo.runtimeGitHash ||
+        data.before.manifest.sdkInfo.localRuntime?.source?.dirty !== false ||
+        data.before.manifest.variant !== data.after.manifest.variant)) {
+        throw new Error('A matched view requires a clean before at the same base commit and runtime mode as after.');
+    }
     const emphasize = text => {
         const white = color ? styleText('white', text, { validateStream: false }) : text;
         return bold ? styleText('bold', white, { validateStream: false }) : white;
@@ -142,11 +221,20 @@ export function formatResults(data, { bold = terminalStylesEnabled(), color = te
         return bold ? styleText('bold', painted, { validateStream: false }) : painted;
     };
     const side = (position, run) => [`${runtimeName(run.manifest.runtime)} ${position} (${variantName(run.manifest)})`, run];
-    const sides = data.monoBefore
+    const savedSides = data.monoBefore
         ? [side('before', data.monoBefore), side('before', data.before), side('after', data.after)]
         : [side('before', data.before), side('after', data.after)];
+    const sides = savedSides.map(([label, run]) => [label, historyUnavailable && run !== data.after ? null : run]);
     const primaryName = data.monoBefore ? 'CoreCLR after / Mono before' : 'after / before';
     const lines = ['\n=== Local runtime measurement summary ==='];
+    if (historyDay) lines.push(`View: history; fixed after reference vs latest historical baseline ${historyDay} (UTC), not a matched-tree pair.`);
+    else if (historyUnavailable) {
+        lines.push('View: history; no successful historical baseline. Comparisons unavailable; no matched-pair fallback.');
+        for (const entry of data.beforeHistory) {
+            lines.push(`${entry.day}: ${entry.status}${entry.error ? ` — ${entry.error.split('\n')[0]}` : ''}`);
+        }
+    }
+    else if (view === 'matched') lines.push('View: matched pair; same base commit and runtime mode.');
     const definitions = [`${emphasize('NET12 focus')}: 100 * (${primaryName} - 1). Negative means faster/smaller.`];
     if (data.monoBefore) {
         if (data.before.manifest.runtime !== 'coreclr' || data.after.manifest.runtime !== 'coreclr' ||
@@ -155,6 +243,10 @@ export function formatResults(data, { bold = terminalStylesEnabled(), color = te
     }
     for (const warning of data.warnings ?? []) lines.push(`WARNING: ${warning}`);
     for (const [label, run] of sides) {
+        if (!run) {
+            lines.push(`${label}: unavailable (no passed historical control).`);
+            continue;
+        }
         if (!Array.isArray(run.results) || !run.results.length) throw new Error(`No saved measurement results for ${label}.`);
         lines.push(`${label}: SDK ${run.manifest.sdkInfo.sdkVersion}; TFM ${run.manifest.sdkInfo.bundledFrameworkTfm ?? 'unknown'}; ` +
             `runtime pack ${run.manifest.sdkInfo.runtimePackVersion ?? 'unknown'}`);
@@ -164,9 +256,16 @@ export function formatResults(data, { bold = terminalStylesEnabled(), color = te
         lines.push(`  Uncommitted changes at publish: ${source?.dirty === true
             ? 'yes (measured with working-tree changes)' : source?.dirty === false
                 ? 'no (clean checkout)' : 'unknown (not recorded)'}`);
+        if (run === data.after) {
+            const dates = run.results.map(result => result.meta.benchmarkDateTime).sort();
+            lines.push(`  After measured: ${dates.at(-1)}; ${historyDay || historyUnavailable ? 'fixed reference, not a historical observation' : 'saved measurement'}`);
+            const rounds = run.results[0].meta.timingAggregation?.rounds;
+            if (rounds !== undefined) lines.push(`  Timing aggregation: ${rounds} pooled rounds`);
+        }
     }
     const groups = new Map();
     for (const [label, run] of sides) {
+        if (!run) continue;
         for (const result of run.results) {
             if (!result.meta?.engine || !result.meta.profile || !result.metrics) throw new Error(`Invalid saved result for ${label}.`);
             const id = `${result.meta.engine}/${result.meta.profile}`;
@@ -214,10 +313,11 @@ export function formatResults(data, { bold = terminalStylesEnabled(), color = te
     return lines.join('\n');
 }
 
-export async function displaySavedResults(path, writeLine = console.log) {
+export async function displaySavedResults(path, writeLine = console.log, options = {}) {
     const comparison = JSON.parse(await readFile(path, 'utf8'));
     const data = await loadLocalComparisonData(comparison);
-    writeLine(formatResults(data));
+    writeLine(formatResults(data, options));
     writeLine(`\nSaved comparison: ${path}`);
+    if (data.beforeHistory !== undefined) writeLine('Historical controls: verified evidence referenced by this comparison.');
     return data;
 }

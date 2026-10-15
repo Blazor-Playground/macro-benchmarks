@@ -121,6 +121,7 @@ export interface FocusMetricDefinition {
 }
 
 export interface FocusMetricReport extends FocusMetricDefinition {
+    fixedReference?: FocusFixedReference;
     comparisonLabel?: string;
     coreclrBeforeLabel?: string;
     secondaryComparison?: FocusComparison | null;
@@ -140,6 +141,16 @@ export interface FocusMetricReport extends FocusMetricDefinition {
     hasNewerIncomplete: boolean;
     pairCount: number;
     ageDays: number | null;
+}
+
+export interface FocusFixedReference {
+    value: number | null;
+    label: string;
+    measuredAt: string;
+    sdkVersion: string;
+    commit: string;
+    dirty: boolean | null;
+    rounds: number | null;
 }
 
 export interface FocusReport extends FocusSelection {

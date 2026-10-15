@@ -32,9 +32,10 @@ async function loadRun(record) {
 }
 
 export async function loadLocalComparisonData(comparison) {
-    return {
+    const data = {
         schemaVersion: 1,
-        title: 'Local runtime before/after comparison',
+        title: comparison.title ?? 'Local runtime before/after comparison',
+        note: comparison.note,
         createdAt: new Date().toISOString(),
         setup: comparison.setup,
         warnings: comparison.warnings,
@@ -42,6 +43,36 @@ export async function loadLocalComparisonData(comparison) {
         after: await loadRun(comparison.after),
         monoBefore: comparison.monoBefore ? await loadRun(comparison.monoBefore) : undefined,
     };
+    if (comparison.beforeHistory !== undefined) {
+        if (!Array.isArray(comparison.beforeHistory) || !comparison.beforeHistory.length) {
+            throw new Error('Invalid comparison history records.');
+        }
+        const seen = new Set();
+        data.beforeHistory = [];
+        for (const entry of comparison.beforeHistory) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(entry.day) || !Number.isFinite(Date.parse(entry.day)) ||
+                new Date(entry.day).toISOString().slice(0, 10) !== entry.day || seen.has(entry.day) ||
+                !/^[a-f0-9]{40}$/i.test(entry.commit) || !['passed', 'failed', 'pending', 'running'].includes(entry.status)) {
+                throw new Error('Invalid or duplicate comparison history entry.');
+            }
+            seen.add(entry.day);
+            const item = { day: entry.day, commit: entry.commit, status: entry.status, error: entry.error };
+            for (const side of ['before', 'monoBefore']) {
+                if (!entry[side]) continue;
+                const run = await loadRun(entry[side]);
+                if (run.manifest.sdkInfo.runtimeGitHash !== entry.commit ||
+                    run.manifest.sdkInfo.localRuntime?.source?.dirty !== false ||
+                    run.manifest.runtime !== (side === 'before' ? data.after.manifest.runtime : 'mono') ||
+                    (side === 'before' && run.manifest.variant !== data.after.manifest.variant)) {
+                    throw new Error(`Historical ${side} does not match its clean source snapshot: ${entry.day}`);
+                }
+                item[side] = run;
+            }
+            if (entry.status === 'passed' && !item.before) throw new Error(`Passed history has no before evidence: ${entry.day}`);
+            data.beforeHistory.push(item);
+        }
+    }
+    return data;
 }
 
 export async function writeLocalComparisonData(comparison, path) {

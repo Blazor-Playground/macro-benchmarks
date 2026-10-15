@@ -24,6 +24,8 @@ export class DebugSession {
             if (this.disposed || controller.signal.aborted || generation !== this.generation) return JSON.stringify({ status: 'cancelled' });
             this.publication = { app, value };
             this.report = buildDebugReport(value, app, range, cohort, this.now());
+            const resource = value.index.apps.find(item => item.id === app);
+            this.report.rawDataPath = resource ? new URL(resource.file, this.loader.root).href : null;
             return JSON.stringify({ status: 'ready', report: this.report });
         } catch (error) {
             if (controller.signal.aborted || this.disposed) return JSON.stringify({ status: 'cancelled' });
@@ -46,9 +48,9 @@ function session(id: string): DebugSession {
     if (!result) throw new Error('Debug session no longer exists');
     return result;
 }
-export function createDebugSession(base: string): string {
+export function createDebugSession(base: string, local = false): string {
     const id = crypto.randomUUID();
-    sessions.set(id, new DebugSession(new DebugLoader(new URL('data/views/debug/', base))));
+    sessions.set(id, new DebugSession(new DebugLoader(new URL(local ? 'data/local-debug/' : 'data/views/debug/', base))));
     return id;
 }
 export function loadDebugReport(id: string, app: string, range: FocusRange, cohort: string, force: boolean): Promise<string> {

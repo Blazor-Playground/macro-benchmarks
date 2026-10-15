@@ -19,6 +19,11 @@ public sealed class LocalFocusLoadResult
 
 public sealed class LocalFocusMetadata
 {
+    public string ComparisonPath { get; init; } = "";
+    public bool HasHistory { get; init; }
+    public bool IsHistory { get; init; }
+    public string AfterMeasuredAt { get; init; } = "";
+    public int? AfterRounds { get; init; }
     public bool HasMonoReference { get; init; }
     public string PrimaryFormula { get; init; } = "";
     public string MonoCommit { get; init; } = "";
@@ -70,6 +75,7 @@ public sealed class FocusReport
 
 public sealed class FocusMetricReport
 {
+    public FocusFixedReference? FixedReference { get; init; }
     public string CoreclrBeforeLabel { get; init; } = "";
     public FocusComparison? SecondaryComparison { get; init; }
     public string ComparisonLabel { get; init; } = "";
@@ -97,7 +103,7 @@ public sealed class FocusMetricReport
     public int? AgeDays { get; init; }
 
     [JsonIgnore]
-    public bool HasSeries => Points.Any(point => point.Coreclr is > 0 || point.Mono is > 0);
+    public bool HasSeries => FixedReference?.Value is > 0 || Points.Any(point => point.Coreclr is > 0 || point.Mono is > 0 || point.CoreclrBefore is > 0);
 
     public string FormatValue(double? value) => value is null
         ? "Not available"
@@ -110,6 +116,17 @@ public sealed class FocusMetricReport
         new() { Id = "download", Title = "Cold download size" },
         new() { Id = "build", Title = "Build time" },
     ];
+}
+
+public sealed class FocusFixedReference
+{
+    public double? Value { get; init; }
+    public string Label { get; init; } = "";
+    public string MeasuredAt { get; init; } = "";
+    public string SdkVersion { get; init; } = "";
+    public string Commit { get; init; } = "";
+    public bool? Dirty { get; init; }
+    public int? Rounds { get; init; }
 }
 
 public sealed class FocusComparison

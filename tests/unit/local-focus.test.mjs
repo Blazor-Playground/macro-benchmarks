@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import { localFocusReport } from '../../src/bench-viewer/wwwroot/chart/local-focus.js';
-import { focusChartModel } from '../../src/bench-viewer/wwwroot/chart/focus-chart.js';
+import { fixedReferenceTooltip, focusChartModel } from '../../src/bench-viewer/wwwroot/chart/focus-chart.js';
 
 test('default NET12 flavor/profile controls have no stray Razor closing brace in sidebar markup', async () => {
     const page = await readFile(new URL('../../src/bench-viewer/Pages/Net12Focus.razor', import.meta.url), 'utf8');
@@ -148,4 +148,131 @@ test('cross-variant local report explicitly identifies interpreter, R2R and comp
     assert.equal(result.metadata.afterLabel, 'After (CoreCLR publish/R2R composite)');
     assert.equal(result.report.cohort.monoPreset, 'no-workload');
     assert.deepEqual(chart.series.map(series => series.data[0].y), [2400, 400, 400]);
+});
+
+test('daily baseline history uses chronological source days, fixed after values and explicit gaps', () => {
+    const data = fixture();
+    const entry = (day, digit, cold) => {
+        const before = structuredClone(data.before);
+        before.manifest.sdkInfo.runtimeGitHash = digit.repeat(40);
+        before.results.forEach(result => { result.metrics['time-to-reach-managed-cold'] = cold; });
+        return { day, commit: digit.repeat(40), status: 'passed', before };
+    };
+    data.beforeHistory = [
+        entry('2026-10-11', 'b', 600),
+        { day: '2026-10-10', commit: 'c'.repeat(40), status: 'failed', error: 'unsupported pack' },
+        entry('2026-09-30', 'a', 400),
+    ];
+    const result = localFocusReport(data);
+    const startup = result.report.metrics[0];
+    assert.deepEqual(startup.points.map(point => point.observation.day), ['2026-09-30', '2026-10-10', '2026-10-11']);
+    assert.deepEqual(startup.points.map(point => point.coreclr), [null, null, null]);
+    assert.equal(startup.fixedReference.value, 4800);
+    assert.deepEqual(startup.points.map(point => point.mono), [400, null, 600]);
+    assert.equal(startup.latest.mono, 600);
+    assert.equal(startup.pairCount, 2);
+    assert.match(result.metadata.note, /fixed reference/);
+    assert.ok(result.metadata.warnings.some(warning => warning.includes('unsupported pack')));
+    assert.equal(result.report.startDay, '2026-09-30');
+    const duplicate = structuredClone(data);
+    duplicate.beforeHistory.push(duplicate.beforeHistory[0]);
+    assert.throws(() => localFocusReport(duplicate), /duplicate daily baseline/);
+    data.beforeHistory[0].before.manifest.sdkInfo.localRuntime.source.dirty = true;
+    assert.throws(() => localFocusReport(data), /clean matching-mode/);
+});
+
+test('daily pending history does not expose previous one-pair measurements as historical success', () => {
+    const data = fixture();
+    data.beforeHistory = [{ day: '2026-10-11', commit: 'c'.repeat(40), status: 'running' }];
+    const result = localFocusReport(data);
+    assert.equal(result.report.metrics[0].latest, null);
+    assert.equal(result.report.metrics[0].points[0].coreclr, null);
+    assert.equal(result.report.metrics[0].pairCount, 0);
+    assert.equal(result.report.metrics[0].status, 'incomplete-pair');
+    assert.deepEqual(result.metadata.warnings, []);
+});
+
+test('daily failures are reported once without treating queued days as errors', () => {
+    const data = fixture();
+    const commit = 'c'.repeat(40);
+    const error = 'Runtime build failed; log: build.log\nCompiler lock exception';
+    data.warnings = ['Recorded setup warning', `2026-10-10 ${commit}: ${error}`];
+    data.beforeHistory = [
+        { day: '2026-10-09', commit, status: 'pending' },
+        { day: '2026-10-10', commit, status: 'failed', error },
+        { day: '2026-10-11', commit, status: 'running' },
+    ];
+    assert.deepEqual(localFocusReport(data).metadata.warnings,
+        ['Recorded setup warning', `2026-10-10: failed — ${error}`]);
+});
+
+test('daily three-series history uses a Mono control matched to each day rather than the original Mono baseline', () => {
+    const data = fixture();
+    data.beforeHistory = ['2026-09-30', '2026-10-11'].map((day, index) => {
+        const before = structuredClone(data.before);
+        before.manifest.sdkInfo.runtimeGitHash = String(index + 1).repeat(40);
+        const monoBefore = structuredClone(before);
+        monoBefore.manifest.runtime = 'mono';
+        monoBefore.results.forEach(row => {
+            row.meta.runtime = 'mono';
+            row.metrics['time-to-reach-managed-cold'] = 100 + index * 50;
+        });
+        return { day, commit: before.manifest.sdkInfo.runtimeGitHash, status: 'passed', before, monoBefore };
+    });
+    const result = localFocusReport(data);
+    const model = focusChartModel(result.report.metrics[0], false, false);
+    assert.deepEqual(model.series.map(series => series.label),
+        ['Before (Mono interpreter)', 'Before (CoreCLR interpreter)']);
+    assert.deepEqual(model.series[0].data.map(point => point.y), [100, 150]);
+    assert.deepEqual(model.series[1].data.map(point => point.y), [800, 800]);
+    assert.equal(model.reference.value, 4800);
+    const mismatched = structuredClone(data);
+    mismatched.beforeHistory[1].monoBefore.manifest.sdkInfo.runtimeGitHash = 'f'.repeat(40);
+    assert.throws(() => localFocusReport(mismatched), /same baseline commit/);
+});
+
+test('fixed after reference retains its own measured date and tree, not each baseline observation', () => {
+    const data = fixture();
+    data.after.manifest.sdkInfo.runtimeGitHash = 'f'.repeat(40);
+    data.after.results.forEach(row => {
+        row.meta.benchmarkDateTime = '2026-10-14T10:30:00Z';
+        row.meta.timingAggregation = { rounds: 3 };
+    });
+    const before = structuredClone(data.before);
+    before.manifest.sdkInfo.runtimeGitHash = 'a'.repeat(40);
+    data.beforeHistory = [
+        { day: '2026-09-30', commit: 'a'.repeat(40), status: 'passed', before },
+        { day: '2026-10-01', commit: 'b'.repeat(40), status: 'failed' },
+    ];
+    const result = localFocusReport(data);
+    const metric = result.report.metrics[0];
+    assert.equal(result.metadata.isHistory, true);
+    assert.equal(result.metadata.hasHistory, true);
+    assert.equal(metric.latest.coreclr, null);
+    assert.equal(metric.fixedReference.value, 4800);
+    assert.deepEqual(fixedReferenceTooltip(metric.fixedReference, metric), [
+        'After reference (CoreCLR interpreter): 4,800 ms',
+        'Measured 2026-10-14 (UTC)',
+        `Base ${'f'.repeat(12)} + local changes`,
+        'Pooled from 3 rounds',
+    ]);
+    assert.equal(focusChartModel(metric, false, false).series.some(series => series.key === 'coreclr'), false);
+    assert.equal(focusChartModel(metric, false, false, { measurements: false, percentage: true }).reference, null);
+    assert.equal(metric.points[0].observation.day, '2026-09-30');
+    assert.equal(metric.points[0].observation.variant.runtimeGitHash, 'a'.repeat(40));
+    assert.match(metric.comparisonLabel, /Fixed after reference vs historical baseline/);
+});
+
+test('matched view is separate from history and rejects a different base or mode', () => {
+    const data = fixture();
+    data.beforeHistory = [{ day: '2026-10-11', commit: 'a'.repeat(40), status: 'pending' }];
+    const result = localFocusReport(data, 'mobile', 'matched');
+    assert.equal(result.metadata.isHistory, false);
+    assert.equal(result.metadata.hasHistory, true);
+    assert.equal(result.report.metrics[0].fixedReference, undefined);
+    assert.equal(result.report.metrics[0].points.length, 1);
+    assert.equal(result.report.metrics[0].latest.coreclr, 4800);
+    data.after.manifest.sdkInfo.runtimeGitHash = 'different';
+    assert.throws(() => localFocusReport(data, 'mobile', 'matched'), /same base commit/);
+    assert.throws(() => localFocusReport(data, 'mobile', 'invalid'), /Select historical/);
 });

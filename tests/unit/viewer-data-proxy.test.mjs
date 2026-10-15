@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { test } from 'node:test';
-import { startViewerDataProxy } from '../helpers/viewer-data-proxy.mjs';
+import { NoSavedComparisonError } from '../../bench/local-results.mjs';
+import { readLocalDebugFile, startViewerDataProxy } from '../helpers/viewer-data-proxy.mjs';
 
 async function serve(t, handler) {
     const server = createServer(handler);
@@ -92,4 +96,78 @@ test('static viewer navigation and headers stay local while invalid data request
     assert.equal((await fetch(`${service.base}/macro-benchmarks/data/views/private.txt`)).status, 400);
     await assert.rejects(startViewerDataProxy(1, 'file:///data/'), /HTTP/);
     await assert.rejects(startViewerDataProxy(1, 'https://user:secret@example.invalid/data/'), /without credentials/);
+});
+
+test('local comparison is loaded on every request and never uses an independent copied bundle', async t => {
+    const local = await serve(t, (_request, response) => { response.end('stale copied viewer data'); });
+    let current = { comparisonPath: '/saved/first/comparison.json', after: { cold: 5000 } };
+    const errors = [];
+    let failure;
+    const proxy = await startViewerDataProxy(local.port, undefined, 0, message => errors.push(message), () => {
+        if (failure) throw failure;
+        return current;
+    });
+    t.after(() => proxy.close());
+    const endpoint = `http://127.0.0.1:${proxy.port}/macro-benchmarks/data/local-runtime-comparison.json`;
+    let response = await fetch(endpoint);
+    assert.deepEqual(await response.json(), current);
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+    assert.equal(response.headers.get('x-viewer-data-source'), current.comparisonPath);
+    current = { comparisonPath: '/saved/second/comparison.json', after: { cold: 4663 } };
+    response = await fetch(endpoint);
+    assert.deepEqual(await response.json(), current);
+    failure = new Error('Changed measurement hash');
+    response = await fetch(endpoint);
+    assert.equal(response.status, 500);
+    assert.match(await response.text(), /Changed measurement hash.*No copied snapshot was substituted/);
+    assert.equal(errors.length, 1);
+});
+
+test('absent local comparisons are discoverable as 404, but broken saved evidence remains an error', async t => {
+    const local = await serve(t, () => assert.fail('No static fallback'));
+    let failure = new NoSavedComparisonError('No saved result');
+    const errors = [];
+    const proxy = await startViewerDataProxy(local.port, undefined, 0, message => errors.push(message),
+        () => { throw failure; });
+    t.after(() => proxy.close());
+    const endpoint = `http://127.0.0.1:${proxy.port}/macro-benchmarks/data/local-runtime-comparison.json`;
+    assert.equal((await fetch(endpoint, { method: 'HEAD' })).status, 404);
+    assert.equal(errors.length, 0);
+    failure = Object.assign(new Error('Missing referenced result'), { code: 'ENOENT' });
+    assert.equal((await fetch(endpoint, { method: 'HEAD' })).status, 500);
+    assert.equal(errors.length, 1);
+});
+
+test('local Debug files are independent of published data, update live and never fall back', async t => {
+    const directory = await mkdtemp(join(tmpdir(), 'local-debug-views-'));
+    t.after(() => rm(directory, { recursive: true, force: true }));
+    const local = await serve(t, () => assert.fail('No static fallback'));
+    const remote = await serve(t, (_request, response) => response.end('{"source":"published"}'));
+    const errors = [];
+    const proxy = await startViewerDataProxy(local.port, `http://127.0.0.1:${remote.port}/published/`, 0,
+        message => errors.push(message), undefined, path => readLocalDebugFile(directory, path));
+    t.after(() => proxy.close());
+    const root = `http://127.0.0.1:${proxy.port}/macro-benchmarks/data/`;
+    assert.equal((await fetch(`${root}local-debug/index.json`, { method: 'HEAD' })).status, 404);
+    await writeFile(join(directory, 'index.json'), '{"source":"local-one"}');
+    let response = await fetch(`${root}local-debug/index.json`, { method: 'HEAD' });
+    assert.equal(response.status, 200);
+    assert.equal(await response.text(), '');
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+    assert.equal(response.headers.get('x-viewer-data-source'), join(directory, 'index.json'));
+    assert.deepEqual(await (await fetch(`${root}local-debug/index.json`)).json(), { source: 'local-one' });
+    await writeFile(join(directory, 'index.json'), '{"source":"local-two"}');
+    assert.deepEqual(await (await fetch(`${root}local-debug/index.json`)).json(), { source: 'local-two' });
+    assert.deepEqual(await (await fetch(`${root}views/debug/index.json`)).json(), { source: 'published' });
+    const generation = 'a'.repeat(64);
+    await mkdir(join(directory, 'generations', generation), { recursive: true });
+    await writeFile(join(directory, 'generations', generation, 'havit-bootstrap.json'), '{"batches":[]}');
+    assert.equal((await fetch(`${root}local-debug/generations/${generation}/havit-bootstrap.json`)).status, 200);
+    assert.equal((await fetch(`${root}local-debug/private.txt`)).status, 400);
+    await assert.rejects(readLocalDebugFile(directory, '../private.json'), /Invalid local Debug/);
+    await writeFile(join(directory, 'index.json'), '{broken');
+    response = await fetch(`${root}local-debug/index.json`);
+    assert.equal(response.status, 500);
+    assert.match(await response.text(), /No published data was substituted/);
+    assert.equal(errors.length, 1);
 });

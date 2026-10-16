@@ -93,7 +93,14 @@ render/update evidence. `transform-debug-views` writes immutable generations
 under `data/views/debug/`, separate from scalar publish grids.
 `publish-debug-views` requires a clean dedicated `gh-pages` checkout and uses
 `commitAndPushWithRetry`: each retry pulls and recomputes the batch union.
-The manual workflow pairs runtimes on one runner; publication is opt-in.
+The regular Benchmark workflow pairs dev-loop runtimes on one runner for
+both supported apps, with five trials and publication on `main`; dry runs are
+unpublished smoke. PR/custom-runtime jobs skip it.
+One aggregate job waits for both collectors, prepares their separate view
+formats, and commits/pushes all result views once. Scheduling waits for it.
+Failed live collection does not withhold valid legacy views, but prevents
+marking the SDK complete.
+No separate Clean Debug workflow or build flavor is used.
 
 The `/net12-debug` page owns a separate loader/session and typed C#/TS reports,
 sharing navigation and the chart renderer, not publish cohorts or timing rules.
@@ -136,12 +143,12 @@ The entrypoint script symlinks pre-installed `node_modules` from `/opt/bench-dep
 | `benchmark.yml` | Daily 04:00 UTC, PR, manual | resolve → build → measure (matrix: app × preset) → aggregate → schedule |
 | `docker-build.yml` | Weekly, push to `docker/`/`bench/`, manual | Build and push container images to GHCR |
 | `schedule.yml` | Manual | Enumerate packs → dispatch benchmarks for untested SDK versions |
-| `debug-benchmark.yml` | Manual | Paired dev-loop measurement → artifacts → optional publication |
 
 ### benchmark.yml job flow
 
 1. **resolve** — enumerate SDK packs, pick target SDK, upload `bench-context.json`
-2. **build** — download SDK, build all apps, generate measurement matrix
-3. **measure** — parallel jobs (one per app × preset), each collects all engines/profiles
-4. **aggregate** — merge results into dashboard views, push to gh-pages
-5. **schedule** — dispatch next untested SDK (if aggregate succeeded)
+2. **measure-dev-loop** — stock SDK12 paired live metrics and retained artifacts
+3. **build** — download SDK, build all apps, generate measurement matrix
+4. **measure** — parallel jobs (one per app × preset), each collects all engines/profiles
+5. **aggregate** — merge publish and dev-loop views, commit and push once to gh-pages
+6. **schedule** — dispatch next untested SDK after the combined publication succeeds

@@ -112,10 +112,81 @@ test('issue scenarios separate run-to-render from edit-to-render and keep build 
     await rebuild.locator('.debug-build-breakdown summary').click();
     await expect(rebuild.locator('.debug-build-detail')).toContainText('not a separate end-to-end metric');
     await expect(page.locator('.focus-heading a')).toHaveAttribute('href', 'https://github.com/dotnet/runtime/issues/133691');
+    await page.locator('#debug-app').selectOption('empty-blazor');
+    await page.getByRole('button', { name: '1 month', exact: true }).click();
     await page.getByRole('link', { name: 'Metric definitions', exact: true }).click();
     await expect(page).toHaveURL(/\/macro-benchmarks\/net12-debug#debug-methodology$/);
+    await expect(page.locator('#debug-app')).toHaveValue('empty-blazor');
+    await expect(page.getByRole('button', { name: '1 month', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-metric="first-run"] .focus-values dd')).toHaveText(['1.25 s', '1.00 s']);
     await expect(page.locator('.debug-dashboard .focus-card')).toHaveCount(5);
-    await page.locator('#debug-methodology summary').click();
-    await expect(page.locator('#debug-methodology')).toContainText('previous process is already stopped');
-    await expect(page.locator('#debug-methodology')).toContainText('while the app is running');
+    const definitions = page.locator('#debug-methodology');
+    await expect(definitions).toHaveAttribute('open', '');
+    await expect(definitions.locator('summary')).toBeInViewport();
+    await expect(definitions.locator('p').first()).toBeVisible();
+    await expect(definitions).toContainText('previous process is already stopped');
+    await expect(definitions).toContainText('while the app is running');
+    await definitions.locator('summary').click();
+    await expect(definitions).not.toHaveAttribute('open', '');
+    await page.getByRole('link', { name: 'Metric definitions', exact: true }).click();
+    await expect(definitions).toHaveAttribute('open', '');
+    await expect(definitions.locator('summary')).toBeInViewport();
+});
+
+test('definitions deep link opens during loading, stays in view after data arrives and works on reload', async ({ page }) => {
+    await routeDebugFixture(page);
+    let release;
+    const pending = new Promise(resolve => { release = resolve; });
+    await page.route('**/data/views/debug/index.json', async route => {
+        await pending;
+        await route.fallback();
+    });
+    try {
+        await page.goto('/macro-benchmarks/net12-debug#debug-methodology');
+        const definitions = page.locator('#debug-methodology');
+        await expect(definitions).toHaveAttribute('open', '');
+        await expect(definitions.locator('summary')).toBeInViewport();
+        release();
+        await expect(page.locator('.debug-dashboard .focus-card')).toHaveCount(5);
+        await expect(definitions.locator('summary')).toBeInViewport();
+        await page.reload();
+        await expect(page.locator('.debug-dashboard .focus-card')).toHaveCount(5);
+        await expect(definitions).toHaveAttribute('open', '');
+        await expect(definitions.locator('summary')).toBeInViewport();
+    } finally { release(); }
+});
+
+test('definitions deep link remains usable when measurement loading fails', async ({ page }) => {
+    await routeDebugFixture(page);
+    await page.route('**/data/views/debug/index.json', route => route.fulfill({ status: 503, body: 'unavailable' }));
+    await page.goto('/macro-benchmarks/net12-debug#debug-methodology');
+    await expect(page.getByRole('alert')).toContainText('HTTP 503');
+    const definitions = page.locator('#debug-methodology');
+    await expect(definitions).toHaveAttribute('open', '');
+    await expect(definitions.locator('p').first()).toBeVisible();
+    await expect(definitions.locator('summary')).toBeInViewport();
+});
+
+test('14-day default excludes older SDKs until a wider history window is selected', async ({ page }) => {
+    const batch = debugBatch('havit-bootstrap', '2026-09-14');
+    batch.measuredAt = '2026-09-30T12:00:00Z';
+    for (const runtime of Object.values(batch.runtimes)) {
+        for (const metric of Object.values(runtime.measurements)) {
+            for (const attempt of metric.attempts) attempt.startedAt = batch.measuredAt;
+        }
+    }
+    await routeDebugFixture(page, debugResources([batch]));
+    await page.goto('/macro-benchmarks/net12-debug');
+    const first = page.locator('[data-metric="first-run"]');
+    await expect(page.getByRole('button', { name: '14 days', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await expect(first.locator('.focus-values dd')).toHaveText(['Not available', 'Not available']);
+    await page.getByRole('button', { name: '1 month', exact: true }).click();
+    await expect(page.getByRole('button', { name: '1 month', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await expect(first.locator('.focus-values dd')).toHaveText(['1.25 s', '1.00 s']);
+    await expect(first.locator('.debug-provenance')).toContainText('SDK day 2026-09-14');
+    await expect(first.locator('.debug-provenance')).toContainText('Batch started 2026-09-30');
+    await page.getByRole('button', { name: '14 days', exact: true }).click();
+    await expect(first.locator('.focus-values dd')).toHaveText(['Not available', 'Not available']);
+    await page.getByRole('button', { name: '1 month', exact: true }).click();
+    await expect(first.locator('.focus-values dd')).toHaveText(['1.25 s', '1.00 s']);
 });

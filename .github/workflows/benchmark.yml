@@ -154,6 +154,71 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  measure-dev-loop:
+    name: Dev-loop (${{ needs.resolve.outputs.sdk-version }})
+    needs: resolve
+    if: >-
+      github.event_name != 'pull_request' &&
+      startsWith(needs.resolve.outputs.sdk-version, '12.') &&
+      needs.resolve.outputs.runtime-build-required != 'true' &&
+      needs.resolve.outputs.aspnetcore-build-required != 'true' &&
+      !inputs.runtime_commit && !inputs.runtime_pack && !inputs.runtime_pr &&
+      !inputs.aspnetcore_commit && !inputs.aspnetcore_pr
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    env:
+      DEV_LOOP_SDK_VERSION: ${{ needs.resolve.outputs.sdk-version }}
+      DEV_LOOP_APPS: ${{ inputs.dry_run && 'empty-blazor' || 'empty-blazor,havit-bootstrap' }}
+      DEV_LOOP_TRIALS: ${{ inputs.dry_run && '1' || '5' }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install the resolved SDK outside the timed region
+        shell: bash
+        run: |
+          [[ "$DEV_LOOP_SDK_VERSION" =~ ^12\.0\.[0-9]+(-[a-z]+\.[0-9]+\.[0-9]+\.[0-9]+)?$ ]] || {
+            echo "::error::Expected an exact SDK12 version"; exit 1;
+          }
+          [[ "$DEV_LOOP_APPS" == empty-blazor || "$DEV_LOOP_APPS" == empty-blazor,havit-bootstrap ]] || {
+            echo "::error::Expected the supported dev-loop applications"; exit 1;
+          }
+          [[ "$DEV_LOOP_TRIALS" == 1 || "$DEV_LOOP_TRIALS" == 5 ]] || {
+            echo "::error::Expected one smoke trial or five full trials"; exit 1;
+          }
+          curl -fsSL https://dot.net/v1/dotnet-install.sh -o "$RUNNER_TEMP/dev-loop-dotnet-install.sh"
+          bash "$RUNNER_TEMP/dev-loop-dotnet-install.sh" --version "$DEV_LOOP_SDK_VERSION" \
+            --install-dir "$RUNNER_TEMP/dev-loop-dotnet" --azure-feed https://ci.dot.net/public
+      - name: Prepare browser and producer
+        run: |
+          npm ci --no-audit --no-fund
+          npm ci --prefix bench --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Measure paired dev-loop runtimes
+        run: |
+          bench/node_modules/.bin/tsx bench/src/main.ts --stages measure-dev-loop \
+            --debug-dotnet "$RUNNER_TEMP/dev-loop-dotnet/dotnet" --sdk-version "$DEV_LOOP_SDK_VERSION" \
+            --app "$DEV_LOOP_APPS" --preset dev-loop --runtime mono,coreclr --debug-runs "$DEV_LOOP_TRIALS" --timeout 300000
+      - name: Transform dev-loop results
+        if: always() && !cancelled()
+        run: |
+          bench/node_modules/.bin/tsx bench/src/main.ts --stages transform-debug-views \
+            --artifacts-dir artifacts/debug-results --debug-views-dir artifacts/debug-views
+      - name: Retain dev-loop results and failure logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: dev-loop-results
+          path: |
+            artifacts/debug-results/
+            artifacts/debug-views/
+            artifacts/debug-runs/**/trial.log
+          retention-days: 14
+          if-no-files-found: error
+
   # ── Job 2a: Build Runtime Mono (only when building from source) ─────────────
   build-runtime-mono:
     name: Build Runtime (Mono)
@@ -590,7 +655,7 @@ jobs:
   # ── Job 5: Aggregate results and update views ──────────────────────────────
   aggregate:
     name: Aggregate
-    needs: [resolve, build-collect, measure]
+    needs: [resolve, build-collect, measure, measure-dev-loop]
     if: always() && needs.measure.result == 'success'
     runs-on: ubuntu-latest
     container: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io/blazor-playground/macro-benchmarks' }}/browser-bench-build:latest
@@ -630,17 +695,39 @@ jobs:
           path: ${{ env.ARTIFACTS_DIR }}/results
           merge-multiple: true
 
+      - name: Download dev-loop results
+        if: needs.measure-dev-loop.result == 'success'
+        uses: actions/download-artifact@v8
+        with:
+          name: dev-loop-results
+          path: ${{ env.ARTIFACTS_DIR }}/dev-loop-results
+
       - name: List collected results
         shell: bash
         run: find "${ARTIFACTS_DIR}/results" -name '*.json' | head -150 || true
 
-      - name: Transform and update views
+      - name: Prepare publish views
         shell: bash
         run: |
           npx --prefix bench tsx bench/src/main.ts \
-            --stages transform-views,update-views \
+            --stages transform-views \
             --verbose \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
+            ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
+
+      - name: Merge dev-loop views
+        if: needs.measure-dev-loop.result == 'success' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && !inputs.dry_run
+        shell: bash
+        run: |
+          npx --prefix bench tsx bench/src/main.ts --stages transform-debug-views \
+            --artifacts-dir "${ARTIFACTS_DIR}/dev-loop-results/debug-results" \
+            --debug-views-dir gh-pages/data/views/debug
+
+      - name: Commit and publish all result views
+        shell: bash
+        run: |
+          npx --prefix bench tsx bench/src/main.ts --stages update-views \
+            --verbose --context "${ARTIFACTS_DIR}/bench-context.json" \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 
       - name: Upload final results
@@ -655,8 +742,10 @@ jobs:
   # ── Job 5: Schedule untested SDK versions ──────────────────────────────────
   schedule:
     name: Schedule
-    needs: [resolve, aggregate]
-    if: always() && needs.aggregate.result == 'success'
+    needs: [resolve, aggregate, measure-dev-loop]
+    if: >-
+      always() && needs.aggregate.result == 'success' &&
+      (needs.measure-dev-loop.result == 'success' || needs.measure-dev-loop.result == 'skipped')
     runs-on: ubuntu-latest
     container: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io/blazor-playground/macro-benchmarks' }}/browser-bench-build:latest
     permissions:

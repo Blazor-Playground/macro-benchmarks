@@ -141,9 +141,13 @@ requires a clean `gh-pages/` checkout tracking `origin/gh-pages` and changes onl
 `data/views/debug/`. Do not generate files in that checkout first.
 `--dry-run` skips publication. Retries pull and recompute the batch union.
 
-The manual **Clean Debug benchmark** workflow retains evidence on failure.
-It defaults to one-trial smoke with publication off; opt-in publication requires
-five trials. No collection schedule is added.
+Regular **Benchmark** runs include dev-loop jobs for stock SDK12:
+both supported apps, five trials, sequential paired runtimes per runner, and
+publication on `main`. PRs and custom runtime/ASP.NET selections skip this job;
+dry runs collect one-trial smoke without publishing. Scheduling waits for its
+collection and publication to finish. One aggregate job prepares both result
+formats and publishes them in one commit/push. Evidence is retained on failure.
+There is no separate Clean Debug workflow or build flavor.
 
 ### Other pipeline examples
 

@@ -58,3 +58,13 @@ export function renderDebugCharts(id: string, measurements: boolean, percentage:
     session(id).render(id, measurements, percentage);
 }
 export function disposeDebugSession(id: string): void { sessions.get(id)?.dispose(); sessions.delete(id); }
+
+export function revealDebugMethodology(): void {
+    const details = document.getElementById('debug-methodology');
+    if (!(details instanceof HTMLDetailsElement)) throw new Error('Debug methodology section is missing');
+    const summary = details.querySelector('summary');
+    if (!summary) throw new Error('Debug methodology summary is missing');
+    details.open = true;
+    details.scrollIntoView({ block: 'start' });
+    summary.focus({ preventScroll: true });
+}

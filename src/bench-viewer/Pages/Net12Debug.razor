@@ -57,7 +57,7 @@
             </div>
             <div class="focus-provenance">
                 <strong>Complete, non-smoke, same-runner pairs only. Local results are experiments, not isolated CI baselines.</strong>
-                <a href="net12-debug#debug-methodology">Metric definitions</a>
+                <a href="net12-debug#debug-methodology" @onclick="RequestMethodology">Metric definitions</a>
             </div>
             <div class="focus-chart-toolbar">
                 <strong>@DashboardConfig.AppName(app)</strong>
@@ -92,7 +92,7 @@
                 }
             }
             <details id="debug-methodology" class="focus-methodology">
-                <summary>How these measurements work</summary>
+                <summary @onclick="CancelMethodologyRequest">How these measurements work</summary>
                 <p>First run includes dotnet run's build and normal restore check, development-host startup, navigation and a real rendered-app acknowledgement.
                     Dependencies are prepared and the browser is prelaunched. The endpoint includes a paint opportunity, not physical display presentation or LCP.</p>
                 <p>Incremental dotnet run starts its timer when a fresh dotnet run is launched. The source edit is already saved and

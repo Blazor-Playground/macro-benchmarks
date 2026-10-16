@@ -17,10 +17,14 @@ what the user is waiting for:
 Cards show timer boundaries, medians, trial counts and failure/unsupported
 reasons. Build-only time is an expandable rebuild breakdown, not another primary
 metric. See [exact timing definitions](metrics.md#clean-debug-developer-loop).
+The **Metric definitions** link opens and scrolls to the disclosure; its fragment
+URL also works on direct navigation and reload.
 
 Results come only from `data/views/debug/`; publish and historical tuned DevLoop
 data never fill missing cells. Missing or malformed resources are visible errors.
 Graphs show per-batch medians without smoothing; percentages default off.
+History defaults to 14 days of SDK build dates, not measurement dates.
+Explicitly selected windows never borrow out-of-range data.
 
 Percentages use the latest complete, non-smoke, paired same-runner batch with
 matching actual TFMs. Positive means longer duration. Older pairs and local

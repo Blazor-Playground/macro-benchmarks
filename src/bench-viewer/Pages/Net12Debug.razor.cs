@@ -4,6 +4,7 @@ using System.Text.Json;
 using BenchViewer.Interop;
 using BenchViewer.Models;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Routing;
 
 namespace BenchViewer.Pages;
 
@@ -24,9 +25,26 @@ public partial class Net12Debug
     ];
     private string owner = "", app = "havit-bootstrap", range = "14d", cohort = "";
     private bool loading = true, measurements = true, percentage, renderCharts, disposed;
+    private bool methodologyRequested;
     private long generation;
     private string? error;
     private DebugReport? report;
+
+    protected override void OnInitialized()
+    {
+        methodologyRequested = new Uri(Navigation.Uri).Fragment == "#debug-methodology";
+        Navigation.LocationChanged += LocationChanged;
+    }
+
+    private void LocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        if (disposed) return;
+        methodologyRequested = new Uri(args.Location).Fragment == "#debug-methodology";
+        if (methodologyRequested) StateHasChanged();
+    }
+
+    private void RequestMethodology() => methodologyRequested = true;
+    private void CancelMethodologyRequest() => methodologyRequested = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -37,6 +55,20 @@ public partial class Net12Debug
             renderCharts = false;
             try { DebugInterop.Render(owner, measurements, percentage); }
             catch (JSException exception) { ShowError(exception); StateHasChanged(); }
+        }
+        if (methodologyRequested)
+        {
+            try
+            {
+                DebugInterop.RevealMethodology();
+                // Reposition when the pending report changes the page height.
+                methodologyRequested = loading;
+            }
+            catch (JSException exception)
+            {
+                methodologyRequested = false;
+                ShowError(exception); StateHasChanged();
+            }
         }
     }
 
@@ -78,6 +110,7 @@ public partial class Net12Debug
     public void Dispose()
     {
         disposed = true; generation++;
+        Navigation.LocationChanged -= LocationChanged;
         if (owner.Length == 0) return;
         try { DebugInterop.Dispose(owner); }
         catch (JSException exception) { Console.Error.WriteLine($"NET12 Debug disposal: {exception}"); }

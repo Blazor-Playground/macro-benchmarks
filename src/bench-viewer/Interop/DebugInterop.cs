@@ -13,4 +13,6 @@ internal static partial class DebugInterop
     internal static partial void Render(string id, bool measurements, bool percentage);
     [JSImport("disposeDebugSession", ModuleName)]
     internal static partial void Dispose(string id);
+    [JSImport("revealDebugMethodology", ModuleName)]
+    internal static partial void RevealMethodology();
 }

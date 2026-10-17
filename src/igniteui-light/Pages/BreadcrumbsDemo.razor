@@ -1,0 +1,60 @@
+@page "/breadcrumbs"
+
+<PageTitle>Breadcrumbs Demo</PageTitle>
+
+<h3>Breadcrumbs</h3>
+
+<p>
+    <code>IgbBreadcrumbs</code> has the <code>list</code> role, so it goes inside a
+    <code>&lt;nav aria-label="..."&gt;</code>. <code>Current</code> marks the item for the page being
+    shown. The links here only move <code>Current</code> instead of navigating.
+</p>
+
+<nav aria-label="Breadcrumb">
+    <IgbBreadcrumbs>
+        @for (var i = 0; i < Catalog.Length; i++)
+        {
+            var index = i;
+            <IgbBreadcrumb Current="@(index == CatalogCurrent)">
+                <a href="@Catalog[index].Href" @onclick="() => CatalogCurrent = index" @onclick:preventDefault>@Catalog[index].Label</a>
+            </IgbBreadcrumb>
+        }
+    </IgbBreadcrumbs>
+</nav>
+
+<h4>Custom Separator and Disabled Item</h4>
+
+<p>
+    The <code>separator</code> slot replaces the icon after an item. <code>Disabled</code> keeps a
+    level that has no page of its own visible without a dead link.
+</p>
+
+<nav aria-label="Settings breadcrumb">
+    <IgbBreadcrumbs>
+        <IgbBreadcrumb>
+            <a href="/admin" @onclick:preventDefault>Dashboard</a>
+            <span slot="separator">/</span>
+        </IgbBreadcrumb>
+        <IgbBreadcrumb Disabled="true">
+            <a href="/admin/settings" @onclick:preventDefault>Settings</a>
+            <span slot="separator">/</span>
+        </IgbBreadcrumb>
+        <IgbBreadcrumb Current="true">
+            <a href="/admin/settings/users" @onclick:preventDefault>Users</a>
+        </IgbBreadcrumb>
+    </IgbBreadcrumbs>
+</nav>
+
+@code {
+    record Crumb(string Label, string Href);
+
+    static readonly Crumb[] Catalog =
+    [
+        new("Home", "/"),
+        new("Electronics", "/electronics"),
+        new("Laptops", "/electronics/laptops"),
+        new("Ultrabooks", "/electronics/laptops/ultrabooks"),
+    ];
+
+    int CatalogCurrent { get; set; } = 3;
+}

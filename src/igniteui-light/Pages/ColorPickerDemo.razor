@@ -11,7 +11,7 @@
     button for sampling a color from anywhere on the screen.
 </p>
 
-<IgbColorPicker @bind-Value="BrandColor" Label="Brand color" Input="OnInput" />
+<IgbColorPicker TValue="string" @bind-Value="BrandColor" Label="Brand color" Input="OnInput" />
 
 <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-top: 16px;">
     <span style="display: inline-block; width: 48px; height: 48px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, .2); background: @LiveColor;"></span>
@@ -28,7 +28,7 @@
 
 <IgbColorPicker Mode="@ColorPickerMode.Input"
                 Label="Accent color"
-                Value="rgb(124, 58, 237)"
+                Value="@("rgb(124, 58, 237)")"
                 Format="@ColorFormat.Rgb" />
 
 <h4>Alpha Channel</h4>
@@ -36,7 +36,7 @@
 <IgbColorPicker Mode="@ColorPickerMode.Input"
                 Label="Overlay tint"
                 ShowAlpha="true"
-                Value="hsla(258, 90%, 66%, 0.4)"
+                Value="@("hsla(258, 90%, 66%, 0.4)")"
                 Format="@ColorFormat.Hsl" />
 
 <h4>Swatches</h4>
@@ -46,11 +46,11 @@
 <IgbColorPicker Label="Theme palette"
                 Swatches="Palette"
                 HideFormats="true"
-                Value="#512BD4" />
+                Value="@("#512BD4")" />
 
 <h4>Disabled</h4>
 
-<IgbColorPicker Label="Disabled" Disabled="true" Value="#9E9E9E" />
+<IgbColorPicker Label="Disabled" Disabled="true" Value="@("#9E9E9E")" />
 
 @code {
     static readonly string[] Palette =
@@ -62,5 +62,5 @@
     string BrandColor { get; set; } = "#512BD4";
     string LiveColor { get; set; } = "#512BD4";
 
-    void OnInput(IgbComponentValueChangedEventArgs args) => LiveColor = args.Detail ?? string.Empty;
+    void OnInput(IgbColorPickerValueEventArgs<string?> args) => LiveColor = args.Detail ?? string.Empty;
 }

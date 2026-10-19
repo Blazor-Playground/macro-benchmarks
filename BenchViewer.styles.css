@@ -1,43 +1,43 @@
 /* /Components/CommitInfoBlock.razor.rz.scp.css */
-.commit-heading[b-d4ymezc37r] {
+.commit-heading[b-o5ks6xo72o] {
     font-weight: bold;
     color: var(--bs-secondary-color);
     margin-bottom: 0.25rem;
     font-size: 0.75rem;
 }
 
-.commit-table[b-d4ymezc37r] {
+.commit-table[b-o5ks6xo72o] {
     font-size: 0.8rem;
     width: 100%;
     margin-bottom: 0.25rem;
 }
 
-.commit-table td[b-d4ymezc37r] {
+.commit-table td[b-o5ks6xo72o] {
     padding: 0;
 }
 
-.commit-label[b-d4ymezc37r] {
+.commit-label[b-o5ks6xo72o] {
     color: var(--bs-secondary-color);
     padding-right: 0.5rem;
     white-space: nowrap;
 }
 
-.commit-value-break[b-d4ymezc37r] {
+.commit-value-break[b-o5ks6xo72o] {
     padding: 0;
     word-break: break-all;
 }
 
-.metrics-list[b-d4ymezc37r] {
+.metrics-list[b-o5ks6xo72o] {
     font-size: 0.75rem;
 }
 
-.metrics-summary[b-d4ymezc37r] {
+.metrics-summary[b-o5ks6xo72o] {
     font-weight: bold;
     cursor: pointer;
     font-size: 0.8rem;
 }
 /* /Components/Sidebar.razor.rz.scp.css */
-.sidebar-updated[b-i9lc4d732f] {
+.sidebar-updated[b-q6unoe0fyu] {
     font-size: 0.65rem;
 }
 /* /Layout/MainLayout.razor.rz.scp.css */

@@ -4,6 +4,8 @@
 import * as chartInterop from './chart/chart-interop.js';
 import * as focusInterop from './chart/focus-interop.js';
 import { restorePagesRoute } from './pages-navigation.mjs';
+import * as debugInterop from './chart/debug-interop.js';
+import { withRuntimeReady } from './runtime-ready.mjs';
 
 function setManagedReady() {
     globalThis.dotnet_managed_ready = performance.now();
@@ -33,18 +35,19 @@ async function outer() {
             dotnet.withModuleConfig({
                 onRuntimeInitialized: () => {
                     console.log("Blazor runtime initialized");
-                },
-                onDotnetReady: () => {
-                    globalThis.dotnet_created = performance.now();
-                    const { setModuleImports } = globalThis.getDotnetRuntime(0);
-                    setModuleImports('chart-interop.js', chartInterop);
-                    setModuleImports('focus-interop.js', focusInterop);
-                    setModuleImports('main.mjs', {
-                        bench: {
-                            setManagedReady
-                        }
-                    });
                 }
+            });
+            withRuntimeReady(dotnet, () => {
+                globalThis.dotnet_created = performance.now();
+                const { setModuleImports } = globalThis.getDotnetRuntime(0);
+                setModuleImports('chart-interop.js', chartInterop);
+                setModuleImports('focus-interop.js', focusInterop);
+                setModuleImports('debug-interop.js', debugInterop);
+                setModuleImports('main.mjs', {
+                    bench: {
+                        setManagedReady
+                    }
+                });
             });
         }
     });

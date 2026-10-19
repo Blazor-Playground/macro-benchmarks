@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "generation": "909720bcfdcd02699dd556a83adba658a3184b98bff8ffb75029f1452afa20c0",
+  "lastUpdated": "2026-10-19T19:27:06.793Z",
+  "apps": [
+    {
+      "id": "empty-blazor",
+      "file": "generations/909720bcfdcd02699dd556a83adba658a3184b98bff8ffb75029f1452afa20c0/empty-blazor.json"
+    },
+    {
+      "id": "havit-bootstrap",
+      "file": "generations/909720bcfdcd02699dd556a83adba658a3184b98bff8ffb75029f1452afa20c0/havit-bootstrap.json"
+    }
+  ]
+}

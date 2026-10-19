@@ -129,6 +129,32 @@
       "benchmarkDateTime": "2026-10-19T17:11:57.900Z",
       "ciRunId": "39287409336",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/39287409336"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26519.106",
+      "runtimeGitHash": "00cc05139240bca32b3e778ee2f6ffd7c6a5bd60",
+      "aspnetCoreGitHash": "77e4202bed594e8c1063e697b289221e57858bd5",
+      "sdkGitHash": "bdf6a59a376b141815580500d147c31b95d63a64",
+      "vmrGitHash": "6a03f1dd6b109506102e265da3cb549381f5ed6b",
+      "runtimeCommitDateTime": "2026-10-13T23:28:36Z",
+      "runtimeCommitAuthor": "Michal Strehovský",
+      "runtimeCommitMessage": "Enable normal-completion finally emission for NativeAOT Wasm (#135666)",
+      "aspnetCoreCommitDateTime": "2026-10-12T11:54:09Z",
+      "aspnetCoreCommitAuthor": "Jakub Florkowski",
+      "aspnetCoreCommitMessage": "Fix FieldIdentifier.GetHashCode() NullReferenceException for default struct (#65573)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26519.106",
+      "runtimePackVersion": "12.0.0-alpha.1.26519.106",
+      "workloadVersion": "12.0.0-alpha.1.26519.106",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26480.102",
+      "releaseDate": "2026-10-19",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-10-19T19:09:52.710Z",
+      "ciRunId": "39303951242",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/39303951242"
     }
   ],
   "apps": {

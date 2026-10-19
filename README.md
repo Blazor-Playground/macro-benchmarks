@@ -124,7 +124,21 @@ The normal browser history `popstate` path notifies managed navigation and calls
 
 Use the current portable PDB's sequence points, not line numbers from another build. Prepare outside timing until the existing `int hashIndex = url.IndexOf('#');` statement, then time only its ordinary Step Over to the return expression and the return expression's Step Over to the closing brace. Stop before stepping out into navigation/rendering. Baseline Locals are the actual `url` string and scalar `hashIndex`; the latter is unassigned before the index statement and must equal the actual triggered URL's fragment index afterward. For example, `http://127.0.0.1:8001/components/HxGrid#header-filtering` has index 39, but a different origin/port changes the expected value. Normal visible Call Stack/Locals refresh must pass the debugger capability pilot before measurement. App startup, the anchor click, Back/Forward preparation, rendering, and explicit watch/evaluation requests are outside this stepping baseline.
 
-In the accepted source snapshot, the guard break is `Services/UrlHelper.cs:15`, untimed preparation visits `16` then `18`, and the two timed transitions are `18 -> 19 -> 20`. The observed UI initially displayed `hashIndex = 0`, then the actual URL's fragment index after assignment; this is an observation, not a promise about an unassigned local in other builds. Derive the expected value from the actual recorded anchor URL with `new URL(anchor.href).href.indexOf('#')`.
+In the accepted source snapshot (`9ce0cb65508d1732f993d72edcecfd1f5a794477`), the guard break was `Services/UrlHelper.cs:15`, untimed preparation visited `16` then `18`, and the two timed transitions were `18 -> 19 -> 20`. The workflow-mode change below shifts these lines; derive them from the current portable PDB rather than reusing these numbers. The observed UI initially displayed `hashIndex = 0`, then the actual URL's fragment index after assignment; this is an observation, not a promise about an unassigned local in other builds. Derive the expected value from the actual recorded anchor URL with `new URL(anchor.href).href.indexOf('#')`.
+
+#### Workflow mode: two user breaks
+
+The `url-helper-primitive` profile also supports the six-phase debugger workflow: pause at a first user break, inspect, resume to a second user break, inspect again, then Step Over. Both breaks use the same trigger and guard: the exact `/components/HxGrid#header-filtering` suffix plus `Debugger.IsAttached`. Both are compiled only with `HAVIT_DEBUGGER_URL_WORKLOAD`.
+
+- **First break:** `Debugger.Break()` in static `UrlHelper.RemoveFragmentFromUrl`.
+  - Its expandable local is `string[] urlParts`, a non-empty `url.Split('#')`.
+  - Its caller is the instance method `DocPageNavigationItemsTracker.GetPageNavigationItems`. That `this` has only the `_itemsByPage` dictionary field.
+- **Second break:** after the first break returns, the same tracker call runs `UrlHelper.BreakAfterFragmentRemoved(url, pageKey)` synchronously. A plain resume therefore reaches its `Debugger.Break()` with no further UI action.
+  - Its expandable local is `string[] removedParts`, holding the page key and the removed `#fragment`.
+  - Its caller is the same tracker method and instance.
+- **Final Step Over:** from the second break it stops at the following `GC.KeepAlive(removedParts);` line.
+
+The arrays avoid property-getter evaluation when Locals are expanded. Original null handling, index assignment, return expression and navigation behavior are unchanged.
 
 Keep the debugger's default implicit UI evaluation policy unchanged. The baseline adds no explicit watch/evaluation requests or object expansion; absence of an evaluation marker in a log is not proof that implicit evaluation never occurred. Store raw reports and large artifacts with the central reproduction results, not in this repository's source commits.
 

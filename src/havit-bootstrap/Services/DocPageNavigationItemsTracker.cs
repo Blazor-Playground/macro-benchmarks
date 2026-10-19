@@ -25,6 +25,9 @@ public class DocPageNavigationItemsTracker : IDocPageNavigationItemsTracker
 	public List<DocPageNavigationItem> GetPageNavigationItems(string url)
 	{
 		string pageKey = UrlHelper.RemoveFragmentFromUrl(url);
+#if HAVIT_DEBUGGER_URL_WORKLOAD
+		UrlHelper.BreakAfterFragmentRemoved(url, pageKey);
+#endif
 
 		if (_itemsByPage.TryGetValue(pageKey, out var items))
 		{

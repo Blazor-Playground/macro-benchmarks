@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="$(MicrosoftAspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="$(MicrosoftAspNetCoreVersion)" PrivateAssets="all" Condition="'$(MicrosoftAspNetCoreVersion)' == '$(BundledNETCoreAppPackageVersion)'" />
     <PackageReference Include="Havit.Blazor.Components.Web" Version="$(HavitBlazorVersion)" />
     <PackageReference Include="Havit.Blazor.Components.Web.Bootstrap" Version="$(HavitBlazorVersion)" />
     <PackageReference Include="Havit.Blazor.Components.Web.Bootstrap.Smart" Version="$(HavitBlazorSmartVersion)" />

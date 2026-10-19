@@ -6,6 +6,10 @@ The [issue's Debug scenarios](https://github.com/dotnet/runtime/issues/133691)
 use the existing configuration-only `dev-loop` preset. Empty Blazor and Havit
 are supported on macOS/Linux with Chromium.
 
+Stock-SDK builds of both apps use the matching private
+`Microsoft.AspNetCore.Components.WebAssembly.DevServer` package for `dotnet run`
+and `dotnet watch`. The evaluated host command is retained in each trial.
+
 | Key | Timed boundary (raw milliseconds; lower is better) |
 |---|---|
 | `debug-first-run-to-first-render` | Spawn `dotnet run` through host receipt of the first real route-render acknowledgement |

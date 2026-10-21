@@ -25,6 +25,32 @@
       "benchmarkDateTime": "2026-10-20T23:12:50.057Z",
       "ciRunId": "39510382387",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/39510382387"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26521.103",
+      "runtimeGitHash": "dedc9b3df1b2d579e15d0765f73613bf3ff9c663",
+      "aspnetCoreGitHash": "77e4202bed594e8c1063e697b289221e57858bd5",
+      "sdkGitHash": "bdf6a59a376b141815580500d147c31b95d63a64",
+      "vmrGitHash": "ee344f85ef890dd92974e9b93d75906f1f8c39f3",
+      "runtimeCommitDateTime": "2026-10-21T00:59:31Z",
+      "runtimeCommitAuthor": "Adam Perlin",
+      "runtimeCommitMessage": "[wasm] Regalloc: Allow Non-exposed GC Ref Locals to Live in Wasm Locals (#135543)",
+      "aspnetCoreCommitDateTime": "2026-10-12T11:54:09Z",
+      "aspnetCoreCommitAuthor": "Jakub Florkowski",
+      "aspnetCoreCommitMessage": "Fix FieldIdentifier.GetHashCode() NullReferenceException for default struct (#65573)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26521.103",
+      "runtimePackVersion": "12.0.0-alpha.1.26521.103",
+      "workloadVersion": "12.0.0-alpha.1.26521.103",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26480.102",
+      "releaseDate": "2026-10-21",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-10-21T20:17:03.751Z",
+      "ciRunId": "39664227851",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/39664227851"
     }
   ],
   "apps": {

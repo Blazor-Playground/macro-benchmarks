@@ -8,7 +8,7 @@ internal static partial class DebugInterop
     [JSImport("createDebugSession", ModuleName)]
     internal static partial string Create(string baseUri);
     [JSImport("loadDebugReport", ModuleName)]
-    internal static partial Task<string> Load(string id, string app, string range, string cohort, bool force);
+    internal static partial Task<string> Load(string id, string app, string range, bool force);
     [JSImport("renderDebugCharts", ModuleName)]
     internal static partial void Render(string id, bool measurements, bool percentage);
     [JSImport("disposeDebugSession", ModuleName)]

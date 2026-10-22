@@ -18,15 +18,7 @@ public sealed class DebugReport
     public string EndDay { get; init; } = "";
     public string LastUpdated { get; init; } = "";
     public string? RawDataPath { get; init; }
-    public string Cohort { get; init; } = "";
-    public List<DebugCohort> Cohorts { get; init; } = new();
     public List<DebugMetricReport> Metrics { get; init; } = new();
-}
-
-public sealed class DebugCohort
-{
-    public string Id { get; init; } = "";
-    public string Label { get; init; } = "";
 }
 
 public class DebugMeasurement
@@ -52,10 +44,14 @@ public sealed class DebugMetricReport
     public string Unit { get; init; } = "";
     public double Divisor { get; init; } = 1;
     public FocusComparison? Comparison { get; init; }
+    public FocusComparison? AverageComparison { get; init; }
+    public DebugPoint? Latest { get; init; }
     public DebugMeasurement? Mono { get; init; }
     public DebugMeasurement? Coreclr { get; init; }
     public DebugMeasurement? BuildMono { get; init; }
     public DebugMeasurement? BuildCoreclr { get; init; }
+    public FocusWindow? BuildMonoAverage { get; init; }
+    public FocusWindow? BuildCoreclrAverage { get; init; }
     public string? Sdk { get; init; }
     public string? Day { get; init; }
     public string? MeasuredAt { get; init; }
@@ -73,6 +69,9 @@ public sealed class DebugPoint
     public double? Mono { get; init; }
     public double? Coreclr { get; init; }
     public double? Percent { get; init; }
+    public FocusWindow? MonoWindow { get; init; }
+    public FocusWindow? CoreclrWindow { get; init; }
+    public FocusWindow? PercentWindow { get; init; }
 }
 
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]

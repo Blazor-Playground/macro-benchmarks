@@ -1,0 +1,13 @@
+{
+  "failedAt": "2026-10-22T15:11:05.370Z",
+  "ciRunId": "39798245049",
+  "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/39798245049",
+  "failures": [
+    {
+      "target": "micro-benchmarks/shard",
+      "errorLines": [
+        "fetch failed"
+      ]
+    }
+  ]
+}

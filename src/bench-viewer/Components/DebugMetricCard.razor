@@ -8,7 +8,15 @@
             <div class="focus-kpi @comparison.Tone" aria-label="@($"{Metric.Title}: {comparison.Magnitude} {comparison.Verdict}")">
                 <span class="focus-percentage">@comparison.Magnitude</span><span class="focus-verdict">@comparison.Verdict</span>
             </div>
+            @if (Metric.AverageComparison is { } average && Metric.Latest?.PercentWindow is { } window)
+            {
+                <p class="focus-rolling-caption" title="@AverageDescription(window, true)"
+                    data-count="@window.Count" data-end-sdk="@window.LastSdk">
+                    (<span class="@average.Tone">@average.Magnitude @average.Verdict</span> · <span class="focus-average-label">5 avg</span>)
+                </p>
+            }
         }
+        <p class="debug-summary-heading">Latest</p>
         <dl class="focus-values">
             @foreach (var (label, result) in new[] { ("CoreCLR Debug", Metric.Coreclr), ("Mono Debug", Metric.Mono) })
             {
@@ -20,12 +28,30 @@
                 @if (!string.IsNullOrEmpty(result?.Reason)) { <p class="debug-reason">@result.Reason</p> }
             }
         </dl>
+        <dl class="debug-average-values" aria-label="Five-observation averages">
+            @foreach (var (label, runtime, window) in new[]
+            {
+                ("CoreCLR Debug", "coreclr", Metric.Latest?.CoreclrWindow),
+                ("Mono Debug", "mono", Metric.Latest?.MonoWindow),
+            })
+            {
+                <div data-runtime="@runtime" data-count="@(window?.Count ?? 0)" title="@AverageDescription(window)">
+                    <dt>@label · <span class="focus-average-label">5 avg</span>
+                        @if (window != null) { <span class="debug-average-count">(@window.Count/5 observations)</span> }
+                    </dt>
+                    <dd>@Metric.Format(window?.Mean)</dd>
+                </div>
+            }
+        </dl>
         @if (Metric.Id == "rebuild")
         {
             <details class="debug-build-breakdown">
                 <summary>Build time breakdown</summary>
                 <p class="debug-build-detail"><strong>Build only:</strong> CoreCLR @Metric.Format(Metric.BuildCoreclr?.ValueMs);
                     Mono @Metric.Format(Metric.BuildMono?.ValueMs). Part of the loop above, not a separate end-to-end metric.</p>
+                <p class="debug-build-detail"><strong>5 avg:</strong>
+                    CoreCLR @Metric.Format(Metric.BuildCoreclrAverage?.Mean) (@(Metric.BuildCoreclrAverage?.Count ?? 0)/5);
+                    Mono @Metric.Format(Metric.BuildMonoAverage?.Mean) (@(Metric.BuildMonoAverage?.Count ?? 0)/5).</p>
             </details>
         }
         @if (Metric.Comparison == null) { <p class="focus-summary-note">@Metric.Message</p> }
@@ -40,7 +66,6 @@
         }
         @if (Metric.Sdk != null)
         {
-            <p class="debug-provenance">SDK @Metric.Sdk · SDK day @Metric.Day<br />Batch started @Metric.MeasuredAt; per-trial UTC times are in the raw evidence.</p>
             <details class="debug-properties">
                 <summary>Evaluated Debug settings</summary>
                 @foreach (var (label, result) in new[] { ("CoreCLR", Metric.Coreclr), ("Mono", Metric.Mono) })
@@ -70,4 +95,10 @@
     [Parameter] public bool Measurements { get; set; }
     [Parameter] public bool Percentage { get; set; }
     private bool GraphsEnabled => Measurements || Percentage;
+    private static string AverageDescription(FocusWindow? window, bool percentage = false) => window == null
+        ? "No complete non-smoke observations for a rolling average."
+        : $"{window.Count} of 5 available consecutive observations, ending at SDK {window.LastSdk}. "
+            + $"Window {window.FirstDay} to {window.LastDay}. "
+            + (percentage ? "Mean of individual same-batch CoreCLR-versus-Mono percentages, not a ratio of means."
+                : "Mean of the recorded per-batch medians, not pooled individual trials.");
 }

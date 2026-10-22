@@ -13,16 +13,6 @@
                     <option value="@id">@DashboardConfig.AppName(id)</option>
                 }
             </select>
-            <div class="focus-selection-control">
-                <label for="debug-cohort">Recorded environment / methodology</label>
-                <select id="debug-cohort" value="@cohort" @onchange="ChangeCohort" disabled="@(report?.Cohorts.Count is not > 0)">
-                    @if (report?.Cohorts.Count is not > 0) { <option>No clean-Debug cohort published</option> }
-                    @foreach (var item in report?.Cohorts ?? [])
-                    {
-                        <option value="@item.Id">@item.Label</option>
-                    }
-                </select>
-            </div>
             <fieldset>
                 <legend>History window</legend>
                 <div class="focus-range-buttons">
@@ -33,12 +23,13 @@
                     }
                 </div>
                 <p class="focus-range-note">@report?.StartDay to @report?.EndDay<br />Inclusive SDK days / UTC</p>
+                <p class="focus-setting-hint">All recorded environments. Environment details remain in the raw evidence.</p>
             </fieldset>
             <fieldset class="focus-graph-settings">
                 <legend>Graph settings</legend>
                 <label class="focus-curve-toggle"><input id="debug-measurements" type="checkbox" checked="@measurements" @onchange="ChangeMeasurements" />Actual measurements</label>
                 <label class="focus-curve-toggle"><input id="debug-percentage" type="checkbox" checked="@percentage" @onchange="ChangePercentage" />Percentage curve</label>
-                <p class="focus-setting-hint">Recorded per-batch medians; no smoothing. Graph controls never change samples or summaries.</p>
+                <p class="focus-setting-hint">Charts show recorded per-batch medians. Latest and 5 avg summaries stay visible when graphs are off.</p>
             </fieldset>
             <div class="focus-cohort">
                 <p class="focus-eyebrow">COMPARISON CONTEXT</p>
@@ -106,8 +97,11 @@
                     CoreCLR WASM hot-reload enablement is tracked in <a href="https://github.com/dotnet/runtime/issues/134337">dotnet/runtime#134337</a>.</p>
                 <p>The dev-loop preset sets only Configuration=Debug. SDK defaults and actual evaluated settings are recorded separately for each runtime.
                     Older tuned DevLoop records and historical publish measurements do not supply these live metrics.
-                    Each date/rerun is a distinct observation. Cohorts do not mix SDK targets, app/harness revisions, browsers or environment policies.</p>
+                    Each date/rerun is a distinct observation. History includes all recorded environments in the selected SDK date window;
+                    source, environment and code-generation settings remain in the raw evidence.</p>
                 <p>Percentages compare CoreCLR duration with Mono in the same complete batch: positive means slower, negative faster.
+                    The 5 avg is a trailing mean of up to five complete, non-smoke observations, with gaps resetting the window.
+                    Counts are shown; percentage averages are means of same-batch percentages, not ratios of runtime averages.
                     Colors are not statistical significance. Local paired batches disclose shared-host conditions and do not claim CI control.
                     Unsupported, failed and partial batches have no comparative headline.
                     This dashboard implements the Debug scenarios in <a href="https://github.com/dotnet/runtime/issues/133691">dotnet/runtime#133691</a>.</p>

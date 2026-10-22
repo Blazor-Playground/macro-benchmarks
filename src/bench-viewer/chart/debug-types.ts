@@ -1,5 +1,5 @@
-import type { ComparisonMetric } from './focus-chart.js';
-import type { FocusComparison, FocusRange } from './focus-types.js';
+import type { ComparisonMetric, ComparisonPoint } from './focus-chart.js';
+import type { FocusComparison, FocusRange, FocusWindow } from './focus-types.js';
 
 export interface DebugMeasurement {
     status: string;
@@ -46,10 +46,14 @@ export interface DebugMetricReport extends ComparisonMetric {
     status: string;
     message: string;
     comparison: FocusComparison | null;
+    averageComparison: FocusComparison | null;
+    latest: ComparisonPoint | null;
     mono: DebugRuntimeSummary | null;
     coreclr: DebugRuntimeSummary | null;
     buildMono: DebugMeasurement | null;
     buildCoreclr: DebugMeasurement | null;
+    buildMonoAverage: FocusWindow | null;
+    buildCoreclrAverage: FocusWindow | null;
     sdk: string | null;
     day: string | null;
     measuredAt: string | null;
@@ -66,8 +70,6 @@ export interface DebugReport {
     endDay: string;
     lastUpdated: string;
     rawDataPath: string | null;
-    cohort: string;
-    cohorts: { id: string; label: string }[];
     metrics: DebugMetricReport[];
 }
 

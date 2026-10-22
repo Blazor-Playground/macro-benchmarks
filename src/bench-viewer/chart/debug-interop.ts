@@ -12,7 +12,7 @@ export class DebugSession {
     private report: DebugReport | null = null;
     constructor(private readonly loader: DebugLoader, private readonly charts: Pick<FocusCharts, 'render' | 'dispose'> = new FocusCharts(),
         private readonly now: () => Date = () => new Date()) {}
-    async load(app: string, range: FocusRange, cohort: string, force: boolean): Promise<string> {
+    async load(app: string, range: FocusRange, force: boolean): Promise<string> {
         if (this.disposed) throw new Error('Debug session is disposed');
         this.controller?.abort();
         const controller = this.controller = new AbortController(), generation = ++this.generation;
@@ -23,7 +23,7 @@ export class DebugSession {
             const value = cached ?? await this.loader.load(app, controller.signal, force);
             if (this.disposed || controller.signal.aborted || generation !== this.generation) return JSON.stringify({ status: 'cancelled' });
             this.publication = { app, value };
-            this.report = buildDebugReport(value, app, range, cohort, this.now());
+            this.report = buildDebugReport(value, app, range, this.now());
             return JSON.stringify({ status: 'ready', report: this.report });
         } catch (error) {
             if (controller.signal.aborted || this.disposed) return JSON.stringify({ status: 'cancelled' });
@@ -51,8 +51,8 @@ export function createDebugSession(base: string): string {
     sessions.set(id, new DebugSession(new DebugLoader(new URL('data/views/debug/', base))));
     return id;
 }
-export function loadDebugReport(id: string, app: string, range: FocusRange, cohort: string, force: boolean): Promise<string> {
-    return session(id).load(app, range, cohort, force);
+export function loadDebugReport(id: string, app: string, range: FocusRange, force: boolean): Promise<string> {
+    return session(id).load(app, range, force);
 }
 export function renderDebugCharts(id: string, measurements: boolean, percentage: boolean): void {
     session(id).render(id, measurements, percentage);

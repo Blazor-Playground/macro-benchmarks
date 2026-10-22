@@ -23,7 +23,7 @@ public partial class Net12Debug
         ("optional", "Walkthrough (optional)", "App interaction speed after startup, separate from run and edit timings.",
             ["walkthrough"]),
     ];
-    private string owner = "", app = "havit-bootstrap", range = "14d", cohort = "";
+    private string owner = "", app = "havit-bootstrap", range = "14d";
     private bool loading = true, measurements = true, percentage, renderCharts, disposed;
     private bool methodologyRequested;
     private long generation;
@@ -80,14 +80,14 @@ public partial class Net12Debug
         try
         {
             if (owner.Length == 0) owner = DebugInterop.Create(Navigation.BaseUri);
-            var json = await DebugInterop.Load(owner, app, range, cohort, force);
+            var json = await DebugInterop.Load(owner, app, range, force);
             if (disposed || request != generation) return;
             var result = JsonSerializer.Deserialize(json, DebugJsonContext.Default.DebugLoadResult)
                 ?? throw new JsonException("Empty Debug response");
             if (result.Status == "cancelled") return;
             if (result.Status != "ready" || result.Report is not { Metrics.Count: 5 } loaded || loaded.App != app || loaded.Range != range)
                 throw new JsonException("Invalid clean-Debug report");
-            report = loaded; cohort = report.Cohort; loading = false; renderCharts = true;
+            report = loaded; loading = false; renderCharts = true;
         }
         catch (Exception exception) when (exception is JSException or JsonException)
         {
@@ -101,8 +101,7 @@ public partial class Net12Debug
         Console.Error.WriteLine($"NET12 Debug: {exception}");
         error = exception.Message; loading = false; renderCharts = false;
     }
-    private async Task ChangeApp(ChangeEventArgs args) { app = args.Value?.ToString() ?? app; cohort = ""; await Load(false); }
-    private async Task ChangeCohort(ChangeEventArgs args) { cohort = args.Value?.ToString() ?? ""; await Load(false); }
+    private async Task ChangeApp(ChangeEventArgs args) { app = args.Value?.ToString() ?? app; await Load(false); }
     private async Task ChangeRange(string value) { range = value; await Load(false); }
     private void ChangeMeasurements(ChangeEventArgs args) { measurements = args.Value is true; renderCharts = report != null; }
     private void ChangePercentage(ChangeEventArgs args) { percentage = args.Value is true; renderCharts = report != null; }

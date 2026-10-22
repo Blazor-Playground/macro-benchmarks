@@ -23,8 +23,15 @@ URL also works on direct navigation and reload.
 Results come only from `data/views/debug/`; publish and historical tuned DevLoop
 data never fill missing cells. Missing or malformed resources are visible errors.
 Graphs show per-batch medians without smoothing; percentages default off.
+Cards separately show latest values and **5 avg** trailing means of up to five
+complete, non-smoke observations, including available counts. Gaps reset each
+runtime's window; unsupported values remain unavailable. Percentage averages
+are means of same-batch percentages, not ratios of means. Build-only averages
+remain inside the rebuild breakdown. Summaries stay visible with graphs off.
 History defaults to 14 days of SDK build dates, not measurement dates.
-Explicitly selected windows never borrow out-of-range data.
+Only in-range observations are displayed. As on Focus, rolling averages can use
+the immediately preceding four observations outside the visible window so the
+same endpoint keeps the same average when the date range changes.
 
 Percentages use the latest complete, non-smoke, paired same-runner batch with
 matching actual TFMs. Positive means longer duration. Older pairs and local
@@ -32,10 +39,12 @@ shared-host experiments are labeled; colors do not imply significance.
 Smoke/partial batches have no comparative headline. Supported Mono hot-reload
 values remain visible when CoreCLR is unsupported.
 
-Select an environment/source/methodology cohort. Each runtime's SDK host RID
-separates native, translated and unknown SDK hosts. SDK day and measurement UTC
-are distinct; reruns remain separate observations. Raw evidence retains each
-trial and its evaluated settings.
+History includes every observation for the selected app and SDK date window,
+without requiring identical recorded environments or source revisions.
+SDK day and measurement UTC are distinct; reruns remain separate observations.
+Raw evidence retains the environment, each runtime's SDK host RID, source
+identity, code-generation settings and individual trials. Runtime comparisons
+still use only complete same-batch pairs, never values from separate runs.
 
 For a local preview, copy transformed `index.json` and `generations/` into
 the source-built viewer's `wwwroot/data/views/debug/`, or use `VIEWER_DATA_URL`.

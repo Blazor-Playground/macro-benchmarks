@@ -635,7 +635,6 @@ code {
 .debug-dashboard .focus-measurement,
 .debug-dashboard .debug-result-status,
 .debug-dashboard .debug-build-detail,
-.debug-dashboard .debug-provenance,
 .debug-dashboard .debug-properties {
     font-size: 11px;
     line-height: 1.5;
@@ -650,6 +649,17 @@ code {
 .debug-dashboard .debug-result-status {
     color: var(--focus-muted);
     margin-bottom: 6px;
+}
+
+.debug-dashboard .debug-summary-heading {
+    margin: 12px 0 -6px;
+    color: var(--focus-muted);
+    font-size: 10px;
+    font-weight: 650;
+}
+
+.debug-dashboard .debug-average-count {
+    font-size: 10px;
 }
 
 .debug-dashboard .debug-properties {
@@ -870,12 +880,14 @@ code {
     margin: 7px 0 10px;
 }
 
-.net12-focus .focus-values {
+.net12-focus .focus-values,
+.debug-dashboard .debug-average-values {
     margin: 14px 0 0;
     font-size: 12px;
 }
 
-.net12-focus .focus-values div {
+.net12-focus .focus-values div,
+.debug-dashboard .debug-average-values div {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
@@ -883,13 +895,15 @@ code {
     margin-top: 7px;
 }
 
-.net12-focus .focus-values dt {
+.net12-focus .focus-values dt,
+.debug-dashboard .debug-average-values dt {
     color: var(--focus-muted);
     font-size: 10px;
     font-weight: 400;
 }
 
-.net12-focus .focus-values dd {
+.net12-focus .focus-values dd,
+.debug-dashboard .debug-average-values dd {
     margin: 0;
     font-weight: 600;
     white-space: nowrap;

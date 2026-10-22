@@ -15,7 +15,7 @@ export class DebugSession {
         this.charts = charts;
         this.now = now;
     }
-    async load(app, range, cohort, force) {
+    async load(app, range, force) {
         if (this.disposed)
             throw new Error('Debug session is disposed');
         this.controller?.abort();
@@ -30,7 +30,7 @@ export class DebugSession {
             if (this.disposed || controller.signal.aborted || generation !== this.generation)
                 return JSON.stringify({ status: 'cancelled' });
             this.publication = { app, value };
-            this.report = buildDebugReport(value, app, range, cohort, this.now());
+            this.report = buildDebugReport(value, app, range, this.now());
             return JSON.stringify({ status: 'ready', report: this.report });
         }
         catch (error) {
@@ -71,8 +71,8 @@ export function createDebugSession(base) {
     sessions.set(id, new DebugSession(new DebugLoader(new URL('data/views/debug/', base))));
     return id;
 }
-export function loadDebugReport(id, app, range, cohort, force) {
-    return session(id).load(app, range, cohort, force);
+export function loadDebugReport(id, app, range, force) {
+    return session(id).load(app, range, force);
 }
 export function renderDebugCharts(id, measurements, percentage) {
     session(id).render(id, measurements, percentage);

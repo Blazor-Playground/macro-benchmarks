@@ -14,6 +14,7 @@ const WALKTHROUGHS: Readonly<Record<string, string>> = {
     'igniteui-light': 'igniteui-walkthrough',
     'semi-avalonia': 'semi-walkthrough',
     'uno-gallery': 'uno-walkthrough',
+    'inspect-web': 'inspect-web-walkthrough',
 };
 
 export function focusMetrics(app: string): FocusMetricDefinition[] {

@@ -1,0 +1,62 @@
+<Project>
+  <!--
+    Wrapper for Inspect Web (https://github.com/richlander/dotnet-inspect), the browser-wasm
+    build of dotnet-inspect. The app is too large to vendor, so build.mjs checks out the pinned
+    commit below, retargets it to $(BenchmarkTargetFramework), and publishes the real
+    DotnetInspect.Web project with this repo's preset and runtime flavor. See README.md.
+  -->
+  <Import Project="..\versions.props" />
+  <Import Project="..\presets.props" />
+  <Import Project="..\runtimes.props" />
+
+  <PropertyGroup>
+    <DashName>inspect-web</DashName>
+    <InspectWebRepository>https://github.com/richlander/dotnet-inspect</InspectWebRepository>
+    <InspectWebCommit>b282641e024bbcefae1c9f417422597519b9a388</InspectWebCommit>
+    <InspectWebRepoRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', '..'))</InspectWebRepoRoot>
+    <InspectWebCheckout>$([MSBuild]::NormalizeDirectory('$(InspectWebRepoRoot)', 'artifacts', 'external', 'dotnet-inspect', '$(InspectWebCommit)'))</InspectWebCheckout>
+    <InspectWebDotnet>$(DOTNET_HOST_PATH)</InspectWebDotnet>
+    <InspectWebDotnet Condition="'$(InspectWebDotnet)' == ''">dotnet</InspectWebDotnet>
+    <_InspectWebScript>node &quot;$(MSBuildThisFileDirectory)build.mjs&quot;</_InspectWebScript>
+    <_InspectWebCommonArgs>--checkout &quot;$(InspectWebCheckout)&quot; --repository &quot;$(InspectWebRepository)&quot; --commit $(InspectWebCommit) --dotnet &quot;$(InspectWebDotnet)&quot;</_InspectWebCommonArgs>
+  </PropertyGroup>
+
+  <!-- Properties forwarded to the inner DotnetInspect.Web restore/publish. Preset feature
+       switches come from presets.props/runtimes.props via CustomAfterMicrosoftCommonProps. -->
+  <ItemGroup>
+    <InspectWebProperty Include="InspectWebIncludeFrontend=true" />
+    <InspectWebProperty Include="DefaultTargetFramework=$(BenchmarkTargetFramework)" />
+    <InspectWebProperty Include="BenchmarkPreset=$(BenchmarkPreset)" />
+    <InspectWebProperty Include="Configuration=$(Configuration)" />
+    <InspectWebProperty Include="RuntimeFlavor=$(RuntimeFlavor)" />
+    <InspectWebProperty Include="CustomAfterMicrosoftCommonProps=$(MSBuildThisFileDirectory)inner.props" />
+    <!-- DotnetInspect.Web hardcodes false, which requires a native relink. -->
+    <InspectWebProperty Include="WasmEnableExceptionHandling=true" />
+    <InspectWebProperty Include="MSBuildDisableTaskHost=$(MSBuildDisableTaskHost)" Condition="'$(MSBuildDisableTaskHost)' != ''" />
+    <InspectWebProperty Include="DisableParallelAot=$(DisableParallelAot)" Condition="'$(DisableParallelAot)' != ''" />
+    <InspectWebProperty Include="DisableParallelEmccCompile=$(DisableParallelEmccCompile)" Condition="'$(DisableParallelEmccCompile)' != ''" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <_InspectWebProperties>@(InspectWebProperty->'--property &quot;%(Identity)&quot;', ' ')</_InspectWebProperties>
+  </PropertyGroup>
+
+  <Target Name="ValidateInspectWebInputs" BeforeTargets="Restore;Publish">
+    <!-- The inner build does not import src/Directory.Build.targets, so from-source runtime packs
+         and the CoreCLR native-relink crossgen2 workaround are not applied. -->
+    <Error Condition="'$(RuntimePackDir)' != ''" Text="inspect-web does not support RuntimePackDir (from-source runtime packs) yet." />
+  </Target>
+
+  <Target Name="Restore">
+    <Exec Command="$(_InspectWebScript) restore $(_InspectWebCommonArgs) $(_InspectWebProperties)" />
+  </Target>
+
+  <Target Name="Build" />
+
+  <Target Name="Publish">
+    <Error Condition="'$(PublishDir)' == ''" Text="PublishDir is required (use dotnet publish -o)." />
+    <Exec Command="$(_InspectWebScript) publish $(_InspectWebCommonArgs) --out &quot;$(PublishDir)&quot; --maxcpucount $(MSBuildNodeCount) $(_InspectWebProperties)" />
+  </Target>
+
+  <Target Name="Clean" />
+</Project>

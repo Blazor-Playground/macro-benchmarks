@@ -181,6 +181,32 @@
       "benchmarkDateTime": "2026-10-23T14:56:23.889Z",
       "ciRunId": "39970220768",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/39970220768"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26523.103",
+      "runtimeGitHash": "4295b5cfabe8b4d43feeb99d2fcdb3f6d580911b",
+      "aspnetCoreGitHash": "77e4202bed594e8c1063e697b289221e57858bd5",
+      "sdkGitHash": "bdf6a59a376b141815580500d147c31b95d63a64",
+      "vmrGitHash": "846769e14f918f16ee85e7055c72fcc2f6b141bb",
+      "runtimeCommitDateTime": "2026-10-23T00:22:38Z",
+      "runtimeCommitAuthor": "Larry Ewing",
+      "runtimeCommitMessage": "[wasm] Implement RelaxedSimd intrinsics api (#130050)",
+      "aspnetCoreCommitDateTime": "2026-10-12T11:54:09Z",
+      "aspnetCoreCommitAuthor": "Jakub Florkowski",
+      "aspnetCoreCommitMessage": "Fix FieldIdentifier.GetHashCode() NullReferenceException for default struct (#65573)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26523.103",
+      "runtimePackVersion": "12.0.0-alpha.1.26523.103",
+      "workloadVersion": "12.0.0-alpha.1.26523.103",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26480.102",
+      "releaseDate": "2026-10-23",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-10-23T23:01:37.529Z",
+      "ciRunId": "40035314244",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/40035314244"
     }
   ],
   "apps": {

@@ -77,6 +77,32 @@
       "benchmarkDateTime": "2026-10-22T09:26:02.884Z",
       "ciRunId": "39751861170",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/39751861170"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26522.116",
+      "runtimeGitHash": "ec31654e8634e2d19eda9c12b4987bfc3d876068",
+      "aspnetCoreGitHash": "77e4202bed594e8c1063e697b289221e57858bd5",
+      "sdkGitHash": "bdf6a59a376b141815580500d147c31b95d63a64",
+      "vmrGitHash": "e9431fa06d41ac94a154e4afda030353bff606c7",
+      "runtimeCommitDateTime": "2026-10-22T00:40:42Z",
+      "runtimeCommitAuthor": "Larry Ewing",
+      "runtimeCommitMessage": "[wasi] Fix EINVAL from UDP Socket.ReceiveAsync (#136250)",
+      "aspnetCoreCommitDateTime": "2026-10-12T11:54:09Z",
+      "aspnetCoreCommitAuthor": "Jakub Florkowski",
+      "aspnetCoreCommitMessage": "Fix FieldIdentifier.GetHashCode() NullReferenceException for default struct (#65573)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26522.116",
+      "runtimePackVersion": "12.0.0-alpha.1.26522.116",
+      "workloadVersion": "12.0.0-alpha.1.26522.116",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26480.102",
+      "releaseDate": "2026-10-22",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-10-23T02:46:53.681Z",
+      "ciRunId": "39888576931",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/39888576931"
     }
   ],
   "apps": {

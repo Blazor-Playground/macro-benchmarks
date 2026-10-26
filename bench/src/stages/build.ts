@@ -81,7 +81,12 @@ function getAdditionalRestoreSources(ctx: BenchContext, r2r: boolean): string[] 
 // crossgen2 (from a source build) both emits R2R images and generates the native-relink portable
 // call helpers, so it is passed for CoreCLR R2R (aot) and CoreCLR native-relink. The R2R pack
 // version / restore source are R2R-only.
-function getCoreClrNativeArgs(ctx: BenchContext, effectiveRuntime: Runtime, preset: Preset, app: App): string[] {
+export function getCoreClrNativeArgs(
+    ctx: Pick<BenchContext, 'crossgen2Dir' | 'r2rPackVersion'>,
+    effectiveRuntime: Runtime,
+    preset: Preset,
+    app: App,
+): string[] {
     const args: string[] = [];
     const r2r = isCoreClrR2R(effectiveRuntime, preset);
     const needsCrossgen2 = r2r || (effectiveRuntime === R.CoreCLR && preset === Preset.NativeRelink);
@@ -91,8 +96,12 @@ function getCoreClrNativeArgs(ctx: BenchContext, effectiveRuntime: Runtime, pres
     if (r2r && ctx.r2rPackVersion) {
         args.push(`/p:WasmR2RPackVersion=${ctx.r2rPackVersion}`);
     }
-    if ((NATIVE_COMPONENT_APPS.has(app))) {
+    if (NATIVE_COMPONENT_APPS.has(app)) {
         args.push('/p:WasmBuildNative=true');
+        if (r2r) {
+            // Select the no-workload relink route instead of also retaining the runtime-pack R2R assets.
+            args.push('/p:UsingBrowserRuntimeWorkload=false');
+        }
     }
     return args;
 }
@@ -310,7 +319,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     // Phase: Install workload (only if a requested workload-preset build actually needs it).
     // CoreCLR aot is ReadyToRun (WasmBuildNative=false) and does not need the wasm-tools workload,
-    // except for native-component apps (uno-gallery, semi-avalonia) whose R2R build still relinks.
+    // except for native-component apps (uno-gallery, semi-avalonia, avalonia-bench) whose R2R build still relinks.
     if (workloadPresets.length > 0) {
         const workloadNeeded = workloadPresets.some(p =>
             ctx.runtimes.some(r => ctx.apps.some(a => presetNeedsWorkload(r, p, a))));

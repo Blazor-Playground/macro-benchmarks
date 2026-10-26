@@ -124,21 +124,27 @@ The normal browser history `popstate` path notifies managed navigation and calls
 
 Use the current portable PDB's sequence points, not line numbers from another build. Prepare outside timing until the existing `int hashIndex = url.IndexOf('#');` statement, then time only its ordinary Step Over to the return expression and the return expression's Step Over to the closing brace. Stop before stepping out into navigation/rendering. Baseline Locals are the actual `url` string and scalar `hashIndex`; the latter is unassigned before the index statement and must equal the actual triggered URL's fragment index afterward. For example, `http://127.0.0.1:8001/components/HxGrid#header-filtering` has index 39, but a different origin/port changes the expected value. Normal visible Call Stack/Locals refresh must pass the debugger capability pilot before measurement. App startup, the anchor click, Back/Forward preparation, rendering, and explicit watch/evaluation requests are outside this stepping baseline.
 
-In the accepted source snapshot (`9ce0cb65508d1732f993d72edcecfd1f5a794477`), the guard break was `Services/UrlHelper.cs:15`, untimed preparation visited `16` then `18`, and the two timed transitions were `18 -> 19 -> 20`. The workflow-mode change below shifts these lines; derive them from the current portable PDB rather than reusing these numbers. The observed UI initially displayed `hashIndex = 0`, then the actual URL's fragment index after assignment; this is an observation, not a promise about an unassigned local in other builds. Derive the expected value from the actual recorded anchor URL with `new URL(anchor.href).href.indexOf('#')`.
+In the measured source, the guard break is `Services/UrlHelper.cs:15`, untimed preparation visits `16` then `18`, and the two timed transitions are `18 -> 19 -> 20`. `Services/UrlHelper.cs` is byte-identical to `9ce0cb65508d1732f993d72edcecfd1f5a794477`, so these F10 lines and their Locals are unchanged by the second break below. Still confirm them from the current portable PDB rather than another build. The observed UI initially displayed `hashIndex = 0`, then the actual URL's fragment index after assignment; this is an observation, not a promise about an unassigned local in other builds. Derive the expected value from the actual recorded anchor URL with `new URL(anchor.href).href.indexOf('#')`.
 
 #### Workflow mode: two user breaks
 
-The `url-helper-primitive` profile also supports the six-phase debugger workflow: pause at a first user break, inspect, resume to a second user break, inspect again, then Step Over. Both breaks use the same trigger and guard: the exact `/components/HxGrid#header-filtering` suffix plus `Debugger.IsAttached`. Both are compiled only with `HAVIT_DEBUGGER_URL_WORKLOAD`.
+The `url-helper-primitive` profile also supports the six-phase debugger workflow: pause at a first user break, inspect Locals and the call stack (including the caller frame), resume to a second user break, inspect again, then Step Over. Both breaks are compiled only with `HAVIT_DEBUGGER_URL_WORKLOAD` and use the same trigger and guard: the exact `/components/HxGrid#header-filtering` suffix plus `Debugger.IsAttached`.
 
-- **First break:** `Debugger.Break()` in static `UrlHelper.RemoveFragmentFromUrl`.
-  - Its expandable local is `string[] urlParts`, a non-empty `url.Split('#')`.
-  - Its caller is the instance method `DocPageNavigationItemsTracker.GetPageNavigationItems`. That `this` has only the `_itemsByPage` dictionary field.
-- **Second break:** after the first break returns, the same tracker call runs `UrlHelper.BreakAfterFragmentRemoved(url, pageKey)` synchronously. A plain resume therefore reaches its `Debugger.Break()` with no further UI action.
-  - Its expandable local is `string[] removedParts`, holding the page key and the removed `#fragment`.
-  - Its caller is the same tracker method and instance.
-- **Final Step Over:** from the second break it stops at the following `GC.KeepAlive(removedParts);` line.
+- **First break:** `Services/UrlHelper.cs:15`, the existing `Debugger.Break()` in static `UrlHelper.RemoveFragmentFromUrl`.
+  - Its Locals are the `url` argument and `hashIndex`, unassigned before line 18.
+  - Its caller is the instance method `DocPageNavigationItemsTracker.GetPageNavigationItems` at `Services/DocPageNavigationItemsTracker.cs:27`. That `this` has the `_itemsByPage` dictionary field.
+- **Second break:** `Services/DocPageNavigationItemsTracker.cs:31`, in `GetPageNavigationItems`, immediately after `RemoveFragmentFromUrl` returns at line 27.
+  - Its guard at line 29 is the same as the first break's, plus `url != null`, so a null URL still reaches the original code path unchanged.
+  - A plain Continue from the first break reaches it within the same `LocationChanged` notification, with no further UI action.
+  - Its Locals are the `url` argument, `pageKey` (the URL without its fragment) and `items` (unassigned). Its `this` has `_itemsByPage`.
+  - Its caller is `Shared/Components/OnThisPageNavigation.razor.cs:34`, `OnThisPageNavigation.LoadItems(object sender, LocationChangedEventArgs eventArgs)`. That method has no other locals. Its `this` is the component, with `_items` and the `_navigationManager`, `_docPageNavigationItemsHolder`, `CssClass` and `ChildContent` properties.
+- **Final Step Over:** from the second break it stops first at line 32, the closing brace of the guard block. The next Step Over reaches line 35, `if (_itemsByPage.TryGetValue(pageKey, out var items))`.
 
-The arrays avoid property-getter evaluation when Locals are expanded. Original null handling, index assignment, return expression and navigation behavior are unchanged.
+The F10 stepping baseline ends after its final stop at line 20 and does not resume, so it does not reach the second break.
+
+Expanding the caller component's `this` lets the debugger evaluate property getters, such as the injected services and `CssClass`, under its default implicit evaluation policy. This differs from the earlier array-only Locals design. `/components/HxGrid` can render more than one `OnThisPageNavigation`: the desktop side navigation plus the responsive copies from `ResponsiveOnThisPageNavigation`. Each instance subscribes to `LocationChanged`, so after the second break another Continue may hit the first and second breaks again once per additional subscriber. Original null handling, index assignment, return expression and navigation behavior are unchanged.
+
+This design supersedes `63ccb5b4dfa45dbd55d56967e99702618cca8f55`, which added `string[]` locals and a separate `UrlHelper.BreakAfterFragmentRemoved` helper and shifted `UrlHelper.cs` lines. The measured local build identity was `9eaa1934fc5d5504a18daabbce155acc63688947` (parent `9ce0cb65`); this branch's sources and build configuration are byte-identical to it, and only this README differs.
 
 Keep the debugger's default implicit UI evaluation policy unchanged. The baseline adds no explicit watch/evaluation requests or object expansion; absence of an evaluation marker in a log is not proof that implicit evaluation never occurred. Store raw reports and large artifacts with the central reproduction results, not in this repository's source commits.
 

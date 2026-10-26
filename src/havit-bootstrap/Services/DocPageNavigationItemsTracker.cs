@@ -26,7 +26,10 @@ public class DocPageNavigationItemsTracker : IDocPageNavigationItemsTracker
 	{
 		string pageKey = UrlHelper.RemoveFragmentFromUrl(url);
 #if HAVIT_DEBUGGER_URL_WORKLOAD
-		UrlHelper.BreakAfterFragmentRemoved(url, pageKey);
+		if (url != null && url.EndsWith("/components/HxGrid#header-filtering", StringComparison.Ordinal) && System.Diagnostics.Debugger.IsAttached)
+		{
+			System.Diagnostics.Debugger.Break();
+		}
 #endif
 
 		if (_itemsByPage.TryGetValue(pageKey, out var items))

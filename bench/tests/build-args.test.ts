@@ -7,9 +7,9 @@ import { getCoreClrNativeArgs } from '../src/stages/build.js';
 const ctx = {
     crossgen2Dir: '/tmp/crossgen2',
     r2rPackVersion: '12.0.0-test',
-} as BenchContext;
+} satisfies Pick<BenchContext, 'crossgen2Dir' | 'r2rPackVersion'>;
 
-test('Avalonia CoreCLR R2R uses the native relink workload route', () => {
+test('Avalonia CoreCLR R2R uses the no-workload relink route', () => {
     const expected = [
         '/p:Crossgen2InBuildDir=/tmp/crossgen2',
         '/p:WasmR2RPackVersion=12.0.0-test',

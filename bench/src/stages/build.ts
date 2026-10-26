@@ -81,7 +81,12 @@ function getAdditionalRestoreSources(ctx: BenchContext, r2r: boolean): string[] 
 // crossgen2 (from a source build) both emits R2R images and generates the native-relink portable
 // call helpers, so it is passed for CoreCLR R2R (aot) and CoreCLR native-relink. The R2R pack
 // version / restore source are R2R-only.
-export function getCoreClrNativeArgs(ctx: BenchContext, effectiveRuntime: Runtime, preset: Preset, app: App): string[] {
+export function getCoreClrNativeArgs(
+    ctx: Pick<BenchContext, 'crossgen2Dir' | 'r2rPackVersion'>,
+    effectiveRuntime: Runtime,
+    preset: Preset,
+    app: App,
+): string[] {
     const args: string[] = [];
     const r2r = isCoreClrR2R(effectiveRuntime, preset);
     const needsCrossgen2 = r2r || (effectiveRuntime === R.CoreCLR && preset === Preset.NativeRelink);
@@ -94,7 +99,7 @@ export function getCoreClrNativeArgs(ctx: BenchContext, effectiveRuntime: Runtim
     if (NATIVE_COMPONENT_APPS.has(app)) {
         args.push('/p:WasmBuildNative=true');
         if (r2r) {
-            // Use the relinked R2R outputs instead of also retaining the runtime-pack R2R assets.
+            // Select the no-workload relink route instead of also retaining the runtime-pack R2R assets.
             args.push('/p:UsingBrowserRuntimeWorkload=false');
         }
     }

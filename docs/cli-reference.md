@@ -161,6 +161,10 @@ There is no separate Clean Debug workflow or build flavor.
 # Enumerate available SDK packs
 .\bench.ps1 --stages enumerate-daily-packs,enumerate-release-packs
 
+# Locally rebuild and measure native-component apps with the latest .NET 12 daily.
+# Dry-run collects Mono/Chrome/desktop smoke results without publishing.
+.\bench.ps1 --stages enumerate-daily-packs,resolve-sdk,download-sdk,build,measure --sdk-channel 12.0 --major 12 --app semi-avalonia,avalonia-bench,uno-gallery --preset native-relink --runtime mono --dry-run
+
 # Measure against a specific SDK version
 .\bench.ps1 --sdk-version 11.0.100-preview.3.26117.103 --stages resolve-sdk,download-sdk,build,measure
 
@@ -173,3 +177,9 @@ There is no separate Clean Debug workflow or build flavor.
 # Transform and deploy results
 .\bench.ps1 --stages transform-views,update-views
 ```
+
+Uno bootstrap 10.0.22 needs a .NET 12 lifecycle compatibility workaround:
+the Uno project patches its generated bootstrap asset to register callbacks through
+`withModuleConfig` before runtime creation. NuGet's shared package cache is not
+modified. The workaround is version-gated; review/remove it when upgrading Uno's
+bootstrap package.

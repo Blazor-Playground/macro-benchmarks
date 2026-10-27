@@ -7,7 +7,7 @@ export type ComparisonPoint = Omit<FocusPoint, 'observation'> & {
     observation: { sdkVersion: string; day: string };
 };
 export type ComparisonMetric = Pick<FocusMetricReport, 'id' | 'title' | 'unit' | 'divisor' | 'coreclrLabel' | 'monoLabel'
-    | 'comparisonLabel' | 'coreclrBeforeLabel'> & {
+    | 'comparisonLabel' | 'coreclrBeforeLabel' | 'fixedReference'> & {
     points: ComparisonPoint[];
 };
 
@@ -69,7 +69,7 @@ export function focusChartModel(metric: ComparisonMetric, averaged: boolean, sho
     };
 }
 
-export function fixedReferenceTooltip(reference: FocusFixedReference, metric: FocusMetricReport): string[] {
+export function fixedReferenceTooltip(reference: FocusFixedReference, metric: Pick<FocusMetricReport, 'unit' | 'divisor'>): string[] {
     return [
         `${reference.label}: ${reference.value === null ? 'Not available' : formatFocusValue(reference.value, metric)}`,
         `Measured ${reference.measuredAt.slice(0, 10)} (UTC)`,

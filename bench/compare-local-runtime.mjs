@@ -13,7 +13,7 @@ import { loadLocalComparisonData, writeLocalComparisonData } from './local-compa
 import { currentComparisonPath, displaySavedResults, findLatestComparison, formatResults, readCurrentComparison, registerComparison } from './local-results.mjs';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const cloneOptions = process.platform === 'win32' ? ['--config', 'core.longpaths=true'] : [];
+export const cloneOptions = process.platform === 'win32' ? ['--config', 'core.longpaths=true'] : [];
 const comparisonDirectory = process.platform === 'win32' ? 'c' : 'local-runtime-comparisons';
 export const defaultComparisonOutput = join(repoRoot, 'artifacts', comparisonDirectory);
 const help = `Build and measure Havit before/after a runtime change (Node.js >= 24).
@@ -466,6 +466,13 @@ async function runComparison(options, {
                     cwd: checkout, logPath: join(sessionDir, 'logs', `${label}-${subset.replaceAll('+', '-')}.log`),
                 });
             }
+            // CoreCLR packs.product omits this pack; Rebuild also catches targets-only edits.
+            await run(join(checkout, '.dotnet', process.platform === 'win32' ? 'dotnet.exe' : 'dotnet'), [
+                'msbuild', 'src/mono/nuget/Microsoft.NET.Sdk.WebAssembly.Pack/Microsoft.NET.Sdk.WebAssembly.Pack.pkgproj',
+                '-t:Rebuild', `-p:Configuration=${buildOptions.configuration}`, '-p:TargetOS=browser',
+                '-p:TargetArchitecture=wasm', `-p:RuntimeFlavor=${runtime === 'coreclr' ? 'CoreCLR' : 'Mono'}`,
+                '-p:UseSharedCompilation=false',
+            ], { cwd: checkout, logPath: join(sessionDir, 'logs', `${label}-webassembly-sdk.log`) });
             const manifest = await publishRuntime(parsePublishOptions(publishArgs(buildOptions, checkout, label)));
             return measurementRecord(manifest);
         };

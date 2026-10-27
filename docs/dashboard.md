@@ -276,16 +276,12 @@ as above, then start the helper:
 node --import ./bench/node_modules/tsx/dist/loader.mjs tests/helpers/serve-viewer.mjs
 ```
 
-Open the printed `VIEWER_LOCAL_URL` (`/net12-focus?local=true`). The helper serves
-`data/local-runtime-comparison.json` from the CLI's shared
-`artifacts/local-runtime/current-result.json` pointer, verifying statuses and
-hashes on every request. **Reload local data** picks up new results; broken evidence
-is an error, never a copied-snapshot fallback. `dashboard.json` is an explicit
-static/offline export. Local mode does not publish data or change SDK filters.
-The sidebar adds **Local NET12 focus** and **Local NET12 dev-loop** only when each
-local dataset is available. Published buttons keep their original destinations;
-local buttons use `?local=true`. Discovery failures are shown, not treated as
-missing data. Reload the page after creating a new local dataset.
+Open `VIEWER_LOCAL_URL` (`/net12-focus?local=true`). The helper uses the CLI's
+`artifacts/local-runtime/current-result.json` pointer and verifies evidence on each
+request. **Reload local data** loads changes; broken evidence is an error.
+`dashboard.json` is an offline export, not a live data source.
+Local links appear only for available datasets; published links stay unchanged.
+Discovery errors are shown. Reload the page to discover newly created datasets.
 
 The local view defaults to mobile startup and desktop for other metrics. Each
 curve identifies its recorded mode: CoreCLR after, Mono before and CoreCLR before.
@@ -294,13 +290,11 @@ with CoreCLR before. Without Mono, the headline uses after vs before.
 Recorded commits, dirty state, SDK/pack/TFM and setup warnings remain visible;
 local experiments are not relabeled as official SDK history.
 
-[Daily bootstrap](local-runtime-measurements.md#add-daily-before-measurements)
-adds `beforeHistory` evidence references to the selected comparison. Before dots
-use UTC source-snapshot dates; after is a dashed fixed reference without repeated
-observation dots. Its capture date, source changes and aggregation count stay
-separate in labels/tooltips. Percentages compare historical controls with that
-fixed reference, not independently measured after runs. **Matched pair** requires
-a clean before at the same base commit and mode.
+[History commands](local-runtime-measurements.md#add-daily-before-measurements)
+add/drop source dates without remeasuring after. Dots are before snapshots;
+the dashed after line is one fixed reference, labeled with its capture date,
+source state and aggregation count. **Matched pair** requires a clean before at
+the same base commit and mode.
 
 Failed/pending/running dates are gaps. Failed dates show an error with expandable
 build details. Compatible iterations retain history and update the after reference.

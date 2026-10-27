@@ -4,11 +4,14 @@ import { mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { compare, measureBefore, measurementOptions, measurementRecord, parseCompareOptions } from '../../bench/compare-local-runtime.mjs';
-import { collectRecentBefore, selectRecentCommits } from '../../bench/local-history.mjs';
+import { cloneOptions, compare, measureBefore, measurementOptions, measurementRecord, parseCompareOptions } from '../../bench/compare-local-runtime.mjs';
+import {
+    collectBeforeRange, collectRecentBefore, dropBeforeRange, historyDate, historyRange,
+    missingBeforeDays, selectRangeCommits, selectRecentCommits,
+} from '../../bench/local-history.mjs';
 import { formatResults, loadCurrentComparisonData, readCurrentComparison, readLegacyComparison, registerComparison } from '../../bench/local-results.mjs';
 import { runCommand } from '../../bench/local-command.mjs';
-import { quickStart } from '../../bench/runtime-bench.mjs';
+import { historyCommand, quickStart } from '../../bench/runtime-bench.mjs';
 import { localFocusReport } from '../../src/bench-viewer/wwwroot/chart/local-focus.js';
 
 const now = () => new Date('2026-10-14T12:00:00Z');
@@ -100,7 +103,7 @@ async function fixture(t) {
     const monoBefore = await measurementRecord(await publishRuntime({ ...options, runtime: 'mono', variant: 'no-workload' }, clean));
     const after = await measurementRecord(await publishRuntime(options));
     await writeFile(currentPath, JSON.stringify({ setup, runtimeRepo, warnings: [], before, monoBefore, after }));
-    const register = path => registerComparison(path, artifacts);
+    const register = (path, options) => registerComparison(path, artifacts, options);
     await register(currentPath);
     publishes.length = 0;
     const measurementDependencies = {
@@ -111,6 +114,7 @@ async function fixture(t) {
         publishRuntime,
         run: async (command, args, options) => {
             if (command !== 'git') builds.push(options.cwd);
+            if (args[0] === 'msbuild') return 0;
             return await runCommand(command, args, { ...options, writeLine: () => {} });
         },
     };
@@ -222,6 +226,29 @@ test('failed dates retain independent Mono evidence, publish explicit gaps and r
     await collectRecentBefore(f.options, 7, f.dependencies);
     assert.equal(f.publishes.length, measured + 1);
     assert.ok((await readCurrentComparison(f.artifacts)).comparison.beforeHistory.every(day => day.status === 'passed'));
+    assert.deepEqual(f.snapshot(), f.original);
+});
+
+test('history retains Mono controls when the matched pair has only CoreCLR runs', async t => {
+    const f = await fixture(t);
+    await collectRecentBefore(f.options, 1, {
+        ...f.dependencies, now: () => new Date('2026-10-13T12:00:00Z'),
+    });
+    const current = await readCurrentComparison(f.artifacts);
+    delete current.comparison.monoBefore;
+    await writeFile(current.path, JSON.stringify(current.comparison));
+    await f.dependencies.register(current.path);
+    const after = current.comparison.after;
+    f.publishes.length = 0;
+    await collectRecentBefore(f.options, 1, f.dependencies);
+    const combined = await loadCurrentComparisonData(f.artifacts);
+    assert.equal(combined.monoBefore, undefined);
+    assert.equal(combined.beforeHistory.length, 2);
+    assert.ok(combined.beforeHistory.every(entry => entry.monoBefore));
+    assert.deepEqual(f.publishes.map(call => call.runtime), ['mono', 'coreclr']);
+    assert.deepEqual((await readCurrentComparison(f.artifacts)).comparison.after, after);
+    assert.equal(localFocusReport(combined).metadata.hasMonoReference, true);
+    assert.equal(localFocusReport(combined, 'mobile', 'matched').metadata.hasMonoReference, false);
     assert.deepEqual(f.snapshot(), f.original);
 });
 
@@ -359,5 +386,276 @@ test('history rejects incompatible setup and refuses to replace a newer current 
         getCurrent: async () => ++reads === 1 ? before : { ...before, path: '/newer/comparison.json' },
     }), /changed during history collection/);
     assert.equal((await readCurrentComparison(f.artifacts)).path, before.path);
+    assert.deepEqual(f.snapshot(), f.original);
+});
+
+test('explicit ranges validate real UTC dates and select newest first without touching source', async t => {
+    const f = await fixture(t);
+    assert.equal(historyDate('today', now()), '2026-10-14');
+    assert.equal(historyDate('2024-02-29'), '2024-02-29');
+    for (const value of ['2026-02-29', '2026-04-31', '2026-13-01', '2026-1-01', '', '0000-01-01']) {
+        assert.throws(() => historyDate(value), /date/i);
+    }
+    assert.deepEqual(historyRange('2026-10-12', 'today', now()).days, ['2026-10-12', '2026-10-13', '2026-10-14']);
+    assert.throws(() => historyRange('2026-10-14', '2026-10-13'), /must not be after/);
+    assert.throws(() => selectRangeCommits(f.runtimeRepo, '2026-10-15', '2026-10-15', now()), /future/);
+    const plan = selectRangeCommits(f.runtimeRepo, '2026-10-10', 'today', now());
+    assert.deepEqual(plan.days.map(day => day.day), ['2026-10-14', '2026-10-13', '2026-10-12', '2026-10-11', '2026-10-10']);
+    assert.equal(plan.days[0].commit, f.commits['2026-10-14']);
+    assert.equal(plan.days[3].commit, f.commits['2026-10-10']);
+    assert.deepEqual(f.snapshot(), f.original);
+});
+
+test('historical clones use the same platform checkout options as comparison clones', async t => {
+    const f = await fixture(t);
+    const clones = [];
+    await collectBeforeRange(f.options, '2026-10-14', '2026-10-14', {
+        ...f.dependencies,
+        measurementDependencies: {
+            ...f.measurementDependencies,
+            run: async (command, args, options) => {
+                if (command === 'git' && args[0] === 'clone') clones.push(args);
+                return f.measurementDependencies.run(command, args, options);
+            },
+        },
+    });
+    assert.equal(clones.length, 2);
+    for (const args of clones) assert.deepEqual(args.slice(5), cloneOptions);
+    if (process.platform === 'win32') assert.deepEqual(cloneOptions, ['--config', 'core.longpaths=true']);
+    assert.deepEqual(f.snapshot(), f.original);
+});
+
+test('range backfill preserves passed dates, after and matched controls; repeats are read-only no-ops', async t => {
+    const f = await fixture(t);
+    await collectBeforeRange(f.options, '2026-10-13', '2026-10-13', f.dependencies);
+    const before = await readCurrentComparison(f.artifacts);
+    const savedDay = before.comparison.beforeHistory[0];
+    f.publishes.length = 0;
+    const result = await collectBeforeRange(f.options, '2026-10-08', 'today', f.dependencies);
+    assert.deepEqual(result.selection.days.map(day => day.day), ['2026-10-14', '2026-10-12',
+        '2026-10-11', '2026-10-10', '2026-10-09', '2026-10-08']);
+    assert.equal(result.beforeHistory.length, 7);
+    assert.deepEqual(result.beforeHistory.find(day => day.day === savedDay.day), savedDay);
+    assert.equal(f.publishes[0].commit, f.commits['2026-10-14']);
+    assert.equal(new Set(f.publishes.map(call => call.checkout)).size, 2);
+    const current = await readCurrentComparison(f.artifacts);
+    assert.deepEqual(current.comparison.after, before.comparison.after);
+    assert.deepEqual(current.comparison.before, before.comparison.before);
+    assert.deepEqual(current.comparison.monoBefore, before.comparison.monoBefore);
+    assert.deepEqual(f.snapshot(), f.original);
+    const directoryCount = (await readdir(f.output)).length;
+    const publishes = f.publishes.length;
+    git(f.runtimeRepo, 'update-ref', '-d', 'refs/remotes/origin/main');
+    await collectBeforeRange(f.options, '2026-10-08', 'today', f.dependencies);
+    assert.equal((await readCurrentComparison(f.artifacts)).path, current.path);
+    assert.equal((await readdir(f.output)).length, directoryCount);
+    assert.equal(f.publishes.length, publishes);
+    assert.deepEqual(missingBeforeDays(current.comparison, '2026-10-08', 'today', now()), []);
+});
+
+test('range failures give an exact retry command and retain independent Mono evidence', async t => {
+    const f = await fixture(t);
+    f.fail(f.commits['2026-10-09']);
+    await assert.rejects(collectBeforeRange(f.options, '2026-10-09', '2026-10-10', f.dependencies),
+        /history add --from 2026-10-09 --to 2026-10-10/);
+    const c = (await readCurrentComparison(f.artifacts)).comparison;
+    assert.equal(c.beforeHistory[0].status, 'failed');
+    assert.ok(c.beforeHistory[0].monoBefore);
+    assert.equal(c.beforeHistory[1].status, 'passed');
+    assert.deepEqual(c.after, f.initialAfter);
+});
+
+test('failed recent-days retries preserve passed pairs and warn until that date succeeds', async t => {
+    const f = await fixture(t);
+    await collectRecentBefore(f.options, 7, f.dependencies);
+    const original = await readCurrentComparison(f.artifacts);
+    const day = original.comparison.beforeHistory.find(day => day.day === '2026-10-09');
+    f.fail(f.commits['2026-10-09']);
+    const forced = { ...f.options, 'force-before': true };
+    await assert.rejects(collectRecentBefore(forced, 7, f.dependencies), /failed for 2026-10-09/);
+    let current = await readCurrentComparison(f.artifacts);
+    assert.deepEqual(current.comparison.beforeHistory.find(entry => entry.day === day.day), day);
+    assert.deepEqual(current.comparison.after, original.comparison.after);
+    const prefix = 'History retry failed for 2026-10-09:';
+    let warnings = current.comparison.warnings.filter(warning => warning.startsWith(prefix));
+    assert.equal(warnings.length, 1);
+    assert.match(warnings[0], /retained saved controls/);
+    const progress = await Promise.all((await readdir(join(f.output, 'history')))
+        .filter(name => name.endsWith('.json'))
+        .map(async name => JSON.parse(await readFile(join(f.output, 'history', name), 'utf8'))));
+    assert.ok(progress.some(record => record.days.some(entry => entry.day === day.day && entry.status === 'failed')));
+    await assert.rejects(collectRecentBefore(forced, 7, f.dependencies), /failed for 2026-10-09/);
+    current = await readCurrentComparison(f.artifacts);
+    assert.equal(current.comparison.warnings.filter(warning => warning.startsWith(prefix)).length, 1);
+    f.fail(undefined);
+    await collectRecentBefore(forced, 7, f.dependencies);
+    current = await readCurrentComparison(f.artifacts);
+    assert.equal(current.comparison.warnings.filter(warning => warning.startsWith(prefix)).length, 0);
+    assert.equal(current.comparison.beforeHistory.find(entry => entry.day === day.day).status, 'passed');
+    assert.deepEqual(f.snapshot(), f.original);
+});
+
+test('drop archives only active history; caches, raw files, other dates and fixed sides survive', async t => {
+    const f = await fixture(t);
+    await collectBeforeRange(f.options, '2026-10-12', 'today', f.dependencies);
+    const old = await readCurrentComparison(f.artifacts);
+    const oldFile = await readFile(old.path, 'utf8');
+    const cacheDirectory = join(f.output, 'before');
+    const cacheFiles = await readdir(cacheDirectory);
+    const removed = old.comparison.beforeHistory.find(day => day.day === '2026-10-13');
+    const result = await dropBeforeRange({ output: f.output, from: '2026-10-13' }, f.dependencies);
+    assert.deepEqual(result.removedDays, ['2026-10-13']);
+    const current = await readCurrentComparison(f.artifacts);
+    assert.notEqual(current.path, old.path);
+    assert.equal(await readFile(old.path, 'utf8'), oldFile);
+    assert.deepEqual(current.comparison.beforeHistory, old.comparison.beforeHistory.filter(day => day.day !== '2026-10-13'));
+    for (const side of ['before', 'after', 'monoBefore']) assert.deepEqual(current.comparison[side], old.comparison[side]);
+    assert.deepEqual(await readdir(cacheDirectory), cacheFiles);
+    for (const run of [removed.before, removed.monoBefore]) {
+        await readFile(run.manifestPath);
+        await readFile(run.statusPath);
+        for (const result of run.results) await readFile(result.path);
+    }
+    f.publishes.length = 0;
+    await collectBeforeRange(f.options, '2026-10-13', '2026-10-13', f.dependencies);
+    assert.equal(f.publishes.length, 0, 'Re-adding a dropped date can reuse retained valid caches');
+    const restored = (await readCurrentComparison(f.artifacts)).comparison;
+    assert.deepEqual(restored.beforeHistory.find(day => day.day === removed.day).before, removed.before);
+    assert.deepEqual(f.snapshot(), f.original);
+    await dropBeforeRange({ output: f.output, all: true }, f.dependencies);
+    const empty = await loadCurrentComparisonData(f.artifacts);
+    assert.equal(empty.beforeHistory, undefined);
+    assert.deepEqual((await readCurrentComparison(f.artifacts)).comparison.after, old.comparison.after);
+    assert.equal(localFocusReport(empty).metadata.isHistory, false);
+});
+
+test('drop dry runs and unmatched dates do not publish or create directories; active locks and concurrent edits are respected', async t => {
+    const f = await fixture(t);
+    await collectBeforeRange(f.options, '2026-10-13', '2026-10-13', f.dependencies);
+    const initial = await readCurrentComparison(f.artifacts);
+    const directories = await readdir(f.output);
+    await dropBeforeRange({ output: f.output, all: true, dryRun: true }, f.dependencies);
+    await dropBeforeRange({ output: f.output, from: '2026-10-08' }, f.dependencies);
+    assert.equal((await readCurrentComparison(f.artifacts)).path, initial.path);
+    assert.deepEqual(await readdir(f.output), directories);
+    await assert.rejects(dropBeforeRange({ output: f.output, all: true, from: '2026-10-13' }, f.dependencies), /not both/);
+    const lock = join(f.output, '.history-lock');
+    await mkdir(lock);
+    await assert.rejects(dropBeforeRange({ output: f.output, all: true }, f.dependencies), /Another history/);
+    await rm(lock, { recursive: true });
+    let reads = 0;
+    await assert.rejects(dropBeforeRange({ output: f.output, all: true }, {
+        ...f.dependencies, getCurrent: async () => ++reads === 1 ? initial : { ...initial, path: '/other/current.json' },
+    }), /changed during history/);
+    assert.equal((await readCurrentComparison(f.artifacts)).path, initial.path);
+    assert.deepEqual(f.snapshot(), f.original);
+});
+
+test('concurrent drops in different outputs cannot overwrite the newer global selection', async t => {
+    const f = await fixture(t);
+    await collectBeforeRange(f.options, '2026-10-12', '2026-10-13', f.dependencies);
+    const original = await readCurrentComparison(f.artifacts);
+    const entered = Promise.withResolvers();
+    const resume = Promise.withResolvers();
+    const older = dropBeforeRange({ output: join(f.root, 'drop-a'), from: '2026-10-12' }, {
+        ...f.dependencies,
+        register: async (path, options) => {
+            entered.resolve();
+            await resume.promise;
+            return f.dependencies.register(path, options);
+        },
+    });
+    const rejected = assert.rejects(older, /current comparison changed before publication/);
+    await entered.promise;
+    let newer;
+    try {
+        newer = await dropBeforeRange({ output: join(f.root, 'drop-b'), from: '2026-10-13' }, f.dependencies);
+    } finally {
+        resume.resolve();
+    }
+    await rejected;
+    const current = await readCurrentComparison(f.artifacts);
+    assert.equal(current.path, newer.comparisonPath);
+    assert.deepEqual(current.comparison.beforeHistory.map(entry => entry.day), ['2026-10-12']);
+    assert.deepEqual(current.comparison.after, original.comparison.after);
+    assert.deepEqual(f.snapshot(), f.original);
+});
+
+test('dropping a date can recover missing selected evidence but never hides broken retained evidence', async t => {
+    const f = await fixture(t);
+    await collectBeforeRange(f.options, '2026-10-13', 'today', f.dependencies);
+    const original = await readCurrentComparison(f.artifacts);
+    const broken = original.comparison.beforeHistory.find(day => day.day === '2026-10-13');
+    await rm(broken.before.results[0].path);
+    await assert.rejects(loadCurrentComparisonData(f.artifacts), /ENOENT/);
+    await assert.rejects(dropBeforeRange({ output: f.output, from: '2026-10-14' }, f.dependencies), /ENOENT/);
+    assert.equal((await readCurrentComparison(f.artifacts)).path, original.path);
+    await historyCommand('drop', ['--from', '2026-10-13'], {
+        getCurrent: f.dependencies.getCurrent, outputDir: f.output,
+        drop: (options, hooks) => dropBeforeRange(options, { ...f.dependencies, ...hooks }),
+    });
+    const data = await loadCurrentComparisonData(f.artifacts);
+    assert.deepEqual(data.beforeHistory.map(day => day.day), ['2026-10-14']);
+    assert.deepEqual((await readCurrentComparison(f.artifacts)).comparison.after, f.initialAfter);
+    await readFile(original.path);
+});
+
+test('history CLI uses the current experiment, not bootstrap settings; fetch and dry run are explicit', async t => {
+    const f = await fixture(t);
+    const fetches = [], checks = [];
+    const dependencies = {
+        ...f.dependencies, outputDir: f.output, defaults: async () => ({ tar: 'tar' }),
+        check: async options => { checks.push(options); return { ok: true, browsers: { chrome: 'fixture-browser' } }; },
+        report: () => {}, fetchMain: async repo => fetches.push(repo),
+        collect: (options, from, to, hooks) => collectBeforeRange(options, from, to, {
+            ...f.dependencies, ...hooks, measurementDependencies: { ...f.measurementDependencies, ...hooks.measurementDependencies },
+        }),
+        drop: (options, hooks) => dropBeforeRange(options, { ...f.dependencies, ...hooks }),
+    };
+    const originalComparison = await readCurrentComparison(f.artifacts);
+    await historyCommand('add', ['--from', '2026-10-12', '--to', 'today', '--fetch', '--dry-run'], dependencies);
+    assert.equal(fetches.length, 0);
+    assert.equal(checks.length, 0);
+    assert.equal(f.publishes.length, 0);
+    assert.equal((await readCurrentComparison(f.artifacts)).path, originalComparison.path);
+    await historyCommand('add', ['--from', '2026-10-13', '--fetch'], dependencies);
+    assert.deepEqual(fetches, [f.runtimeRepo]);
+    assert.equal(checks[0].systemChrome, true);
+    assert.equal(checks[0].runtimeRepo, f.runtimeRepo);
+    assert.deepEqual((await readCurrentComparison(f.artifacts)).comparison.after, f.initialAfter);
+    await historyCommand('add', [], dependencies);
+    const current = await readCurrentComparison(f.artifacts);
+    assert.deepEqual(current.comparison.beforeHistory.map(day => day.day), ['2026-10-13', '2026-10-14']);
+    const publishCount = f.publishes.length, checkCount = checks.length;
+    await historyCommand('add', [], dependencies);
+    assert.equal(f.publishes.length, publishCount);
+    assert.equal(checks.length, checkCount);
+    await historyCommand('drop', ['--from', '2026-10-14', '--dry-run'], dependencies);
+    assert.equal((await readCurrentComparison(f.artifacts)).path, current.path);
+    await historyCommand('drop', ['--from', '2026-10-14'], dependencies);
+    assert.deepEqual((await readCurrentComparison(f.artifacts)).comparison.beforeHistory.map(day => day.day), ['2026-10-13']);
+    assert.deepEqual(f.snapshot(), f.original);
+});
+
+test('history CLI fails explicitly on missing saved setup, missing prerequisites and inherited PGO overrides', async t => {
+    const f = await fixture(t);
+    const dependencies = { ...f.dependencies, outputDir: f.output, report: () => {},
+        check: async () => ({ ok: false, browsers: {} }) };
+    const current = await readCurrentComparison(f.artifacts);
+    const oldProfile = process.env.WasmReadyToRunProfile;
+    process.env.WasmReadyToRunProfile = '/an/after-only/profile.mibc';
+    try {
+        await assert.rejects(historyCommand('add', [], dependencies), /Unset WasmReadyToRunProfile/);
+    } finally {
+        if (oldProfile === undefined) delete process.env.WasmReadyToRunProfile;
+        else process.env.WasmReadyToRunProfile = oldProfile;
+    }
+    await assert.rejects(historyCommand('add', [], dependencies), /missing prerequisites/);
+    assert.equal(f.publishes.length, 0);
+    assert.equal((await readCurrentComparison(f.artifacts)).path, current.path);
+    delete current.comparison.setup.measurement['warm-runs'];
+    await writeFile(current.path, JSON.stringify(current.comparison));
+    await assert.rejects(historyCommand('add', [], dependencies), /missing saved measurement --warm-runs/);
+    assert.equal(f.publishes.length, 0);
     assert.deepEqual(f.snapshot(), f.original);
 });

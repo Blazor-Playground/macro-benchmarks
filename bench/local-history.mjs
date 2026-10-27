@@ -3,12 +3,13 @@ import { createHash, randomUUID } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { mkdir, mkdtemp, readFile, realpath, rename, rm, rmdir, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve, sep } from 'node:path';
-import { measureBefore, measurementOptions } from './compare-local-runtime.mjs';
+import { cloneOptions, measureBefore, measurementOptions } from './compare-local-runtime.mjs';
 import { loadLocalComparisonData, writeLocalComparisonData } from './local-comparison-data.mjs';
 import { formatResults, readCurrentComparison, readLegacyComparison, registerComparison } from './local-results.mjs';
 
 const dayMs = 86_400_000;
 const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
+const registerHistory = (path, options) => registerComparison(path, undefined, options);
 const git = (cwd, args) => execFileSync('git', ['-C', cwd, ...args],
     { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }).trim();
 
@@ -32,6 +33,72 @@ export function recentDayCount(value) {
     return Number(value);
 }
 
+export function historyDate(value, now = new Date()) {
+    if (value === 'today') return now.toISOString().slice(0, 10);
+    if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value) || value < '0001-01-01') {
+        throw new Error('History dates must be YYYY-MM-DD or today (UTC).');
+    }
+    const time = Date.parse(`${value}T00:00:00Z`);
+    if (!Number.isFinite(time) || new Date(time).toISOString().slice(0, 10) !== value) {
+        throw new Error(`Invalid UTC history date: ${value}`);
+    }
+    return value;
+}
+
+export function historyRange(from, to = from, now = new Date()) {
+    from = historyDate(from, now);
+    to = historyDate(to, now);
+    if (from > to) throw new Error('History --from must not be after --to.');
+    const days = [];
+    for (let time = Date.parse(`${from}T00:00:00Z`); time <= Date.parse(`${to}T00:00:00Z`); time += dayMs) {
+        days.push(new Date(time).toISOString().slice(0, 10));
+    }
+    return { from, to, days };
+}
+
+function includesMono(comparison) {
+    return !!comparison.monoBefore ||
+        comparison.beforeHistory?.some(entry => !!entry.monoBefore);
+}
+
+export function latestBeforeDay(comparison) {
+    const mono = includesMono(comparison);
+    return comparison.beforeHistory?.filter(entry =>
+        entry.status === 'passed' && entry.before && (!mono || entry.monoBefore))
+        .map(entry => entry.day).sort().at(-1);
+}
+
+export function missingBeforeDays(comparison, from, to, now = new Date()) {
+    const range = historyRange(from, to, now);
+    if (range.to > now.toISOString().slice(0, 10)) throw new Error('Cannot measure future history dates.');
+    const mono = includesMono(comparison);
+    return range.days.filter(day => !comparison.beforeHistory?.some(entry =>
+        entry.day === day && entry.status === 'passed' && entry.before && (!mono || entry.monoBefore)));
+}
+
+function selectDays(runtimeRepo, days, now) {
+    const sourceRef = 'refs/remotes/origin/main';
+    if (!days.length) return { sourceRef, selectedMain: null, sourceTipDate: null, selectedAt: now.toISOString(), days: [] };
+    const shallow = git(runtimeRepo, ['rev-parse', '--is-shallow-repository']) === 'true';
+    const selectedMain = git(runtimeRepo, ['rev-parse', '--verify', `${sourceRef}^{commit}`]);
+    const commits = git(runtimeRepo, ['log', '--first-parent', '--format=%H%x09%ct', selectedMain])
+        .split('\n').map(line => {
+            const [commit, seconds] = line.split('\t');
+            return { commit, time: Number(seconds) * 1000 };
+        });
+    const selectedDays = [];
+    for (const day of days) {
+        const time = Date.parse(`${day}T00:00:00Z`);
+        const cutoff = Math.min(time + dayMs - 1, now.getTime());
+        const selected = commits.find(commit => commit.time <= cutoff);
+        if (!selected) throw new Error(`No first-parent source snapshot available for ${day}. ` +
+            `${shallow ? 'Deepen/unshallow the runtime checkout yourself, then retry. ' : ''}Nothing was measured.`);
+        selectedDays.push({ day, commit: selected.commit });
+    }
+    return { sourceRef, selectedMain, sourceTipDate: new Date(commits[0].time).toISOString(),
+        selectedAt: now.toISOString(), days: selectedDays };
+}
+
 export function selectRecentCommits(runtimeRepo, count, now = new Date()) {
     recentDayCount(String(count));
     const today = Date.parse(`${now.toISOString().slice(0, 10)}T00:00:00Z`);
@@ -39,25 +106,42 @@ export function selectRecentCommits(runtimeRepo, count, now = new Date()) {
     if (!Number.isFinite(start) || start < Date.parse('0001-01-01T00:00:00Z')) {
         throw new Error('The requested recent-day range is outside supported UTC dates.');
     }
-    const shallow = git(runtimeRepo, ['rev-parse', '--is-shallow-repository']) === 'true';
-    const sourceRef = 'refs/remotes/origin/main';
-    const selectedMain = git(runtimeRepo, ['rev-parse', '--verify', `${sourceRef}^{commit}`]);
-    const commits = git(runtimeRepo, ['log', '--first-parent', '--format=%H%x09%ct', selectedMain])
-        .split('\n').map(line => {
-            const [commit, seconds] = line.split('\t');
-            return { commit, time: Number(seconds) * 1000 };
-        });
-    const days = [];
-    for (let time = start; time <= today; time += dayMs) {
-        const day = new Date(time).toISOString().slice(0, 10);
-        const cutoff = Math.min(time + dayMs - 1, now.getTime());
-        const selected = commits.find(commit => commit.time <= cutoff);
-        if (!selected) throw new Error(`No first-parent source snapshot available for ${day}. ` +
-            `${shallow ? 'Deepen/unshallow the runtime checkout yourself, then retry. ' : ''}Nothing was measured.`);
-        days.push({ day, commit: selected.commit });
+    return selectDays(runtimeRepo, historyRange(new Date(start).toISOString().slice(0, 10),
+        now.toISOString().slice(0, 10), now).days, now);
+}
+
+export function selectRangeCommits(runtimeRepo, from, to, now = new Date(), comparison = {}) {
+    const range = historyRange(from, to, now);
+    const missing = missingBeforeDays(comparison, range.from, range.to, now);
+    return { ...selectDays(runtimeRepo, missing.reverse(), now), requestedRange: { from: range.from, to: range.to } };
+}
+
+async function lockHistory(output) {
+    await mkdir(output, { recursive: true });
+    const lock = join(output, '.history-lock');
+    try { await mkdir(lock); }
+    catch (error) {
+        if (error.code === 'EEXIST') throw new Error(`Another history edit/collection is running or was interrupted: ${lock}`);
+        throw error;
     }
-    return { sourceRef, selectedMain, sourceTipDate: new Date(commits[0].time).toISOString(),
-        selectedAt: now.toISOString(), days };
+    if (existsSync(join(output, '.comparison-lock'))) {
+        await rmdir(lock);
+        throw new Error(`Another comparison is running or was interrupted: ${join(output, '.comparison-lock')}`);
+    }
+    return () => rmdir(lock);
+}
+
+async function publishHistory(current, comparison, output, getCurrent, register) {
+    const session = await mkdtemp(join(output, 'comparison-'));
+    const comparisonPath = join(session, 'comparison.json');
+    await saveJson(comparisonPath, comparison);
+    const portable = await writeLocalComparisonData(comparison, join(session, 'dashboard.json'));
+    if ((await getCurrent())?.path !== current.path) {
+        throw new Error('The current after changed during history collection/editing. Saved evidence is retained; retry without overwriting the newer result.');
+    }
+    await register(comparisonPath, { expectedCurrentPath: current.path });
+    console.log(formatResults(portable));
+    return comparisonPath;
 }
 
 async function historyCheckout({ output, runtimeRepo, beforeSha, origin, runtime, configuration, run }) {
@@ -86,13 +170,12 @@ async function historyCheckout({ output, runtimeRepo, beforeSha, origin, runtime
         }
     }
     if (!source) {
-        await run('git', ['clone', '--local', '--no-hardlinks', runtimeRepo, checkout], { cwd: directory });
+        await run('git', ['clone', '--local', '--no-hardlinks', runtimeRepo, checkout, ...cloneOptions], { cwd: directory });
         git(checkout, ['remote', 'set-url', 'origin', origin]);
         source = { checkout, commit: git(checkout, ['rev-parse', 'HEAD']), origin, runtime, configuration };
         await saveJson(marker, source);
     }
     if (source.commit !== beforeSha || source.pendingCommit) {
-        // Copy newly fetched commits from the contributor's local repo, not a remote.
         await run('git', ['fetch', '--no-tags', runtimeRepo, beforeSha], { cwd: checkout });
         await saveJson(marker, { ...source, pendingCommit: beforeSha });
         await run('git', ['checkout', '--detach', beforeSha], { cwd: checkout });
@@ -131,7 +214,7 @@ function checkSetup(options, comparison, data) {
 
 export async function collectRecentBefore(options, count, {
     now = () => new Date(), select = selectRecentCommits, measure = measureBefore,
-    getCurrent = readCurrentComparison, getLegacy = readLegacyComparison, register = registerComparison,
+    getCurrent = readCurrentComparison, getLegacy = readLegacyComparison, register = registerHistory,
     measurementDependencies = {},
 } = {}) {
     let current = await getCurrent();
@@ -140,7 +223,12 @@ export async function collectRecentBefore(options, count, {
     if (!current) throw new Error('No current after result. Complete bootstrap or iterate before adding history.');
     const data = await loadLocalComparisonData(current.comparison);
     checkSetup(options, current.comparison, data);
-    const plan = select(options['runtime-repo'], count, now());
+    const includeMono = includesMono(current.comparison);
+    const plan = select(options['runtime-repo'], count, now(), current.comparison);
+    if (!plan.days.length) {
+        console.log('All requested before-history dates are already measured; existing results are unchanged.');
+        return { comparisonPath: current.path, selection: plan, beforeHistory: current.comparison.beforeHistory ?? [] };
+    }
     for (const selected of plan.days) {
         const previous = current.comparison.beforeHistory?.find(entry => entry.day === selected.day && entry.status === 'passed');
         if (!previous || previous.commit === selected.commit) continue;
@@ -153,20 +241,11 @@ export async function collectRecentBefore(options, count, {
         }
     }
     const output = resolve(options.output);
-    await mkdir(output, { recursive: true });
-    const lock = join(output, '.history-lock');
-    try { await mkdir(lock); }
-    catch (error) {
-        if (error.code === 'EEXIST') throw new Error(`Another history collection is running or was interrupted: ${lock}`);
-        throw error;
-    }
+    const unlock = await lockHistory(output);
     try {
-        if (existsSync(join(output, '.comparison-lock'))) {
-            throw new Error(`Another comparison is running or was interrupted: ${join(output, '.comparison-lock')}`);
-        }
         if (legacy) {
             if (await getCurrent()) throw new Error('The current result changed during legacy migration; retry.');
-            await register(current.path);
+            await register(current.path, { expectedCurrentPath: null });
             console.log(`Migrated saved after without remeasurement: ${current.path}`);
         }
         const directory = join(output, 'history');
@@ -178,7 +257,7 @@ export async function collectRecentBefore(options, count, {
             throw new Error(`Invalid historical progress: ${progressPath}`);
         }
         const progress = { schemaVersion: 1, selection: old?.selection ?? plan, days: [], comparisonPath: current.path };
-        console.log(`Daily before controls: ${plan.days[0].day} through ${plan.days.at(-1).day} (UTC, including today).\n` +
+        console.log(`Daily before controls (UTC, in capture order): ${plan.days.map(day => day.day).join(', ')}.\n` +
             `Pinned local origin/main: ${plan.selectedMain} (${plan.sourceTipDate}); after evidence remains ${current.path}`);
         const failures = [];
         for (const selected of plan.days) {
@@ -189,7 +268,7 @@ export async function collectRecentBefore(options, count, {
             try {
                 const controls = { ...options, 'mono-before': undefined, 'include-mono-before': false };
                 const dependencies = { ...measurementDependencies, getBaselineCheckout: historyCheckout };
-                if (current.comparison.monoBefore) {
+                if (includeMono) {
                     const mono = await measure({ ...controls, runtime: 'mono', variant: 'no-workload',
                         'before-variant': 'no-workload' }, entry.commit, dependencies);
                     entry.monoBefore = mono.before;
@@ -208,10 +287,22 @@ export async function collectRecentBefore(options, count, {
             await saveJson(progressPath, progress);
         }
         const entries = new Map((current.comparison.beforeHistory ?? []).map(entry => [entry.day, entry]));
-        for (const entry of progress.days) entries.set(entry.day, entry);
+        const retryWarnings = [];
+        for (const entry of progress.days) {
+            const saved = entries.get(entry.day);
+            if (entry.status !== 'passed' && saved?.status === 'passed') {
+                retryWarnings.push(`History retry failed for ${entry.day}: ${entry.commit.slice(0, 12)} failed; ` +
+                    `retained saved controls at ${saved.commit.slice(0, 12)}. ${entry.error}`);
+            } else {
+                entries.set(entry.day, entry);
+            }
+        }
         const warnings = current.comparison.warnings.filter(warning =>
-            !warning.startsWith('History uses local origin/main last committed '));
-        if (plan.sourceTipDate.slice(0, 10) < plan.days.at(-1).day) {
+            !warning.startsWith('History uses local origin/main last committed ') &&
+            !progress.days.some(entry => warning.startsWith(`History retry failed for ${entry.day}:`)));
+        warnings.push(...retryWarnings);
+        const latestDay = plan.days.map(day => day.day).sort().at(-1);
+        if (plan.sourceTipDate.slice(0, 10) < latestDay) {
             const warning = `History uses local origin/main last committed ${plan.sourceTipDate}. ` +
                 'Unchanged source days share cached evidence; fetch origin/main yourself if newer upstream snapshots are needed.';
             console.warn(warning);
@@ -233,17 +324,75 @@ export async function collectRecentBefore(options, count, {
             historySelection: progress.selection,
         };
         delete comparison.historySelections;
-        const session = await mkdtemp(join(output, 'comparison-'));
-        const comparisonPath = join(session, 'comparison.json');
-        await saveJson(comparisonPath, comparison);
-        const portable = await writeLocalComparisonData(comparison, join(session, 'dashboard.json'));
-        if ((await getCurrent())?.path !== current.path) {
-            throw new Error('The current after changed during history collection. Saved controls are retained; retry to attach them without overwriting a newer result.');
-        }
-        await register(comparisonPath);
-        console.log(formatResults(portable));
+        const comparisonPath = await publishHistory(current, comparison, output, getCurrent, register);
         console.log(`Current comparison (CLI and local viewer): ${comparisonPath}\nHistorical progress: ${progressPath}`);
-        if (failures.length) throw new Error(`Historical controls failed for ${failures.join(', ')}. Explicit gaps were saved; repeat bootstrap --measure-recent-days=${count} to retry using valid caches.`);
+        if (failures.length) {
+            const retry = plan.requestedRange
+                ? `node bench/runtime-bench.mjs history add --from ${plan.requestedRange.from} --to ${plan.requestedRange.to}`
+                : `bootstrap --measure-recent-days=${count}`;
+            throw new Error(`Historical controls failed for ${failures.join(', ')}. Explicit gaps or prior valid controls were saved; repeat ${retry} to retry using valid caches.`);
+        }
         return { comparisonPath, selection: progress.selection, beforeHistory: comparison.beforeHistory };
-    } finally { await rmdir(lock); }
+    } finally { await unlock(); }
+}
+
+export async function collectBeforeRange(options, from, to = from, dependencies = {}) {
+    const stamp = (dependencies.now ?? (() => new Date()))();
+    const range = historyRange(from, to, stamp);
+    return collectRecentBefore(options, range.days.length, {
+        ...dependencies, now: () => stamp,
+        select: dependencies.select ?? ((runtimeRepo, count, now, comparison) =>
+            selectRangeCommits(runtimeRepo, range.from, range.to, now, comparison)),
+    });
+}
+
+export async function dropBeforeRange({ output, from, to = from, all = false, dryRun = false }, {
+    getCurrent = readCurrentComparison, register = registerHistory, now = () => new Date(),
+} = {}) {
+    if (all && (from !== undefined || to !== undefined)) throw new Error('Use either a date range or --all, not both.');
+    const range = all ? null : historyRange(from, to, now());
+    const current = await getCurrent();
+    if (!current) throw new Error('No current comparison. Run bootstrap or iterate first.');
+    const history = current.comparison.beforeHistory ?? [];
+    if (!Array.isArray(history)) throw new Error('Invalid comparison history records.');
+    if (history.some(entry => !entry || typeof entry.day !== 'string')) {
+        throw new Error('Invalid comparison history entry.');
+    }
+    const removed = history.filter(entry =>
+        all || (entry.day >= range.from && entry.day <= range.to));
+    if (!removed.length) {
+        await loadLocalComparisonData(current.comparison);
+        console.log('No active before-history dates match; results are unchanged.');
+        return { comparisonPath: current.path, removedDays: [] };
+    }
+    const removedDays = new Set(removed.map(entry => entry.day));
+    const comparison = {
+        ...current.comparison,
+        beforeHistory: history.filter(entry => !removedDays.has(entry.day)),
+        warnings: [...new Set([...(current.comparison.warnings ?? []).filter(warning =>
+            ![...removedDays].some(day => warning.startsWith(`History retry failed for ${day}:`))),
+            'History was manually edited; raw measurements and before caches were retained.'])],
+    };
+    if (comparison.historySelection) {
+        comparison.historySelection = {
+            ...comparison.historySelection,
+            days: comparison.historySelection.days.filter(entry => !removedDays.has(entry.day)),
+        };
+        if (!comparison.historySelection.days.length) delete comparison.historySelection;
+    }
+    if (!comparison.beforeHistory.length) {
+        delete comparison.beforeHistory;
+        delete comparison.historySelection;
+        delete comparison.historySelections;
+    }
+    await loadLocalComparisonData(comparison);
+    console.log(`${dryRun ? 'Would remove' : 'Removing'} from active history: ${[...removedDays].join(', ')}. Raw files and caches are retained.`);
+    if (dryRun) return { comparisonPath: current.path, removedDays: [...removedDays], dryRun: true };
+    output = resolve(output);
+    const unlock = await lockHistory(output);
+    try {
+        const comparisonPath = await publishHistory(current, comparison, output, getCurrent, register);
+        console.log(`Current comparison: ${comparisonPath}\nPrevious comparison retained: ${current.path}`);
+        return { comparisonPath, removedDays: [...removedDays] };
+    } finally { await unlock(); }
 }

@@ -321,6 +321,26 @@ test('unregistered Windows default comparison outputs can be discovered', async 
     assert.equal(await findLatestComparison(undefined, artifacts), path);
 });
 
+test('result publication uses a global lock and rejects a stale expected selection', async t => {
+    const { root, save } = await fixture(t);
+    const first = await save('first-publish', '2026-10-14T11:00:00Z');
+    const second = await save('second-publish', '2026-10-14T12:00:00Z');
+    const artifacts = join(root, 'artifacts');
+    await registerComparison(first.path, artifacts, { expectedCurrentPath: null });
+    const lock = join(artifacts, 'local-runtime', '.publication-lock');
+    await mkdir(lock);
+    await assert.rejects(registerComparison(second.path, artifacts), /Another result publication/);
+    assert.equal(await currentComparisonPath(artifacts), first.path);
+    await rm(lock, { recursive: true });
+    await assert.rejects(registerComparison(second.path, artifacts, { expectedCurrentPath: null }), /changed before publication/);
+    assert.equal(await currentComparisonPath(artifacts), first.path);
+    await registerComparison(second.path, artifacts, { expectedCurrentPath: first.path });
+    assert.equal(await currentComparisonPath(artifacts), second.path);
+    await assert.rejects(registerComparison(first.path, artifacts, { expectedCurrentPath: first.path }), /changed before publication/);
+    assert.equal(await currentComparisonPath(artifacts), second.path);
+    await assert.rejects(readFile(lock), /ENOENT/);
+});
+
 test('one current pointer selects pooled history evidence and ignores stale dashboard exports', async t => {
     const { root, save } = await fixture(t);
     const old = await save('single', '2026-10-14T09:00:00Z');

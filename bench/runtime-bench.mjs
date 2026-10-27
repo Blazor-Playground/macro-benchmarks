@@ -1,14 +1,19 @@
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { parseArgs } from 'node:util';
 import { compare, defaultComparisonOutput, measurementOptions, parseCompareOptions } from './compare-local-runtime.mjs';
 import { checkPrerequisites, probeCommand, probeTar, reportPrerequisites } from './local-prerequisites.mjs';
-import { currentComparisonPath, displaySavedResults, variantName } from './local-results.mjs';
-import { collectRecentBefore, recentDayCount, selectRecentCommits } from './local-history.mjs';
+import { currentComparisonPath, displaySavedResults, readCurrentComparison, variantName } from './local-results.mjs';
+import {
+    collectBeforeRange, collectRecentBefore, dropBeforeRange, historyRange, latestBeforeDay, missingBeforeDays,
+    recentDayCount, selectRangeCommits, selectRecentCommits,
+} from './local-history.mjs';
+import { loadLocalComparisonData } from './local-comparison-data.mjs';
+import { runCommand } from './local-command.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const statePath = join(root, 'artifacts', 'local-runtime', 'quick-start.json');
@@ -23,8 +28,17 @@ const help = `Runtime contributor quick start (run from macro-benchmarks; Node.j
     Add clean daily before controls using the saved setup; preserve the current after.
   node bench/runtime-bench.mjs results [--view history|matched]
     Print the current shared result without building or checking prerequisites.
+  node bench/runtime-bench.mjs history add [--from YYYY-MM-DD [--to YYYY-MM-DD|today]] [--fetch]
+    Add missing dates to the current experiment, newest first; keep passed dates and after.
+    No dates: add days since the latest complete before, through today.
+    One --from: that day only. --fetch explicitly refreshes runtime origin/main.
+  node bench/runtime-bench.mjs history drop --from YYYY-MM-DD [--to YYYY-MM-DD]
+  node bench/runtime-bench.mjs history drop --all
+    Remove dates from active history only. Keep raw files, caches, after and matched control.
+    Both history commands accept --dry-run and --output <control-cache-directory>.
+    Dates are inclusive UTC. Dry runs never fetch, build, or change results.
 
-origin/main is the local tracking ref; fetch it yourself if needed. No automatic upstream fetch.
+origin/main is the local tracking ref; only an explicit history add --fetch refreshes it.
 Defaults: Mono interpreter control + CoreCLR publish/R2R composite BEFORE and AFTER.
 Use --variant r2r to switch both CoreCLR sides to non-composite R2R.
 Release, Chrome/desktop+mobile, 10 cold + 5 warm loads,
@@ -150,7 +164,7 @@ export async function quickStart(action, runtimePath, {
             settings.version = 3;
             console.log('Updating previous mixed-mode settings: before now matches the remembered after variant; source checkout is unchanged.');
         }
-    } else throw new Error('Choose bootstrap, iterate, or results. Use --help for the two-command workflow.');
+        } else throw new Error('Choose bootstrap, iterate, results, or history. Use --help.');
 
     const initialArgs = remembered ? settings.compareArgs :
         ['--output', settings.output, '--runtime', 'coreclr', '--variant', 'composite',
@@ -225,11 +239,128 @@ export async function quickStart(action, runtimePath, {
     }
 }
 
+export function parseHistoryOptions(action, args) {
+    if (!['add', 'drop'].includes(action)) throw new Error('Choose history add or history drop. Use --help.');
+    const { values, tokens } = parseArgs({
+        args, tokens: true, options: {
+            from: { type: 'string' }, to: { type: 'string' }, output: { type: 'string' },
+            fetch: { type: 'boolean', default: false }, all: { type: 'boolean', default: false },
+            'dry-run': { type: 'boolean', default: false },
+        },
+    });
+    const seen = new Set();
+    for (const token of tokens) {
+        if (token.kind !== 'option') continue;
+        if (seen.has(token.name)) throw new Error(`Specify --${token.name} only once.`);
+        seen.add(token.name);
+    }
+    if (values.output === '') throw new Error('--output requires a nonempty directory.');
+    if (values.to && !values.from) throw new Error('--to requires --from.');
+    if (values.all && values.from) throw new Error('Use a date range or --all, not both.');
+    if (action === 'add' && values.all) throw new Error('--all is a history drop option; select an add range.');
+    if (action === 'drop' && values.fetch) throw new Error('--fetch is a history add option.');
+    if (action === 'drop' && !values.all && !values.from) throw new Error('History drop requires --from or explicit --all.');
+    return values;
+}
+
+function currentHistoryOptions(current, data, output) {
+    const setup = current.comparison.setup;
+    const manifest = data.after.manifest;
+    const runtimeRepo = manifest.sdkInfo.localRuntime?.source?.checkout ?? current.comparison.runtimeRepo;
+    if (typeof runtimeRepo !== 'string' || !setup?.measurement) {
+        throw new Error('The current comparison has no saved runtime checkout/measurement setup. Run bootstrap or iterate first.');
+    }
+    const args = ['--runtime-repo', runtimeRepo, '--output', output, '--runtime', manifest.runtime,
+        '--variant', manifest.variant, '--configuration', setup.configuration];
+    for (const [option, value] of [['sdk', setup.sdk], ['tfm', setup.tfm], ['aspnet-version', setup.aspnetVersion]]) {
+        if (value) args.push(`--${option}`, value);
+    }
+    for (const source of setup.excludedSources ?? []) args.push('--exclude-source', source);
+    args.push('--');
+    for (const key of Object.keys(measurementOptions([])).filter(key => key !== 'verbose')) {
+        const value = setup.measurement[key];
+        if (value === undefined) throw new Error(`Current comparison is missing saved measurement --${key}; bootstrap or iterate first.`);
+        if (typeof value === 'boolean') {
+            if (value) args.push(`--${key}`);
+        } else args.push(`--${key}`, String(value));
+    }
+    return parseCompareOptions(args);
+}
+
+export async function historyCommand(action, args, {
+    getCurrent = readCurrentComparison, collect = collectBeforeRange, drop = dropBeforeRange,
+    now = () => new Date(), outputDir = defaultComparisonOutput, defaults = selectDefaults,
+    check = checkPrerequisites, report = reportPrerequisites,
+    fetchMain = runtimeRepo => runCommand('git',
+        ['fetch', '--no-tags', 'origin', 'refs/heads/main:refs/remotes/origin/main'], { cwd: runtimeRepo }),
+    select = selectRangeCommits,
+} = {}) {
+    const values = parseHistoryOptions(action, args);
+    const stamp = now();
+    const current = await getCurrent();
+    if (!current) throw new Error('No current comparison. Run bootstrap or iterate first.');
+    const parent = dirname(current.path);
+    const output = resolve(values.output ?? (basename(parent).startsWith('comparison-') ? dirname(parent) : outputDir));
+    if (action === 'drop') {
+        return drop({ output, from: values.from, to: values.to ?? values.from, all: values.all, dryRun: values['dry-run'] },
+            { getCurrent, now: () => stamp });
+    }
+    const data = await loadLocalComparisonData(current.comparison);
+    const today = stamp.toISOString().slice(0, 10);
+    const latest = latestBeforeDay(current.comparison);
+    const from = values.from ?? (latest && latest < today
+        ? new Date(Date.parse(`${latest}T00:00:00Z`) + 86400000).toISOString().slice(0, 10) : today);
+    const range = historyRange(from, values.to ?? (values.from ? from : today), stamp);
+    const missing = missingBeforeDays(current.comparison, range.from, range.to, stamp);
+    if (!missing.length) {
+        console.log('All requested before-history dates are already measured; existing results are unchanged.');
+        return { comparisonPath: current.path, skipped: range.days };
+    }
+    const options = currentHistoryOptions(current, data, output);
+    if (values['dry-run']) {
+        if (values.fetch) console.log('Dry run: --fetch is skipped; planning from the existing local origin/main.');
+        const plan = select(options['runtime-repo'], range.from, range.to, stamp, current.comparison);
+        console.log(`Would add before controls, newest first: ${plan.days.map(day => `${day.day} ${day.commit}`).join(', ')}.\n` +
+            `Existing dates and after unchanged. Control output: ${output}`);
+        return { comparisonPath: current.path, selection: plan, dryRun: true };
+    }
+    for (const key of ['WasmReadyToRunProfile', 'PublishReadyToRunCrossgen2ExtraArgs']) {
+        if (process.env[key]) throw new Error(`Unset ${key} before adding clean before-history controls; inherited experiment overrides are not supported.`);
+    }
+    if (values.fetch) await fetchMain(options['runtime-repo']);
+    const measurement = measurementOptions(options.measureArgs);
+    const prerequisites = await check({
+        runtimeRepo: options['runtime-repo'], sdk: options.sdk, engines: measurement.engine.split(','),
+        systemChrome: measurement['system-chrome'], headless: !measurement['no-headless'],
+    });
+    report(prerequisites);
+    if (!prerequisites.ok) throw new Error('Resolve the missing prerequisites and repeat history add. Nothing was installed.');
+    const previousTar = process.env.BENCH_TAR;
+    process.env.BENCH_TAR = (await defaults()).tar;
+    try {
+        return await collect(options, range.from, range.to, {
+            now: () => stamp,
+            getCurrent: async () => {
+                const live = await getCurrent();
+                if (live?.path !== current.path) throw new Error('Current comparison changed during history add; retry without changing its experiment.');
+                return live;
+            },
+            measurementDependencies: { getBrowserIdentity: async () => prerequisites.browsers },
+        });
+    } finally {
+        if (previousTar === undefined) delete process.env.BENCH_TAR;
+        else process.env.BENCH_TAR = previousTar;
+    }
+}
+
 export async function runQuickStartCli(args = process.argv.slice(2)) {
     try {
         const [action, ...rest] = args;
         if (!action || action === '--help' || rest.includes('--help')) console.log(help);
-        else {
+        else if (action === 'history') {
+            const [operation, ...options] = rest;
+            await historyCommand(operation, options);
+        } else {
             const runtimePath = action === 'bootstrap' && rest[0] && !rest[0].startsWith('-') ? rest.shift() : undefined;
             if (action !== 'bootstrap' && rest[0] && !rest[0].startsWith('-')) {
                 throw new Error('Only bootstrap accepts one optional runtime path. Use --help.');

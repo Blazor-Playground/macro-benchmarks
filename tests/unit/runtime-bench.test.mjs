@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
-import { historyArguments, quickStart, selectDefaults } from '../../bench/runtime-bench.mjs';
+import { historyArguments, parseHistoryOptions, quickStart, selectDefaults } from '../../bench/runtime-bench.mjs';
 import { compare } from '../../bench/compare-local-runtime.mjs';
 import { DEFAULT_FOCUS_SELECTION, FOCUS_FLAVORS } from '../../src/bench-viewer/wwwroot/chart/focus-selection.js';
 
@@ -199,6 +199,28 @@ test('recent-days accepts equals/separate values only for bootstrap and never le
     assert.throws(() => historyArguments('bootstrap', ['--measure-recent-days']), /positive safe integer/);
     assert.throws(() => historyArguments('bootstrap', ['--measure-recent-days=7', '--measure-recent-days=2']), /only once/);
     assert.throws(() => historyArguments('iterate', ['--measure-recent-days=7']), /bootstrap option/);
+});
+
+test('history command arguments require an explicit safe drop selection and reject ambiguous flags', () => {
+    const add = parseHistoryOptions('add', ['--from', '2026-10-12', '--to=today', '--fetch', '--dry-run']);
+    assert.equal(add.from, '2026-10-12');
+    assert.equal(add.to, 'today');
+    assert.equal(add.fetch, true);
+    assert.equal(add['dry-run'], true);
+    assert.equal(parseHistoryOptions('drop', ['--all']).all, true);
+    assert.equal(parseHistoryOptions('drop', ['--from', '2026-10-20']).from, '2026-10-20');
+    for (const [action, args, error] of [
+        ['unknown', [], /Choose history add or history drop/],
+        ['drop', [], /requires --from/],
+        ['add', ['--to', 'today'], /requires --from/],
+        ['add', ['--all'], /history drop option/],
+        ['drop', ['--all', '--from', '2026-10-12'], /not both/],
+        ['drop', ['--all', '--fetch'], /history add option/],
+        ['add', ['--from', '2026-10-12', '--from', '2026-10-13'], /only once/],
+        ['drop', ['--all', '--all'], /only once/],
+        ['add', ['--output', ''], /nonempty/],
+        ['add', ['--purge'], /Unknown option/],
+    ]) assert.throws(() => parseHistoryOptions(action, args), error);
 });
 
 test('repeat history bootstrap uses saved options without measuring after or resetting browser defaults', async t => {

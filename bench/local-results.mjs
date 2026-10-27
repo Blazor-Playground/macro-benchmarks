@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, rename, rm, rmdir, writeFile } from 'node:fs/promises';
 import { createHash, randomUUID } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,26 +12,41 @@ export class NoSavedComparisonError extends Error {
     code = 'NO_SAVED_COMPARISON';
 }
 
-export async function registerComparison(path, artifacts = artifactsRoot) {
+export async function registerComparison(path, artifacts = artifactsRoot, { expectedCurrentPath } = {}) {
     path = resolve(path);
-    await loadLocalComparisonData(JSON.parse(await readFile(path, 'utf8')));
-    const directory = join(artifacts, 'local-runtime', 'comparison-index');
-    await mkdir(directory, { recursive: true });
-    const name = createHash('sha256').update(resolve(path)).digest('hex');
-    const temporary = join(directory, `${name}-${randomUUID()}.tmp`);
-    try {
-        await writeFile(temporary, JSON.stringify({ path: resolve(path) }));
-        await rename(temporary, join(directory, `${name}.json`));
-    } finally {
-        await rm(temporary, { force: true });
+    const local = join(artifacts, 'local-runtime');
+    await mkdir(local, { recursive: true });
+    const lock = join(local, '.publication-lock');
+    try { await mkdir(lock); }
+    catch (error) {
+        if (error.code === 'EEXIST') throw new Error(`Another result publication is running or was interrupted: ${lock}. Retry when it is clear.`);
+        throw error;
     }
-    const current = join(artifacts, 'local-runtime', 'current-result.json');
-    const pending = `${current}-${randomUUID()}.tmp`;
     try {
-        await writeFile(pending, JSON.stringify({ schemaVersion: 1, path }));
-        await rename(pending, current);
+        if (expectedCurrentPath !== undefined && await currentPointer(artifacts) !== expectedCurrentPath) {
+            throw new Error('The current comparison changed before publication; saved evidence is retained. Retry from the current result.');
+        }
+        await loadLocalComparisonData(JSON.parse(await readFile(path, 'utf8')));
+        const directory = join(local, 'comparison-index');
+        await mkdir(directory, { recursive: true });
+        const name = createHash('sha256').update(path).digest('hex');
+        const temporary = join(directory, `${name}-${randomUUID()}.tmp`);
+        try {
+            await writeFile(temporary, JSON.stringify({ path }));
+            await rename(temporary, join(directory, `${name}.json`));
+        } finally {
+            await rm(temporary, { force: true });
+        }
+        const current = join(local, 'current-result.json');
+        const pending = `${current}-${randomUUID()}.tmp`;
+        try {
+            await writeFile(pending, JSON.stringify({ schemaVersion: 1, path }));
+            await rename(pending, current);
+        } finally {
+            await rm(pending, { force: true });
+        }
     } finally {
-        await rm(pending, { force: true });
+        await rmdir(lock);
     }
 }
 

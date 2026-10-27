@@ -7,6 +7,7 @@ import {
     parseRuntime, parsePreset, parseEngine, parseProfile, parseApp, parseStage,
 } from './enums.js';
 import { type BenchContext, loadContext } from './context.js';
+import { getVersionMajor } from './lib/version-utils.js';
 
 // ── Help Text ────────────────────────────────────────────────────────────────
 
@@ -230,13 +231,14 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
     const runtimes = parseCommaSeparated(values.runtime!, parseRuntime);
     const sdkChannel = values['sdk-channel'] || loaded.sdkChannel || '12.0';
     const sdkVersion = values['sdk-version'] || loaded.sdkVersion || '';
+    const sdkMajor = loaded.sdkInfo?.major ?? getVersionMajor(sdkVersion || sdkChannel);
 
     // Apply dry-run defaults
     const effectiveApps = apps.length > 0 ? apps
         : cleanDebug ? [App.EmptyBlazor, App.HavitBootstrap]
         : dryRun
             ? [App.MicroBenchmarks]
-            : getDefaultApps();
+            : getDefaultApps(sdkMajor);
     const effectivePresets = presets.length > 0 ? presets
         : cleanDebug ? [Preset.DevLoop]
         : dryRun

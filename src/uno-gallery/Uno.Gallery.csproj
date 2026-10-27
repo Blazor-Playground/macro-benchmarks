@@ -75,11 +75,4 @@
     </PropertyGroup>
   </Target>
 
-  <!-- .NET 12 registers lifecycle callbacks through withModuleConfig, not the legacy
-       default factory's returned config. Patch only the generated app asset, never NuGet's cache. -->
-  <Target Name="FixUnoNet12Bootstrap" AfterTargets="GenerateUnoWasmAssets"
-          Condition="'$(_RuntimeMajor)' &gt;= '12' and '$(UnoWasmBootstrapVersion)' == '10.0.22'">
-    <Exec Command="node &quot;$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)', 'fix-bootstrap.mjs'))&quot; &quot;$([MSBuild]::NormalizePath('$(IntermediateOutputPath)', 'unowwwrootassets', 'uno-bootstrap.js'))&quot;" />
-  </Target>
-
 </Project>

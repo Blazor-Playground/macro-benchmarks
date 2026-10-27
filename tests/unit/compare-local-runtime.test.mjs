@@ -9,6 +9,7 @@ import {
     buildSubsets, compare, loadBaseline, measurementRecord, monoBaselineWarnings, parseCompareOptions,
 } from '../../bench/compare-local-runtime.mjs';
 import { formatCommand, runCommand, statusLine } from '../../bench/local-command.mjs';
+import { currentComparisonPath, loadCurrentComparisonData, registerComparison } from '../../bench/local-results.mjs';
 
 function git(cwd, ...args) {
     return execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8' }).trim();
@@ -56,6 +57,7 @@ async function fixture(t, { longPath = false } = {}) {
         registerResult: async () => {},
         run: async (command, args, options) => {
             calls.push({ command, args, cwd: options.cwd });
+            if (args[0] === 'msbuild') return 0;
             return runCommand(command, args, {
                 ...options, writeLine: () => {},
                 env: { ...process.env, NoDefaultCurrentDirectoryInExePath: '1' },
@@ -146,7 +148,10 @@ test('command runner reports success, nonzero failure, and spawn failure with lo
 
 test('first comparison builds both revisions; second reuses before and builds/measures only changed checkout', async t => {
     const f = await fixture(t);
+    const artifacts = join(f.root, 'artifacts');
+    f.dependencies.registerResult = path => registerComparison(path, artifacts);
     const first = await compare(f.options, f.dependencies);
+    assert.equal(await currentComparisonPath(artifacts), first.comparisonPath);
     assert.equal(f.published.length, 2);
     assert.equal(f.published[0].label, 'before');
     if (process.platform === 'win32') assert.equal(basename(f.published[0].checkout), 'coreclr');
@@ -164,15 +169,57 @@ test('first comparison builds both revisions; second reuses before and builds/me
     f.calls.length = 0;
     f.published.length = 0;
     const second = await compare({ ...f.options, measureArgs: ['--warm-runs', '1', '--cold-runs', '1', '--verbose'] }, f.dependencies);
+    assert.equal(await currentComparisonPath(artifacts), second.comparisonPath);
+    assert.equal((await loadCurrentComparisonData(artifacts)).after.manifest.runDir,
+        dirname(second.after.manifestPath));
     assert.equal(second.before.manifestPath, first.before.manifestPath);
     assert.equal(f.published.length, 1);
     assert.equal(f.published[0].label, 'after');
-    assert.equal(f.calls.length, 2);
+    assert.equal(f.calls.length, 3);
     assert.ok(f.calls.every(call => call.cwd === f.runtime));
     assert.equal(git(f.runtime, 'rev-parse', 'HEAD'), f.initial.head);
     assert.equal(git(f.runtime, 'status', '--porcelain'), f.initial.status);
     assert.equal(git(f.runtime, 'show', ':tracked.txt'), f.initial.index);
     assert.equal(await readFile(join(f.runtime, 'untracked.txt'), 'utf8'), 'local new source\n');
+    assert.equal(existsSync(join(f.output, '.comparison-lock')), false);
+});
+
+test('every uncached publish rebuilds its own WebAssembly SDK pack after native builds', async t => {
+    const f = await fixture(t);
+    const publish = f.dependencies.publishRuntime;
+    f.dependencies.publishRuntime = async options => {
+        const last = f.calls.at(-1);
+        assert.equal(last.command, join(options['runtime-repo'], '.dotnet', process.platform === 'win32' ? 'dotnet.exe' : 'dotnet'));
+        assert.deepEqual(last.args, [
+            'msbuild', 'src/mono/nuget/Microsoft.NET.Sdk.WebAssembly.Pack/Microsoft.NET.Sdk.WebAssembly.Pack.pkgproj',
+            '-t:Rebuild', '-p:Configuration=Release', '-p:TargetOS=browser', '-p:TargetArchitecture=wasm',
+            `-p:RuntimeFlavor=${options.runtime === 'coreclr' ? 'CoreCLR' : 'Mono'}`, '-p:UseSharedCompilation=false',
+        ]);
+        assert.equal(last.cwd, options['runtime-repo']);
+        return publish(options);
+    };
+    await compare({ ...f.options, 'include-mono-before': true }, f.dependencies);
+    assert.equal(f.calls.filter(call => call.args[0] === 'msbuild').length, 3);
+    f.calls.length = 0;
+    await compare({ ...f.options, 'include-mono-before': true }, f.dependencies);
+    assert.equal(f.calls.filter(call => call.args[0] === 'msbuild').length, 1);
+    assert.equal(f.calls.find(call => call.args[0] === 'msbuild').cwd, f.runtime);
+});
+
+test('SDK packaging failures stop publishing and preserve measured controls and source edits', async t => {
+    const f = await fixture(t);
+    const first = await compare(f.options, f.dependencies);
+    const run = f.dependencies.run;
+    f.published.length = 0;
+    await assert.rejects(compare(f.options, { ...f.dependencies,
+        run: async (command, args, options) => {
+            if (options.cwd === f.runtime && args[0] === 'msbuild') throw new Error('SDK pack rebuild failed');
+            return run(command, args, options);
+        },
+    }), /SDK pack rebuild failed/);
+    assert.equal(f.published.length, 0);
+    assert.ok(await loadBaseline(join(f.output, 'before', `${first.before.key}.json`), first.before.key));
+    assert.equal(git(f.runtime, 'status', '--porcelain'), f.initial.status);
     assert.equal(existsSync(join(f.output, '.comparison-lock')), false);
 });
 

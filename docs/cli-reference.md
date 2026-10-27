@@ -17,6 +17,21 @@ For local runtime source builds, use the separate
 options below. `compare-local-runtime.mjs --help` lists its advanced options,
 including check-only prerequisites and saved-results display.
 
+### Local runtime history
+
+Use the current local comparison; keep its after:
+
+```bash
+node bench/runtime-bench.mjs history add --from 2026-10-12 --to today --fetch
+node bench/runtime-bench.mjs history drop --from 2026-10-17 --to 2026-10-19
+```
+
+Ranges are inclusive UTC. A lone `--from` selects one day; no dates adds days
+since the latest complete before. Passed dates are kept. Drop changes active
+history only, retaining raw files and caches. Both accept `--dry-run` and
+`--output`; only non-dry `add --fetch` refreshes runtime `origin/main`.
+See [history commands](local-runtime-measurements.md#add-daily-before-measurements).
+
 ## Options
 
 ### Pipeline control

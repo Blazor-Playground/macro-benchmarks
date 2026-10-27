@@ -1,14 +1,10 @@
 # Measure Havit with a local runtime
 
-[macro-benchmarks](https://github.com/Blazor-Playground/macro-benchmarks) provides
-the Havit app and measurement harness.
-[dotnet/runtime](https://github.com/dotnet/runtime) provides your changed runtime.
-Run benchmark commands from macro-benchmarks; runtime build commands from the
-runtime checkout. No SDK or ASP.NET source checkout is required.
+Run benchmark commands from macro-benchmarks and runtime builds from your
+[dotnet/runtime](https://github.com/dotnet/runtime) checkout.
+No SDK or ASP.NET source checkout is required.
 
 ## Quick start
-
-**Composite R2R is the default for both CoreCLR sides. No variant flag is needed.**
 
 ```bash
 node bench/bootstrap.mjs <path-to-local-runtime-build>
@@ -16,24 +12,18 @@ node bench/bootstrap.mjs <path-to-local-runtime-build>
 node bench/iterate.mjs
 ```
 
-The path is the **dotnet/runtime checkout root**, not `artifacts/` or Shipping.
-Omit it to create a managed checkout under `artifacts/local-runtime-comparisons/`
-(`artifacts/c/` on Windows to reduce native build path lengths).
-Bootstrap starts potentially expensive native builds; allow enough disk space
-for two clean controls and the changed build.
+Use the **runtime checkout root**, not `artifacts/` or Shipping.
+Bootstrap builds clean Mono interpreter and CoreCLR composite controls at the
+merge base, then CoreCLR composite from your checkout, including edits.
+Allow time and disk space for three builds.
 
-| Role | Source | Default mode |
-|---|---|---|
-| Mono before | Separate clean merge-base clone | Interpreter |
-| CoreCLR before | Separate clean merge-base clone | Composite R2R |
-| CoreCLR after | Supplied checkout, including local edits | Composite R2R |
+Omit the path to clone runtime into `artifacts/local-runtime-comparisons/`
+(`artifacts/c/` on Windows).
 
 Defaults: Release, Chrome desktop/mobile, 10 cold loads and 5 warm reloads per
 profile, and one desktop walkthrough. Installed Chrome is preferred; otherwise
 Playwright Chromium is used. Checkout, browser and forwarded options are saved
 in `artifacts/local-runtime/quick-start.json`.
-
-Optional changes are remembered:
 
 ```bash
 node bench/iterate.mjs --variant r2r       # Non-composite R2R on both sides
@@ -41,9 +31,70 @@ node bench/iterate.mjs --variant composite # Return to composite
 node bench/iterate.mjs -- --cold-runs 3 --warm-runs 2
 ```
 
-`--variant aot` is also accepted for CoreCLR R2R. Version-1 interpreter settings
-require another bootstrap; version-2 mixed-mode settings migrate with a notice
-to matching variants.
+Options are remembered. `aot` is an alias for non-composite CoreCLR R2R.
+Old interpreter-only settings require another bootstrap.
+
+### Add daily before measurements
+
+Add clean-main controls to the **current dashboard experiment**:
+
+```bash
+node bench/runtime-bench.mjs history add --from 2026-10-12 --to today
+node bench/runtime-bench.mjs history add --from 2026-10-20
+node bench/runtime-bench.mjs history add --fetch
+
+node bench/runtime-bench.mjs history add --from 2026-10-12 --to today --dry-run
+```
+
+Ranges are inclusive UTC; a lone `--from` selects one day. Without dates, `add`
+fills days after the latest complete before through today. To fill older gaps,
+specify a range. Missing/failed dates run newest first; passed dates are kept.
+A complete range is a no-op. After and matched controls are not remeasured.
+
+Settings come from the current comparison, not `quick-start.json`.
+Two owned clones reuse control builds without switching the after checkout.
+
+`--fetch` refreshes runtime `origin/main` without switching HEAD. Otherwise the
+local ref is used. Selection pins it once, choosing first-parent snapshots at UTC
+day end; today stops at invocation time. Deepen shallow history if needed.
+Same-commit dates may share cached evidence, not independent samples.
+
+`--dry-run` does not fetch, build or change results. `--output <directory>` selects
+the cache location; otherwise the comparison's output is used when recognizable,
+or the platform default.
+Unset `WasmReadyToRunProfile` and `PublishReadyToRunCrossgen2ExtraArgs` before collecting clean controls.
+Failed dates retain logs and successful independent controls for retry.
+
+### Drop dates from active local history
+
+```bash
+node bench/runtime-bench.mjs history drop --from 2026-10-20 --dry-run
+node bench/runtime-bench.mjs history drop --from 2026-10-20
+node bench/runtime-bench.mjs history drop --from 2026-10-17 --to 2026-10-19
+node bench/runtime-bench.mjs history drop --all
+```
+
+Drop selects a **new comparison** without the requested history dates. After,
+matched controls, other dates, raw files, caches and the previous comparison
+remain. Nothing is deleted from disk. Only retained evidence must validate, so
+drop can remove a date with damaged/missing files.
+
+Re-adding can reuse valid caches; drop does not force remeasurement. `--all`
+returns the default view to the matched pair. No matching dates is a no-op.
+Use **Reload local data** in the dashboard after an edit.
+
+### Older recent-days shortcut
+
+This shortcut uses the remembered bootstrap setup, not the current comparison:
+
+```bash
+node bench/bootstrap.mjs --measure-recent-days=7
+```
+
+It covers today plus N-1 prior UTC days and revisits passed dates using caches.
+`--force-before` remeasures them; failed retries keep valid saved pairs and warn.
+This shortcut does not fetch. Adding it to a first bootstrap with a runtime path
+also measures after.
 
 ## Prerequisites
 
@@ -60,33 +111,25 @@ npm ci --prefix bench
 npx playwright install chromium
 ```
 
-On Windows, use a **Developer Command Prompt for Visual Studio** with the
-Desktop development with C++ workload installed, so `cl.exe` and the Windows SDK
-are available. Run the same Node commands there, using Windows paths:
+On Windows, use a **Visual Studio Developer Command Prompt** with the Desktop
+development with C++ workload:
 
 ```cmd
 node bench\bootstrap.mjs C:\src\runtime
 node bench\iterate.mjs
 ```
 
-Managed Windows clones enable Git's `core.longpaths` locally before checkout;
-no global Git settings are changed. Windows control checkouts use shorter
-`mono`/`coreclr` directory names to leave room for generated native build paths.
-Windows must also have Win32 long paths enabled as described in the
+Windows clones enable Git's `core.longpaths` locally. Also enable Win32 long paths per the
 [runtime prerequisites](https://github.com/dotnet/runtime/blob/main/docs/workflow/requirements/windows-requirements.md#enable-long-paths).
-Prefer short checkout/output paths because MSVC still limits some generated
-PDB paths; use `--output <short-directory>` if a build reports path-length errors.
-The same compiler-generated-file failure with long paths already enabled is
-tracked in [dotnet/runtime#110407](https://github.com/dotnet/runtime/issues/110407).
-Do not use MinGW `CC`/`CXX` overrides for the Windows host tools; clear them in
-the Developer Command Prompt (`set CC=` and `set CXX=`) to use Visual Studio.
-App restores and publishes explicitly use AnyCPU so the prompt's host-platform
-settings do not override the `browser-wasm` target and cause
+MSVC still limits some generated PDB paths; use `--output <short-directory>`
+([known issue](https://github.com/dotnet/runtime/issues/110407)).
+
+Clear MinGW `CC`/`CXX` overrides (`set CC=` and `set CXX=`).
+App restore/publish sets AnyCPU to avoid host-platform
 [NETSDK1032](https://learn.microsoft.com/dotnet/core/tools/sdk-errors/netsdk1032).
 
-Every run checks tools, dependencies, browser launch and baseline history before
-building. Missing prerequisites are reported with installation commands; nothing
-is installed automatically. To check only:
+Build commands check prerequisites and report missing tools without installing
+them. To check only:
 
 ```bash
 node bench/compare-local-runtime.mjs --check-prerequisites \
@@ -100,97 +143,89 @@ needed. `BENCH_TAR=bsdtar` also selects it for the lower-level publisher.
 ## Source preservation and cache behavior
 
 Before is `git merge-base HEAD refs/remotes/origin/main`, using the local tracking
-ref. Fetch it yourself if needed; the scripts do not fetch automatically.
-The supplied checkout is **after only**: its HEAD, index and local source are not
-switched, reset, cleaned or stashed. Runtime builds still create generated outputs.
+ref. Only `history add --fetch` refreshes it.
+The supplied checkout is **after only**: HEAD, index and source edits are
+preserved. Builds still create generated outputs.
 
-Passed before measurements are reused only for matching revision, runtime mode,
-configuration, benchmark/dependency setup, SDK overrides, browser/Node versions
-and host identity. Both controls are cached independently; a valid cache skips
-their build, packaging, publish and measurement. Every iteration rebuilds and
-measures after.
+Control caches require matching source, mode, build settings, benchmark/dependency
+inputs, SDK overrides, browser/Node versions and host. A valid cache skips the
+control's build and measurement. Every iteration rebuilds and measures after.
 
-`--force-before` refreshes automatic controls for that invocation. Missing owned
-source clones are recreated; modified or out-of-root clones cause an error.
-Missing evidence invalidates reuse; corrupt records fail explicitly.
-Do not run concurrent comparisons against the same runtime checkout. After a
-forced interruption, remove only `.comparison-lock` once no comparison is running.
+Missing owned clones are recreated; modified or out-of-root clones are refused.
+Missing evidence invalidates caches; corrupt records fail.
+Do not run concurrent comparisons/history collections against the same output or
+runtime checkout. After interruption, remove stale `.comparison-lock`/
+`.history-lock` in that output, or `artifacts/local-runtime/.publication-lock`,
+only after the owning process stops. Caches and pinned progress remain for retry.
 
-Requested refs in new managed clones stay pending until checkout is confirmed.
-If selection fails, iteration is blocked. Select the intended revision yourself
-and bootstrap that path, or retry in a new output directory. Build failures after
-confirmed selection can be retried with `iterate`.
+Failed ref selection blocks iteration. Select the intended revision and bootstrap
+that path, or use a new output. Build failures after selection can use `iterate`.
 
 ## Results
 
 ```bash
 node bench/runtime-bench.mjs results
+# Same-base view instead of historical controls:
+node bench/runtime-bench.mjs results --view matched
 # Select another saved comparison:
 node bench/compare-local-runtime.mjs --display-results <comparison.json>
 ```
 
-Bare `--display-results` selects the latest **after measurement timestamp**.
-It reads saved evidence without building, checking prerequisites or querying live
-Git. Removed indexed comparisons warn and skip; surviving corruption remains an
-error.
+`artifacts/local-runtime/current-result.json` selects the comparison used by both
+CLI and local viewer. Its raw-result references, passed statuses and hashes are
+checked on load. `dashboard.json` is an offline export.
 
-The summary matches default NET12 focus:
+Bare `--display-results` uses the current result; `--output` selects the latest
+**after measurement timestamp** within that explicit directory.
+Reading results needs no builds, prerequisite checks or live Git. Broken current
+evidence is an error, not a fallback to an older result.
 
-| Metric | Profile |
-|---|---|
-| Cold startup to managed | Mobile |
-| Havit walkthrough | Desktop |
-| Encoded cold download, decimal MB | Desktop |
-| Havit publish time, excluding restore/runtime builds | Desktop |
+With history, the summary uses the latest passed controls against fixed after;
+`--view matched` uses the saved same-base pair. The UI and CLI show the same view,
+date and comparison path.
 
-Leading percentage columns are **NET12 focus** (CoreCLR after vs Mono before)
-and **CoreCLR change** (CoreCLR after vs CoreCLR before). Definitions are below
-the table. Without a Mono control, the footer states that the first column uses
-after vs before. Missing profiles/metrics remain unavailable, never substituted.
+The summary uses mobile cold startup and desktop walkthrough/download/publish.
+Download uses decimal MB; publish time excludes restore and runtime builds.
 
-Each side shows its actual variant, recorded checkout path, full commit, dirty
-status, SDK/TFM, package versions and sample counts. A dirty flag is not a saved
-source diff: retain your own patch to reproduce edits. Warm samples remain in
-the result JSON even though warm startup is not a focus-card row.
+**NET12 focus** compares after with Mono before; **CoreCLR change** compares after
+with CoreCLR before. Without Mono, the first column uses after vs before.
+Missing profiles/metrics remain unavailable.
 
-Commands show end-of-line `[RUNNING]`, `[OK]`, `[FAILED]` or `[CACHED]`.
-Capable terminals use bold and green/red/white; redirected output and `NO_COLOR`
-remain plain. Colors indicate direction, not statistical significance.
+Results record source state, mode, SDK/TFM, packages and samples. Retain your patch
+to reproduce dirty sources. Status/color output supports `NO_COLOR`; colors show
+direction, not statistical significance.
 
 ### Output locations
 
-All generated outputs are ignored by Git.
-On Windows, use `artifacts/c/` in place of
-`artifacts/local-runtime-comparisons/` in the table below. Saved iteration settings
-retain their output directory; rerun bootstrap or pass `--output` to select the
-shorter default for an existing experiment.
+Generated outputs are ignored by Git. On Windows, the default is `artifacts/c/`
+instead of `artifacts/local-runtime-comparisons/`. Existing experiments keep their
+saved output unless `--output` changes it.
 
 | Location | Contents |
 |---|---|
 | `artifacts/local-runtime-comparisons/before/` | Verified control cache records |
 | `artifacts/local-runtime-comparisons/before-source/` | Owned source-clone pointers |
 | `artifacts/local-runtime-comparisons/comparison-*/` | Build logs, `comparison.json`, portable `dashboard.json` |
+| `artifacts/local-runtime-comparisons/before-build-*/` | Historical control build logs |
+| `artifacts/local-runtime-comparisons/history/` | Pinned daily selections/progress and owned reusable historical sources |
+| `artifacts/local-runtime/current-result.json` | Atomic pointer shared by CLI and local preview |
 | `artifacts/local-runtime/<run>/` | Inputs, selected SDK/feed config, manifest, publish, logs and raw/aggregated results |
 
 Havit intermediates use `artifacts/{obj,bin}/HavitBootstrap/<build-label>/`.
-Retain manifests, statuses, results and publishes needed for a comparison.
-Delete only specific completed run directories, not the runtime source checkout.
+Keep files referenced by retained comparisons.
 
-For the local chart, see [Local runtime comparisons](dashboard.md#local-runtime-comparisons).
-It uses explicit custom-build data, not published SDK history.
-See [metrics.md](metrics.md) for metric definitions and aggregation.
+See [local charts](dashboard.md#local-runtime-comparisons) and
+[metric definitions](metrics.md).
 
 ## Advanced drivers
 
-`compare-local-runtime.mjs` builds, publishes and measures. It defaults to matched
-CoreCLR composite modes, or Mono interpreter when `--runtime mono` is selected.
-`--include-mono-before` adds the clean interpreter control; quick start enables it.
-`--before-variant` explicitly allows a different before mode.
+`compare-local-runtime.mjs` builds, publishes and measures. CoreCLR defaults to
+composite; Mono to interpreter. `--include-mono-before` adds the Mono control;
+`--before-variant` allows a different before mode.
 
 `--mono-before <manifest.json>` instead uses a measured pristine Mono source build
 at the baseline commit. It takes precedence over automatic Mono measurement.
-Setup differences and unverified browser/harness compatibility are recorded as
-warnings; do not interpret it as a matched control without checking those warnings.
+Setup/compatibility warnings identify controls that may not be matched.
 
 Publishing defaults to `<runtime>/.dotnet`, honoring the checkout's `global.json`.
 Use `--sdk <directory>` for a shared/compatible SDK or to hold all Havit publishes
@@ -198,8 +233,8 @@ to one SDK without changing runtime build SDKs. `--tfm` and `--aspnet-version`
 apply to both sides. Different SDKs are warned; the runtime's bootstrap SDK is
 not a complete from-source SDK/ASP.NET build.
 
-`local-runtime.mjs` publishes an **already-built** runtime and never runs its
-source build. Its default is interpreter, unlike quick start:
+`local-runtime.mjs` only publishes an **already-built** runtime. Its default is
+interpreter:
 
 ```bash
 node bench/local-runtime.mjs --runtime-repo <path-to-local-runtime-build> \
@@ -214,13 +249,10 @@ node bench/local-runtime.mjs --runtime-repo <path-to-local-runtime-build> \
 | Mono | `no-workload` | Interpreter |
 | Mono | `aot` | Native AOT/relink; Release build required |
 
-After manual runtime edits, rerun **both build and packaging** before publishing.
-Same-version local packages are restored into a fresh per-publish cache, mapped
-exclusively to the local feed and SHA-512 verified.
-Public packages use the official dotnet-public mirror; other repository feeds
-and explicit `--exclude-source <key>` selections remain available. Generated
-per-run config records this policy; repository/runtime feeds and TLS settings
-are not changed.
+After manual edits, rerun **build and packaging**. Each publish restores local
+packages into a fresh cache with exclusive source mapping and SHA-512 checks.
+Public dependencies use the official dotnet-public mirror and other configured
+feeds; `--exclude-source <key>` omits a feed. Only per-run NuGet config is written.
 
 To remeasure an existing publish without rebuilding:
 
@@ -230,10 +262,9 @@ node --import ./bench/node_modules/tsx/dist/loader.mjs \
   --system-chrome --profile desktop,mobile
 ```
 
-Publish integrity, exact requested rows/samples and positive startup values are
-checked. Chrome/desktop also requires successful navigation. Chrome/mobile and
-Firefox/desktop have startup measurements only; Firefox needs its Playwright
-browser installed. Use `--help` on each driver for the full option list.
+Measurements check asset integrity, requested samples, startup and desktop Chrome
+navigation. Mobile and Firefox collect startup only. Firefox requires its
+Playwright browser. Each driver has `--help`.
 
 ## Manual runtime builds
 
@@ -253,19 +284,7 @@ Use separate CoreCLR/Mono checkouts. From the appropriate checkout:
 ./build.sh packs.product -os browser -arch wasm -c Release /p:RuntimeFlavor=Mono
 ```
 
-Windows equivalents, from a Developer Command Prompt:
-
-```cmd
-build.cmd clr+libs+host -os browser -arch wasm -c Release /p:RuntimeFlavor=CoreCLR
-build.cmd packs.product -os browser -arch wasm -c Release /p:RuntimeFlavor=CoreCLR
-```
-
-```cmd
-build.cmd mono+libs -os browser -arch wasm -c Release /p:RuntimeFlavor=Mono
-rem Optional: Mono AOT only.
-build.cmd mono.aotcross -os browser -arch wasm -c Release /p:RuntimeFlavor=Mono
-build.cmd packs.product -os browser -arch wasm -c Release /p:RuntimeFlavor=Mono
-```
+On Windows, use `build.cmd` with the same arguments.
 
 Expected outputs:
 
@@ -276,9 +295,19 @@ Expected outputs:
 <runtime>/artifacts/bin/coreclr/browser.wasm.Release/<host-arch>/crossgen2/
 ```
 
-Shipping contains versioned `Microsoft.NETCore.App.Runtime.browser-wasm`
-(CoreCLR) or `Microsoft.NETCore.App.Runtime.Mono.browser-wasm` (Mono), plus
-`Microsoft.NET.Sdk.WebAssembly.Pack` packages.
+Shipping contains `Microsoft.NETCore.App.Runtime.browser-wasm` (CoreCLR) or
+`Microsoft.NETCore.App.Runtime.Mono.browser-wasm` (Mono), plus
+`Microsoft.NET.Sdk.WebAssembly.Pack`.
+
+Comparison drivers rebuild the WebAssembly SDK pack before uncached publishes;
+CoreCLR's `packs.product` omits it. For manual publishing, use `Rebuild` to include
+targets-only edits:
+
+```bash
+./.dotnet/dotnet msbuild src/mono/nuget/Microsoft.NET.Sdk.WebAssembly.Pack/Microsoft.NET.Sdk.WebAssembly.Pack.pkgproj \
+  -t:Rebuild -p:Configuration=Release -p:TargetOS=browser \
+  -p:TargetArchitecture=wasm -p:RuntimeFlavor=CoreCLR
+```
 
 Mono AOT also needs the WebAssembly native SDK, MonoAOTCompiler/MonoTargets task
 packages, `mono-aot-cross[.exe]` and provisioned Emscripten. Their versions must
@@ -300,11 +329,13 @@ Mono AOT execution remains unverified by the local validation.
   TFM and package assets. Runtime12 can legitimately use SDK11/net11. Prefer
   `--sdk <compatible-sdk>`; TFM overrides require matching assets. These scripts
   never patch a shared SDK's `NETCoreAppMaximumVersion`.
-- Missing or ambiguous packages/tools are errors. Rebuild and package, or select
-  versions/layouts with the publisher's `--help` options. Composite requires a
-  workload pack and compiler that support it; partial startup without navigation
-  is not a successful measurement.
-- Cached controls cannot account for current host contention. Refresh them when
-  needed and keep SDK, browser, configuration and host conditions comparable.
+- Missing/ambiguous packages require a rebuild or explicit version/layout options.
+  Composite requires compatible workload/compiler bits.
+- Caches do not account for current host load. Refresh controls when needed.
+- Havit feature-detects `withDotnetReady`, warning before using the legacy ready
+  callback on older runtimes. Initialization still registers imports when a
+  runtime omits ready callbacks; inspect this hook when comparing revisions.
+- Keep the host awake during publish and measurement. After suspension, rerun
+  affected measurements rather than interpreting sleep time as a regression.
 
 Validation results and limits are in [Local runtime validation](local-runtime-validation.md).

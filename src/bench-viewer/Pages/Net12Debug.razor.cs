@@ -11,6 +11,7 @@ namespace BenchViewer.Pages;
 [SupportedOSPlatform("browser")]
 public partial class Net12Debug
 {
+    [SupplyParameterFromQuery(Name = "local")] public bool Local { get; set; }
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     private static readonly (string Value, string Label)[] Ranges =
         [("14d", "14 days"), ("1m", "1 month"), ("3m", "3 months"), ("6m", "6 months"), ("12m", "12 months")];
@@ -24,7 +25,7 @@ public partial class Net12Debug
             ["walkthrough"]),
     ];
     private string owner = "", app = "havit-bootstrap", range = "14d";
-    private bool loading = true, measurements = true, percentage, renderCharts, disposed;
+    private bool loading = true, measurements = true, percentage, renderCharts, disposed, sessionLocal;
     private bool methodologyRequested;
     private long generation;
     private string? error;
@@ -49,7 +50,19 @@ public partial class Net12Debug
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (disposed) return;
-        if (firstRender) { await Load(false); return; }
+        if (firstRender || sessionLocal != Local)
+        {
+            sessionLocal = Local;
+            if (owner.Length > 0)
+            {
+                var previousOwner = owner;
+                owner = "";
+                try { DebugInterop.Dispose(previousOwner); }
+                catch (JSException exception) { ShowError(exception); StateHasChanged(); return; }
+            }
+            await Load(false);
+            return;
+        }
         if (renderCharts && !loading && error == null && report != null)
         {
             renderCharts = false;
@@ -79,7 +92,7 @@ public partial class Net12Debug
         StateHasChanged();
         try
         {
-            if (owner.Length == 0) owner = DebugInterop.Create(Navigation.BaseUri);
+            if (owner.Length == 0) owner = DebugInterop.Create(Navigation.BaseUri, Local);
             var json = await DebugInterop.Load(owner, app, range, force);
             if (disposed || request != generation) return;
             var result = JsonSerializer.Deserialize(json, DebugJsonContext.Default.DebugLoadResult)

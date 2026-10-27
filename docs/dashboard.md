@@ -20,8 +20,9 @@ metric. See [exact timing definitions](metrics.md#clean-debug-developer-loop).
 The **Metric definitions** link opens and scrolls to the disclosure; its fragment
 URL also works on direct navigation and reload.
 
-Results come only from `data/views/debug/`; publish and historical tuned DevLoop
-data never fill missing cells. Missing or malformed resources are visible errors.
+Published results come from `data/views/debug/`; local dev-loop results use
+`data/local-debug/`. These sources never substitute for one another, and publish
+or historical tuned DevLoop data never fills missing cells. Malformed resources are errors.
 Graphs show per-batch medians without smoothing; percentages default off.
 Cards separately show latest values and **5 avg** trailing means of up to five
 complete, non-smoke observations, including available counts. Gaps reset each
@@ -46,9 +47,10 @@ Raw evidence retains the environment, each runtime's SDK host RID, source
 identity, code-generation settings and individual trials. Runtime comparisons
 still use only complete same-batch pairs, never values from separate runs.
 
-For a local preview, copy transformed `index.json` and `generations/` into
-the source-built viewer's `wwwroot/data/views/debug/`, or use `VIEWER_DATA_URL`.
-Test fixtures are synthetic protocol data, not measurements.
+The preview helper reads local dev-loop views directly from `artifacts/debug-views`
+(the `transform-debug-views` output). Set `VIEWER_LOCAL_DEBUG_ROOT` for another
+output directory; no copy into the viewer is needed. `VIEWER_DATA_URL` selects
+published data independently. Test fixtures are synthetic, not measurements.
 
 The Blazor viewer is in `src/bench-viewer`. Home and `/net12-focus` share
 branding and mode links at the top of their left pane. Home keeps its app tabs,
@@ -268,18 +270,18 @@ snapshot silently.
 ## Local runtime comparisons
 
 For [local runtime measurements](local-runtime-measurements.md), publish the viewer
-as above, then install the comparison's portable data bundle:
+as above, then start the helper:
 
 ```bash
-mkdir -p artifacts/bench-viewer/wwwroot/data
-cp <comparison-directory>/dashboard.json \
-  artifacts/bench-viewer/wwwroot/data/local-runtime-comparison.json
 node --import ./bench/node_modules/tsx/dist/loader.mjs tests/helpers/serve-viewer.mjs
 ```
 
-Open the printed `/net12-focus` URL with `?local=true`. This explicit mode reads
-only `data/local-runtime-comparison.json`; it does not publish data or change the
-normal SDK/custom-build filters.
+Open `VIEWER_LOCAL_URL` (`/net12-focus?local=true`). The helper uses the CLI's
+`artifacts/local-runtime/current-result.json` pointer and verifies evidence on each
+request. **Reload local data** loads changes; broken evidence is an error.
+`dashboard.json` is an offline export, not a live data source.
+Local links appear only for available datasets; published links stay unchanged.
+Discovery errors are shown. Reload the page to discover newly created datasets.
 
 The local view defaults to mobile startup and desktop for other metrics. Each
 curve identifies its recorded mode: CoreCLR after, Mono before and CoreCLR before.
@@ -287,6 +289,15 @@ The headline compares after with Mono; the smaller line compares CoreCLR after
 with CoreCLR before. Without Mono, the headline uses after vs before.
 Recorded commits, dirty state, SDK/pack/TFM and setup warnings remain visible;
 local experiments are not relabeled as official SDK history.
+
+[History commands](local-runtime-measurements.md#add-daily-before-measurements)
+add/drop source dates without remeasuring after. Dots are before snapshots;
+the dashed after line is one fixed reference, labeled with its capture date,
+source state and aggregation count. **Matched pair** requires a clean before at
+the same base commit and mode.
+
+Failed/pending/running dates are gaps. Failed dates show an error with expandable
+build details. Compatible iterations retain history and update the after reference.
 
 ## Tests
 

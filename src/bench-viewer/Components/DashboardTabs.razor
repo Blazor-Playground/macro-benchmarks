@@ -1,9 +1,65 @@
-<nav class="dashboard-mode-tabs" aria-label="Dashboard views">
-    <NavLink href="" Match="NavLinkMatch.All" aria-current="@(Active == "all" ? "page" : null)">All benchmarks</NavLink>
-    <NavLink href="net12-focus" aria-current="@(Active == "focus" ? "page" : null)">NET12 focus</NavLink>
-    <NavLink href="net12-debug" aria-current="@(Active == "debug" ? "page" : null)">NET12 dev-loop</NavLink>
+@implements IDisposable
+@using System.Net
+@inject HttpClient Http
+
+<nav class="dashboard-mode-tabs" aria-label="Dashboard views" aria-busy="@(checking ? "true" : "false")">
+    <a href="" class="@(Active == "all" ? "active" : null)" aria-current="@(Active == "all" ? "page" : null)">All benchmarks</a>
+    <a href="net12-focus" class="@(Active == "focus" ? "active" : null)" aria-current="@(Active == "focus" ? "page" : null)">NET12 focus</a>
+    <a href="net12-debug" class="@(Active == "debug" ? "active" : null)" aria-current="@(Active == "debug" ? "page" : null)">NET12 dev-loop</a>
+    @if (localFocus == true)
+    {
+        <a href="net12-focus?local=true" class="@(Active == "local-focus" ? "active" : null)" aria-current="@(Active == "local-focus" ? "page" : null)">Local NET12 focus</a>
+    }
+    @if (localDebug == true)
+    {
+        <a href="net12-debug?local=true" class="@(Active == "local-debug" ? "active" : null)" aria-current="@(Active == "local-debug" ? "page" : null)">Local NET12 dev-loop</a>
+    }
 </nav>
+@foreach (var error in errors)
+{
+    <p class="focus-error" role="alert">@error</p>
+}
 
 @code {
     [Parameter] public string Active { get; set; } = "all";
+    private readonly CancellationTokenSource cancellation = new(TimeSpan.FromSeconds(10));
+    private readonly List<string> errors = [];
+    private bool? localFocus, localDebug;
+    private bool disposed, checking = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var results = await Task.WhenAll(
+            Probe("data/local-runtime-comparison.json", "Local NET12 focus"),
+            Probe("data/local-debug/index.json", "Local NET12 dev-loop"));
+        localFocus = results[0];
+        localDebug = results[1];
+        checking = false;
+    }
+
+    private async Task<bool?> Probe(string path, string label)
+    {
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Head, path);
+            using var response = await Http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellation.Token);
+            if (response.StatusCode == HttpStatusCode.NotFound) return false;
+            response.EnsureSuccessStatusCode();
+            return true;
+        }
+        catch (OperationCanceledException) when (disposed) { return null; }
+        catch (Exception exception) when (exception is HttpRequestException or OperationCanceledException)
+        {
+            Console.Error.WriteLine($"{label} availability: {exception}");
+            errors.Add($"Unable to check {label}: {exception.Message}");
+            return null;
+        }
+    }
+
+    public void Dispose()
+    {
+        disposed = true;
+        cancellation.Cancel();
+        cancellation.Dispose();
+    }
 }

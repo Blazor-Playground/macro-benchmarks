@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
-import { quickStart, selectDefaults } from '../../bench/runtime-bench.mjs';
+import { historyArguments, parseHistoryOptions, quickStart, selectDefaults } from '../../bench/runtime-bench.mjs';
 import { compare } from '../../bench/compare-local-runtime.mjs';
 import { DEFAULT_FOCUS_SELECTION, FOCUS_FLAVORS } from '../../src/bench-viewer/wwwroot/chart/focus-selection.js';
 
@@ -187,6 +187,102 @@ test('old interpreter settings require an explicit bootstrap rather than silentl
     await writeFile(f.dependencies.stateFile, JSON.stringify({ version: 1 }));
     await assert.rejects(quickStart('iterate', undefined, f.dependencies), /Old interpreter-only settings.*bootstrap/);
     assert.equal(f.calls.length, 0);
+});
+
+test('recent-days accepts equals/separate values only for bootstrap and never leaks into measurement arguments', () => {
+    assert.deepEqual(historyArguments('bootstrap', ['--measure-recent-days=7', '--force-before', '--', '--cold-runs', '3']),
+        { days: 7, args: ['--force-before', '--', '--cold-runs', '3'] });
+    assert.deepEqual(historyArguments('bootstrap', ['--measure-recent-days', '14']), { days: 14, args: [] });
+    for (const value of ['', '0', '-1', '1.5', '7days', '9007199254740993']) {
+        assert.throws(() => historyArguments('bootstrap', [`--measure-recent-days=${value}`]), /positive safe integer/);
+    }
+    assert.throws(() => historyArguments('bootstrap', ['--measure-recent-days']), /positive safe integer/);
+    assert.throws(() => historyArguments('bootstrap', ['--measure-recent-days=7', '--measure-recent-days=2']), /only once/);
+    assert.throws(() => historyArguments('iterate', ['--measure-recent-days=7']), /bootstrap option/);
+});
+
+test('history command arguments require an explicit safe drop selection and reject ambiguous flags', () => {
+    const add = parseHistoryOptions('add', ['--from', '2026-10-12', '--to=today', '--fetch', '--dry-run']);
+    assert.equal(add.from, '2026-10-12');
+    assert.equal(add.to, 'today');
+    assert.equal(add.fetch, true);
+    assert.equal(add['dry-run'], true);
+    assert.equal(parseHistoryOptions('drop', ['--all']).all, true);
+    assert.equal(parseHistoryOptions('drop', ['--from', '2026-10-20']).from, '2026-10-20');
+    for (const [action, args, error] of [
+        ['unknown', [], /Choose history add or history drop/],
+        ['drop', [], /requires --from/],
+        ['add', ['--to', 'today'], /requires --from/],
+        ['add', ['--all'], /history drop option/],
+        ['drop', ['--all', '--from', '2026-10-12'], /not both/],
+        ['drop', ['--all', '--fetch'], /history add option/],
+        ['add', ['--from', '2026-10-12', '--from', '2026-10-13'], /only once/],
+        ['drop', ['--all', '--all'], /only once/],
+        ['add', ['--output', ''], /nonempty/],
+        ['add', ['--purge'], /Unknown option/],
+    ]) assert.throws(() => parseHistoryOptions(action, args), error);
+});
+
+test('repeat history bootstrap uses saved options without measuring after or resetting browser defaults', async t => {
+    const f = await fixture(t);
+    await quickStart('bootstrap', './contributor-runtime', f.dependencies, ['--variant', 'r2r']);
+    const saved = await readFile(f.dependencies.stateFile, 'utf8');
+    const requests = [];
+    const collect = async (options, days, dependencies) => {
+        requests.push({ options, days });
+        assert.deepEqual(await dependencies.measurementDependencies.getBrowserIdentity(), { chrome: '154.fixture' });
+        return { comparisonPath: '/saved/history/comparison.json' };
+    };
+    await quickStart('bootstrap', undefined, { ...f.dependencies, collect,
+        defaults: async () => { throw new Error('Do not reset saved defaults'); },
+        run: async () => { throw new Error('Do not remeasure after'); } }, ['--measure-recent-days=7']);
+    assert.equal(requests[0].days, 7);
+    assert.equal(requests[0].options.variant, 'aot');
+    assert.equal(requests[0].options['runtime-repo'], resolve('./contributor-runtime'));
+    assert.equal(await readFile(f.dependencies.stateFile, 'utf8'), saved);
+    await quickStart('iterate', undefined, f.dependencies);
+    assert.equal(f.calls.filter(call => call.run).at(-1).run.variant, 'aot');
+});
+
+test('first bootstrap can collect history after measuring its initial pair, but failed history does not change saved settings', async t => {
+    const f = await fixture(t);
+    const sequence = [];
+    await quickStart('bootstrap', './runtime', { ...f.dependencies,
+        run: async () => { sequence.push('pair'); },
+        collect: async (_, days) => { sequence.push(`history-${days}`); },
+    }, ['--measure-recent-days=7']);
+    assert.deepEqual(sequence, ['pair', 'history-7']);
+    const saved = await readFile(f.dependencies.stateFile, 'utf8');
+    await assert.rejects(quickStart('bootstrap', undefined, { ...f.dependencies,
+        collect: async () => { throw new Error('History setup differs'); },
+        run: async () => assert.fail('No after build'),
+    }, ['--measure-recent-days=7', '--variant', 'r2r']), /setup differs/);
+    assert.equal(await readFile(f.dependencies.stateFile, 'utf8'), saved);
+});
+
+test('initial history bootstrap pins its source/date window before long builds cross midnight', async t => {
+    const f = await fixture(t);
+    const startedAt = new Date('2026-10-14T23:59:59Z');
+    let clock = startedAt;
+    const plan = { selectedMain: 'a'.repeat(40), days: [{ day: '2026-10-14', commit: 'a'.repeat(40) }] };
+    await quickStart('bootstrap', './runtime', {
+        ...f.dependencies, now: () => clock,
+        selectHistory: (runtimeRepo, days, selectedAt) => {
+            assert.equal(runtimeRepo, resolve('./runtime'));
+            assert.equal(days, 7);
+            assert.equal(selectedAt, startedAt);
+            return plan;
+        },
+        run: async (options, hooks) => {
+            await hooks.onSourceSelected({ runtimeRepo: options['runtime-repo'], commit: 'a'.repeat(40) });
+            clock = new Date('2026-10-15T02:00:00Z');
+        },
+        collect: async (_, days, hooks) => {
+            assert.equal(days, 7);
+            assert.equal(hooks.now(), startedAt);
+            assert.equal(hooks.select(), plan);
+        },
+    }, ['--measure-recent-days=7']);
 });
 
 test('thin bootstrap/iterate entry points share help and reject extra arguments before doing work', () => {

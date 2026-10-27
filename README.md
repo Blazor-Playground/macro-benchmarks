@@ -78,6 +78,15 @@ To measure Havit against local runtime changes, run
 are cached without switching your checkout.
 See [Local runtime measurements](docs/local-runtime-measurements.md).
 
+Add or remove source-day history for the currently selected local experiment:
+
+```bash
+node bench/runtime-bench.mjs history add --from 2026-10-12 --to today --fetch
+node bench/runtime-bench.mjs history drop --from 2026-10-20 --dry-run
+```
+
+Add keeps passed dates and after; drop keeps raw files and caches.
+
 ## CI/CD
 
 - **benchmark.yml** — Daily + manual: resolve → build → measure → deploy results ([recent runs](https://github.com/blazor-playground/macro-benchmarks/actions/workflows/benchmark.yml))

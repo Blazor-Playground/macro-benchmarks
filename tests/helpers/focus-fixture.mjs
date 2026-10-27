@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { routeLocalNavigation } from './local-navigation-fixture.mjs';
 
 export const FOCUS_FIXTURE_TIME = new Date('2026-09-20T12:00:00Z');
 
@@ -90,6 +91,7 @@ export function expectedComparison(app, flavor, startupProfile, fixture = focusF
 }
 
 export async function routeFocusFixture(page, fixture = focusFixture()) {
+    await routeLocalNavigation(page);
     const resources = fixtureResources(fixture);
     await page.route('**/data/views/**', route => {
         const key = new URL(route.request().url()).pathname.split('/data/views/')[1];

@@ -53,7 +53,7 @@ export class FocusSession {
         }
     }
 
-    async loadLocal(baseUri: string, startupProfile: FocusProfile): Promise<string> {
+    async loadLocal(baseUri: string, startupProfile: FocusProfile, view: 'history' | 'matched' = 'history'): Promise<string> {
         if (this.disposed) throw new Error('This focus view has been disposed.');
         this.controller?.abort();
         const controller = new AbortController();
@@ -67,7 +67,7 @@ export class FocusSession {
                 cache: 'no-store', signal: controller.signal,
             });
             if (!response.ok) throw new Error(`Local comparison data returned HTTP ${response.status}. Copy a dashboard.json bundle into the local viewer first.`);
-            const result = localFocusReport(await response.json(), startupProfile);
+            const result = localFocusReport(await response.json(), startupProfile, view);
             if (controller.signal.aborted || generation !== this.generation || this.disposed) return JSON.stringify({ status: 'cancelled' });
             this.report = result.report;
             return JSON.stringify(result);
@@ -109,8 +109,8 @@ export function loadFocusReport(id: string, app: string, range: FocusRange, flav
     return sessionFor(id).load(app, range, force, { flavor, startupProfile });
 }
 
-export async function loadLocalFocusReport(id: string, baseUri: string, startupProfile: FocusProfile): Promise<string> {
-    return sessionFor(id).loadLocal(baseUri, startupProfile);
+export async function loadLocalFocusReport(id: string, baseUri: string, startupProfile: FocusProfile, view: 'history' | 'matched'): Promise<string> {
+    return sessionFor(id).loadLocal(baseUri, startupProfile, view);
 }
 export function renderFocusCharts(id: string, averaged: boolean, bands: boolean, percentage: boolean, measurements: boolean): void {
     sessionFor(id).render(id, averaged, bands, { percentage, measurements });

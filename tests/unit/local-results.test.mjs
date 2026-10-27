@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { test } from 'node:test';
 import { parseCompareOptions } from '../../bench/compare-local-runtime.mjs';
-import { displaySavedResults, findLatestComparison, formatResults, registerComparison } from '../../bench/local-results.mjs';
+import { currentComparisonPath, displaySavedResults, findLatestComparison, formatResults, loadCurrentComparisonData, registerComparison } from '../../bench/local-results.mjs';
 import { terminalStylesEnabled } from '../../bench/local-command.mjs';
 import { localFocusReport } from '../../src/bench-viewer/wwwroot/chart/local-focus.js';
 
@@ -120,6 +120,48 @@ test('console focus metrics use the same mobile/desktop values as the dashboard'
     assert.equal(dashboard.report.metrics[2].latest.coreclr, 4936829);
     assert.match(text, /4\.937 MB/);
     assert.doesNotMatch(text, /12,351 ms|99\.000 MB|Warm startup/);
+});
+
+test('history and matched console views use the same controls as the corresponding UI view', () => {
+    const input = data();
+    input.after.manifest.sdkInfo.runtimeGitHash = input.before.manifest.sdkInfo.runtimeGitHash;
+    input.after.manifest.sdkInfo.localRuntime.source.hash = input.before.manifest.sdkInfo.runtimeGitHash;
+    const before = run('coreclr', 500, 250);
+    const monoBefore = run('mono', 300, 150);
+    before.manifest.sdkInfo.runtimeGitHash = monoBefore.manifest.sdkInfo.runtimeGitHash = 'c'.repeat(40);
+    input.beforeHistory = [
+        { day: '2026-10-09', commit: 'd'.repeat(40), status: 'failed' },
+        { day: '2026-10-11', commit: 'c'.repeat(40), status: 'passed', before, monoBefore },
+    ];
+    const bundle = { ...input, schemaVersion: 1, title: 'History', createdAt: '2026-10-14T12:00:00Z' };
+    const history = localFocusReport(bundle);
+    const text = formatResults(bundle, { bold: false, color: false });
+    assert.match(text, /View: history;.*2026-10-11/);
+    assert.equal(history.metadata.beforeCommit, before.manifest.sdkInfo.runtimeGitHash);
+    assert.equal(history.report.metrics[0].latest.mono, 300);
+    assert.equal(history.report.metrics[0].latest.coreclrBefore, 500);
+    assert.match(text, /300 ms\s+500 ms\s+2,351 ms/);
+    assert.match(text, /\+683\.7% slower\s+\+370\.2% slower/);
+    const matched = localFocusReport(bundle, 'mobile', 'matched');
+    const matchedText = formatResults(bundle, { bold: false, color: false, view: 'matched' });
+    assert.match(matchedText, /View: matched pair/);
+    assert.equal(matched.report.metrics[0].latest.coreclrBefore, 404);
+    assert.match(matchedText, /268 ms\s+404 ms\s+2,351 ms/);
+    assert.throws(() => formatResults({ ...bundle, beforeHistory: [] }), /Invalid saved baseline history/);
+    assert.throws(() => formatResults({ ...bundle, after: run('coreclr', 100, 50) }, { view: 'invalid' }), /Choose results view/);
+});
+
+test('all-unmeasured history shows the fixed after and unavailable comparisons without matched-control substitution', () => {
+    const input = { ...data(), beforeHistory: [
+        { day: '2026-10-09', commit: 'c'.repeat(40), status: 'failed', error: 'unsupported snapshot\nretained log detail' },
+        { day: '2026-10-10', commit: 'd'.repeat(40), status: 'pending' },
+    ] };
+    const text = formatResults(input, { bold: false, color: false });
+    assert.match(text, /View: history; no successful historical baseline/);
+    assert.match(text, /2026-10-09: failed.*unsupported snapshot/);
+    assert.match(text, /unavailable\s+unavailable\s+Cold startup \(mobile\)\s+unavailable\s+unavailable\s+2,351 ms/);
+    assert.doesNotMatch(text, /268 ms|404 ms|\+777\.2%|\+481\.9%/);
+    assert.match(text, /fixed reference, not a historical observation/);
 });
 
 test('comparison columns lead every metric row and their definitions appear below the table', () => {
@@ -277,6 +319,74 @@ test('unregistered Windows default comparison outputs can be discovered', async 
     const path = join(directory, 'comparison.json');
     await writeFile(path, await readFile(saved.path, 'utf8'));
     assert.equal(await findLatestComparison(undefined, artifacts), path);
+});
+
+test('result publication uses a global lock and rejects a stale expected selection', async t => {
+    const { root, save } = await fixture(t);
+    const first = await save('first-publish', '2026-10-14T11:00:00Z');
+    const second = await save('second-publish', '2026-10-14T12:00:00Z');
+    const artifacts = join(root, 'artifacts');
+    await registerComparison(first.path, artifacts, { expectedCurrentPath: null });
+    const lock = join(artifacts, 'local-runtime', '.publication-lock');
+    await mkdir(lock);
+    await assert.rejects(registerComparison(second.path, artifacts), /Another result publication/);
+    assert.equal(await currentComparisonPath(artifacts), first.path);
+    await rm(lock, { recursive: true });
+    await assert.rejects(registerComparison(second.path, artifacts, { expectedCurrentPath: null }), /changed before publication/);
+    assert.equal(await currentComparisonPath(artifacts), first.path);
+    await registerComparison(second.path, artifacts, { expectedCurrentPath: first.path });
+    assert.equal(await currentComparisonPath(artifacts), second.path);
+    await assert.rejects(registerComparison(first.path, artifacts, { expectedCurrentPath: first.path }), /changed before publication/);
+    assert.equal(await currentComparisonPath(artifacts), second.path);
+    await assert.rejects(readFile(lock), /ENOENT/);
+});
+
+test('one current pointer selects pooled history evidence and ignores stale dashboard exports', async t => {
+    const { root, save } = await fixture(t);
+    const old = await save('single', '2026-10-14T09:00:00Z');
+    const latest = await save('pooled', '2026-10-14T11:00:00Z');
+    const artifacts = join(root, 'artifacts');
+    await registerComparison(old.path, artifacts);
+    const historyInput = data();
+    for (const side of ['before', 'monoBefore']) {
+        historyInput[side].manifest.sdkInfo.runtimeGitHash = 'c'.repeat(40);
+    }
+    historyInput.before.results.find(row => row.meta.profile === 'mobile').metrics['time-to-reach-managed-cold'] = 500;
+    historyInput.monoBefore.results.find(row => row.meta.profile === 'mobile').metrics['time-to-reach-managed-cold'] = 300;
+    const history = await save('history', '2026-10-11T12:00:00Z', historyInput);
+    latest.comparison.beforeHistory = [{ day: '2026-10-11', commit: 'c'.repeat(40), status: 'passed',
+        before: history.comparison.before, monoBefore: history.comparison.monoBefore }];
+    await writeFile(latest.path, JSON.stringify(latest.comparison));
+    await registerComparison(latest.path, artifacts);
+    const dashboardPath = join(root, 'comparisons', 'comparison-pooled', 'dashboard.json');
+    await writeFile(dashboardPath, '{"stale":"ignored export"}');
+    assert.equal(await currentComparisonPath(artifacts), latest.path);
+    assert.equal((await loadCurrentComparisonData(artifacts)).beforeHistory[0].before.results[1].metrics['time-to-reach-managed-cold'], 500);
+    const output = [];
+    await displaySavedResults(latest.path, text => output.push(text));
+    assert.match(output[0], /View: history/);
+    assert.match(output[0], /300 ms\s+500 ms\s+2,351 ms/);
+    await writeFile(history.comparison.before.results[0].path, '{"corrupt":"history"}');
+    await assert.rejects(loadCurrentComparisonData(artifacts), /evidence changed/);
+});
+
+test('publishing changes the current result atomically and never masks broken current evidence with an older result', async t => {
+    const { root, save } = await fixture(t);
+    const artifacts = join(root, 'artifacts');
+    const first = await save('first', '2026-10-14T11:00:00Z');
+    const second = await save('second', '2026-10-14T12:00:00Z');
+    await registerComparison(first.path, artifacts);
+    assert.equal(await currentComparisonPath(artifacts), first.path);
+    await writeFile(second.comparison.after.statusPath, '{"status":"failed"}');
+    await assert.rejects(registerComparison(second.path, artifacts), /did not pass/);
+    assert.equal(await currentComparisonPath(artifacts), first.path);
+    await writeFile(second.comparison.after.statusPath, '{"status":"passed"}');
+    await registerComparison(second.path, artifacts);
+    assert.equal(await currentComparisonPath(artifacts), second.path);
+    await rm(second.path);
+    await assert.rejects(loadCurrentComparisonData(artifacts), /ENOENT/);
+    await writeFile(join(artifacts, 'local-runtime/current-result.json'), '{"invalid":true}');
+    await assert.rejects(currentComparisonPath(artifacts), /Invalid current-result/);
 });
 
 test('removed indexed comparisons are warned and skipped without hiding malformed or missing result evidence', async t => {

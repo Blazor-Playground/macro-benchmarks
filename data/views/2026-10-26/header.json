@@ -25,6 +25,32 @@
       "benchmarkDateTime": "2026-10-27T19:30:18.216Z",
       "ciRunId": "40565464851",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/40565464851"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26527.111",
+      "runtimeGitHash": "e7a08e5f6027286f02ba30ff6b9146f555cb9092",
+      "aspnetCoreGitHash": "77e4202bed594e8c1063e697b289221e57858bd5",
+      "sdkGitHash": "bdf6a59a376b141815580500d147c31b95d63a64",
+      "vmrGitHash": "d52b2ace513f2709b6d3b37941b8a95d15b30586",
+      "runtimeCommitDateTime": "2026-10-26T22:58:53Z",
+      "runtimeCommitAuthor": "Tomas Weinfurt",
+      "runtimeCommitMessage": "Avoid early TLS connection-info queries on Android 8.1 (#136272)",
+      "aspnetCoreCommitDateTime": "2026-10-12T11:54:09Z",
+      "aspnetCoreCommitAuthor": "Jakub Florkowski",
+      "aspnetCoreCommitMessage": "Fix FieldIdentifier.GetHashCode() NullReferenceException for default struct (#65573)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26527.111",
+      "runtimePackVersion": "12.0.0-alpha.1.26527.111",
+      "workloadVersion": "12.0.0-alpha.1.26527.111",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26480.102",
+      "releaseDate": "2026-10-27",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-10-28T03:13:07.067Z",
+      "ciRunId": "40623048342",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/40623048342"
     }
   ],
   "apps": {

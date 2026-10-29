@@ -155,6 +155,32 @@
       "benchmarkDateTime": "2026-10-29T08:12:59.496Z",
       "ciRunId": "40837313186",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/40837313186"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26529.102",
+      "runtimeGitHash": "735c69bd695466ea44a0602e9c83c91e6004707b",
+      "aspnetCoreGitHash": "77e4202bed594e8c1063e697b289221e57858bd5",
+      "sdkGitHash": "bdf6a59a376b141815580500d147c31b95d63a64",
+      "vmrGitHash": "b4982663f7702c83b9f11d2cc3c25ce31d27880b",
+      "runtimeCommitDateTime": "2026-10-29T01:09:04Z",
+      "runtimeCommitAuthor": "Larry Ewing",
+      "runtimeCommitMessage": "JIT: mark hoistable generic static base helper calls (#136037)",
+      "aspnetCoreCommitDateTime": "2026-10-12T11:54:09Z",
+      "aspnetCoreCommitAuthor": "Jakub Florkowski",
+      "aspnetCoreCommitMessage": "Fix FieldIdentifier.GetHashCode() NullReferenceException for default struct (#65573)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26529.102",
+      "runtimePackVersion": "12.0.0-alpha.1.26529.102",
+      "workloadVersion": "12.0.0-alpha.1.26529.102",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26480.102",
+      "releaseDate": "2026-10-29",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-10-29T21:12:13.316Z",
+      "ciRunId": "40951527963",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/40951527963"
     }
   ],
   "apps": {

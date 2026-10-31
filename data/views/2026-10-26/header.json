@@ -285,6 +285,32 @@
       "benchmarkDateTime": "2026-10-31T01:29:01.775Z",
       "ciRunId": "41153979220",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/41153979220"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26530.117",
+      "runtimeGitHash": "e522423abedb0602c25a3d0bd8e603cc23d7f0ad",
+      "aspnetCoreGitHash": "94416692e05da692feb0223a9790d5afb3f8b45c",
+      "sdkGitHash": "86b9e8a65454b843e3c3fe4cf3c644e421312a41",
+      "vmrGitHash": "967b9e09f078fd39fc8c49588f8d910db25458c7",
+      "runtimeCommitDateTime": "2026-10-29T23:30:45Z",
+      "runtimeCommitAuthor": "Larry Ewing",
+      "runtimeCommitMessage": "Fix NaN sign comparison for Sum/Average/Product in TensorValueReductionsPreserveScalarOrder (#136650)",
+      "aspnetCoreCommitDateTime": "2026-10-21T22:54:56Z",
+      "aspnetCoreCommitAuthor": "Brennan",
+      "aspnetCoreCommitMessage": "Improve local development with copilot-instructions (#69965)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26530.117",
+      "runtimePackVersion": "12.0.0-alpha.1.26530.117",
+      "workloadVersion": "12.0.0-alpha.1.26530.117",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26480.102",
+      "releaseDate": "2026-10-30",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-10-31T08:05:54.050Z",
+      "ciRunId": "41181404559",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/41181404559"
     }
   ],
   "apps": {

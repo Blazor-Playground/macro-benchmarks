@@ -11,11 +11,13 @@ import {
     PRESET_MAP,
     shouldSkipBuild,
     clientRuntimeFor,
+    CORECLR_R2R_PRESETS,
 } from '../enums.js';
-import { dotnetRestore, dotnetPublish, dotnetWorkloadInstall, dotnetWorkloadList, ExecError } from '../exec.js';
+import { dotnetRestore, dotnetPublish, dotnetWorkloadInstall, dotnetWorkloadList, ExecError, exec } from '../exec.js';
 import { banner, info, err } from '../log.js';
 import { type BuildFailure, getBuildResultsDir, writeBuildShardReport } from '../lib/build-reports.js';
 import { buildExecutionArgs, buildSettings, DEV_LOOP_REVISION, msbuildArgs } from '../lib/build-settings.js';
+import { r2rCapabilities, readyToRunMetadata } from '../lib/r2r-settings.js';
 
 // MSBuildProjectName drives the artifacts/{bin,obj}/<name>/<label>/<flavor>/<preset> layout
 // (see src/Directory.Build.props). appDir may be a .csproj (projectPath apps) or a directory.
@@ -59,11 +61,12 @@ async function computeIntegrity(dir: string): Promise<{ fileCount: number; total
 // The `aot` preset means Mono AOT for Mono and ReadyToRun (R2R) for CoreCLR. R2R needs the
 // from-source crossgen2 and WebAssembly SDK pack injected (until they ship in the base SDK).
 function isCoreClrR2R(effectiveRuntime: Runtime, preset: Preset): boolean {
-    return effectiveRuntime === R.CoreCLR && preset === Preset.Aot;
+    return effectiveRuntime === R.CoreCLR && CORECLR_R2R_PRESETS.has(preset);
 }
 
 function presetNeedsWorkload(runtime: Runtime, preset: Preset, app: App): boolean {
     if (NATIVE_COMPONENT_APPS.has(app)) return true;
+    if (isCoreClrR2R(runtime, preset)) return false;
     if (NON_WORKLOAD_PRESETS.has(preset)) return false;
     return true;
 }
@@ -255,6 +258,9 @@ async function buildPhase(
                     info(`  ${app}/${preset}: ${integrity.fileCount} files, ${(integrity.totalBytes / 1024 / 1024).toFixed(1)} MB, ${compileTimeMs}ms`);
 
                     succeeded.push({ app: app as App, preset, runtime, compileTimeMs, integrity, publishDir,
+                        ...(isCoreClrR2R(effectiveRuntime, preset) ? {
+                            readyToRun: await readyToRunMetadata(preset, nugetPackagesDir, ctx.repoRoot),
+                        } : {}),
                         ...(preset === Preset.DevLoop ? { presetRevision: DEV_LOOP_REVISION } : {}) });
                 } catch (e) {
                     err(`Build failed for ${app}/${preset}: ${e instanceof Error ? e.message : e}`);
@@ -278,6 +284,25 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     if (!ctx.buildLabel) throw new Error('build stage requires ctx.buildLabel (run resolve-sdk first)');
 
     const sdkInfoPath = join(ctx.sdkDir, 'sdk-info.json');
+    // Probe the actual imported pack once, using full R2R so older packs can restore too.
+    if (ctx.presets.some(p => CORECLR_R2R_PRESETS.has(p) && p !== Preset.Aot)
+        && ctx.runtimes.includes(R.CoreCLR)
+        && !shouldSkipBuild(R.CoreCLR, App.EmptyBrowser, Preset.Aot, ctx)) {
+        const probeContext = { ...ctx, buildLabel: `${ctx.buildLabel}-r2r-probe` };
+        const probeDir = join(ctx.artifactsDir, 'obj', 'r2r-probe', ctx.buildLabel, ctx.apps.join('-'));
+        await mkdir(probeDir, { recursive: true });
+        const args = getRestoreArgs(probeContext, join(ctx.repoRoot, 'src', 'empty-browser'), R.CoreCLR, App.EmptyBrowser, Preset.Aot);
+        const env = { NUGET_PACKAGES: join(ctx.artifactsDir, 'nuget-packages') };
+        await dotnetRestore(ctx.dotnetBin, [...args, `-bl:${join(probeDir, 'restore.binlog')}`], { cwd: ctx.repoRoot, env });
+        const project = join(probeDir, 'project.xml');
+        try {
+            await exec(ctx.dotnetBin, ['msbuild', ...args, `-preprocess:${project}`], { cwd: ctx.repoRoot, env });
+            ctx.r2rCapabilities = r2rCapabilities(await readFile(project, 'utf8'));
+        } finally {
+            await rm(project, { force: true });
+        }
+        info(`Selected WebAssembly pack capabilities: ${JSON.stringify(ctx.r2rCapabilities)}`);
+    }
 
     // Partition presets
     const nonWorkloadPresets = ctx.presets.filter(p => NON_WORKLOAD_PRESETS.has(p));
@@ -313,7 +338,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     // except for native-component apps (uno-gallery, semi-avalonia) whose R2R build still relinks.
     if (workloadPresets.length > 0) {
         const workloadNeeded = workloadPresets.some(p =>
-            ctx.runtimes.some(r => ctx.apps.some(a => presetNeedsWorkload(r, p, a))));
+            ctx.runtimes.some(r => ctx.apps.some(a => !shouldSkipBuild(r, a, p, ctx) && presetNeedsWorkload(r, p, a))));
         if (workloadNeeded) {
             banner('Install wasm-tools workload');
             await dotnetWorkloadInstall(ctx.dotnetBin, 'wasm-tools', { cwd: ctx.repoRoot });
@@ -346,14 +371,14 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     await mkdir(resultsDir, { recursive: true });
     await writeBuildShardReport(ctx, succeeded, failed);
 
-    if (succeeded.length === 0) {
+    if (succeeded.length === 0 && failed.length > 0) {
         throw new Error('All builds failed — nothing to measure');
     }
     if (failed.length > 0) {
         info(`${succeeded.length} builds succeeded, ${failed.length} failed`);
         throw new Error(`Build failed for: ${failed.map(f => f.target).join(', ')}`);
     }
-    info(`${succeeded.length} builds succeeded`);
+    info(succeeded.length > 0 ? `${succeeded.length} builds succeeded` : 'All requested builds were skipped — nothing to measure');
 
     await writeFile(
         join(resultsDir, 'build-manifest.json'),

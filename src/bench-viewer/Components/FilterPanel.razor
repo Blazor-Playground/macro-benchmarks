@@ -92,6 +92,9 @@
     private static string FormatValue(string group, string value) => (group, value) switch
     {
         ("presets", "aot") => "AOT/R2R",
+        ("presets", "r2r-pgo") => "R2R PGO",
+        ("presets", "r2r-composite") => "R2R Composite",
+        ("presets", "r2r-composite-pgo") => "R2R Composite PGO",
         _ => value
     };
 
@@ -111,6 +114,9 @@
                 + "WasmBuildNative=true\n"
                 + "WasmNativeStrip=true\n"
                 + "PublishTrimmed=true",
+            "r2r-pgo" => "CoreCLR partial R2R using the pinned browser MIBC profile; unprofiled methods remain interpreted. Release, trimmed.",
+            "r2r-composite" => "CoreCLR full composite R2R. Release, trimmed.",
+            "r2r-composite-pgo" => "CoreCLR partial composite R2R using the pinned browser MIBC profile; unprofiled methods remain interpreted. Release, trimmed.",
             "aot" => "Mono (AOT): Configuration=Release\n"
                 + "WasmBuildNative=true\n"
                 + "WasmNativeStrip=true\n"

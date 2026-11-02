@@ -1,4 +1,19 @@
 <Project>
+    <PropertyGroup Condition="'$(BenchmarkReadyToRunPgo)' == 'true' and '$(RuntimeIdentifier)' == 'browser-wasm' and '$(RuntimeFlavor)' == 'CoreCLR'">
+        <BrowserWasmMibcProfile>$([MSBuild]::NormalizePath('$(NuGetPackageRoot)', 'optimization.browser-wasm.mibc.runtime', '$(BrowserWasmMibcProfileVersion)', 'data', 'DotNet_Blazor_Wasm.mibc'))</BrowserWasmMibcProfile>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(BenchmarkReadyToRunPgo)' == 'true' and '$(RuntimeIdentifier)' == 'browser-wasm' and '$(RuntimeFlavor)' == 'CoreCLR'">
+        <PackageDownload Include="optimization.browser-wasm.MIBC.Runtime" Version="[$(BrowserWasmMibcProfileVersion)]" />
+        <PublishReadyToRunPgoFiles Include="$(BrowserWasmMibcProfile)" />
+    </ItemGroup>
+    <Target Name="ValidateBenchmarkReadyToRunPgo" BeforeTargets="_CreateR2RImages"
+            DependsOnTargets="_WasmCoreClrConfigureReadyToRunPgo"
+            Condition="'$(BenchmarkReadyToRunPgo)' == 'true' and '$(RuntimeIdentifier)' == 'browser-wasm' and '$(RuntimeFlavor)' == 'CoreCLR'">
+        <Error Condition="'$(PublishReadyToRun)' != 'true' or !$([System.String]::Copy('$(PublishReadyToRunCrossgen2ExtraArgs)').Contains('--partial'))"
+               Text="PGO benchmarks require profile-guided partial ReadyToRun support (dotnet/runtime#134356)." />
+        <Error Condition="!Exists('$(BrowserWasmMibcProfile)')" Text="Benchmark PGO profile does not exist: $(BrowserWasmMibcProfile)" />
+        <Message Importance="High" Text="Benchmark partial R2R: @(PublishReadyToRunPgoFiles); composite=$(PublishReadyToRunComposite); crossgen2=$(PublishReadyToRunCrossgen2ExtraArgs)" />
+    </Target>
     <Target Name="StageBenchmarkRuntimeReady" BeforeTargets="ResolveProjectStaticWebAssets"
             Condition="'$(UsingMicrosoftNETSdkBlazorWebAssembly)' == 'true'">
         <Copy SourceFiles="$(MSBuildThisFileDirectory)runtime-ready.mjs"

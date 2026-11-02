@@ -185,6 +185,7 @@ function buildMeta(
         runtime: entry.runtime,
         preset: entry.preset,
         ...(entry.presetRevision ? { presetRevision: entry.presetRevision } : {}),
+        ...(entry.readyToRun ? { readyToRun: entry.readyToRun } : {}),
         profile,
         engine,
         app: entry.app,

@@ -38,6 +38,7 @@
 
   <!-- default shared versions of dependencies -->
   <PropertyGroup>
+    <BrowserWasmMibcProfileVersion>1.0.0-prerelease.26502.1</BrowserWasmMibcProfileVersion>
     <UnoWasmBootstrapVersion>10.0.22</UnoWasmBootstrapVersion>
     <UnoShowMeTheXAMLVersion>2.0.0-dev0015</UnoShowMeTheXAMLVersion>
     <UnoCommunityToolkitVersion>7.1.200</UnoCommunityToolkitVersion>

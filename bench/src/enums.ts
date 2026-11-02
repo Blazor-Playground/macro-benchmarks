@@ -13,6 +13,9 @@ export enum Preset {
     DevLoop = 'dev-loop',
     NoWorkload = 'no-workload',
     Aot = 'aot',
+    R2RPgo = 'r2r-pgo',
+    R2RComposite = 'r2r-composite',
+    R2RCompositePgo = 'r2r-composite-pgo',
     NativeRelink = 'native-relink',
     NoJiterp = 'no-jiterp',
     Invariant = 'invariant',
@@ -211,13 +214,18 @@ export const MONO_ONLY_PRESETS = new Set<Preset>([
 
 /** Apps that use Blazor (DOM-dependent, no CLI engine support). */
 export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazorPerf, App.BlazingPizza, App.HavitBootstrap, App.BenchViewer, App.MudBlazor, App.IgniteUILight, App.BlazorPerf]);
-export const BLAZOR_REDUCED_PRESETS = new Set<Preset>([Preset.DevLoop, Preset.NoWorkload, Preset.Aot]);
+export const CORECLR_R2R_PRESETS = new Set<Preset>([
+    Preset.Aot, Preset.R2RPgo, Preset.R2RComposite, Preset.R2RCompositePgo,
+]);
+export const PGO_PRESETS = new Set<Preset>([Preset.R2RPgo, Preset.R2RCompositePgo]);
+export const COMPOSITE_PRESETS = new Set<Preset>([Preset.R2RComposite, Preset.R2RCompositePgo]);
+export const BLAZOR_REDUCED_PRESETS = new Set<Preset>([Preset.DevLoop, Preset.NoWorkload, ...CORECLR_R2R_PRESETS]);
 
 export const NON_BLAZOR_APPS = new Set<App>([App.UnoGallery, App.SemiAvalonia, App.AvaloniaBench]);
 
 /** Avalonia apps: Skia/HarfBuzz native assets make native relink mandatory. */
 export const AVALONIA_APPS = new Set<App>([App.SemiAvalonia, App.AvaloniaBench]);
-export const NON_BLAZOR_REDUCED_PRESETS = new Set<Preset>([Preset.NativeRelink, Preset.Aot]);
+export const NON_BLAZOR_REDUCED_PRESETS = new Set<Preset>([Preset.NativeRelink, ...CORECLR_R2R_PRESETS]);
 
 /**
  * Apps with native WASM components that must be relinked even for CoreCLR R2R (aot). For these apps
@@ -301,8 +309,17 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     if (MONO_ONLY_PRESETS.has(preset) && runtime === Runtime.CoreCLR) {
         return `Preset '${preset}' is mono-only and cannot be used with runtime '${runtime}'`;
     }
-    if (runtime === Runtime.CoreCLR && preset === Preset.Aot && !coreclrR2RAvailable(ctx)) {
+    if (CORECLR_R2R_PRESETS.has(preset) && preset !== Preset.Aot && runtime !== Runtime.CoreCLR) {
+        return `Preset '${preset}' requires CoreCLR`;
+    }
+    if (runtime === Runtime.CoreCLR && CORECLR_R2R_PRESETS.has(preset) && !coreclrR2RAvailable(ctx)) {
         return `CoreCLR ReadyToRun (preset 'aot') requires SDK ${CORECLR_R2R_MIN_SDK} or later (dotnet/runtime#133378), or a from-source runtime (--runtime-pr / --runtime-commit)`;
+    }
+    if (PGO_PRESETS.has(preset) && ctx.r2rCapabilities?.pgo === false) {
+        return `Selected WebAssembly pack does not support profile-guided partial R2R (dotnet/runtime#134356)`;
+    }
+    if (COMPOSITE_PRESETS.has(preset) && ctx.r2rCapabilities?.composite === false) {
+        return `Selected WebAssembly pack does not support composite R2R`;
     }
     // CoreCLR native-relink generates P/Invoke portable call helpers with a crossgen2 that knows
     // the browser-wasm ABI (dotnet/runtime#133413), first available in .NET 12. Until that flows
@@ -311,7 +328,7 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     if (runtime === Runtime.CoreCLR && preset === Preset.NativeRelink && ctx.sdkInfo.major < 12) {
         return `CoreCLR native-relink requires .NET 12 or later (crossgen2 via SDK, dotnet/runtime#133413)`;
     }
-    if (runtime === Runtime.CoreCLR && (preset !== Preset.DevLoop && preset !== Preset.NoWorkload && preset !== Preset.Aot && preset !== Preset.NativeRelink)) {
+    if (runtime === Runtime.CoreCLR && (preset !== Preset.DevLoop && preset !== Preset.NoWorkload && !CORECLR_R2R_PRESETS.has(preset) && preset !== Preset.NativeRelink)) {
         return `Preset '${preset}' requires native rebuild which is not supported with CoreCLR`;
     }
     if (BLAZOR_APPS.has(app) && preset === Preset.NoReflectionEmit) {
@@ -351,6 +368,9 @@ export const PRESET_MAP: Record<Preset, string> = {
     [Preset.DevLoop]: 'DevLoop',
     [Preset.NoWorkload]: 'NoWorkload',
     [Preset.Aot]: 'Aot',
+    [Preset.R2RPgo]: 'R2RPgo',
+    [Preset.R2RComposite]: 'R2RComposite',
+    [Preset.R2RCompositePgo]: 'R2RCompositePgo',
     [Preset.NativeRelink]: 'NativeRelink',
     [Preset.NoJiterp]: 'NoJiterp',
     [Preset.Invariant]: 'Invariant',
@@ -362,6 +382,9 @@ export const PRESET_CONFIG: Record<Preset, string> = {
     [Preset.DevLoop]: 'Debug',
     [Preset.NoWorkload]: 'Release',
     [Preset.Aot]: 'Release',
+    [Preset.R2RPgo]: 'Release',
+    [Preset.R2RComposite]: 'Release',
+    [Preset.R2RCompositePgo]: 'Release',
     [Preset.NativeRelink]: 'Release',
     [Preset.NoJiterp]: 'Release',
     [Preset.Invariant]: 'Release',

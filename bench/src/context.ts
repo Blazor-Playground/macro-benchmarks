@@ -48,6 +48,11 @@ export interface BuildManifestEntry {
     runtime: Runtime;
     compileTimeMs: number;
     presetRevision?: string;
+    readyToRun?: {
+        compilation: 'full' | 'partial-pgo';
+        composite: boolean;
+        profile?: { package: string; version: string; file: string; sha256: string };
+    };
     integrity: { fileCount: number; totalBytes: number };
     publishDir: string;
 }
@@ -144,6 +149,7 @@ export interface BenchContext {
     crossgen2Dir?: string;
     runtimePackagesDir?: string;
     r2rPackVersion?: string;
+    r2rCapabilities?: { pgo: boolean; composite: boolean };
     publishDir: string;
     resultsDir: string;
     buildLabel: string;

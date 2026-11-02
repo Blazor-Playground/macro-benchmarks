@@ -313,7 +313,7 @@
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/41181404559"
     },
     {
-      "sdkVersion": "12.0.100-alpha.1.26531.102",
+      "sdkVersion": "12.0.100-alpha.1.26551.101",
       "runtimeGitHash": "e522423abedb0602c25a3d0bd8e603cc23d7f0ad",
       "aspnetCoreGitHash": "94416692e05da692feb0223a9790d5afb3f8b45c",
       "sdkGitHash": "86b9e8a65454b843e3c3fe4cf3c644e421312a41",
@@ -324,19 +324,19 @@
       "aspnetCoreCommitDateTime": "2026-10-21T22:54:56Z",
       "aspnetCoreCommitAuthor": "Brennan",
       "aspnetCoreCommitMessage": "Improve local development with copilot-instructions (#69965)",
-      "aspnetCoreVersion": "12.0.0-alpha.1.26531.102",
-      "runtimePackVersion": "12.0.0-alpha.1.26531.102",
-      "workloadVersion": "12.0.0-alpha.1.26531.102",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26551.101",
+      "runtimePackVersion": "12.0.0-alpha.1.26551.101",
+      "workloadVersion": "12.0.0-alpha.1.26551.101",
       "bootstrapSdkVersion": "12.0.100-alpha.1.26480.102",
-      "releaseDate": "2026-10-31",
+      "releaseDate": "2026-11-01",
       "major": 12,
       "minor": 0,
       "patch": 100,
       "channel": "12.0",
       "isPrerelease": true,
-      "benchmarkDateTime": "2026-10-31T23:23:45.339Z",
-      "ciRunId": "41250207470",
-      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/41250207470"
+      "benchmarkDateTime": "2026-11-02T01:38:33.775Z",
+      "ciRunId": "41370615312",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/41370615312"
     }
   ],
   "apps": {

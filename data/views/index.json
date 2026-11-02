@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-11-02T01:57:46.929Z",
+  "lastUpdated": "2026-11-02T20:24:34.284Z",
   "activeRelease": "net12",
   "releases": [
     "net8",
@@ -317,7 +317,10 @@
       "native-relink",
       "no-jiterp",
       "no-reflection-emit",
-      "no-workload"
+      "no-workload",
+      "r2r-composite",
+      "r2r-composite-pgo",
+      "r2r-pgo"
     ],
     "profiles": [
       "desktop",

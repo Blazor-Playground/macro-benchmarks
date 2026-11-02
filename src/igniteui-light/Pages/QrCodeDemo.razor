@@ -21,23 +21,23 @@
     <div style="display: flex; flex-direction: column; gap: 16px; min-width: 280px;">
         <IgbInput @bind-Value="Value" Label="Encoded value" />
 
-        <IgbSelect @bind-Value="LevelKey" Label="Error correction">
-            <IgbSelectItem Value="Low">Low — 7% recoverable</IgbSelectItem>
-            <IgbSelectItem Value="Medium">Medium — 15% recoverable</IgbSelectItem>
-            <IgbSelectItem Value="Quartile">Quartile — 25% recoverable</IgbSelectItem>
-            <IgbSelectItem Value="High">High — 30% recoverable</IgbSelectItem>
+        <IgbSelect @bind-Value="Level" Label="Error correction">
+            <IgbSelectItem Value="QrErrorCorrectionLevel.Low">Low — 7% recoverable</IgbSelectItem>
+            <IgbSelectItem Value="QrErrorCorrectionLevel.Medium">Medium — 15% recoverable</IgbSelectItem>
+            <IgbSelectItem Value="QrErrorCorrectionLevel.Quartile">Quartile — 25% recoverable</IgbSelectItem>
+            <IgbSelectItem Value="QrErrorCorrectionLevel.High">High — 30% recoverable</IgbSelectItem>
         </IgbSelect>
 
-        <IgbSelect @bind-Value="DotStyleKey" Label="Dot style">
-            <IgbSelectItem Value="Square">Square</IgbSelectItem>
-            <IgbSelectItem Value="Circle">Circle</IgbSelectItem>
-            <IgbSelectItem Value="Rounded">Rounded</IgbSelectItem>
+        <IgbSelect @bind-Value="DotStyle" Label="Dot style">
+            <IgbSelectItem Value="QrDotStyle.Square">Square</IgbSelectItem>
+            <IgbSelectItem Value="QrDotStyle.Circle">Circle</IgbSelectItem>
+            <IgbSelectItem Value="QrDotStyle.Rounded">Rounded</IgbSelectItem>
         </IgbSelect>
 
-        <IgbSelect @bind-Value="SquareStyleKey" Label="Corner square style">
-            <IgbSelectItem Value="Square">Square</IgbSelectItem>
-            <IgbSelectItem Value="Circle">Circle</IgbSelectItem>
-            <IgbSelectItem Value="Rounded">Rounded</IgbSelectItem>
+        <IgbSelect @bind-Value="SquareStyle" Label="Corner square style">
+            <IgbSelectItem Value="QrCornerSquareStyle.Square">Square</IgbSelectItem>
+            <IgbSelectItem Value="QrCornerSquareStyle.Circle">Circle</IgbSelectItem>
+            <IgbSelectItem Value="QrCornerSquareStyle.Rounded">Rounded</IgbSelectItem>
         </IgbSelect>
     </div>
 </div>
@@ -84,13 +84,9 @@
 
     string Value { get; set; } = "https://github.com/IgniteUI/igniteui-blazor-lite-examples";
 
-    string LevelKey { get; set; } = nameof(QrErrorCorrectionLevel.Medium);
-    string DotStyleKey { get; set; } = nameof(QrDotStyle.Square);
-    string SquareStyleKey { get; set; } = nameof(QrCornerSquareStyle.Square);
-
-    QrErrorCorrectionLevel Level => Enum.Parse<QrErrorCorrectionLevel>(LevelKey);
-    QrDotStyle DotStyle => Enum.Parse<QrDotStyle>(DotStyleKey);
-    QrCornerSquareStyle SquareStyle => Enum.Parse<QrCornerSquareStyle>(SquareStyleKey);
+    QrErrorCorrectionLevel Level { get; set; } = QrErrorCorrectionLevel.Medium;
+    QrDotStyle DotStyle { get; set; } = QrDotStyle.Square;
+    QrCornerSquareStyle SquareStyle { get; set; } = QrCornerSquareStyle.Square;
 
     async Task ExportAsync(QrCodeExportFormat format) =>
         await QrRef.ToImageAsync(new IgbQrCodeExportOptions

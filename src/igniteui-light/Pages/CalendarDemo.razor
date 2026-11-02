@@ -21,21 +21,21 @@
 <div style="display: flex; gap: 32px; flex-wrap: wrap;">
     <div>
         <p><strong>en-US</strong> — Sunday</p>
-        <IgbCalendar Locale="en-US" ShowWeekNumbers="true" />
+        <IgbCalendar TValue="DateTime" Locale="en-US" ShowWeekNumbers="true" />
     </div>
     <div>
         <p><strong>bg-BG</strong> — Monday</p>
-        <IgbCalendar Locale="bg-BG" ShowWeekNumbers="true" />
+        <IgbCalendar TValue="DateTime" Locale="bg-BG" ShowWeekNumbers="true" />
     </div>
     <div>
         <p><strong>en-US</strong>, <code>WeekStart="Wednesday"</code></p>
-        <IgbCalendar Locale="en-US" WeekStart="@WeekDays.Wednesday" ShowWeekNumbers="true" />
+        <IgbCalendar TValue="DateTime" Locale="en-US" WeekStart="@WeekDays.Wednesday" ShowWeekNumbers="true" />
     </div>
 </div>
 
 <h4>Range Selection</h4>
 
-<IgbCalendar Selection="@CalendarSelection.Range" VisibleMonths="2" />
+<IgbCalendar TValue="DateTime" Selection="@CalendarSelection.Range" VisibleMonths="2" />
 
 @code {
     DateTime Selected { get; set; } = DateTime.Today;

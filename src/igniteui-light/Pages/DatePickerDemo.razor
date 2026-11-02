@@ -11,7 +11,7 @@
     externally — in a grid edit template, for instance — without fighting the editor.
 </p>
 
-<IgbDatePicker @bind-Value="SelectedDate" Label="Delivery date" Input="OnInput" />
+<IgbDatePicker TValue="DateTime?" @bind-Value="SelectedDate" Label="Delivery date" Input="OnInput" />
 
 <p>Committed value: @Format(SelectedDate)</p>
 <p>Being typed: @Typed</p>
@@ -24,19 +24,19 @@
     follow the field order of the locale too. An explicit <code>WeekStart</code> takes priority.
 </p>
 
-<IgbDatePicker Label="en-US — starts Sunday" Locale="en-US" ShowWeekNumbers="true" />
-<IgbDatePicker Label="bg-BG — starts Monday" Locale="bg-BG" ShowWeekNumbers="true" />
-<IgbDatePicker Label="en-US, WeekStart=Wednesday" Locale="en-US" WeekStart="@WeekDays.Wednesday" />
+<IgbDatePicker TValue="DateTime?" Label="en-US — starts Sunday" Locale="en-US" ShowWeekNumbers="true" />
+<IgbDatePicker TValue="DateTime?" Label="bg-BG — starts Monday" Locale="bg-BG" ShowWeekNumbers="true" />
+<IgbDatePicker TValue="DateTime?" Label="en-US, WeekStart=Wednesday" Locale="en-US" WeekStart="@WeekDays.Wednesday" />
 
 <h4>Dialog Mode</h4>
 
-<IgbDatePicker Label="Dialog" Mode="@PickerMode.Dialog" Outlined="true" />
+<IgbDatePicker TValue="DateTime?" Label="Dialog" Mode="@PickerMode.Dialog" Outlined="true" />
 
 @code {
     DateTime? SelectedDate { get; set; } = DateTime.Today;
     string Typed { get; set; } = "nothing yet";
 
-    void OnInput(IgbComponentDateValueChangedEventArgs args) => Typed = Format(args.Detail);
+    void OnInput(IgbComponentDateValueChangedEventArgs<DateTime?> args) => Typed = Format(args.Detail);
 
     static string Format(DateTime? value) => value?.ToShortDateString() ?? "none";
 }

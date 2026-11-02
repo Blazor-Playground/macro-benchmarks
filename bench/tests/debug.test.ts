@@ -149,7 +149,7 @@ if [ "$LC_ALL" = C ]; then
 else
     birth='Mi. 14 Okt. 17:36:37 2026'
 fi
-printf '%s %s %s %s\\n' "$DEBUG_TEST_PS_PID" '${process.pid}' "$birth" 'node blazor-devserver.dll'
+printf '%s %s %s %s %s\\n' "$DEBUG_TEST_PS_PID" '${process.pid}' "$birth" 'Sl' 'node blazor-devserver.dll'
 `, { mode: 0o755 });
         process.env.PATH = `${cwd}:${previous.PATH ?? ''}`;
         process.env.LC_ALL = 'de_DE.UTF-8';

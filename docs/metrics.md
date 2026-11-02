@@ -54,7 +54,10 @@ per-attempt evidence. Missing hashes stay unknown. Local pairs record
 
 Edits occur only in isolated copies. Cancellation closes owned browser/app/watch
 processes, restores source and persists the cancelled attempt; repeated signals
-do not skip cleanup. Shared SDK build servers are never stopped.
+do not skip cleanup. Shared SDK build servers are never stopped. Process cleanup
+allows up to five seconds after each of SIGTERM and SIGKILL, ignores exited
+zombies awaiting parent reaping, and reports the identities and states of any
+remaining live processes.
 See [pipeline/publication architecture](architecture.md#developer-loop-pipeline)
 and [local commands](cli-reference.md#clean-debug).
 

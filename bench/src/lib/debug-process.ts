@@ -3,14 +3,14 @@ import { promisify } from 'node:util';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 const execFileAsync = promisify(execFile);
-interface ProcessIdentity { pid: number; ppid: number; birth: string; command: string }
+interface ProcessIdentity { pid: number; ppid: number; birth: string; state: string; command: string }
 
 async function processTable(): Promise<ProcessIdentity[]> {
-    const { stdout } = await execFileAsync('ps', ['-axo', 'pid=,ppid=,lstart=,command='],
+    const { stdout } = await execFileAsync('ps', ['-axo', 'pid=,ppid=,lstart=,stat=,command='],
         { env: { ...process.env, LC_ALL: 'C' } });
     return stdout.split('\n').flatMap(line => {
-        const match = line.match(/^\s*(\d+)\s+(\d+)\s+(\w+\s+\w+\s+\d+\s+\d+:\d+:\d+\s+\d{4})\s+(.*)$/);
-        return match ? [{ pid: Number(match[1]), ppid: Number(match[2]), birth: match[3], command: match[4] }] : [];
+        const match = line.match(/^\s*(\d+)\s+(\d+)\s+(\w+\s+\w+\s+\d+\s+\d+:\d+:\d+\s+\d{4})\s+(\S+)\s+(.*)$/);
+        return match ? [{ pid: Number(match[1]), ppid: Number(match[2]), birth: match[3], state: match[4], command: match[5] }] : [];
     });
 }
 
@@ -95,7 +95,18 @@ export class DebugProcess {
         clearInterval(this.timer);
         await this.tracking;
         await this.track();
-        const alive = async () => (await processTable()).filter(row => this.known.get(row.pid)?.birth === row.birth);
+        // Zombies have exited and cannot be killed; only their parent can reap them.
+        const alive = async () => (await processTable()).filter(row =>
+            this.known.get(row.pid)?.birth === row.birth && !row.state.startsWith('Z'));
+        const waitForExit = async () => {
+            const deadline = performance.now() + 5000;
+            let survivors = await alive();
+            while (survivors.length && performance.now() < deadline) {
+                await sleep(50);
+                survivors = await alive();
+            }
+            return survivors;
+        };
         const send = (rows: ProcessIdentity[], signal: NodeJS.Signals) => {
             for (const row of rows.reverse()) {
                 try { process.kill(row.pid, signal); }
@@ -103,13 +114,14 @@ export class DebugProcess {
             }
         };
         send(await alive(), 'SIGTERM');
-        const deadline = performance.now() + 5000;
-        while ((await alive()).length && performance.now() < deadline) await sleep(50);
-        const survivors = await alive();
+        let survivors = await waitForExit();
         if (survivors.length) {
             send(survivors, 'SIGKILL');
-            await sleep(100);
-            if ((await alive()).length) throw new Error('Owned dotnet processes did not terminate');
+            survivors = await waitForExit();
+            if (survivors.length) {
+                throw new Error(`Owned dotnet processes did not terminate: ${survivors.map(row =>
+                    `pid=${row.pid} ppid=${row.ppid} state=${row.state} birth=${row.birth} command=${row.command}`).join('; ')}`);
+            }
         }
         if (this.monitorError) throw new Error(`Process monitoring failed: ${this.monitorError}`);
     }

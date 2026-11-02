@@ -59,7 +59,10 @@ public partial class Home : IAsyncDisposable
             filterGroups = new Dictionary<string, List<string>>
             {
                 ["runtimes"] = viewIndex.Dimensions.Runtimes,
-                ["presets"] = viewIndex.Dimensions.Presets,
+                ["presets"] = viewIndex.Dimensions.Presets
+                    .Union(DashboardConfig.ReadyToRunPresets, StringComparer.Ordinal)
+                    .OrderBy(preset => preset, StringComparer.Ordinal)
+                    .ToList(),
                 ["profiles"] = viewIndex.Dimensions.Profiles,
                 ["engines"] = viewIndex.Dimensions.Engines,
             };

@@ -1,5 +1,13 @@
 # Dashboard and NET12 focus
 
+## Dashboard preset filters
+
+The main dashboard includes full and profile-guided CoreCLR R2R presets even
+before their first results appear in the published index. Presets discovered in
+the index are preserved and duplicates are removed. `no-workload` remains the
+default selection; selecting an R2R preset does not substitute other results when
+that preset has no measurements.
+
 ## NET12 dev-loop
 
 **NET12 dev-loop** at `/net12-debug` uses the existing configuration-only Debug

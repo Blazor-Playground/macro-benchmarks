@@ -2,6 +2,12 @@ namespace BenchViewer.Models;
 
 public static class DashboardConfig
 {
+    // Keep in sync with the CoreCLR R2R presets in src/presets.props.
+    public static readonly string[] ReadyToRunPresets =
+    {
+        "aot", "r2r-pgo", "r2r-composite", "r2r-composite-pgo"
+    };
+
     // GitHub repository (owner/name) — injected from MSBuild property at build time
     public static string GitHubRepo => BuildConfig.GitHubRepo;
     public static string GitHubUrl => $"https://github.com/{GitHubRepo}";

@@ -29,6 +29,36 @@
       "benchmarkDateTime": "2026-11-04T19:46:24.137Z",
       "ciRunId": "41892234507",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/41892234507"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26555.106",
+      "runtimeGitHash": "f55fa833cbf1824ebaea39346c7d25360a43e723",
+      "aspnetCoreGitHash": "1c94b15aa54d3d490d0ee060b7d496db3cb291e7",
+      "sdkGitHash": "86b9e8a65454b843e3c3fe4cf3c644e421312a41",
+      "vmrGitHash": "7cc16ae385c54fe87ffc1b3d1ae040b899e8c9c9",
+      "runtimeCommitDateTime": "2026-11-04T03:58:14Z",
+      "runtimeCommitAuthor": "Iurie Caraion",
+      "runtimeCommitMessage": "Write custom modifiers in PersistedAssemblyBuilder's order in CoreCLR's AssemblyBuilder (#136699)",
+      "aspnetCoreCommitDateTime": "2026-11-04T19:56:20Z",
+      "aspnetCoreCommitAuthor": "Shane Neuville",
+      "aspnetCoreCommitMessage": "Project Components permanent E2E boundary and preserve verifier candidate claims (#70271)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26555.106",
+      "runtimePackVersion": "12.0.0-alpha.1.26555.106",
+      "workloadVersion": "12.0.0-alpha.1.26555.106",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26531.102",
+      "releaseDate": "2026-11-05",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "readyToRun": {
+        "compilation": "full",
+        "composite": false
+      },
+      "benchmarkDateTime": "2026-11-05T23:31:52.652Z",
+      "ciRunId": "42125892513",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/42125892513"
     }
   ],
   "apps": {

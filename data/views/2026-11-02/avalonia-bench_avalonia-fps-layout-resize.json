@@ -1,1 +1,1 @@
-{"coreclr/aot/desktop/chrome":[45],"coreclr/native-relink/desktop/chrome":[3],"coreclr/r2r-composite-pgo/desktop/chrome":[3],"coreclr/r2r-composite/desktop/chrome":[43],"coreclr/r2r-pgo/desktop/chrome":[3],"mono/aot/desktop/chrome":[47],"mono/native-relink/desktop/chrome":[16]}
+{"coreclr/aot/desktop/chrome":[45,46],"coreclr/native-relink/desktop/chrome":[3,3],"coreclr/r2r-composite-pgo/desktop/chrome":[3,3],"coreclr/r2r-composite/desktop/chrome":[43,45],"coreclr/r2r-pgo/desktop/chrome":[3,3],"mono/aot/desktop/chrome":[47,47],"mono/native-relink/desktop/chrome":[16,16]}

@@ -35,7 +35,7 @@
   </PropertyGroup>
 
   <!-- Mono AOT and CoreCLR ReadyToRun presets. -->
-  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Aot' or '$(BenchmarkPreset)' == 'R2RPgo' or '$(BenchmarkPreset)' == 'R2RComposite' or '$(BenchmarkPreset)' == 'R2RCompositePgo'">
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Aot' or '$(BenchmarkPreset)' == 'R2RPgo'">
     <Configuration>Release</Configuration>
 
     <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
@@ -51,13 +51,10 @@
 
   <!-- Aot on CoreCLR: ReadyToRun. R2R images are separate lazy .wasm modules consumed by the
        stock dotnet.native.wasm, so no native relink / wasm-tools workload is needed. -->
-  <PropertyGroup Condition="('$(BenchmarkPreset)' == 'Aot' or '$(BenchmarkPreset)' == 'R2RPgo' or '$(BenchmarkPreset)' == 'R2RComposite' or '$(BenchmarkPreset)' == 'R2RCompositePgo') and '$(RuntimeFlavor)' == 'CoreCLR'">
+  <PropertyGroup Condition="('$(BenchmarkPreset)' == 'Aot' or '$(BenchmarkPreset)' == 'R2RPgo') and '$(RuntimeFlavor)' == 'CoreCLR'">
     <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
-  <PropertyGroup Condition="('$(BenchmarkPreset)' == 'R2RComposite' or '$(BenchmarkPreset)' == 'R2RCompositePgo') and '$(RuntimeIdentifier)' == 'browser-wasm'">
-    <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'R2RPgo' or '$(BenchmarkPreset)' == 'R2RCompositePgo'">
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'R2RPgo'">
     <BenchmarkReadyToRunPgo>true</BenchmarkReadyToRunPgo>
   </PropertyGroup>
 

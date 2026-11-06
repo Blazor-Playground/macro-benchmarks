@@ -36,10 +36,8 @@ Default: `resolve-sdk,download-sdk,build,measure,transform-views`
 | dev-loop | Debug | SDK default | Clean Debug; sets only Configuration=Debug |
 | no-workload | Release | — | Baseline release; trimmed, no native build |
 | native-relink | Release | ✓ | Native WASM via Emscripten, no AOT |
-| aot | Release | Mono | Full Mono AOT or full non-composite CoreCLR R2R |
+| aot | Release | Mono | Full Mono AOT or full CoreCLR R2R (SDK-default composite mode) |
 | r2r-pgo | Release | App-dependent | CoreCLR profile-guided partial R2R |
-| r2r-composite | Release | App-dependent | CoreCLR full composite R2R |
-| r2r-composite-pgo | Release | App-dependent | CoreCLR profile-guided partial composite R2R |
 | invariant | Release | ✓ | Invariant globalization (no ICU data) |
 
 ## Metrics collected

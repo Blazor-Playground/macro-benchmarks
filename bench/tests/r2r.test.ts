@@ -7,11 +7,11 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import { buildContext } from '../src/args.js';
-import { App, COMPOSITE_PRESETS, CORECLR_R2R_PRESETS, PGO_PRESETS, Preset, Runtime, shouldSkipBuild } from '../src/enums.js';
+import { App, CORECLR_R2R_PRESETS, PGO_PRESETS, Preset, Runtime, shouldSkipBuild } from '../src/enums.js';
 import { buildSettings } from '../src/lib/build-settings.js';
-import { r2rCapabilities, readyToRunMetadata } from '../src/lib/r2r-settings.js';
+import { r2rSettings, readyToRunMetadata } from '../src/lib/r2r-settings.js';
 
-test('default matrix includes distinct full, partial and composite R2R variants', async () => {
+test('default matrix retains full and partial R2R without separate composite presets', async () => {
     const ctx = await buildContext([]);
     ctx.sdkInfo = { ...ctx.sdkInfo, major: 12, sdkVersion: '12.0.100-alpha.1.26531.102' };
     for (const preset of CORECLR_R2R_PRESETS) {
@@ -25,51 +25,51 @@ test('default matrix includes distinct full, partial and composite R2R variants'
             assert.ok(shouldSkipBuild(Runtime.NativeAOTLLVM, App.EmptyBrowser, preset, ctx));
         }
     }
-    assert.equal(new Set([...CORECLR_R2R_PRESETS].map(p => buildSettings(p, Runtime.CoreCLR).BenchmarkPreset)).size, 4);
+    assert.equal(new Set([...CORECLR_R2R_PRESETS].map(p => buildSettings(p, Runtime.CoreCLR).BenchmarkPreset)).size, 2);
 });
 
 test('unsupported selected packs skip only unsupported variants, including from-source packs', async () => {
     const ctx = await buildContext([]);
     ctx.sdkInfo = { ...ctx.sdkInfo, major: 12, sdkVersion: '12.0.100-alpha.1.26531.102' };
     ctx.runtimeBuildRequired = true;
-    ctx.r2rCapabilities = { pgo: false, composite: true };
+    ctx.r2rSettings = { pgo: false, composite: true };
     for (const preset of PGO_PRESETS) {
         assert.match(shouldSkipBuild(Runtime.CoreCLR, App.EmptyBlazor, preset, ctx) ?? '', /134356/);
     }
     assert.equal(shouldSkipBuild(Runtime.CoreCLR, App.EmptyBlazor, Preset.Aot, ctx), null);
-    assert.equal(shouldSkipBuild(Runtime.CoreCLR, App.EmptyBlazor, Preset.R2RComposite, ctx), null);
-    ctx.r2rCapabilities = { pgo: true, composite: false };
-    for (const preset of COMPOSITE_PRESETS) {
-        assert.match(shouldSkipBuild(Runtime.CoreCLR, App.EmptyBlazor, preset, ctx) ?? '', /composite R2R/);
-    }
+    ctx.r2rSettings = { pgo: true, composite: false };
     assert.equal(shouldSkipBuild(Runtime.CoreCLR, App.EmptyBlazor, Preset.R2RPgo, ctx), null);
     ctx.runtimeBuildRequired = false;
     ctx.sdkInfo.sdkVersion = '12.0.100-alpha.1.26460.100';
     assert.match(shouldSkipBuild(Runtime.CoreCLR, App.EmptyBlazor, Preset.R2RPgo, ctx) ?? '', /requires SDK/);
 });
 
-test('capability detection requires imported upstream targets, not references or preset properties', () => {
-    assert.deepEqual(r2rCapabilities('<Target DependsOnTargets="_WasmCoreClrConfigureReadyToRunPgo" /><PublishReadyToRunComposite>true</PublishReadyToRunComposite>'),
+test('R2R settings use imported PGO targets and evaluated SDK composite defaults', () => {
+    assert.deepEqual(r2rSettings('<Target DependsOnTargets="_WasmCoreClrConfigureReadyToRunPgo" /><PublishReadyToRunComposite>true</PublishReadyToRunComposite>', ''),
         { pgo: false, composite: false });
-    assert.deepEqual(r2rCapabilities('<Target Name="_WasmCoreClrConfigureReadyToRunPgo" /><Target Name="_WasmCoreClrValidateCompositeTasks" />'),
+    assert.deepEqual(r2rSettings('<Target Name="_WasmCoreClrConfigureReadyToRunPgo" />', 'true\n'),
         { pgo: true, composite: true });
+    assert.deepEqual(r2rSettings('<Target Name="_WasmCoreClrConfigureReadyToRunPgo" />', 'false'),
+        { pgo: true, composite: false });
+    assert.throws(() => r2rSettings('', 'unexpected output'), /Invalid evaluated PublishReadyToRunComposite/);
 });
 
 test('R2R metadata records exact profile identity and does not read a profile for full controls', async () => {
     const root = await mkdtemp(join(tmpdir(), 'benchmark-r2r-'));
     try {
-        assert.deepEqual(await readyToRunMetadata(Preset.Aot, root, root), { compilation: 'full', composite: false });
-        assert.deepEqual(await readyToRunMetadata(Preset.R2RComposite, root, root), { compilation: 'full', composite: true });
+        for (const composite of [false, true]) {
+            assert.deepEqual(await readyToRunMetadata(Preset.Aot, root, root, composite), { compilation: 'full', composite });
+        }
         await mkdir(join(root, 'src'));
         const version = '1.0.0-prerelease.26502.1';
         await writeFile(join(root, 'src', 'versions.props'), `<Project><BrowserWasmMibcProfileVersion>${version}</BrowserWasmMibcProfileVersion></Project>`);
-        await assert.rejects(readyToRunMetadata(Preset.R2RPgo, root, root), /ENOENT/);
+        await assert.rejects(readyToRunMetadata(Preset.R2RPgo, root, root, true), /ENOENT/);
         const directory = join(root, 'optimization.browser-wasm.mibc.runtime', version, 'data');
         await mkdir(directory, { recursive: true });
         await writeFile(join(directory, 'DotNet_Blazor_Wasm.mibc'), 'profile-test-bytes');
-        for (const preset of PGO_PRESETS) {
-            assert.deepEqual(await readyToRunMetadata(preset, root, root), {
-                compilation: 'partial-pgo', composite: COMPOSITE_PRESETS.has(preset),
+        for (const composite of [false, true]) {
+            assert.deepEqual(await readyToRunMetadata(Preset.R2RPgo, root, root, composite), {
+                compilation: 'partial-pgo', composite,
                 profile: {
                     package: 'optimization.browser-wasm.MIBC.Runtime', version, file: 'DotNet_Blazor_Wasm.mibc',
                     sha256: createHash('sha256').update('profile-test-bytes').digest('hex'),
@@ -81,7 +81,7 @@ test('R2R metadata records exact profile identity and does not read a profile fo
     }
 });
 
-test('MSBuild evaluates separate full/partial/composite presets and the standard PGO item', {
+test('MSBuild full/partial presets inherit SDK composite defaults and retain the standard PGO item', {
     skip: !process.env.BENCH_TEST_DOTNET,
 }, async () => {
     const root = await realpath(await mkdtemp(join(tmpdir(), 'benchmark-r2r-msbuild-')));
@@ -97,27 +97,33 @@ test('MSBuild evaluates separate full/partial/composite presets and the standard
   </PropertyGroup>
   <Import Project="${presets}" />
   <Import Project="${targets}" />
+  <PropertyGroup>
+    <PublishReadyToRunComposite Condition="'$(PublishReadyToRunComposite)' == ''">$(TestSdkCompositeDefault)</PublishReadyToRunComposite>
+  </PropertyGroup>
 </Project>`);
-        for (const preset of CORECLR_R2R_PRESETS) {
-            const result = JSON.parse(execFileSync(process.env.BENCH_TEST_DOTNET!, [
-                'msbuild', project, ...Object.entries(buildSettings(preset, Runtime.CoreCLR)).map(([key, value]) => `-p:${key}=${value}`),
-                '-getProperty:PublishReadyToRun,PublishReadyToRunComposite,Configuration',
-                '-getItem:PackageDownload,PublishReadyToRunPgoFiles',
-            ], { encoding: 'utf8' }));
-            assert.equal(result.Properties.PublishReadyToRun, 'true');
-            assert.equal(result.Properties.Configuration, 'Release');
-            assert.equal(result.Properties.PublishReadyToRunComposite, COMPOSITE_PRESETS.has(preset) ? 'true' : '');
-            assert.equal(result.Items.PackageDownload.length, PGO_PRESETS.has(preset) ? 1 : 0);
-            assert.equal(result.Items.PublishReadyToRunPgoFiles.length, PGO_PRESETS.has(preset) ? 1 : 0);
-            if (PGO_PRESETS.has(preset)) {
-                assert.equal(result.Items.PackageDownload[0].Identity, 'optimization.browser-wasm.MIBC.Runtime');
-                assert.equal(result.Items.PackageDownload[0].Version, '[1.0.0-prerelease.26502.1]');
-                assert.equal(result.Items.PublishReadyToRunPgoFiles[0].Identity,
-                    join(root, 'optimization.browser-wasm.mibc.runtime', '1.0.0-prerelease.26502.1', 'data', 'DotNet_Blazor_Wasm.mibc'));
+        for (const composite of ['true', 'false']) {
+            for (const preset of CORECLR_R2R_PRESETS) {
+                const result = JSON.parse(execFileSync(process.env.BENCH_TEST_DOTNET!, [
+                    'msbuild', project, ...Object.entries(buildSettings(preset, Runtime.CoreCLR)).map(([key, value]) => `-p:${key}=${value}`),
+                    `-p:TestSdkCompositeDefault=${composite}`,
+                    '-getProperty:PublishReadyToRun,PublishReadyToRunComposite,Configuration',
+                    '-getItem:PackageDownload,PublishReadyToRunPgoFiles',
+                ], { encoding: 'utf8' }));
+                assert.equal(result.Properties.PublishReadyToRun, 'true');
+                assert.equal(result.Properties.Configuration, 'Release');
+                assert.equal(result.Properties.PublishReadyToRunComposite, composite);
+                assert.equal(result.Items.PackageDownload.length, PGO_PRESETS.has(preset) ? 1 : 0);
+                assert.equal(result.Items.PublishReadyToRunPgoFiles.length, PGO_PRESETS.has(preset) ? 1 : 0);
+                if (PGO_PRESETS.has(preset)) {
+                    assert.equal(result.Items.PackageDownload[0].Identity, 'optimization.browser-wasm.MIBC.Runtime');
+                    assert.equal(result.Items.PackageDownload[0].Version, '[1.0.0-prerelease.26502.1]');
+                    assert.equal(result.Items.PublishReadyToRunPgoFiles[0].Identity,
+                        join(root, 'optimization.browser-wasm.mibc.runtime', '1.0.0-prerelease.26502.1', 'data', 'DotNet_Blazor_Wasm.mibc'));
+                }
             }
         }
         const server = JSON.parse(execFileSync(process.env.BENCH_TEST_DOTNET!, [
-            'msbuild', project, '-p:BenchmarkPreset=R2RCompositePgo', '-p:RuntimeFlavor=CoreCLR',
+            'msbuild', project, '-p:BenchmarkPreset=R2RPgo', '-p:RuntimeFlavor=CoreCLR',
             '-p:RuntimeIdentifier=win-x64', '-getProperty:PublishReadyToRun,PublishReadyToRunComposite',
             '-getItem:PackageDownload,PublishReadyToRunPgoFiles',
         ], { encoding: 'utf8' }));

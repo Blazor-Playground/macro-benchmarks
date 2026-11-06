@@ -149,7 +149,7 @@ export interface BenchContext {
     crossgen2Dir?: string;
     runtimePackagesDir?: string;
     r2rPackVersion?: string;
-    r2rCapabilities?: { pgo: boolean; composite: boolean };
+    r2rSettings?: { pgo: boolean; composite: boolean };
     publishDir: string;
     resultsDir: string;
     buildLabel: string;

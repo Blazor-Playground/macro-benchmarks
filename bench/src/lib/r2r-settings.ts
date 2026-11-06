@@ -2,19 +2,23 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { BuildManifestEntry } from '../context.js';
-import { COMPOSITE_PRESETS, PGO_PRESETS, type Preset } from '../enums.js';
+import { PGO_PRESETS, type Preset } from '../enums.js';
 
-export function r2rCapabilities(project: string): { pgo: boolean; composite: boolean } {
+export function r2rSettings(project: string, compositeValue: string): { pgo: boolean; composite: boolean } {
+    const composite = compositeValue.trim().toLowerCase();
+    if (composite !== '' && composite !== 'true' && composite !== 'false') {
+        throw new Error(`Invalid evaluated PublishReadyToRunComposite value: ${compositeValue}`);
+    }
     return {
         pgo: /<Target\s+Name="_WasmCoreClrConfigureReadyToRunPgo"/.test(project),
-        composite: /<Target\s+Name="_WasmCoreClrValidateCompositeTasks"/.test(project),
+        composite: composite === 'true',
     };
 }
 
-export async function readyToRunMetadata(preset: Preset, packagesDir: string, repoRoot: string): Promise<NonNullable<BuildManifestEntry['readyToRun']>> {
+export async function readyToRunMetadata(preset: Preset, packagesDir: string, repoRoot: string, composite: boolean): Promise<NonNullable<BuildManifestEntry['readyToRun']>> {
     const metadata: NonNullable<BuildManifestEntry['readyToRun']> = {
         compilation: PGO_PRESETS.has(preset) ? 'partial-pgo' : 'full',
-        composite: COMPOSITE_PRESETS.has(preset),
+        composite,
     };
     if (PGO_PRESETS.has(preset)) {
         const versions = await readFile(join(repoRoot, 'src', 'versions.props'), 'utf8');

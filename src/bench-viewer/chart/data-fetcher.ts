@@ -29,6 +29,7 @@ export interface ViewIndex {
     releases: string[];
     weeks: string[];
     metrics: Record<string, string[]>;
+    dimensions: { presets: string[] };
 }
 
 export interface Bucket {

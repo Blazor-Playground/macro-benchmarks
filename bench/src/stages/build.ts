@@ -17,7 +17,7 @@ import { dotnetRestore, dotnetPublish, dotnetWorkloadInstall, dotnetWorkloadList
 import { banner, info, err } from '../log.js';
 import { type BuildFailure, getBuildResultsDir, writeBuildShardReport } from '../lib/build-reports.js';
 import { buildExecutionArgs, buildSettings, DEV_LOOP_REVISION, msbuildArgs } from '../lib/build-settings.js';
-import { r2rCapabilities, readyToRunMetadata } from '../lib/r2r-settings.js';
+import { r2rSettings, readyToRunMetadata } from '../lib/r2r-settings.js';
 
 // MSBuildProjectName drives the artifacts/{bin,obj}/<name>/<label>/<flavor>/<preset> layout
 // (see src/Directory.Build.props). appDir may be a .csproj (projectPath apps) or a directory.
@@ -257,10 +257,13 @@ async function buildPhase(
                     const integrity = await computeIntegrity(publishDir);
                     info(`  ${app}/${preset}: ${integrity.fileCount} files, ${(integrity.totalBytes / 1024 / 1024).toFixed(1)} MB, ${compileTimeMs}ms`);
 
+                    let readyToRun: BuildManifestEntry['readyToRun'];
+                    if (isCoreClrR2R(effectiveRuntime, preset)) {
+                        if (!ctx.r2rSettings) throw new Error('Missing evaluated CoreCLR R2R settings');
+                        readyToRun = await readyToRunMetadata(preset, nugetPackagesDir, ctx.repoRoot, ctx.r2rSettings.composite);
+                    }
                     succeeded.push({ app: app as App, preset, runtime, compileTimeMs, integrity, publishDir,
-                        ...(isCoreClrR2R(effectiveRuntime, preset) ? {
-                            readyToRun: await readyToRunMetadata(preset, nugetPackagesDir, ctx.repoRoot),
-                        } : {}),
+                        ...(readyToRun ? { readyToRun } : {}),
                         ...(preset === Preset.DevLoop ? { presetRevision: DEV_LOOP_REVISION } : {}) });
                 } catch (e) {
                     err(`Build failed for ${app}/${preset}: ${e instanceof Error ? e.message : e}`);
@@ -285,7 +288,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     const sdkInfoPath = join(ctx.sdkDir, 'sdk-info.json');
     // Probe the actual imported pack once, using full R2R so older packs can restore too.
-    if (ctx.presets.some(p => CORECLR_R2R_PRESETS.has(p) && p !== Preset.Aot)
+    if (ctx.presets.some(p => CORECLR_R2R_PRESETS.has(p))
         && ctx.runtimes.includes(R.CoreCLR)
         && !shouldSkipBuild(R.CoreCLR, App.EmptyBrowser, Preset.Aot, ctx)) {
         const probeContext = { ...ctx, buildLabel: `${ctx.buildLabel}-r2r-probe` };
@@ -297,11 +300,13 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         const project = join(probeDir, 'project.xml');
         try {
             await exec(ctx.dotnetBin, ['msbuild', ...args, `-preprocess:${project}`], { cwd: ctx.repoRoot, env });
-            ctx.r2rCapabilities = r2rCapabilities(await readFile(project, 'utf8'));
+            const composite = await exec(ctx.dotnetBin, ['msbuild', ...args, '-p:Configuration=Release', '-getProperty:PublishReadyToRunComposite'],
+                { cwd: ctx.repoRoot, env, stdio: 'pipe' });
+            ctx.r2rSettings = r2rSettings(await readFile(project, 'utf8'), composite.stdout);
         } finally {
             await rm(project, { force: true });
         }
-        info(`Selected WebAssembly pack capabilities: ${JSON.stringify(ctx.r2rCapabilities)}`);
+        info(`Selected WebAssembly pack R2R settings: ${JSON.stringify(ctx.r2rSettings)}`);
     }
 
     // Partition presets

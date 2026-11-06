@@ -5,7 +5,7 @@ public static class DashboardConfig
     // Keep in sync with the CoreCLR R2R presets in src/presets.props.
     public static readonly string[] ReadyToRunPresets =
     {
-        "aot", "r2r-pgo", "r2r-composite", "r2r-composite-pgo"
+        "aot", "r2r-pgo"
     };
 
     // GitHub repository (owner/name) — injected from MSBuild property at build time

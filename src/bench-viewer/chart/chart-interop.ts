@@ -1,7 +1,7 @@
 // Chart.js interop module for Blazor dashboard — orchestration facade
 // Called from C# via [JSImport] to fetch data and render charts
 
-import { MICROBENCH_SKIP_METRICS } from './constants.js';
+import { MICROBENCH_SKIP_METRICS, PRESET_DASH } from './constants.js';
 import { fetchJson, getCached, collectBuckets, prefetchMetricData } from './data-fetcher.js';
 import type { ViewIndex, BucketHeader } from './data-fetcher.js';
 import { computeTickLayout } from './tick-layout.js';
@@ -25,6 +25,9 @@ export async function initDashboard(baseUrl: string): Promise<string> {
     dataBaseUrl = baseUrl.replace(/\/$/, '');
     const url = `${dataBaseUrl}/index.json`;
     viewIndex = await fetchJson<ViewIndex>(url);
+    if (viewIndex) {
+        viewIndex.dimensions.presets = viewIndex.dimensions.presets.filter(preset => Object.hasOwn(PRESET_DASH, preset));
+    }
 
     // Fetch all bucket headers and filter apps to only those with actual data
     const appsWithData = new Set<string>();

@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
-  "generation": "ea5ecdfe36c0db1decc4aef01d411776e5de07f61ad8fc377e474c4baf91ad23",
-  "lastUpdated": "2026-11-06T00:40:30.343Z",
+  "generation": "e0fd95ae12da58a19e2d2950894f43b4bc23671f1ee155982ab278e0a40419e9",
+  "lastUpdated": "2026-11-07T12:19:58.769Z",
   "apps": [
     {
       "id": "empty-blazor",
-      "file": "generations/ea5ecdfe36c0db1decc4aef01d411776e5de07f61ad8fc377e474c4baf91ad23/empty-blazor.json"
+      "file": "generations/e0fd95ae12da58a19e2d2950894f43b4bc23671f1ee155982ab278e0a40419e9/empty-blazor.json"
     },
     {
       "id": "havit-bootstrap",
-      "file": "generations/ea5ecdfe36c0db1decc4aef01d411776e5de07f61ad8fc377e474c4baf91ad23/havit-bootstrap.json"
+      "file": "generations/e0fd95ae12da58a19e2d2950894f43b4bc23671f1ee155982ab278e0a40419e9/havit-bootstrap.json"
     }
   ]
 }

@@ -59,6 +59,36 @@
       "benchmarkDateTime": "2026-11-05T23:31:52.652Z",
       "ciRunId": "42125892513",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/42125892513"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26556.115",
+      "runtimeGitHash": "7066044546b54c4a84bd88a84d52bab5f09e603a",
+      "aspnetCoreGitHash": "2a731a48bdbe8747100ce19282d8b96bb93b876e",
+      "sdkGitHash": "f344df8e9372871a10f4e146cf802b520895801b",
+      "vmrGitHash": "6e6f978fd9ca19b62796a13ff5230b21af0c42fa",
+      "runtimeCommitDateTime": "2026-11-07T01:16:54Z",
+      "runtimeCommitAuthor": "Michal Strehovský",
+      "runtimeCommitMessage": "Allow NativeAOT WASM method folding with frame identity relocations (#137073)",
+      "aspnetCoreCommitDateTime": "2026-11-05T22:36:17Z",
+      "aspnetCoreCommitAuthor": "dotnet-maestro[bot]",
+      "aspnetCoreCommitMessage": "Update dependencies from build 339880 (#70322)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26556.115",
+      "runtimePackVersion": "12.0.0-alpha.1.26556.115",
+      "workloadVersion": "12.0.0-alpha.1.26556.115",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26555.106",
+      "releaseDate": "2026-11-06",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "readyToRun": {
+        "compilation": "full",
+        "composite": true
+      },
+      "benchmarkDateTime": "2026-11-07T11:19:36.522Z",
+      "ciRunId": "42365266542",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/42365266542"
     }
   ],
   "apps": {

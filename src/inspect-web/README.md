@@ -27,9 +27,10 @@ whose `Restore`/`Publish` targets run `build.mjs`:
    `bench-ready.js` and the fixtures into `wwwroot`.
 
 `WasmEnableExceptionHandling=true` is forced because upstream hardcodes `false`, which needs a
-native relink. CoreCLR builds also set `PublishReadyToRunComposite=false` (as upstream's own .NET 12
-nightly does): composite R2R expects a `DotnetInspect.Web.r2r.wasm` owner image that upstream's
-custom publish targets don't produce. Supported presets are `no-workload` and `aot`; from-source runtime packs
+native relink. CoreCLR builds don't import the wasm-tools workload (no native relink is needed), which avoids a
+redundant nested publish. `build.mjs` passes a normalized `ArtifactsPath`: upstream's unnormalized
+`src/../artifacts` path makes the WebAssembly SDK's stale-R2R prune delete the images it just
+compiled, so the app silently shipped without R2R code. Supported presets are `no-workload` and `aot`; from-source runtime packs
 (`RuntimePackDir`) are rejected because the inner build doesn't import
 `src/Directory.Build.targets`.
 

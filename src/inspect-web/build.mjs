@@ -113,8 +113,12 @@ function patchCheckout(checkout) {
     log(`Retargeted ${patched} project(s) to $(DefaultTargetFramework)`);
 }
 
-function propertyArgs(properties) {
-    return properties.map(p => `-p:${p}`);
+// Upstream sets ArtifactsPath to the unnormalized '$(MSBuildThisFileDirectory)../artifacts', so every
+// R2R OutputR2RImage contains 'src/..'. The WebAssembly SDK's _WasmCoreClrPruneStalePerAppR2R then
+// fails to match those paths against its normalized obj/R2R glob and deletes the images it just
+// compiled, publishing the app without R2R code. Pass the same directory, normalized.
+function propertyArgs(opts) {
+    return [`-p:ArtifactsPath=${join(opts.checkout, 'artifacts')}`, ...opts.properties.map(p => `-p:${p}`)];
 }
 
 function dotnetEnv(dotnet) {
@@ -133,7 +137,7 @@ function dotnetEnv(dotnet) {
 function resolveDotnetDeclaration(opts, env) {
     const stdout = run(opts.dotnet, [
         'msbuild', hostProject, '-nologo',
-        ...propertyArgs(opts.properties),
+        ...propertyArgs(opts),
         '-target:ProcessFrameworkReferences',
         '-getProperty:NuGetPackageRoot',
         '-getItem:RuntimePack',
@@ -187,7 +191,7 @@ async function restore(opts) {
     // Inner outputs live in the checkout; start every preset/runtime combination clean.
     rmSync(join(opts.checkout, 'artifacts'), { recursive: true, force: true });
     const env = dotnetEnv(opts.dotnet);
-    run(opts.dotnet, ['restore', hostProject, '--configfile', nugetConfig, ...propertyArgs(opts.properties)],
+    run(opts.dotnet, ['restore', hostProject, '--configfile', nugetConfig, ...propertyArgs(opts)],
         { cwd: opts.checkout, env });
     const declaration = resolveDotnetDeclaration(opts, env);
     writeFileSync(join(opts.checkout, '.bench-dotnet-dts'), declaration);
@@ -225,7 +229,7 @@ function publish(opts) {
         '-o', opts.out,
         ...(opts.maxCpuCount ? [`-maxcpucount:${opts.maxCpuCount}`] : []),
         `-bl:${join(opts.out, 'inspect-web-inner.binlog')}`,
-        ...propertyArgs(opts.properties),
+        ...propertyArgs(opts),
     ], { cwd: opts.checkout, env });
     stageBenchAssets(opts);
 }

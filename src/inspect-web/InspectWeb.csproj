@@ -32,9 +32,10 @@
     <InspectWebProperty Include="CustomAfterMicrosoftCommonProps=$(MSBuildThisFileDirectory)inner.props" />
     <!-- DotnetInspect.Web hardcodes false, which requires a native relink. -->
     <InspectWebProperty Include="WasmEnableExceptionHandling=true" />
-    <!-- Composite R2R expects a DotnetInspect.Web.r2r.wasm owner image that upstream's custom
-         publish targets don't produce; upstream's own .NET 12 nightly also opts out. -->
-    <InspectWebProperty Include="PublishReadyToRunComposite=false" Condition="'$(RuntimeFlavor)' == 'CoreCLR'" />
+    <!-- CoreCLR (interpreter and R2R) needs no native relink, so don't import the wasm-tools workload
+         even when it is installed; otherwise WasmTriggerPublishApp runs a redundant nested Publish
+         that re-runs ReadyToRun in the same obj/R2R directory. -->
+    <InspectWebProperty Include="UsingBrowserRuntimeWorkload=false" Condition="'$(RuntimeFlavor)' == 'CoreCLR'" />
     <InspectWebProperty Include="MSBuildDisableTaskHost=$(MSBuildDisableTaskHost)" Condition="'$(MSBuildDisableTaskHost)' != ''" />
     <InspectWebProperty Include="DisableParallelAot=$(DisableParallelAot)" Condition="'$(DisableParallelAot)' != ''" />
     <InspectWebProperty Include="DisableParallelEmccCompile=$(DisableParallelEmccCompile)" Condition="'$(DisableParallelEmccCompile)' != ''" />

@@ -52,7 +52,8 @@ const browserInspectWebScenario = async (scenario: Scenario): Promise<ScenarioRe
     const started = performance.now();
 
     let mark = performance.now();
-    const load = await bridge.package.queryPackage(packageId, version, targetFramework);
+    // The fourth argument is the runtime identifier; '' selects the RID-agnostic surface.
+    const load = await bridge.package.queryPackage(packageId, version, targetFramework, '');
     steps['query-package'] = performance.now() - mark;
     const surface = load.surface;
     if (!surface) {

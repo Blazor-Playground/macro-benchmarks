@@ -12,7 +12,7 @@
   <PropertyGroup>
     <DashName>inspect-web</DashName>
     <InspectWebRepository>https://github.com/richlander/dotnet-inspect</InspectWebRepository>
-    <InspectWebCommit>b282641e024bbcefae1c9f417422597519b9a388</InspectWebCommit>
+    <InspectWebCommit>5c6956397c155c83b02c86a15e1f9397b41fd287</InspectWebCommit>
     <InspectWebRepoRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', '..'))</InspectWebRepoRoot>
     <InspectWebCheckout>$([MSBuild]::NormalizeDirectory('$(InspectWebRepoRoot)', 'artifacts', 'external', 'dotnet-inspect', '$(InspectWebCommit)'))</InspectWebCheckout>
     <InspectWebDotnet>$(DOTNET_HOST_PATH)</InspectWebDotnet>
@@ -32,6 +32,9 @@
     <InspectWebProperty Include="CustomAfterMicrosoftCommonProps=$(MSBuildThisFileDirectory)inner.props" />
     <!-- DotnetInspect.Web hardcodes false, which requires a native relink. -->
     <InspectWebProperty Include="WasmEnableExceptionHandling=true" />
+    <!-- Composite R2R expects a DotnetInspect.Web.r2r.wasm owner image that upstream's custom
+         publish targets don't produce; upstream's own .NET 12 nightly also opts out. -->
+    <InspectWebProperty Include="PublishReadyToRunComposite=false" Condition="'$(RuntimeFlavor)' == 'CoreCLR'" />
     <InspectWebProperty Include="MSBuildDisableTaskHost=$(MSBuildDisableTaskHost)" Condition="'$(MSBuildDisableTaskHost)' != ''" />
     <InspectWebProperty Include="DisableParallelAot=$(DisableParallelAot)" Condition="'$(DisableParallelAot)' != ''" />
     <InspectWebProperty Include="DisableParallelEmccCompile=$(DisableParallelEmccCompile)" Condition="'$(DisableParallelEmccCompile)' != ''" />

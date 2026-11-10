@@ -81,7 +81,7 @@ async function fetchOtelSnapshot(baseUrl: string): Promise<OtelSnapshot> {
  */
 function computeOtelDeltas(before: OtelSnapshot, after: OtelSnapshot): Record<string, number> {
     const CUMULATIVE = new Set(['gc-gen0', 'gc-gen1', 'gc-gen2', 'lock-contentions']);
-    const MB_KEYS = new Set(['heap-mb', 'working-set-mb']);
+    const MIB_KEYS = new Set(['heap-mb', 'working-set-mb']);
     const deltas: Record<string, number> = {};
 
     for (const key of Object.keys(after)) {
@@ -90,11 +90,11 @@ function computeOtelDeltas(before: OtelSnapshot, after: OtelSnapshot): Record<st
 
         if (CUMULATIVE.has(key)) {
             deltas[key] = afterVal - beforeVal;
-        } else if (MB_KEYS.has(key)) {
-            // Convert bytes to MB for readability
+        } else if (MIB_KEYS.has(key)) {
+            // Convert bytes to MiB; persisted key names are kept for schema compatibility.
             deltas[key] = Math.round(afterVal / (1024 * 1024) * 10) / 10;
         } else if (key === 'alloc-rate') {
-            // alloc-rate is bytes/sec, convert to MB/sec
+            // alloc-rate is bytes/sec, convert to MiB/sec
             deltas[key] = Math.round(afterVal / (1024 * 1024) * 10) / 10;
         } else {
             // Gauge: use the "after" value (represents state during/after the run)

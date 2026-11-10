@@ -48,8 +48,9 @@ comparisons labeled shared-host/non-CI; partial or unclassified local data may n
 Watcher mode and logging are recorded.
 
 Raw `debug-dev-loop` records retain methodology `debug-sdk-defaults-v1`,
-SDK/source/browser/runner provenance, evaluated settings, phase offsets and
-per-attempt evidence. Missing hashes stay unknown. Local pairs record
+SDK/source/browser/runner provenance, the runtime-pack commit timestamp when
+available, evaluated settings, phase offsets and per-attempt evidence. Missing
+hashes and dates stay unknown. Local pairs record
 `comparisonScope=local-paired` and `controlled=false`.
 
 Edits occur only in isolated copies. Cancellation closes owned browser/app/watch

@@ -4,7 +4,14 @@ import { routeLocalNavigation } from './local-navigation-fixture.mjs';
 export const FOCUS_FIXTURE_TIME = new Date('2026-09-20T12:00:00Z');
 
 export function focusFixture() {
-    return JSON.parse(readFileSync(new URL('../fixtures/net12-focus.json', import.meta.url), 'utf8'));
+    const fixture = JSON.parse(readFileSync(new URL('../fixtures/net12-focus.json', import.meta.url), 'utf8'));
+    for (const bucket of fixture.buckets) {
+        for (const column of bucket.header.columns) {
+            column.sdkCommitDateTime ??= `${column.releaseDate}T06:15:00Z`;
+            column.vmrCommitDateTime ??= `${column.releaseDate}T04:30:00Z`;
+        }
+    }
+    return fixture;
 }
 
 export function fixtureResources(fixture = focusFixture()) {
@@ -82,6 +89,10 @@ export function expectedComparison(app, flavor, startupProfile, fixture = focusF
             }
             return {
                 sdk: column.sdkVersion, vmr: column.vmrGitHash, bucket: bucket.path, columnIndex: index,
+                sdkHash: column.sdkGitHash, runtimeHash: column.runtimeGitHash,
+                sdkCommitDateTime: column.sdkCommitDateTime, vmrCommitDateTime: column.vmrCommitDateTime,
+                runtimePackVersion: column.runtimePackVersion,
+                runtimeCommitDate: column.runtimeCommitDateTime?.slice(0, 10) ?? null,
                 mono, coreclr, percent, count: window.length,
                 average: window.length ? window.reduce((a, b) => a + b, 0) / window.length : null,
             };

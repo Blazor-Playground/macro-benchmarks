@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { FocusCharts } from '../../src/bench-viewer/wwwroot/chart/focus-chart.js';
+import { FocusCharts, focusPointDetail } from '../../src/bench-viewer/wwwroot/chart/focus-chart.js';
 import { buildFocusReport } from '../../src/bench-viewer/wwwroot/chart/focus-data.js';
 import { publicationFor } from '../helpers/focus-fixture.mjs';
 
@@ -32,7 +32,11 @@ test('fixed reference is a dashed overlay, not an indexed observation dataset', 
             value: 1234, label: 'After reference', measuredAt: '2026-10-14T10:00:00Z',
             sdkVersion: '11.fixture', commit: 'f'.repeat(40), dirty: true, rounds: 3,
         };
+        metric.coreclrLabel = metric.fixedReference.label;
         metric.points.forEach(point => { point.coreclr = null; });
+        const detail = focusPointDetail(metric, metric.latest, false);
+        const coreclrRow = detail.sections.find(section => section.title === 'Measurement').rows[0];
+        assert.deepEqual(coreclrRow, { label: 'After reference', value: '1,234 ms' });
         report.metrics = [metric];
         new FocusCharts().render('local', report, false, false, { measurements: true, percentage: false });
         const config = charts[0].config;

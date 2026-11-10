@@ -18,7 +18,17 @@ export interface DebugBatch {
     methodology: string;
     measuredAt: string;
     smoke: boolean;
-    sdk: { version: string; day: string | null };
+    sdk: {
+        version: string;
+        day: string | null;
+        sdkHash: string | null;
+        sdkCommitDateTime: string | null;
+        runtimeHash: string | null;
+        runtimePackVersion: string | null;
+        runtimeCommitDateTime: string | null;
+        vmrHash: string | null;
+        vmrCommitDateTime: string | null;
+    };
     source: { harnessSha: string; harnessDigest: string; appDigest: string };
     environment: {
         os: string; arch: string; cpu: string; cpuCount: number; memoryBytes: number; browser: string;

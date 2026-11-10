@@ -92,6 +92,53 @@ export async function fetchJson<T>(url: string, headers?: Record<string, string>
     return null;
 }
 
+interface GitHubCommitResponse {
+    commit: {
+        message: string;
+        author: { name: string; date: string };
+        committer: { date: string };
+    };
+}
+
+export interface GitHubCommitMetadata {
+    commitDateTime: string;
+    commitAuthor: string;
+    commitMessage: string;
+}
+
+const githubCommitMetadataRequests = new Map<string, Promise<GitHubCommitMetadata | null>>();
+
+/** Fetch GitHub commit metadata while collapsing repeated requests for the same repository/hash. */
+export async function fetchGitHubCommitMetadata(
+    repo: string,
+    sha: string,
+    token?: string,
+): Promise<GitHubCommitMetadata | null> {
+    const key = `${repo.toLowerCase()}@${sha.toLowerCase()}`;
+    const cached = githubCommitMetadataRequests.get(key);
+    if (cached) return cached;
+
+    const request = fetchJson<GitHubCommitResponse>(
+        `${GITHUB_API}/repos/${repo}/commits/${sha}`,
+        githubHeaders(token),
+    ).then(data => {
+        if (!data) {
+            githubCommitMetadataRequests.delete(key);
+            return null;
+        }
+        return {
+            commitDateTime: data.commit.committer.date,
+            commitAuthor: data.commit.author.name,
+            commitMessage: data.commit.message.split('\n')[0],
+        };
+    }).catch(error => {
+        githubCommitMetadataRequests.delete(key);
+        throw error;
+    });
+    githubCommitMetadataRequests.set(key, request);
+    return request;
+}
+
 /**
  * HEAD request — returns true if the URL exists (2xx).
  */

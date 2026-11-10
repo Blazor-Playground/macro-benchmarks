@@ -40,7 +40,9 @@ export interface FocusColumn {
     major: number;
     channel: string;
     sdkGitHash: string;
+    sdkCommitDateTime: string | null;
     vmrGitHash: string;
+    vmrCommitDateTime: string | null;
     runtimeGitHash: string;
     aspnetCoreGitHash: string;
     runtimePackVersion: string | null;
@@ -49,6 +51,8 @@ export interface FocusColumn {
     bootstrapSdkVersion: string | null;
     bundledFrameworkTfm: string | null;
     runtimeCommitDateTime: string | null;
+    runtimeCommitAuthor?: string | null;
+    runtimeCommitMessage?: string | null;
     isRuntimeCustomBuild: boolean | null;
     isAspnetCoreCustomBuild: boolean | null;
     runtimePR: string | null;
@@ -75,6 +79,17 @@ export interface FocusObservation {
     id: string;
     sdkVersion: string;
     day: string;
+    sdkCommitDateTime: string | null;
+    runtimeCommitDateTime: string | null;
+    sdkGitHash: string | null;
+    runtimeGitHash: string | null;
+    runtimePackVersion: string | null;
+    vmrGitHash: string | null;
+    vmrCommitDateTime: string | null;
+    runtimeCommitAuthor: string | null;
+    runtimeCommitMessage: string | null;
+    measuredAt: string | null;
+    sourceId: string | null;
     bucket: string;
     columnIndex: number;
     variant: FocusColumn;
@@ -115,7 +130,7 @@ export interface FocusMetricDefinition {
     id: string;
     title: string;
     key: string | null;
-    unit: 'ms' | 's' | 'MB';
+    unit: 'ms' | 's' | 'MiB';
     divisor: number;
     description: string;
 }

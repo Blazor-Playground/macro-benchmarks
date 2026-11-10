@@ -157,7 +157,7 @@ export async function findLatestComparison(output, artifacts = artifactsRoot, wr
 const metrics = [
     { title: 'Cold startup', profile: 'mobile', key: 'time-to-reach-managed-cold', unit: 'ms', divisor: 1 },
     { title: 'Walkthrough', profile: 'desktop', key: 'havit-walkthrough', unit: 's', divisor: 1000 },
-    { title: 'Cold download', profile: 'desktop', key: 'download-size-cold', unit: 'MB', divisor: 1_000_000 },
+    { title: 'Cold download', profile: 'desktop', key: 'download-size-cold', unit: 'MiB', divisor: 1_048_576 },
     { title: 'Havit publish', profile: 'desktop', key: 'compile-time', unit: 's', divisor: 1000 },
 ];
 
@@ -178,14 +178,14 @@ function change(after, before, unit) {
     if (!Number.isFinite(percent)) return 'unavailable';
     if (Math.abs(percent).toFixed(1) === '0.0') return '0.0% same';
     return `${percent > 0 ? '+' : ''}${percent.toFixed(1)}% ` +
-        (unit === 'MB' ? percent > 0 ? 'larger' : 'smaller' : percent > 0 ? 'slower' : 'faster');
+        (unit === 'MiB' ? percent > 0 ? 'larger' : 'smaller' : percent > 0 ? 'slower' : 'faster');
 }
 
 function format(value, metric) {
     if (!positive(value)) return 'unavailable';
     return `${(value / metric.divisor).toLocaleString('en-US', {
-        minimumFractionDigits: metric.unit === 'ms' ? 0 : metric.unit === 'MB' ? 3 : 2,
-        maximumFractionDigits: metric.unit === 'ms' ? 1 : metric.unit === 'MB' ? 3 : 2,
+        minimumFractionDigits: metric.unit === 'ms' ? 0 : metric.unit === 'MiB' ? 3 : 2,
+        maximumFractionDigits: metric.unit === 'ms' ? 1 : metric.unit === 'MiB' ? 3 : 2,
     })} ${metric.unit}`;
 }
 

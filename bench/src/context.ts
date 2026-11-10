@@ -15,6 +15,8 @@ export interface SdkInfo {
     aspnetCoreGitHash: string;
     sdkGitHash: string;
     vmrGitHash: string;
+    sdkCommitDateTime?: string;
+    vmrCommitDateTime?: string;
     runtimeCommitDateTime: string;
     runtimeCommitAuthor: string;
     runtimeCommitMessage: string;

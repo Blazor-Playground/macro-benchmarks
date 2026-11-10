@@ -74,9 +74,13 @@ export interface DebugBatch {
         version: string;
         day: string | null;
         sdkHash: string | null;
+        sdkCommitDateTime?: string | null;
         runtimeHash: string | null;
+        runtimePackVersion?: string | null;
+        runtimeCommitDateTime?: string | null;
         aspnetHash: string | null;
         vmrHash: string | null;
+        vmrCommitDateTime?: string | null;
     };
     source: { harnessSha: string; harnessDigest: string; appDigest: string };
     environment: {
@@ -156,6 +160,13 @@ export function validateDebugBatch(value: unknown): asserts value is DebugBatch 
         || typeof b.smoke !== 'boolean' || !b.sdk || !/^\d+\.\d+\.\d+/.test(b.sdk.version)
         || (b.sdk.day !== null && (!/^\d{4}-\d{2}-\d{2}$/.test(b.sdk.day)
             || new Date(b.sdk.day).toISOString().slice(0, 10) !== b.sdk.day))
+        || [b.sdk.sdkHash, b.sdk.runtimeHash, b.sdk.aspnetHash, b.sdk.vmrHash]
+            .some(hash => hash !== null && (typeof hash !== 'string' || !/^[a-f0-9]{40}$/i.test(hash)))
+        || (b.sdk.runtimePackVersion !== undefined && b.sdk.runtimePackVersion !== null
+            && (typeof b.sdk.runtimePackVersion !== 'string' || !b.sdk.runtimePackVersion))
+        || [b.sdk.sdkCommitDateTime, b.sdk.runtimeCommitDateTime, b.sdk.vmrCommitDateTime]
+            .some(value => value !== undefined && value !== null
+                && (typeof value !== 'string' || !Number.isFinite(Date.parse(value))))
         || !b.source || Object.values(b.source).length !== 3 || Object.values(b.source).some(v => typeof v !== 'string' || !v)
         || !b.environment || typeof b.environment.runnerId !== 'string' || !b.environment.runnerId
         || typeof b.environment.controlled !== 'boolean' || !b.runtimes

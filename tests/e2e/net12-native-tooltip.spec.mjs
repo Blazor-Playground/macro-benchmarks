@@ -154,14 +154,19 @@ test('native tooltip keeps independent window counts, raw values and full SDK id
     const firstPair = expected.points.findIndex(point => point.percent !== null);
     const source = expected.points[firstPair];
     const canvas = page.locator('[data-metric="startup"] canvas');
-    const tooltip = await canvas.evaluate((element, index) => {
+    const selected = await canvas.evaluate((element, index) => {
         const chart = Chart.getChart(element);
         const point = chart.getDatasetMeta(0).data[index];
         chart.tooltip.setActiveElements([0, 1, 2].map(datasetIndex => ({ datasetIndex, index })), { x: point.x, y: point.y });
         chart.draw();
-        return { title: chart.tooltip.title.join(' '), body: chart.tooltip.body.map(body => body.lines.join(' ')) };
+        return {
+            position: { x: point.x, y: point.y },
+            tooltip: { title: chart.tooltip.title.join(' '), body: chart.tooltip.body.map(body => body.lines.join(' ')) },
+        };
     }, firstPair);
+    const tooltip = selected.tooltip;
     expect(tooltip.title).toContain(source.sdk);
+    expect(tooltip.title).toContain(`Runtime pack commit ${source.runtimeCommitDate} (UTC)`);
     expect(tooltip.body[0]).toContain(`raw: ${source.coreclr.toLocaleString('en-US')} ms`);
     expect(tooltip.body[1]).toContain(`raw: ${source.mono.toLocaleString('en-US')} ms`);
     expect(tooltip.body[0]).toContain('1/5 points');
@@ -170,4 +175,30 @@ test('native tooltip keeps independent window counts, raw values and full SDK id
     expect(tooltip.body[0]).toContain(`From SDK ${source.sdk}`);
     expect(tooltip.body[1]).toContain(`From SDK ${expected.points[firstPair - 4].sdk}`);
     expect(tooltip.body[2]).toContain(`Mean +${source.percent.toFixed(1)}; min +${source.percent.toFixed(1)}; max +${source.percent.toFixed(1)}%`);
+
+    await canvas.click({ position: selected.position });
+    const detail = page.getByRole('dialog', { name: 'Cold startup' });
+    await expect(detail).toBeVisible();
+    await expect(detail).toContainText(source.sdk);
+    await expect(detail).toContainText(source.runtimePackVersion);
+    await expect(detail.getByRole('link', { name: source.sdkHash })).toHaveAttribute('href',
+        `https://github.com/dotnet/sdk/commit/${source.sdkHash}`);
+    await expect(detail.getByRole('link', { name: source.runtimeHash })).toHaveAttribute('href',
+        `https://github.com/dotnet/runtime/commit/${source.runtimeHash}`);
+    await expect(detail.getByRole('link', { name: source.vmr })).toHaveAttribute('href',
+        `https://github.com/dotnet/dotnet/commit/${source.vmr}`);
+    await expect(detail).toContainText(source.sdkCommitDateTime.replace('T', ' ').replace('Z', ' UTC'));
+    await expect(detail).toContainText(source.vmrCommitDateTime.replace('T', ' ').replace('Z', ' UTC'));
+    await expect(detail).toContainText(source.runtimeCommitDate);
+    await canvas.click({ position: selected.position });
+    await expect(detail).toHaveCount(0);
+    await canvas.click({ position: selected.position });
+    await expect(detail).toBeVisible();
+    await detail.getByRole('button', { name: 'Close graph detail panel' }).click();
+    await expect(detail).toHaveCount(0);
+    await canvas.focus();
+    await canvas.press('Enter');
+    await expect(detail).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(detail).toHaveCount(0);
 });

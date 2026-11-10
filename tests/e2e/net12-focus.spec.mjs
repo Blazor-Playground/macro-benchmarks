@@ -51,9 +51,9 @@ async function assertSelectionValues(page, app, flavor, profile, fixture = focus
         }
         await expect(card.locator('.focus-percentage')).toHaveText(`${Math.abs(source.latest.percent).toFixed(1)}%`);
         const format = value => index === 0 ? `${value.toLocaleString('en-US')} ms`
-            : `${(value / (index === 2 ? 1_000_000 : 1000)).toLocaleString('en-US', {
+            : `${(value / (index === 2 ? 1_048_576 : 1000)).toLocaleString('en-US', {
                 minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false,
-            })} ${index === 2 ? 'MB' : 's'}`;
+            })} ${index === 2 ? 'MiB' : 's'}`;
         await expect(card.locator('.focus-values dd')).toHaveText([format(source.latest.coreclr), format(source.latest.mono)]);
         const caption = card.locator('.focus-rolling-caption');
         expect(Number(await caption.getAttribute('data-average'))).toBeCloseTo(source.latest.average, 9);

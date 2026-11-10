@@ -52,7 +52,7 @@
                 <a href="@(Local ? "net12-debug?local=true#debug-methodology" : "net12-debug#debug-methodology")" @onclick="RequestMethodology">Metric definitions</a>
             </div>
             <div class="focus-chart-toolbar">
-                <strong>@DashboardConfig.AppName(app)</strong>
+                <div><strong>@DashboardConfig.AppName(app)</strong><span>Click a graph point to show or hide SDK and runtime commit details.</span></div>
                 <button type="button" @onclick="Refresh">Refresh data</button>
             </div>
             @if (error != null)

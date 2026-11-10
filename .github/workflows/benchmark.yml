@@ -197,9 +197,26 @@ jobs:
           npm ci --no-audit --no-fund
           npm ci --prefix bench --no-audit --no-fund
           npx playwright install --with-deps chromium
+      - name: Download resolved SDK provenance
+        uses: actions/download-artifact@v8
+        with:
+          name: bench-context
+          path: artifacts/resolved-context
+      - name: Prepare dev-loop provenance context
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const source = JSON.parse(fs.readFileSync('artifacts/resolved-context/bench-context.json', 'utf8'));
+          if (!source.sdkInfo?.sdkVersion) {
+            throw new Error('Resolved benchmark context does not contain SDK provenance');
+          }
+          fs.writeFileSync('artifacts/dev-loop-context.json', JSON.stringify({ sdkInfo: source.sdkInfo }, null, 2));
+          NODE
       - name: Measure paired dev-loop runtimes
         run: |
           bench/node_modules/.bin/tsx bench/src/main.ts --stages measure-dev-loop \
+            --context artifacts/dev-loop-context.json \
             --debug-dotnet "$RUNNER_TEMP/dev-loop-dotnet/dotnet" --sdk-version "$DEV_LOOP_SDK_VERSION" \
             --app "$DEV_LOOP_APPS" --preset dev-loop --runtime mono,coreclr --debug-runs "$DEV_LOOP_TRIALS" --timeout 300000
       - name: Transform dev-loop results

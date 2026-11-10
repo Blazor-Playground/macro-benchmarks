@@ -12,6 +12,15 @@ The R2R presets are `aot` and `r2r-pgo`, which follow the selected SDK's
 composite default. Unknown presets in historical data are ignored by filters
 and charts.
 
+Byte-valued charts and detail panels use binary units: MiB is 1,048,576 bytes
+and KiB is 1,024 bytes. OpenTelemetry heap, working-set, and allocation-rate
+values are likewise displayed as MiB or MiB/s; their historical persisted
+metric keys are unchanged. NET12 Focus and dev-loop chart tooltips show the
+runtime-pack commit date in UTC when that provenance is available. Selecting a
+graph point toggles a persistent detail panel with exact metric values plus the
+recorded SDK and runtime-pack versions, SDK/VMR/runtime commit timestamps, and
+full commit hashes.
+
 ## NET12 dev-loop
 
 **NET12 dev-loop** at `/net12-debug` uses the existing configuration-only Debug
@@ -111,7 +120,7 @@ Download measurements are not assumed to be profile-independent.
 |---|---|---|
 | Cold startup / Time to managed (cold) | `time-to-reach-managed-cold` | Milliseconds from JS bootstrap to managed-ready, not runtime creation or navigation-to-LCP |
 | Walkthrough | App-specific, e.g. `havit-walkthrough` | Scenario milliseconds converted to seconds; initial load excluded |
-| Cold download size | `download-size-cold` | First cold-load encoded bytes in decimal MB (1,000,000 bytes) |
+| Cold download size | `download-size-cold` | First cold-load encoded bytes in binary MiB (1,048,576 bytes) |
 | Build time | `compile-time` | Clean publish milliseconds converted to seconds; preceding restore excluded |
 
 Focus selects SDK channel 12 and excludes known custom runtime/ASP.NET builds.
@@ -176,8 +185,19 @@ Focus uses Chart.js's built-in canvas tooltip and color boxes. Text wraps to the
 canvas width; averaged mode uses compact spacing and one unit suffix for each
 mean/min/max line. Raw values, SDK/day and each series' window count and span
 remain visible. Profile and provenance stay in the card/page context rather than
-a repeated tooltip footer. No HTML overlay, custom scrolling or tooltip event
-handlers are needed.
+a repeated tooltip footer.
+
+Clicking or tapping a graph point opens a fixed detail panel without replacing
+the native hover tooltip; selecting that same point again closes it, while
+selecting another point updates it. The panel includes raw values, rolling-window evidence
+when enabled, the SDK version/build day/commit timestamp/full hash, the VMR
+commit timestamp/full hash when available, and the runtime-pack
+version/commit timestamp/full hash. Focus results also show the recorded
+runtime commit author and subject. Hashes link to their repository commits.
+Historical timestamps that were not published are shown as **Not recorded**,
+rather than inferred from the SDK build day or benchmark time. Keyboard users
+can focus a graph and press Enter or Space to toggle its latest visible point;
+Escape or the close button dismisses the panel.
 
 The grid uses two columns from 1280px and one below that; below 800px the settings
 stack above the cards. This leaves room for the native tooltip while preserving

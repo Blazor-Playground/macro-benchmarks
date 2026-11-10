@@ -123,17 +123,34 @@ function localSingleReport(raw: unknown, profile: FocusProfile) {
     const variant: FocusColumn = {
         sdkVersion: source.sdkVersion, major: Number(source.major), channel: String(source.channel ?? ''),
         releaseDate: String(source.releaseDate ?? ''), sdkGitHash: String(source.sdkGitHash ?? ''),
+        sdkCommitDateTime: typeof source.sdkCommitDateTime === 'string' ? source.sdkCommitDateTime : null,
         vmrGitHash: String(source.vmrGitHash ?? ''), runtimeGitHash: source.runtimeGitHash,
+        vmrCommitDateTime: typeof source.vmrCommitDateTime === 'string' ? source.vmrCommitDateTime : null,
         aspnetCoreGitHash: String(source.aspnetCoreGitHash ?? ''), runtimePackVersion: source.runtimePackVersion,
         aspnetCoreVersion: typeof source.aspnetCoreVersion === 'string' ? source.aspnetCoreVersion : null,
         workloadVersion: typeof source.workloadVersion === 'string' ? source.workloadVersion : null,
         bootstrapSdkVersion: typeof source.bootstrapSdkVersion === 'string' ? source.bootstrapSdkVersion : null,
         bundledFrameworkTfm: typeof source.bundledFrameworkTfm === 'string' ? source.bundledFrameworkTfm : null,
         runtimeCommitDateTime: typeof source.runtimeCommitDateTime === 'string' ? source.runtimeCommitDateTime : null,
+        runtimeCommitAuthor: typeof source.runtimeCommitAuthor === 'string' ? source.runtimeCommitAuthor : null,
+        runtimeCommitMessage: typeof source.runtimeCommitMessage === 'string' ? source.runtimeCommitMessage : null,
         isRuntimeCustomBuild: true, isAspnetCoreCustomBuild: null, runtimePR: null, aspnetCorePR: null,
     };
-    const observation = { id: 'local-before-after', sdkVersion: source.sdkVersion, day, bucket: 'local',
-        columnIndex: 0, variant };
+    const observation = {
+        id: 'local-before-after', sdkVersion: source.sdkVersion, day,
+        sdkCommitDateTime: variant.sdkCommitDateTime,
+        runtimeCommitDateTime: variant.runtimeCommitDateTime,
+        sdkGitHash: variant.sdkGitHash || null,
+        runtimeGitHash: variant.runtimeGitHash || null,
+        runtimePackVersion: variant.runtimePackVersion,
+        vmrGitHash: variant.vmrGitHash || null,
+        vmrCommitDateTime: variant.vmrCommitDateTime,
+        runtimeCommitAuthor: variant.runtimeCommitAuthor ?? null,
+        runtimeCommitMessage: variant.runtimeCommitMessage ?? null,
+        measuredAt: resultFor(data.after, profile)!.meta.benchmarkDateTime,
+        sourceId: null,
+        bucket: 'local', columnIndex: 0, variant,
+    };
     const metrics: FocusMetricReport[] = focusMetrics('havit-bootstrap').map(metric => {
         const metricProfile = metric.id === 'startup' ? profile : 'desktop';
         const before = resultFor(data.before, metricProfile);
@@ -236,9 +253,33 @@ function localHistoryReport(data: LocalData, profile: FocusProfile) {
             const observation = { ...(original?.observation ?? metric.points[0].observation),
                 id: `local-main-${entry.day}-${entry.commit}`, day: entry.day, columnIndex: index,
                 sdkVersion: baseline?.sdkVersion ?? 'Unmeasured',
+                sdkCommitDateTime: typeof baseline?.sdkCommitDateTime === 'string'
+                    ? baseline.sdkCommitDateTime : null,
+                runtimeCommitDateTime: typeof baseline?.runtimeCommitDateTime === 'string'
+                    ? baseline.runtimeCommitDateTime : null,
+                sdkGitHash: typeof baseline?.sdkGitHash === 'string' ? baseline.sdkGitHash : null,
+                runtimeGitHash: entry.commit,
+                runtimePackVersion: typeof baseline?.runtimePackVersion === 'string' ? baseline.runtimePackVersion : null,
+                vmrGitHash: typeof baseline?.vmrGitHash === 'string' ? baseline.vmrGitHash : null,
+                vmrCommitDateTime: typeof baseline?.vmrCommitDateTime === 'string'
+                    ? baseline.vmrCommitDateTime : null,
+                runtimeCommitAuthor: typeof baseline?.runtimeCommitAuthor === 'string' ? baseline.runtimeCommitAuthor : null,
+                runtimeCommitMessage: typeof baseline?.runtimeCommitMessage === 'string' ? baseline.runtimeCommitMessage : null,
+                measuredAt: entry.before ? resultFor(entry.before, metric.profile)?.meta.benchmarkDateTime ?? null : null,
+                sourceId: entry.commit,
                 variant: { ...metric.points[0].observation.variant,
                     sdkVersion: baseline?.sdkVersion ?? 'Unmeasured', runtimeGitHash: entry.commit,
+                    sdkCommitDateTime: typeof baseline?.sdkCommitDateTime === 'string'
+                        ? baseline.sdkCommitDateTime : null,
                     runtimePackVersion: baseline?.runtimePackVersion ?? '',
+                    runtimeCommitDateTime: typeof baseline?.runtimeCommitDateTime === 'string'
+                        ? baseline.runtimeCommitDateTime : null,
+                    runtimeCommitAuthor: typeof baseline?.runtimeCommitAuthor === 'string'
+                        ? baseline.runtimeCommitAuthor : null,
+                    runtimeCommitMessage: typeof baseline?.runtimeCommitMessage === 'string'
+                        ? baseline.runtimeCommitMessage : null,
+                    vmrCommitDateTime: typeof baseline?.vmrCommitDateTime === 'string'
+                        ? baseline.vmrCommitDateTime : null,
                     bundledFrameworkTfm: typeof baseline?.bundledFrameworkTfm === 'string' ? baseline.bundledFrameworkTfm : null } };
             return original ? { ...original, position: index, observation, coreclr: null } : {
                 position: index, observation, coreclr: null, mono: null, coreclrBefore: null, percent: null,

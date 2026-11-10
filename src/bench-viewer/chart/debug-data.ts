@@ -25,7 +25,20 @@ export function buildDebugReport(publication: DebugPublication, app: string, ran
                 && batch.runtimes.mono.properties.TargetFramework === batch.runtimes.coreclr.properties.TargetFramework;
             const percent = match ? percentVsMono(coreclr.valueMs, mono.valueMs) : null;
             return {
-                observation: { sdkVersion: batch.sdk.version, day: batch.sdk.day! }, position,
+                observation: {
+                    sdkVersion: batch.sdk.version, day: batch.sdk.day!,
+                    sdkGitHash: batch.sdk.sdkHash,
+                    sdkCommitDateTime: batch.sdk.sdkCommitDateTime,
+                    runtimeGitHash: batch.sdk.runtimeHash,
+                    runtimePackVersion: batch.sdk.runtimePackVersion,
+                    runtimeCommitDateTime: batch.sdk.runtimeCommitDateTime,
+                    vmrGitHash: batch.sdk.vmrHash,
+                    vmrCommitDateTime: batch.sdk.vmrCommitDateTime,
+                    runtimeCommitAuthor: null,
+                    runtimeCommitMessage: null,
+                    measuredAt: batch.measuredAt,
+                    sourceId: batch.id,
+                }, position,
                 mono: mono?.valueMs ?? null, coreclr: coreclr?.valueMs ?? null, percent,
                 issue: match ? null : 'No complete same-batch paired measurement',
                 monoWindow: null, coreclrWindow: null, percentWindow: null,

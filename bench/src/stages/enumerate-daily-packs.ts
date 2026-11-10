@@ -4,8 +4,8 @@ import { existsSync } from 'node:fs';
 import { type BenchContext, type SdkInfo } from '../context.js';
 import { info, banner, err } from '../log.js';
 import {
-    fetchJson, headOk, githubHeaders, resolveGitHubToken, mapConcurrent,
-    GITHUB_API, GITHUB_RAW,
+    fetchJson, fetchGitHubCommitMetadata, headOk, resolveGitHubToken, mapConcurrent,
+    GITHUB_RAW,
 } from '../lib/http.js';
 import {
     parseArcadeDate, deriveSdkVersion, populateVersionFields, getVersionMajor,
@@ -118,22 +118,15 @@ async function resolveVersion(
     }
 
     // 5. GitHub commit datetimes
-    const ghHeaders = githubHeaders(token);
-    const [rtCommit, aspCommit] = await Promise.all([
-        fetchJson<{ commit: { message: string; author: { name: string }; committer: { date: string } } }>(
-            `${GITHUB_API}/repos/dotnet/runtime/commits/${rtRepo.commitSha}`, ghHeaders,
-        ),
-        fetchJson<{ commit: { message: string; author: { name: string }; committer: { date: string } } }>(
-            `${GITHUB_API}/repos/dotnet/aspnetcore/commits/${aspRepo.commitSha}`, ghHeaders,
-        ),
+    const [rtCommit, aspCommit, sdkCommit, vmrCommitMetadata] = await Promise.all([
+        fetchGitHubCommitMetadata('dotnet/runtime', rtRepo.commitSha, token),
+        fetchGitHubCommitMetadata('dotnet/aspnetcore', aspRepo.commitSha, token),
+        fetchGitHubCommitMetadata('dotnet/sdk', sdkRepo.commitSha, token),
+        fetchGitHubCommitMetadata('dotnet/dotnet', vmrCommit, token),
     ]);
 
-    if (!rtCommit) {
-        err(`${label}: runtime commit not found on GitHub — skipping`);
-        return null;
-    }
-    if (!aspCommit) {
-        err(`${label}: aspnetcore commit not found on GitHub — skipping`);
+    if (!rtCommit || !aspCommit || !sdkCommit || !vmrCommitMetadata) {
+        err(`${label}: commit metadata not found on GitHub — skipping`);
         return null;
     }
 
@@ -160,12 +153,14 @@ async function resolveVersion(
         aspnetCoreGitHash: aspRepo.commitSha,
         sdkGitHash: sdkRepo.commitSha,
         vmrGitHash: vmrCommit,
-        runtimeCommitDateTime: rtCommit.commit.committer.date,
-        runtimeCommitAuthor: rtCommit.commit.author.name,
-        runtimeCommitMessage: rtCommit.commit.message.split('\n')[0],
-        aspnetCoreCommitDateTime: aspCommit.commit.committer.date,
-        aspnetCoreCommitAuthor: aspCommit.commit.author.name,
-        aspnetCoreCommitMessage: aspCommit.commit.message.split('\n')[0],
+        sdkCommitDateTime: sdkCommit.commitDateTime,
+        vmrCommitDateTime: vmrCommitMetadata.commitDateTime,
+        runtimeCommitDateTime: rtCommit.commitDateTime,
+        runtimeCommitAuthor: rtCommit.commitAuthor,
+        runtimeCommitMessage: rtCommit.commitMessage,
+        aspnetCoreCommitDateTime: aspCommit.commitDateTime,
+        aspnetCoreCommitAuthor: aspCommit.commitAuthor,
+        aspnetCoreCommitMessage: aspCommit.commitMessage,
         aspnetCoreVersion: pc.aspnetcore.version,
         runtimePackVersion,
         workloadVersion: runtimePackVersion,
@@ -176,6 +171,11 @@ async function resolveVersion(
 }
 
 // ── Existing file helpers ────────────────────────────────────────────────────
+
+function hasCommitDates(pack: SdkInfo): boolean {
+    return Boolean(pack.vmrBranch && pack.sdkCommitDateTime
+        && (pack.vmrBranch === 'pre-vmr' || pack.vmrCommitDateTime));
+}
 
 async function loadExisting(path: string): Promise<DailyPacksList | null> {
     if (!existsSync(path)) return null;
@@ -199,15 +199,15 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     // Skip refresh if an explicit SDK version is given and already in either pack list
     if (ctx.sdkVersion && !ctx.forceEnumerate) {
         const cached = await loadExisting(outputPath);
-        if (cached?.packs.some(p => p.sdkVersion === ctx.sdkVersion)) {
+        if (cached?.packs.some(p => p.sdkVersion === ctx.sdkVersion && hasCommitDates(p))) {
             info(`SDK version '${ctx.sdkVersion}' already in cached daily packs — skipping refresh`);
             return ctx;
         }
         const releasePath = join(ctx.artifactsDir, 'release-packs-list.json');
         if (existsSync(releasePath)) {
             try {
-                const releaseData = JSON.parse(await readFile(releasePath, 'utf-8')) as { packs: Array<{ sdkVersion: string }> };
-                if (releaseData.packs?.some(p => p.sdkVersion === ctx.sdkVersion)) {
+                const releaseData = JSON.parse(await readFile(releasePath, 'utf-8')) as { packs: SdkInfo[] };
+                if (releaseData.packs?.some(p => p.sdkVersion === ctx.sdkVersion && hasCommitDates(p))) {
                     info(`SDK version '${ctx.sdkVersion}' found in cached release packs — skipping daily refresh`);
                     return ctx;
                 }
@@ -266,9 +266,8 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const existingPacks: SdkInfo[] = existing?.packs ?? [];
 
     if (existing) {
-        // Only entries already tagged with a VMR branch count as resolved, so a run after this
-        // change backfills vmrBranch onto previously cached packs.
-        const knownVersions = new Set(existing.packs.filter(p => p.vmrBranch).map(p => p.runtimePackVersion));
+        // Require current provenance so older cached packs are backfilled once.
+        const knownVersions = new Set(existing.packs.filter(hasCommitDates).map(p => p.runtimePackVersion));
         toResolve = candidates.filter(v => !knownVersions.has(v));
         info(`Incremental: ${toResolve.length} new versions to resolve (${knownVersions.size} cached)`);
     } else {

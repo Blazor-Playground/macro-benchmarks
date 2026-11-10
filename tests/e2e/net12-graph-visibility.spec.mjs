@@ -107,7 +107,7 @@ test('fresh and re-entered raw defaults preserve exact runtime points and the in
         const graphs = await state(page);
         expect(graphs).toHaveLength(4);
         for (let i = 0; i < graphs.length; i++) {
-            const divisor = i === 0 ? 1 : i === 2 ? 1_000_000 : 1000;
+            const divisor = i === 0 ? 1 : i === 2 ? 1_048_576 : 1000;
             expect(graphs[i].axes).toEqual(['x', 'y']);
             expect(graphs[i].values[0].at(-1).y).toBe(expected[i].latest.coreclr / divisor);
             expect(graphs[i].values[1].at(-1).y).toBe(expected[i].latest.mono / divisor);

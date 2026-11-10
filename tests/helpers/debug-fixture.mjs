@@ -7,6 +7,9 @@ export const debugKeys = [
 ];
 
 export function debugBatch(app = 'havit-bootstrap', day = '2026-09-29') {
+    const runtimeCommitDateTime = new Date(Date.parse(`${day}T08:30:00Z`) - 86_400_000).toISOString();
+    const sdkCommitDateTime = `${day}T06:15:00Z`;
+    const vmrCommitDateTime = new Date(Date.parse(`${day}T04:30:00Z`) - 86_400_000).toISOString();
     const before = { version: 'before-0001', documentId: 'fixture-document', runtimeId: 'fixture-runtime',
         generation: 0, counter: 1, debuggerAttached: false, metadataUpdates: true, runtime: 'mono' };
     const measurements = runtime => Object.fromEntries(debugKeys.map((key, index) => {
@@ -30,7 +33,10 @@ export function debugBatch(app = 'havit-bootstrap', day = '2026-09-29') {
         kind: 'debug-dev-loop', schemaVersion: 1, methodology: 'debug-sdk-defaults-v1',
         id: `fixture-${day}-${app}`, app, preset: 'dev-loop', configuration: 'Debug', measuredAt: `${day}T12:00:00Z`, smoke: false,
         sdk: { version: `12.0.100-alpha.1.264${day.slice(-2)}.101`, day,
-            sdkHash: 'a'.repeat(40), runtimeHash: 'b'.repeat(40), aspnetHash: 'c'.repeat(40), vmrHash: 'd'.repeat(40) },
+            sdkHash: 'a'.repeat(40), sdkCommitDateTime,
+            runtimeHash: 'b'.repeat(40), runtimePackVersion: '12.0.0-alpha.1.26429.4',
+            runtimeCommitDateTime,
+            aspnetHash: 'c'.repeat(40), vmrHash: 'd'.repeat(40), vmrCommitDateTime },
         source: { harnessSha: 'a'.repeat(40), harnessDigest: 'b'.repeat(64), appDigest: 'c'.repeat(64) },
         environment: { os: 'linux 6.8', arch: 'arm64', cpu: 'Fixture CPU', cpuCount: 4, memoryBytes: 16_000_000_000,
             browser: '140.0', browserChannel: 'chromium', playwright: '1.58.2', node: 'v24.0.0', headless: true,

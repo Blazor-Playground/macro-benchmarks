@@ -19,7 +19,36 @@ test('clean Debug renders real cards, values, capability gaps and reusable Chart
     await expect(hot.locator('.focus-percentage')).toHaveCount(0);
     await expect(hot.locator('.focus-values dd')).toHaveText(['Not available', '5,000.0 ms']);
     await expect(hot.getByText(/MetadataUpdater.IsSupported=false/)).toBeVisible();
-    await expect(first.locator('canvas')).toBeVisible();
+    const canvas = first.locator('canvas');
+    await expect(canvas).toBeVisible();
+    const point = await canvas.evaluate(element => {
+        const chart = Chart.getChart(element);
+        const rendered = chart.getDatasetMeta(0).data.at(-1);
+        return { x: rendered.x, y: rendered.y };
+    });
+    await canvas.hover({ position: point });
+    await expect.poll(() => canvas.evaluate(element => Chart.getChart(element).tooltip.opacity)).toBe(1);
+    const tooltip = await canvas.evaluate(element => {
+        const native = Chart.getChart(element).tooltip;
+        return [...native.title, ...native.body.flatMap(item => item.lines)].join('\n');
+    });
+    expect(tooltip).toContain('SDK day 2026-09-29 (UTC)');
+    expect(tooltip).toContain('Runtime pack commit 2026-09-28 (UTC)');
+    await canvas.click({ position: point });
+    const detail = page.getByRole('dialog', { name: 'First dotnet run' });
+    await expect(detail).toBeVisible();
+    await expect(detail).toContainText('12.0.0-alpha.1.26429.4');
+    await expect(detail).toContainText('2026-09-29 06:15:00 UTC');
+    await expect(detail).toContainText('2026-09-28 04:30:00 UTC');
+    await expect(detail).toContainText('2026-09-28 08:30:00 UTC');
+    await expect(detail).toContainText('2026-09-29 12:00:00 UTC');
+    await expect(detail).toContainText('fixture-2026-09-29-havit-bootstrap');
+    await expect(detail.getByRole('link', { name: 'a'.repeat(40) })).toHaveAttribute('href',
+        `https://github.com/dotnet/sdk/commit/${'a'.repeat(40)}`);
+    await expect(detail.getByRole('link', { name: 'b'.repeat(40) })).toHaveAttribute('href',
+        `https://github.com/dotnet/runtime/commit/${'b'.repeat(40)}`);
+    await detail.getByRole('button', { name: 'Close graph detail panel' }).click();
+    await expect(detail).toHaveCount(0);
     await page.locator('#debug-measurements').uncheck();
     await expect(page.locator('.debug-dashboard canvas')).toHaveCount(0);
     await expect(first.locator('.focus-percentage')).toHaveText('25.0%');

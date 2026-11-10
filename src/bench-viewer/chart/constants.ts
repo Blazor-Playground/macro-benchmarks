@@ -159,13 +159,13 @@ export const OTEL_COUNTERS: Record<string, { display: string; unit: string }> = 
     'gc-gen1': { display: 'GC Gen1', unit: 'count' },
     'gc-gen2': { display: 'GC Gen2', unit: 'count' },
     'gc-pause-pct': { display: 'GC Pause %', unit: '%' },
-    'alloc-rate': { display: 'Alloc Rate', unit: 'MB/s' },
-    'heap-mb': { display: 'Heap Size', unit: 'MB' },
+    'alloc-rate': { display: 'Alloc Rate', unit: 'MiB/s' },
+    'heap-mb': { display: 'Heap Size', unit: 'MiB' },
     'lock-contentions': { display: 'Lock Contentions', unit: 'count' },
     'threadpool-threads': { display: 'ThreadPool Threads', unit: 'count' },
     'threadpool-queue': { display: 'ThreadPool Queue', unit: 'count' },
     'cpu-pct': { display: 'CPU Usage', unit: '%' },
-    'working-set-mb': { display: 'Working Set', unit: 'MB' },
+    'working-set-mb': { display: 'Working Set', unit: 'MiB' },
 };
 
 const OTEL_SEP = '-otel-';

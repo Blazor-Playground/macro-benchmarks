@@ -402,8 +402,12 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
                 app, preset: 'dev-loop', configuration: 'Debug', measuredAt: new Date().toISOString(), smoke: runs < 5,
                 sdk: {
                     version: sdk, day: ctx.sdkInfo?.releaseDate || parseArcadeDate(sdk)?.toISOString().slice(0, 10) || null,
-                    sdkHash, runtimeHash: ctx.sdkInfo?.runtimeGitHash || null,
+                    sdkHash, sdkCommitDateTime: ctx.sdkInfo?.sdkCommitDateTime || null,
+                    runtimeHash: ctx.sdkInfo?.runtimeGitHash || null,
+                    runtimePackVersion: ctx.sdkInfo?.runtimePackVersion || null,
+                    runtimeCommitDateTime: ctx.sdkInfo?.runtimeCommitDateTime || null,
                     aspnetHash: ctx.sdkInfo?.aspnetCoreGitHash || null, vmrHash: ctx.sdkInfo?.vmrGitHash || null,
+                    vmrCommitDateTime: ctx.sdkInfo?.vmrCommitDateTime || null,
                 },
                 source: { harnessSha: sha, harnessDigest, appDigest: supported ? await hashTree(join(ctx.repoRoot, 'src', app)) : 'unsupported' },
                 environment: {

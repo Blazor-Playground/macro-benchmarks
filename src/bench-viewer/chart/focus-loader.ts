@@ -27,6 +27,14 @@ function optionalText(value: unknown, where: string): string | null {
     return value === undefined || value === null ? null : text(value, where);
 }
 
+function optionalTimestamp(value: unknown, where: string): string | null {
+    const result = optionalText(value, where);
+    if (result !== null && !Number.isFinite(Date.parse(result))) {
+        throw new FocusPublicationError(`${where}: invalid timestamp.`);
+    }
+    return result;
+}
+
 function optionalBoolean(value: unknown, where: string): boolean | null {
     if (value === undefined || value === null) return null;
     if (typeof value !== 'boolean') throw new FocusPublicationError(`${where}: expected a boolean.`);
@@ -75,7 +83,9 @@ export function parseFocusHeader(value: unknown, path: string): FocusHeader {
             major: column.major,
             channel: text(column.channel, field('channel')),
             sdkGitHash: text(column.sdkGitHash, field('sdkGitHash')),
+            sdkCommitDateTime: optionalTimestamp(column.sdkCommitDateTime, field('sdkCommitDateTime')),
             vmrGitHash: text(column.vmrGitHash, field('vmrGitHash')),
+            vmrCommitDateTime: optionalTimestamp(column.vmrCommitDateTime, field('vmrCommitDateTime')),
             runtimeGitHash: text(column.runtimeGitHash, field('runtimeGitHash')),
             aspnetCoreGitHash: text(column.aspnetCoreGitHash, field('aspnetCoreGitHash')),
             runtimePackVersion: optionalText(column.runtimePackVersion, field('runtimePackVersion')),
@@ -83,7 +93,9 @@ export function parseFocusHeader(value: unknown, path: string): FocusHeader {
             workloadVersion: optionalText(column.workloadVersion, field('workloadVersion')),
             bootstrapSdkVersion: optionalText(column.bootstrapSdkVersion, field('bootstrapSdkVersion')),
             bundledFrameworkTfm: optionalText(column.bundledFrameworkTfm, field('bundledFrameworkTfm')),
-            runtimeCommitDateTime: optionalText(column.runtimeCommitDateTime, field('runtimeCommitDateTime')),
+            runtimeCommitDateTime: optionalTimestamp(column.runtimeCommitDateTime, field('runtimeCommitDateTime')),
+            runtimeCommitAuthor: optionalText(column.runtimeCommitAuthor, field('runtimeCommitAuthor')),
+            runtimeCommitMessage: optionalText(column.runtimeCommitMessage, field('runtimeCommitMessage')),
             isRuntimeCustomBuild: optionalBoolean(column.isRuntimeCustomBuild, field('isRuntimeCustomBuild')),
             isAspnetCoreCustomBuild: optionalBoolean(column.isAspnetCoreCustomBuild, field('isAspnetCoreCustomBuild')),
             runtimePR: optionalText(column.runtimePR, field('runtimePR')),

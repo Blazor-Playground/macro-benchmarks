@@ -83,13 +83,13 @@ public class MetricInfo
         ["gc-gen1"] = ("GC Gen1", "count"),
         ["gc-gen2"] = ("GC Gen2", "count"),
         ["gc-pause-pct"] = ("GC Pause %", "%"),
-        ["alloc-rate"] = ("Alloc Rate", "MB/s"),
-        ["heap-mb"] = ("Heap Size", "MB"),
+        ["alloc-rate"] = ("Alloc Rate", "MiB/s"),
+        ["heap-mb"] = ("Heap Size", "MiB"),
         ["lock-contentions"] = ("Lock Contentions", "count"),
         ["threadpool-threads"] = ("ThreadPool Threads", "count"),
         ["threadpool-queue"] = ("ThreadPool Queue", "count"),
         ["cpu-pct"] = ("CPU Usage", "%"),
-        ["working-set-mb"] = ("Working Set", "MB"),
+        ["working-set-mb"] = ("Working Set", "MiB"),
     };
 
     public static string GetDisplay(string key)
@@ -139,8 +139,8 @@ public class MetricInfo
                     return c.Unit switch
                     {
                         "%" => $"{value:N1}%",
-                        "MB" => $"{value:N1} MB",
-                        "MB/s" => $"{value:N1} MB/s",
+                        "MiB" => $"{value:N1} MiB",
+                        "MiB/s" => $"{value:N1} MiB/s",
                         "count" => $"{value:N0}",
                         _ => value.ToString("N2"),
                     };
@@ -151,8 +151,8 @@ public class MetricInfo
 
         return info.Unit switch
         {
-            "bytes" when value >= 1_000_000 => $"{value / 1_048_576:N2} MB",
-            "bytes" => $"{value / 1024:N1} KB",
+            "bytes" when value >= 1_048_576 => $"{value / 1_048_576:N2} MiB",
+            "bytes" => $"{value / 1024:N1} KiB",
             "ms" when info.Key == "compile-time" => $"{Math.Round(value / 1000)} s",
             "ms" => $"{value:N1} ms",
             "ops/sec" => $"{value:N0} ops/s",

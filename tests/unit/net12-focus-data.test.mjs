@@ -66,8 +66,8 @@ test('percentages use Mono as denominator, with finite positive inputs and displ
     }
     assert.equal(percentVsMono(Number.MAX_VALUE, Number.MIN_VALUE), null);
     assert.deepEqual(comparisonLabel(12, 'ms'), { value: 12, magnitude: '12.0%', verdict: 'slower', tone: 'worse' });
-    assert.equal(comparisonLabel(-12, 'MB').verdict, 'smaller');
-    assert.equal(comparisonLabel(12, 'MB').verdict, 'larger');
+    assert.equal(comparisonLabel(-12, 'MiB').verdict, 'smaller');
+    assert.equal(comparisonLabel(12, 'MiB').verdict, 'larger');
     assert.equal(comparisonLabel(-12, 's').verdict, 'faster');
     for (const value of [0, -0, 0.001, -0.001]) {
         assert.equal(comparisonLabel(value, 'ms').tone, 'neutral');
@@ -77,11 +77,11 @@ test('percentages use Mono as denominator, with finite positive inputs and displ
     assert.throws(() => comparisonLabel(NaN, 's'), /finite/);
 });
 
-test('unit conversion is presentation-only, with decimal MB and publish milliseconds to seconds', () => {
+test('unit conversion is presentation-only, with binary MiB and publish milliseconds to seconds', () => {
     const metrics = focusMetrics('havit-bootstrap');
     assert.equal(formatFocusValue(767, metrics[0]), '767 ms');
     assert.equal(formatFocusValue(22227, metrics[1]), '22.23 s');
-    assert.equal(formatFocusValue(4965317, metrics[2]), '4.97 MB');
+    assert.equal(formatFocusValue(4965317, metrics[2]), '4.74 MiB');
     assert.equal(formatFocusValue(33811, metrics[3]), '33.81 s');
     assert.equal(formatFocusValue(null, metrics[0]), 'Not available');
 });
@@ -142,6 +142,8 @@ test('identity includes full variant, not SDK/runtime hash alone; .NET 11 and cu
     assert(points.every(point => point.observation.variant.isRuntimeCustomBuild !== true));
     const parsed = parseFocusHeader(fixture.buckets[0].header, 'header');
     assert.equal(parsed.columns[0].isRuntimeCustomBuild, null, 'missing flags remain unknown');
+    assert.equal(parsed.columns[0].sdkCommitDateTime, fixture.buckets[0].header.columns[0].sdkCommitDateTime);
+    assert.equal(parsed.columns[0].vmrCommitDateTime, fixture.buckets[0].header.columns[0].vmrCommitDateTime);
 });
 
 test('duplicate full identities are an explicit malformed-publication error', () => {
@@ -331,6 +333,14 @@ test('publication validation rejects malformed headers/rows rather than renderin
     const invalidHeader = structuredClone(fixture.buckets[0].header);
     invalidHeader.columns[0].releaseDate = '2026-02-30';
     assert.throws(() => parseFocusHeader(invalidHeader, 'header'), /calendar day/);
+    invalidHeader.columns[0].releaseDate = fixture.buckets[0].header.columns[0].releaseDate;
+    invalidHeader.columns[0].sdkCommitDateTime = 'not-a-timestamp';
+    assert.throws(() => parseFocusHeader(invalidHeader, 'header'), /invalid timestamp/);
+    delete invalidHeader.columns[0].sdkCommitDateTime;
+    delete invalidHeader.columns[0].vmrCommitDateTime;
+    const historical = parseFocusHeader(invalidHeader, 'header');
+    assert.equal(historical.columns[0].sdkCommitDateTime, null);
+    assert.equal(historical.columns[0].vmrCommitDateTime, null);
     assert.throws(() => parseFocusRows({}, 1, 'metric'), /no rows/);
     assert.throws(() => parseFocusRows({ 'mono/no-workload/desktop/chrome': [1] }, 2, 'metric'), /columns/);
     assert.throws(() => parseFocusRows({ 'mono/no-workload/desktop/chrome': ['1'] }, 1, 'metric'), /nonnumeric/);

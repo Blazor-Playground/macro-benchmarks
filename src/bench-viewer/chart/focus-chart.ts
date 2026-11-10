@@ -3,13 +3,35 @@ import { formatFocusValue, isPositive, signedPercent } from './focus-data.js';
 import { DEFAULT_FOCUS_GRAPH_VISIBILITY } from './focus-selection.js';
 import type { FocusFixedReference, FocusGraphVisibility, FocusMetricReport, FocusPoint, FocusSeries, FocusWindow } from './focus-types.js';
 
+export interface ComparisonObservation {
+    sdkVersion: string;
+    day: string;
+    sdkGitHash: string | null;
+    sdkCommitDateTime: string | null;
+    runtimeGitHash: string | null;
+    runtimePackVersion: string | null;
+    runtimeCommitDateTime: string | null;
+    vmrGitHash: string | null;
+    vmrCommitDateTime: string | null;
+    runtimeCommitAuthor: string | null;
+    runtimeCommitMessage: string | null;
+    measuredAt: string | null;
+    sourceId: string | null;
+}
 export type ComparisonPoint = Omit<FocusPoint, 'observation'> & {
-    observation: { sdkVersion: string; day: string };
+    observation: ComparisonObservation;
 };
 export type ComparisonMetric = Pick<FocusMetricReport, 'id' | 'title' | 'unit' | 'divisor' | 'coreclrLabel' | 'monoLabel'
     | 'comparisonLabel' | 'coreclrBeforeLabel' | 'fixedReference'> & {
     points: ComparisonPoint[];
 };
+export interface FocusDetailRow { label: string; value: string; href?: string }
+export interface FocusDetailSection { title: string; rows: FocusDetailRow[] }
+export interface FocusPointDetail {
+    title: string;
+    subtitle: string;
+    sections: FocusDetailSection[];
+}
 
 export const FOCUS_BAND_OPACITY = 0.2;
 const SERIES: ReadonlyArray<{ key: FocusSeries; label: string; color: string; axis: string }> = [
@@ -29,6 +51,90 @@ function rawValue(point: ComparisonPoint, series: FocusSeries): number | null {
     if (series === 'percent') return point.percent;
     const value = point[series] ?? null;
     return isPositive(value) ? value : null;
+}
+
+function commitRow(label: string, hash: string | null, repository: string): FocusDetailRow {
+    const value = hash || 'Not recorded';
+    return {
+        label, value,
+        ...(/^[a-f0-9]{40}$/i.test(value) ? { href: `https://github.com/${repository}/commit/${value}` } : {}),
+    };
+}
+
+function utcTimestamp(value: string): string {
+    const parsed = new Date(value);
+    if (!Number.isFinite(parsed.getTime())) return value;
+    return parsed.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, ' UTC');
+}
+
+function windowDetail(window: FocusWindow, metric: ComparisonMetric, percentage = false): string {
+    const format = (value: number) => percentage ? signedPercent(value) : formatFocusValue(value, metric);
+    return `Mean ${format(window.mean)}; min ${format(window.min)}; max ${format(window.max)} · ${window.count}/5 points · ${window.firstDay} to ${window.lastDay}`;
+}
+
+export function focusPointDetail(metric: ComparisonMetric, point: ComparisonPoint, averaged: boolean): FocusPointDetail {
+    const coreclrValue = metric.fixedReference ? metric.fixedReference.value : point.coreclr;
+    const measurementRows: FocusDetailRow[] = [
+        { label: metric.coreclrLabel, value: formatFocusValue(coreclrValue, metric) },
+        { label: metric.monoLabel, value: formatFocusValue(point.mono, metric) },
+    ];
+    if (metric.coreclrBeforeLabel) {
+        measurementRows.push({ label: metric.coreclrBeforeLabel, value: formatFocusValue(point.coreclrBefore ?? null, metric) });
+    }
+    measurementRows.push({
+        label: metric.comparisonLabel ?? 'CoreCLR vs Mono',
+        value: point.percent === null ? 'Not available' : signedPercent(point.percent),
+    });
+    if (point.issue) measurementRows.push({ label: 'Data note', value: point.issue });
+    if (averaged) {
+        if (point.coreclrWindow) measurementRows.push({ label: `${metric.coreclrLabel} window`, value: windowDetail(point.coreclrWindow, metric) });
+        if (point.monoWindow) measurementRows.push({ label: `${metric.monoLabel} window`, value: windowDetail(point.monoWindow, metric) });
+        if (point.percentWindow) measurementRows.push({ label: 'Comparison window', value: windowDetail(point.percentWindow, metric, true) });
+    }
+
+    const observation = point.observation;
+    const sections: FocusDetailSection[] = [
+        { title: 'Measurement', rows: measurementRows },
+        { title: 'SDK', rows: [
+            { label: 'Version', value: observation.sdkVersion },
+            { label: 'Build day', value: `${observation.day} (UTC)` },
+            { label: 'SDK commit date', value: observation.sdkCommitDateTime
+                ? utcTimestamp(observation.sdkCommitDateTime) : 'Not recorded' },
+            commitRow('SDK commit', observation.sdkGitHash, 'dotnet/sdk'),
+            ...(observation.vmrGitHash ? [
+                { label: 'VMR commit date', value: observation.vmrCommitDateTime
+                    ? utcTimestamp(observation.vmrCommitDateTime) : 'Not recorded' },
+                commitRow('VMR commit', observation.vmrGitHash, 'dotnet/dotnet'),
+            ] : []),
+        ] },
+        { title: 'Runtime', rows: [
+            { label: 'Runtime pack', value: observation.runtimePackVersion || 'Not recorded' },
+            { label: 'Runtime commit date', value: observation.runtimeCommitDateTime
+                ? utcTimestamp(observation.runtimeCommitDateTime) : 'Not recorded' },
+            { label: 'Author', value: observation.runtimeCommitAuthor || 'Not recorded' },
+            { label: 'Subject', value: observation.runtimeCommitMessage || 'Not recorded' },
+            commitRow('Runtime commit', observation.runtimeGitHash, 'dotnet/runtime'),
+        ] },
+    ];
+    const observationRows: FocusDetailRow[] = [];
+    if (observation.measuredAt) observationRows.push({ label: 'Measured at', value: utcTimestamp(observation.measuredAt) });
+    if (observation.sourceId) observationRows.push({ label: 'Observation ID', value: observation.sourceId });
+    if (observationRows.length) sections.push({ title: 'Observation', rows: observationRows });
+    if (metric.fixedReference) {
+        const reference = metric.fixedReference;
+        sections.push({ title: 'Fixed reference', rows: [
+            { label: reference.label, value: reference.value === null ? 'Not available' : formatFocusValue(reference.value, metric) },
+            { label: 'Measured at', value: utcTimestamp(reference.measuredAt) },
+            { label: 'SDK', value: reference.sdkVersion },
+            commitRow('Runtime commit', reference.commit, 'dotnet/runtime'),
+            ...(reference.rounds === null ? [] : [{ label: 'Rounds', value: reference.rounds.toString() }]),
+        ] });
+    }
+    return {
+        title: metric.title,
+        subtitle: `${observation.sdkVersion} · ${observation.day} (UTC)`,
+        sections,
+    };
 }
 
 export function focusChartModel(metric: ComparisonMetric, averaged: boolean, showBands: boolean, visibility: FocusGraphVisibility = DEFAULT_FOCUS_GRAPH_VISIBILITY) {
@@ -85,7 +191,7 @@ export function wrapFocusTooltipText(text: string, maxWidth: number, measure: (t
     const lines: string[] = [];
     let line = '';
     // Keep measurement units with their values when wrapping at word boundaries.
-    for (const word of text.match(/\S+(?: (?:ms|s|MB)\b)?/g) ?? []) {
+    for (const word of text.match(/\S+(?: (?:ms|s|MiB)\b)?/g) ?? []) {
         const next = line ? `${line} ${word}` : word;
         if (line && measure(next) > maxWidth) {
             lines.push(line);
@@ -130,10 +236,105 @@ export function drawFocusBand(ctx: CanvasRenderingContext2D, points: readonly Ba
 
 export class FocusCharts {
     private readonly charts: ChartInstance[] = [];
+    private readonly cleanups: (() => void)[] = [];
+    private detailPanel: HTMLElement | null = null;
+    private detailSelection: string | null = null;
+    private detailReturnFocus: HTMLElement | null = null;
 
     dispose(): void {
+        for (const cleanup of this.cleanups) cleanup();
+        this.cleanups.length = 0;
+        this.closeDetail(false);
         for (const chart of this.charts) chart.destroy();
         this.charts.length = 0;
+    }
+
+    private closeDetail(restoreFocus = true): void {
+        this.detailPanel?.remove();
+        this.detailPanel = null;
+        this.detailSelection = null;
+        const target = this.detailReturnFocus;
+        this.detailReturnFocus = null;
+        if (restoreFocus && target?.isConnected) target.focus();
+    }
+
+    private showDetail(metric: ComparisonMetric, point: ComparisonPoint, averaged: boolean, canvas: HTMLCanvasElement): void {
+        const selection = `${metric.id}:${point.position}`;
+        if (this.detailPanel && this.detailSelection === selection) {
+            this.closeDetail();
+            return;
+        }
+        const detail = focusPointDetail(metric, point, averaged);
+        this.closeDetail(false);
+        const panel = document.createElement('aside');
+        panel.className = 'focus-detail-panel';
+        panel.setAttribute('role', 'dialog');
+        panel.setAttribute('aria-modal', 'false');
+        const titleId = `focus-detail-title-${metric.id}`;
+        panel.setAttribute('aria-labelledby', titleId);
+
+        const header = document.createElement('div');
+        header.className = 'focus-detail-header';
+        const heading = document.createElement('div');
+        const eyebrow = document.createElement('p');
+        eyebrow.className = 'focus-detail-eyebrow';
+        eyebrow.textContent = 'SELECTED GRAPH POINT';
+        const title = document.createElement('h2');
+        title.id = titleId;
+        title.textContent = detail.title;
+        const subtitle = document.createElement('p');
+        subtitle.className = 'focus-detail-subtitle';
+        subtitle.textContent = detail.subtitle;
+        heading.append(eyebrow, title, subtitle);
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'focus-detail-close';
+        close.setAttribute('aria-label', 'Close graph detail panel');
+        close.textContent = '×';
+        close.addEventListener('click', () => this.closeDetail());
+        header.append(heading, close);
+        panel.append(header);
+
+        const body = document.createElement('div');
+        body.className = 'focus-detail-body';
+        for (const detailSection of detail.sections) {
+            const section = document.createElement('section');
+            const sectionTitle = document.createElement('h3');
+            sectionTitle.textContent = detailSection.title;
+            const rows = document.createElement('dl');
+            rows.className = 'focus-detail-rows';
+            for (const row of detailSection.rows) {
+                const label = document.createElement('dt');
+                label.textContent = row.label;
+                const value = document.createElement('dd');
+                if (row.href) {
+                    value.className = 'focus-detail-hash';
+                    const link = document.createElement('a');
+                    link.href = row.href;
+                    link.target = '_blank';
+                    link.rel = 'noopener';
+                    link.textContent = row.value;
+                    value.append(link);
+                } else {
+                    value.textContent = row.value;
+                }
+                rows.append(label, value);
+            }
+            section.append(sectionTitle, rows);
+            body.append(section);
+        }
+        panel.append(body);
+        panel.addEventListener('keydown', event => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                this.closeDetail();
+            }
+        });
+        (canvas.closest('.net12-focus') ?? document.body).append(panel);
+        this.detailPanel = panel;
+        this.detailSelection = selection;
+        this.detailReturnFocus = canvas;
+        close.focus();
     }
 
     render(owner: string, report: { metrics: ComparisonMetric[]; comparisonKind?: 'local' }, averaged: boolean, showBands: boolean, visibility: FocusGraphVisibility = DEFAULT_FOCUS_GRAPH_VISIBILITY): void {
@@ -147,7 +348,29 @@ export class FocusCharts {
             if (!(canvas instanceof HTMLCanvasElement)) throw new Error(`Focus canvas '${metric.id}' was not rendered.`);
             const context = canvas.getContext('2d');
             if (!context) throw new Error(`A canvas context is unavailable for ${metric.title}.`);
+            canvas.tabIndex = 0;
+            canvas.setAttribute?.('aria-keyshortcuts', 'Enter Space');
+            const accessibleLabel = canvas.getAttribute?.('aria-label');
+            if (accessibleLabel && !accessibleLabel.includes('Press Enter')) {
+                canvas.setAttribute('aria-label', `${accessibleLabel} Click a point to toggle SDK, VMR, and runtime commit details. Press Enter to toggle the latest visible point.`);
+            }
             const model = focusChartModel(metric, averaged, showBands, visibility);
+            const latestVisibleIndex = (() => {
+                for (let index = metric.points.length - 1; index >= 0; index--) {
+                    if (model.series.some(series => rawValue(metric.points[index], series.key) !== null)) return index;
+                }
+                return -1;
+            })();
+            if (typeof canvas.addEventListener === 'function') {
+                const keydown = (event: KeyboardEvent) => {
+                    if ((event.key === 'Enter' || event.key === ' ') && latestVisibleIndex >= 0) {
+                        event.preventDefault();
+                        this.showDetail(metric, metric.points[latestVisibleIndex], averaged, canvas);
+                    }
+                };
+                canvas.addEventListener('keydown', keydown);
+                this.cleanups.push(() => canvas.removeEventListener('keydown', keydown));
+            }
             const tooltipSize = averaged ? 10 : 12;
             const tooltipPadding = 4;
             const wrapTooltip = (text: string, title = false) => {
@@ -225,6 +448,13 @@ export class FocusCharts {
                 options: {
                     responsive: true, maintainAspectRatio: false, animation: false, parsing: false,
                     interaction: { mode: 'index', intersect: false },
+                    onClick: (_event: unknown, elements: { index: number }[]) => {
+                        const point = metric.points[elements[0]?.index];
+                        if (point) this.showDetail(metric, point, averaged, canvas);
+                    },
+                    onHover: (_event: unknown, elements: unknown[]) => {
+                        canvas.style.cursor = elements.length ? 'pointer' : 'default';
+                    },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
@@ -237,7 +467,10 @@ export class FocusCharts {
                                 title(items: { dataIndex: number }[]) {
                                     const point = metric.points[items[0]?.dataIndex];
                                     return point ? [
-                                        point.observation.sdkVersion, `${metric.fixedReference ? 'Before source' : report.comparisonKind === 'local' ? 'Comparison' : 'SDK'} day ${point.observation.day} (UTC)`,
+                                        point.observation.sdkVersion,
+                                        `${metric.fixedReference ? 'Before source' : report.comparisonKind === 'local' ? 'Comparison' : 'SDK'} day ${point.observation.day} (UTC)`,
+                                        ...(point.observation.runtimeCommitDateTime
+                                            ? [`Runtime pack commit ${point.observation.runtimeCommitDateTime.slice(0, 10)} (UTC)`] : []),
                                     ].flatMap(text => wrapTooltip(text, true)) : [];
                                 },
                                 label(item: { datasetIndex: number; dataIndex: number }) {

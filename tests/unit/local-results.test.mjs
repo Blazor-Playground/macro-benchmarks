@@ -79,13 +79,13 @@ test('summary prints real units, samples, SDK/TFM, the Mono denominator and Core
     assert.match(text, /404 ms/);
     assert.match(text, /\+777\.2% slower/);
     assert.match(text, /\+481\.9% slower/);
-    assert.match(text, /4\.937 MB/);
+    assert.match(text, /4\.708 MiB/);
     assert.match(text, /9\.59 s/);
     assert.match(text, /42\.00 s/);
     assert.match(text, /mobile cold 5, warm 3; desktop walkthrough 1/);
     assert.match(text, /Cold startup \(mobile\)/);
     assert.match(text, /Walkthrough \(desktop\)/);
-    assert.doesNotMatch(text, /Warm startup|12,351 ms|99\.000 MB/);
+    assert.doesNotMatch(text, /Warm startup|12,351 ms|94\.414 MiB/);
     assert.equal((text.match(/Havit \/ chrome \/ NET12 focus/g) ?? []).length, 1);
     assert.match(text, /TFM net11\.0/);
     assert.match(text, /Checkout: \/recorded\/clean-runtime/);
@@ -118,8 +118,8 @@ test('console focus metrics use the same mobile/desktop values as the dashboard'
     assert.equal(dashboard.report.metrics[0].latest.coreclr, 2351);
     assert.match(text, /2,351 ms/);
     assert.equal(dashboard.report.metrics[2].latest.coreclr, 4936829);
-    assert.match(text, /4\.937 MB/);
-    assert.doesNotMatch(text, /12,351 ms|99\.000 MB|Warm startup/);
+    assert.match(text, /4\.708 MiB/);
+    assert.doesNotMatch(text, /12,351 ms|94\.414 MiB|Warm startup/);
 });
 
 test('history and matched console views use the same controls as the corresponding UI view', () => {

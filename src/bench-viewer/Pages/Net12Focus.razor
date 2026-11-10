@@ -101,7 +101,7 @@ else
                     <strong>@AppName(app)</strong>
                     @if (GraphsEnabled)
                     {
-                        <span>SDK build order with UTC dates, not elapsed time. @(averaged ? "Up-to-five-point means" : "Raw observations")@(averaged && showBands ? " / min-max bands" : "")</span>
+                        <span>SDK build order with UTC dates, not elapsed time. @(averaged ? "Up-to-five-point means" : "Raw observations")@(averaged && showBands ? " / min-max bands" : ""). Click a point to show or hide commit details.</span>
                     }
                     else if (configuration != null)
                     {
@@ -180,7 +180,7 @@ else
                     desktop has no throttling. This timer runs from JS bootstrap to managed-ready, not navigation to full rendering.
                     Walkthrough, download and build comparisons use their published desktop/Chromium rows for the selected flavor.
                     Download bytes are not assumed profile-independent. Missing selected runtime, preset or profile rows stay missing; there is no per-point fallback.</p>
-                <p>Build time excludes restore. Download MB are decimal. SDK 12 does not imply a net12.0 target: the actual recorded TFM is shown in the settings.
+                <p>Build time excludes restore. Download sizes use binary MiB (1 MiB = 1,048,576 bytes). SDK 12 does not imply a net12.0 target: the actual recorded TFM is shown in the settings.
                     Refresh data loads a new publication; local flavor, profile and range changes reuse the loaded all-row data.</p>
                 <p>Published headers have representative timestamps, not reliable per-cell execution provenance. The inspected Havit Mono/CoreCLR jobs used different runners.
                     Exact browser, hardware, methodology revision and evaluated build settings are not recorded per cell; history can reflect harness changes.

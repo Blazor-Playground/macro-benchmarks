@@ -951,6 +951,122 @@ code {
     color: var(--focus-muted);
 }
 
+.net12-focus .focus-detail-panel {
+    position: fixed;
+    inset: 0 0 0 auto;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    width: min(390px, 100vw);
+    height: 100vh;
+    background: #fff;
+    border-left: 1px solid var(--focus-border);
+    box-shadow: -12px 0 32px rgb(32 33 56 / 18%);
+    color: var(--focus-ink);
+}
+
+.net12-focus .focus-detail-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 20px;
+    background: #f8f8fc;
+    border-bottom: 1px solid var(--focus-border);
+}
+
+.net12-focus .focus-detail-eyebrow {
+    margin: 0 0 5px;
+    color: #716989;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+}
+
+.net12-focus .focus-detail-header h2 {
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.25;
+}
+
+.net12-focus .focus-detail-subtitle {
+    margin: 5px 0 0;
+    color: var(--focus-muted);
+    font-size: 11px;
+    overflow-wrap: anywhere;
+}
+
+.net12-focus .focus-detail-close {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid #d6d3e2;
+    border-radius: 6px;
+    background: #fff;
+    color: #514a64;
+    cursor: pointer;
+    font-size: 22px;
+    line-height: 1;
+}
+
+.net12-focus .focus-detail-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 20px 24px;
+}
+
+.net12-focus .focus-detail-body section {
+    padding: 16px 0;
+    border-bottom: 1px solid #eeeef4;
+}
+
+.net12-focus .focus-detail-body section:last-child {
+    border-bottom: 0;
+}
+
+.net12-focus .focus-detail-body h3 {
+    margin: 0 0 10px;
+    color: #4b465a;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.net12-focus .focus-detail-rows {
+    display: grid;
+    grid-template-columns: minmax(92px, 0.75fr) minmax(0, 1.5fr);
+    gap: 8px 14px;
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+.net12-focus .focus-detail-rows dt {
+    color: var(--focus-muted);
+    font-weight: 500;
+}
+
+.net12-focus .focus-detail-rows dd {
+    min-width: 0;
+    margin: 0;
+    color: #28283b;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.net12-focus .focus-detail-hash {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 10px;
+}
+
+.net12-focus .focus-detail-rows a {
+    color: #512bd4;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
 .net12-focus .focus-sdk {
     overflow-wrap: anywhere;
 }
@@ -1071,4 +1187,5 @@ code {
     .net12-focus .focus-values div { gap: 10px; }
     .net12-focus .focus-rolling-caption { font-size: 12px; }
     .net12-focus .focus-plot { height: 200px; }
+    .net12-focus .focus-detail-panel { width: 100vw; }
 }

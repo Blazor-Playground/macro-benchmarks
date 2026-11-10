@@ -29,6 +29,18 @@ function timestamp(value: unknown): string {
     if (!Number.isFinite(Date.parse(result))) throw new Error('Invalid Debug timestamp');
     return result;
 }
+function optionalTimestamp(value: unknown): string | null {
+    return value === undefined || value === null ? null : timestamp(value);
+}
+function optionalHash(value: unknown, label: string): string | null {
+    if (value === undefined || value === null) return null;
+    const result = text(value);
+    if (!/^[a-f0-9]{40}$/i.test(result)) throw new Error(`Invalid Debug ${label} hash`);
+    return result;
+}
+function optionalText(value: unknown): string | null {
+    return value === undefined || value === null ? null : text(value);
+}
 function segment(value: unknown): string {
     const result = text(value);
     if (!/^[a-z0-9-]+$/.test(result)) throw new Error('Invalid Debug app ID');
@@ -131,7 +143,16 @@ export function parseDebugPayload(value: unknown, index: DebugIndex, app: string
         };
         return {
             id, app, preset: b.preset, methodology: b.methodology, measuredAt: timestamp(b.measuredAt), smoke: flag(b.smoke),
-            sdk: { version: text(sdk.version), day: utcDay(sdk.day) },
+            sdk: {
+                version: text(sdk.version), day: utcDay(sdk.day),
+                sdkHash: optionalHash(sdk.sdkHash, 'SDK'),
+                sdkCommitDateTime: optionalTimestamp(sdk.sdkCommitDateTime),
+                runtimeHash: optionalHash(sdk.runtimeHash, 'runtime'),
+                runtimePackVersion: optionalText(sdk.runtimePackVersion),
+                runtimeCommitDateTime: optionalTimestamp(sdk.runtimeCommitDateTime),
+                vmrHash: optionalHash(sdk.vmrHash, 'VMR'),
+                vmrCommitDateTime: optionalTimestamp(sdk.vmrCommitDateTime),
+            },
             source: { harnessSha: text(source.harnessSha), harnessDigest: text(source.harnessDigest), appDigest: text(source.appDigest) },
             environment: {
                 os: text(environment.os), arch: text(environment.arch), cpu: text(environment.cpu), cpuCount: count(environment.cpuCount),

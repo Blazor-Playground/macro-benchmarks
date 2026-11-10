@@ -20,7 +20,9 @@ export interface ColumnMetadata {
     benchmarkDateTime: string;
     aspnetCoreGitHash: string;
     sdkGitHash: string;
+    sdkCommitDateTime?: string;
     vmrGitHash: string;
+    vmrCommitDateTime?: string;
     [key: string]: unknown;
 }
 

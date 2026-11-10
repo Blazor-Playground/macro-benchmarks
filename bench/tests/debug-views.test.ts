@@ -45,6 +45,23 @@ test('raw validation accepts current DevLoop and earlier clean-Debug identity wi
     assert.throws(() => validateDebugBatch(current), /Invalid/);
 });
 
+test('raw validation accepts optional commit provenance and rejects malformed values', () => {
+    const current: DebugBatch = debugBatch();
+    validateDebugBatch(current);
+    for (const key of ['sdkCommitDateTime', 'runtimeCommitDateTime', 'vmrCommitDateTime'] as const) {
+        current.sdk[key] = 'not-a-timestamp';
+        assert.throws(() => validateDebugBatch(current), /Invalid/);
+        delete current.sdk[key];
+        validateDebugBatch(current);
+    }
+    current.sdk.runtimePackVersion = '';
+    assert.throws(() => validateDebugBatch(current), /Invalid/);
+    delete current.sdk.runtimePackVersion;
+    validateDebugBatch(current);
+    current.sdk.runtimeHash = 'not-a-hash';
+    assert.throws(() => validateDebugBatch(current), /Invalid/);
+});
+
 test('full local paired provenance does not masquerade as controlled CI', () => {
     const batch: DebugBatch = debugBatch();
     batch.environment.controlled = false;

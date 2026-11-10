@@ -105,7 +105,7 @@
                     @if (metadata != null)
                     {
                         <span>Cold samples: before @metadata.BeforeColdSamples / after @metadata.AfterColdSamples.
-                            Warm startup: @FormatMs(metadata.BeforeWarm) → @FormatMs(metadata.AfterWarm).</span>
+                            Warm startup: @FormatMs(metadata.BeforeWarm) → @FormatMs(metadata.AfterWarm). Click a point to show or hide commit details.</span>
                         @if (metadata.HasMonoReference)
                         {
                             <span>Mono before cold samples: @metadata.MonoColdSamples. Main % is CoreCLR after versus Mono before.</span>

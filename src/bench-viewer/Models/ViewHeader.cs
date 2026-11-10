@@ -31,8 +31,14 @@ public class ColumnInfo
     [JsonPropertyName("sdkGitHash")]
     public string? SdkGitHash { get; set; }
 
+    [JsonPropertyName("sdkCommitDateTime")]
+    public string? SdkCommitDateTime { get; set; }
+
     [JsonPropertyName("vmrGitHash")]
     public string? VmrGitHash { get; set; }
+
+    [JsonPropertyName("vmrCommitDateTime")]
+    public string? VmrCommitDateTime { get; set; }
 
     [JsonPropertyName("aspnetCoreGitHash")]
     public string? AspnetCoreGitHash { get; set; }

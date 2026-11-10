@@ -185,7 +185,8 @@ With history, the summary uses the latest passed controls against fixed after;
 date and comparison path.
 
 The summary uses mobile cold startup and desktop walkthrough/download/publish.
-Download uses decimal MB; publish time excludes restore and runtime builds.
+Download uses binary MiB (1 MiB = 1,048,576 bytes); publish time excludes
+restore and runtime builds.
 
 **NET12 focus** compares after with Mono before; **CoreCLR change** compares after
 with CoreCLR before. Without Mono, the first column uses after vs before.

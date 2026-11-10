@@ -10,8 +10,8 @@ import type { TickLayout } from './tick-layout.js';
 export function formatValue(value: number | null, unit: string): string {
     if (value == null) return '—';
     if (unit === 'bytes') {
-        if (value >= 1048576) return (value / 1048576).toFixed(2) + ' MB';
-        if (value >= 1024) return (value / 1024).toFixed(2) + ' KB';
+        if (value >= 1048576) return (value / 1048576).toFixed(2) + ' MiB';
+        if (value >= 1024) return (value / 1024).toFixed(2) + ' KiB';
         return value + ' B';
     }
     if (unit === 's') {

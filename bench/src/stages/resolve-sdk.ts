@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import { type BenchContext, type SdkInfo } from '../context.js';
 import { banner, info } from '../log.js';
 import { getVersionMajor, populateVersionFields } from '../lib/version-utils.js';
-import { fetchJson, githubHeaders, resolveGitHubToken, GITHUB_API } from '../lib/http.js';
+import { fetchGitHubCommitMetadata, fetchJson, githubHeaders, resolveGitHubToken, GITHUB_API } from '../lib/http.js';
 import { updateBuildLock } from '../lib/build-lock.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -192,34 +192,17 @@ async function resolveAspNetCorePR(prNumber: string): Promise<{
     };
 }
 
-// ── Commit metadata fetch ────────────────────────────────────────────────────
-
-interface GitHubCommit {
-    commit: {
-        message: string;
-        author: { name: string; date: string };
-        committer: { date: string };
-    };
-}
-
 async function fetchCommitMetadata(repo: string, sha: string): Promise<{
     commitDateTime: string;
     commitAuthor: string;
     commitMessage: string;
 }> {
     const token = await resolveGitHubToken();
-    const headers = githubHeaders(token);
-    const data = await fetchJson<GitHubCommit>(
-        `${GITHUB_API}/repos/${repo}/commits/${sha}`, headers,
-    );
+    const data = await fetchGitHubCommitMetadata(repo, sha, token);
     if (!data) {
         throw new Error(`Could not fetch commit '${sha}' from ${repo}`);
     }
-    return {
-        commitDateTime: data.commit.committer.date,
-        commitAuthor: data.commit.author.name,
-        commitMessage: data.commit.message.split('\n')[0],
-    };
+    return data;
 }
 
 // ── Stage Entry Point ────────────────────────────────────────────────────────
@@ -287,6 +270,8 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         aspnetCoreGitHash: ctx.aspnetCoreCommit || sdkEntry.entry.aspnetCoreGitHash,
         sdkGitHash: sdkEntry.entry.sdkGitHash,
         vmrGitHash: sdkEntry.entry.vmrGitHash,
+        sdkCommitDateTime: sdkEntry.entry.sdkCommitDateTime,
+        vmrCommitDateTime: sdkEntry.entry.vmrCommitDateTime,
         runtimeCommitDateTime: runtimeMeta?.commitDateTime || runtimeEntry.entry.runtimeCommitDateTime,
         runtimeCommitAuthor: runtimeMeta?.commitAuthor || runtimeEntry.entry.runtimeCommitAuthor,
         runtimeCommitMessage: runtimeMeta?.commitMessage || runtimeEntry.entry.runtimeCommitMessage,

@@ -25,6 +25,15 @@ test('clean Debug has four scenarios plus optional walkthrough, never publish me
     assert.equal(report.metrics[0].mono.valueMs, 1000);
     assert.equal(report.metrics[0].coreclr.valueMs, 1250);
     assert.equal(report.metrics[0].comparison.value, 25);
+    assert.equal(report.metrics[0].points[0].observation.sdkCommitDateTime, '2026-09-29T06:15:00Z');
+    assert.equal(report.metrics[0].points[0].observation.runtimeCommitDateTime, '2026-09-28T08:30:00.000Z');
+    assert.equal(report.metrics[0].points[0].observation.sdkGitHash, 'a'.repeat(40));
+    assert.equal(report.metrics[0].points[0].observation.runtimeGitHash, 'b'.repeat(40));
+    assert.equal(report.metrics[0].points[0].observation.runtimePackVersion, '12.0.0-alpha.1.26429.4');
+    assert.equal(report.metrics[0].points[0].observation.vmrGitHash, 'd'.repeat(40));
+    assert.equal(report.metrics[0].points[0].observation.vmrCommitDateTime, '2026-09-28T04:30:00.000Z');
+    assert.equal(report.metrics[0].points[0].observation.measuredAt, '2026-09-29T12:00:00Z');
+    assert.equal(report.metrics[0].points[0].observation.sourceId, 'fixture-2026-09-29-havit-bootstrap');
     assert.equal(report.metrics[2].comparison, null);
     assert.equal(report.metrics[2].mono.valueMs, 5000);
     assert.equal(report.metrics[2].coreclr.status, 'unsupported-runtime');
@@ -114,6 +123,11 @@ test('wire validation rejects status/value lies, count mismatches, duplicate IDs
         b => { b.runtimes.coreclr.measurements['debug-hot-reload-edit-to-render'].valueMs = 12; },
         b => { b.runtimes.mono.measurements['debug-first-run-to-first-render'].attempts.forEach(a => { a.valueMs = 2000; }); },
         b => { b.runtimes.mono.properties.Configuration = 'Release'; },
+        b => { b.sdk.sdkHash = 'not-a-hash'; },
+        b => { b.sdk.runtimePackVersion = ''; },
+        b => { b.sdk.sdkCommitDateTime = 'not-a-timestamp'; },
+        b => { b.sdk.runtimeCommitDateTime = 'not-a-timestamp'; },
+        b => { b.sdk.vmrCommitDateTime = 'not-a-timestamp'; },
     ]) {
         const batch = debugBatch(); modify(batch);
         assert.throws(() => publication([batch]));
@@ -128,7 +142,11 @@ test('clean DevLoop results and earlier clean-Debug prototype results remain rea
     assert.equal(publication([current]).batches.length, 1);
     const prototype = debugBatch();
     prototype.preset = 'debug';
+    delete prototype.sdk.sdkCommitDateTime;
+    delete prototype.sdk.vmrCommitDateTime;
     assert.equal(publication([prototype]).batches.length, 1);
+    assert.equal(publication([prototype]).batches[0].sdk.sdkCommitDateTime, null);
+    assert.equal(publication([prototype]).batches[0].sdk.vmrCommitDateTime, null);
     prototype.id = 'earlier-clean-debug-prototype';
     assert.equal(buildDebugReport(publication([prototype, current]), current.app, '14d', now).metrics[0].points.length, 2);
     const tuned = debugBatch();

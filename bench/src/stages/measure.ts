@@ -29,6 +29,7 @@ import { runMudWalkthrough } from '../lib/mud-walkthrough.js';
 import { runIgniteUIWalkthrough } from '../lib/igniteui-walkthrough.js';
 import { runUnoWalkthrough } from '../lib/uno-walkthrough.js';
 import { runSemiWalkthrough } from '../lib/semi-walkthrough.js';
+import { runInspectWebWalkthrough } from '../lib/inspect-web-walkthrough.js';
 import { avaloniaScenario } from '../lib/avalonia-scenarios.js';
 import {
     runCounterHeavyWasm, runCounterHeavyServer,
@@ -259,6 +260,8 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
     // selfNav: fresh browser per run so each Avalonia boot's WebGL context is fully
     // torn down, avoiding Chromium's live-context cap during the multi-run walkthrough.
     { app: A.SemiAvalonia, metric: MetricKey.SemiWalkthrough, fn: runSemiWalkthrough as WalkthroughFn, selfNav: true },
+    // inspect-web: compute-bound engine scenario (~10s per run), so fewer runs than UI walkthroughs.
+    { app: A.InspectWeb, metric: MetricKey.InspectWebWalkthrough, fn: runInspectWebWalkthrough as WalkthroughFn, runs: 5 },
 
     // avalonia-bench scenarios (src/avalonia-bench/Scenarios + wwwroot/main.mjs)
     { app: A.AvaloniaBench, metric: MetricKey.AvaloniaVirtualizedScrollOps, fn: avaloniaScenario('virtualized-scroll') as WalkthroughFn, runs: 3 },

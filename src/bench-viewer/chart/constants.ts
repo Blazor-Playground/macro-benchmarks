@@ -50,6 +50,7 @@ export const METRIC_UNITS: Record<string, string> = {
     'mud-walkthrough': 'ms',
     'uno-walkthrough': 'ms',
     'semi-walkthrough': 'ms',
+    'inspect-web-walkthrough': 'ms',
     'blazor-js-to-cs-number': 'ops/sec',
     'blazor-js-to-cs-string': 'ops/sec',
     'blazor-js-to-cs-json': 'ops/sec',
@@ -111,6 +112,7 @@ export const METRIC_DISPLAY: Record<string, string> = {
     'igniteui-walkthrough': 'Ignite Walkthrough',
     'uno-walkthrough': 'Uno Gallery Walkthrough',
     'semi-walkthrough': 'Semi Avalonia Walkthrough',
+    'inspect-web-walkthrough': 'Inspect Web Walkthrough',
 
     'blazor-js-to-cs-number': 'Blazor JS\u2192CS Number/sec',
     'blazor-js-to-cs-string': 'Blazor JS\u2192CS String/sec',
@@ -205,6 +207,7 @@ export const BUILD_METRICS = new Set([
 // Walkthrough metrics are only collected for chrome/desktop (includes avalonia-bench scenarios)
 export const WALKTHROUGH_METRICS = new Set([
     'pizza-walkthrough', 'havit-walkthrough', 'mud-walkthrough', 'uno-walkthrough', 'semi-walkthrough',
+    'inspect-web-walkthrough',
     'avalonia-virtualized-scroll-ops', 'avalonia-control-templates-ops',
     'avalonia-text-layout-ops', 'avalonia-skia-drawing-ops',
     'avalonia-fps-layout-resize', 'avalonia-fps-render-transforms',

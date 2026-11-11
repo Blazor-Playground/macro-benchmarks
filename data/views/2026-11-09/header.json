@@ -127,6 +127,38 @@
       "benchmarkDateTime": "2026-11-11T09:05:03.003Z",
       "ciRunId": "42987830258",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/42987830258"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26561.101",
+      "runtimeGitHash": "09e99bccc548301eb58b738564c3115bd34d69cd",
+      "aspnetCoreGitHash": "eeceb660128d3d00ea9b35effe4fad3fac3d42e3",
+      "sdkGitHash": "6623b2f6a9665efda99a799ec766eeae54feb2b6",
+      "vmrGitHash": "f62df906d7e56e6aabaf9147e5b5ed6c86016a0a",
+      "sdkCommitDateTime": "2026-11-11T00:41:43Z",
+      "vmrCommitDateTime": "2026-11-11T06:27:30Z",
+      "runtimeCommitDateTime": "2026-11-11T01:29:59Z",
+      "runtimeCommitAuthor": "Rahul Bhandari",
+      "runtimeCommitMessage": "Reuse mutable JSON extension data dictionaries (#137266)",
+      "aspnetCoreCommitDateTime": "2026-11-09T21:55:27Z",
+      "aspnetCoreCommitAuthor": "Marek Fišera",
+      "aspnetCoreCommitMessage": "Improve reviewer handling of secondary failure suppression (#70312)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26561.101",
+      "runtimePackVersion": "12.0.0-alpha.1.26561.101",
+      "workloadVersion": "12.0.0-alpha.1.26561.101",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26555.106",
+      "releaseDate": "2026-11-11",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "readyToRun": {
+        "compilation": "full",
+        "composite": true
+      },
+      "benchmarkDateTime": "2026-11-11T18:07:54.604Z",
+      "ciRunId": "43069021770",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/43069021770"
     }
   ],
   "apps": {

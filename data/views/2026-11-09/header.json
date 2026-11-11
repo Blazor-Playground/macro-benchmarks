@@ -65,6 +65,38 @@
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/42880630776"
     },
     {
+      "sdkVersion": "12.0.100-alpha.1.26560.116",
+      "runtimeGitHash": "6c64c0b7e128082e449efacd56573f8f9dcad85d",
+      "aspnetCoreGitHash": "eeceb660128d3d00ea9b35effe4fad3fac3d42e3",
+      "sdkGitHash": "1f81383b02618dbe8781271d6053cf200821f681",
+      "vmrGitHash": "d9ec64cd017a226f57581d37bca8d90227a23d64",
+      "sdkCommitDateTime": "2026-11-09T23:41:14Z",
+      "vmrCommitDateTime": "2026-11-10T16:58:51Z",
+      "runtimeCommitDateTime": "2026-11-10T01:28:43Z",
+      "runtimeCommitAuthor": "Larry Ewing",
+      "runtimeCommitMessage": "[browser][coreCLR] corerun: exit Node naturally after main returns (#136897)",
+      "aspnetCoreCommitDateTime": "2026-11-09T21:55:27Z",
+      "aspnetCoreCommitAuthor": "Marek Fišera",
+      "aspnetCoreCommitMessage": "Improve reviewer handling of secondary failure suppression (#70312)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26560.116",
+      "runtimePackVersion": "12.0.0-alpha.1.26560.116",
+      "workloadVersion": "12.0.0-alpha.1.26560.116",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26555.106",
+      "releaseDate": "2026-11-10",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "readyToRun": {
+        "compilation": "full",
+        "composite": true
+      },
+      "benchmarkDateTime": "2026-11-11T10:41:09.014Z",
+      "ciRunId": "43000808613",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/43000808613"
+    },
+    {
       "sdkVersion": "12.0.100-alpha.1.26560.121",
       "runtimeGitHash": "6c64c0b7e128082e449efacd56573f8f9dcad85d",
       "aspnetCoreGitHash": "eeceb660128d3d00ea9b35effe4fad3fac3d42e3",

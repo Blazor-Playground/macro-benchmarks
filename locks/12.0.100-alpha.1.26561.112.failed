@@ -1,0 +1,31 @@
+{
+  "failedAt": "2026-11-13T01:31:20.660Z",
+  "ciRunId": "43341930476",
+  "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/43341930476",
+  "failures": [
+    {
+      "target": "blazing-pizza/shard",
+      "errorLines": [
+        "fetch failed"
+      ]
+    },
+    {
+      "target": "empty-browser/shard",
+      "errorLines": [
+        "fetch failed"
+      ]
+    },
+    {
+      "target": "micro-benchmarks/shard",
+      "errorLines": [
+        "fetch failed"
+      ]
+    },
+    {
+      "target": "semi-avalonia/shard",
+      "errorLines": [
+        "fetch failed"
+      ]
+    }
+  ]
+}

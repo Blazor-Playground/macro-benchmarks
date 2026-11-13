@@ -223,6 +223,38 @@
       "benchmarkDateTime": "2026-11-12T22:27:04.753Z",
       "ciRunId": "43315259211",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/43315259211"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26562.108",
+      "runtimeGitHash": "491df16a2137388fef8dc3c7c0526aa0bc290f42",
+      "aspnetCoreGitHash": "aae674b53f4a98a8578d4e18555ee907074e3a6c",
+      "sdkGitHash": "6623b2f6a9665efda99a799ec766eeae54feb2b6",
+      "vmrGitHash": "8b22ce04ad5fa175ef5cd8f96c38fcba40e173dc",
+      "sdkCommitDateTime": "2026-11-11T00:41:43Z",
+      "vmrCommitDateTime": "2026-11-12T14:51:52Z",
+      "runtimeCommitDateTime": "2026-11-12T01:18:44Z",
+      "runtimeCommitAuthor": "Andy Ayers",
+      "runtimeCommitMessage": "JIT: initialize wasm funclet relocation addends (#137278)",
+      "aspnetCoreCommitDateTime": "2026-11-11T00:57:02Z",
+      "aspnetCoreCommitAuthor": "Rahul Bhandari",
+      "aspnetCoreCommitMessage": "Merge pull request #70449 from rbhanda/security/nov2026-118749",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26562.108",
+      "runtimePackVersion": "12.0.0-alpha.1.26562.108",
+      "workloadVersion": "12.0.0-alpha.1.26562.108",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26557.102",
+      "releaseDate": "2026-11-12",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "readyToRun": {
+        "compilation": "full",
+        "composite": true
+      },
+      "benchmarkDateTime": "2026-11-13T12:10:07.688Z",
+      "ciRunId": "43418943638",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/43418943638"
     }
   ],
   "apps": {

@@ -1,0 +1,51 @@
+<RadzenStack class="rz-p-0 rz-p-md-6 rz-p-lg-12">
+    <RadzenCard Variant="Variant.Outlined">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenSwitch @bind-Value="showMarkers" Name="showMarkers" Change="@(() => StateHasChanged())" />
+                <RadzenLabel Text="Show Markers" Component="showMarkers" />
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenCard>
+
+    <RadzenSpiderChart ShowMarkers="@showMarkers" Style="width: 100%; height: 500px;">
+    <RadzenSpiderSeries TItem="SkillData"
+                        Data="@aliceData"
+                        CategoryProperty="@nameof(SkillData.Skill)"
+                        ValueProperty="@nameof(SkillData.Score)"
+                        Title="Alice" />
+    <RadzenSpiderSeries TItem="SkillData"
+                        Data="@bobData"
+                        CategoryProperty="@nameof(SkillData.Skill)"
+                        ValueProperty="@nameof(SkillData.Score)"
+                        Title="Bob" />
+    </RadzenSpiderChart>
+</RadzenStack>
+
+@code {
+    bool showMarkers = true;
+
+    class SkillData
+    {
+        public string Skill { get; set; }
+        public double Score { get; set; }
+    }
+
+    IEnumerable<SkillData> aliceData = new SkillData[]
+    {
+        new SkillData { Skill = "Communication", Score = 90 },
+        new SkillData { Skill = "Problem Solving", Score = 85 },
+        new SkillData { Skill = "Teamwork", Score = 92 },
+        new SkillData { Skill = "Leadership", Score = 78 },
+        new SkillData { Skill = "Creativity", Score = 88 },
+    };
+
+    IEnumerable<SkillData> bobData = new SkillData[]
+    {
+        new SkillData { Skill = "Communication", Score = 75 },
+        new SkillData { Skill = "Problem Solving", Score = 92 },
+        new SkillData { Skill = "Teamwork", Score = 80 },
+        new SkillData { Skill = "Leadership", Score = 88 },
+        new SkillData { Skill = "Creativity", Score = 70 },
+    };
+}

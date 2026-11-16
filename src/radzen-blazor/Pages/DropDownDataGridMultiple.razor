@@ -1,0 +1,40 @@
+@using RadzenBlazorDemos.Models.Northwind
+
+@inherits DbContextPage
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0.5rem" class="rz-p-12">
+    <RadzenLabel Text="Select Values" Component="DropDownDataGridMultiple" />
+    <RadzenDropDownDataGrid @ref="grid" Chips="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" @bind-Value=@values
+                            Multiple="true" Placeholder="Select..." Data=@customers TextProperty="@nameof(Customer.CompanyName)" ValueProperty="@nameof(Customer.CustomerID)" Name="DropDownDataGridMultiple">
+        <Columns>
+            <RadzenDropDownDataGridColumn Width="60px" Sortable="false">
+                <HeaderTemplate>
+                    <RadzenCheckBox InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "select all" }})" Disabled="@(!grid.AllowSelectAll)" TriState="false" TValue="bool" Value="@(customers.Any(c => values != null && values.Contains(c.CustomerID)))"
+                                    Change="@(args => values = args ? grid.View.Cast<Customer>().Select(c => c.CustomerID) : values = Enumerable.Empty<string>())" />
+                </HeaderTemplate>
+                <Template Context="data">
+                    <RadzenCheckBox InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "select item" }})" TriState="false" Value="@(values != null && values.Contains(((Customer) data).CustomerID))"
+                                    TValue="bool" Change=@(args => grid.SelectItem(data)) @onclick:stopPropagation/>
+                </Template>
+            </RadzenDropDownDataGridColumn>
+            <RadzenDropDownDataGridColumn Property="@nameof(Customer.CustomerID)" Title="CustomerID" Width="80px" />
+            <RadzenDropDownDataGridColumn Property="@nameof(Customer.CompanyName)" Title="CompanyName" Width="200px" />
+            <RadzenDropDownDataGridColumn Property="@nameof(Customer.City)" Title="City" Width="100px" />
+            <RadzenDropDownDataGridColumn Property="@nameof(Customer.Country)" Title="Country" Width="100px" />
+        </Columns>
+    </RadzenDropDownDataGrid>
+</RadzenStack>
+
+@code {
+    RadzenDropDownDataGrid<IEnumerable<string>> grid;
+    IEnumerable<Customer> customers;
+
+    IEnumerable<string> values = new string[] { "ALFKI", "AROUT" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        customers = dbContext.Customers;
+    }
+}

@@ -1,0 +1,117 @@
+@page "/tabs"
+
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Blazor Tabs
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    The Blazor Tabs component organizes content into tabbed panels, with positioning, dynamic tabs, and lazy or client/server rendering.
+</RadzenText>
+
+<RadzenText Anchor="tabs#tabs-position" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Tabs position
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>TabPosition</code> property to position tabs at the top, bottom, left, or right of the content area.
+</RadzenText>
+<RadzenExample ComponentName="Tabs" Example="TabsPosition">
+    <TabsPosition />
+</RadzenExample>
+
+<RadzenText Anchor="tabs#server-render-mode" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Server render mode
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Only selected tab content will be rendered.
+</RadzenText>
+<RadzenExample ComponentName="Tabs" Example="TabsServer">
+    <TabsServer />
+</RadzenExample>
+
+<RadzenText Anchor="tabs#client-render-mode" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Client render mode
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    All tabs will be rendered initially and tab change will be performed completely using JavaScript
+</RadzenText>
+<RadzenExample ComponentName="Tabs" Example="TabsClient">
+    <TabsClient />
+</RadzenExample>
+
+
+<RadzenText Anchor="tabs#tabs-modify" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    TabItems modify
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Demonstrating modifications to the TabItem collection
+</RadzenText>
+<RadzenExample ComponentName="Tabs" Example="TabsModify">
+    <TabsModify />
+</RadzenExample>
+
+<RadzenText Anchor="tabs#tabs-overflow" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Tabs overflow
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>Overflow</code> property to control what happens when the tabs do not fit in the available space.
+    <code>TabsOverflow.Default</code> shrinks the tabs to their minimum size and lets the tab list overflow, <code>TabsOverflow.Wrap</code> wraps them to additional lines, <code>TabsOverflow.Scroll</code> scrolls the tab list
+    and <code>TabsOverflow.Collapse</code> moves the tabs that do not fit into a dropdown menu opened from a button at the end of the tab list. The selected tab always stays visible.
+</RadzenText>
+<RadzenExample ComponentName="Tabs" Example="TabsOverflowModes">
+    <TabsOverflowModes />
+</RadzenExample>
+
+<RadzenText Anchor="tabs#prevent-tab-change" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Prevent Tab change
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Demonstrating how to prevent Tab change
+</RadzenText>
+<RadzenExample ComponentName="Tabs" Example="TabsChange">
+    <TabsChange />
+</RadzenExample>
+
+
+<RadzenText Anchor="tabs#closable-tabs" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Closable tabs
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Set <code>Closable</code> to <code>true</code> on a <code>RadzenTabsItem</code> to render a close icon in it. Clicking the icon or pressing <code>Delete</code> while the tab has keyboard focus raises the <code>Close</code> event
+    of <code>RadzenTabs</code> with the tab and its index. Remove the tab from your collection in that event; the component then selects the neighbouring tab.
+</RadzenText>
+<RadzenExample ComponentName="Tabs" Example="TabsClose">
+    <TabsClose />
+</RadzenExample>
+
+<RadzenText Anchor="tabs#reorder" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Reorder tabs
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Set <code>AllowReorder</code> to <code>true</code> to enable drag and drop reordering of tabs.
+</RadzenText>
+<RadzenExample ComponentName="Tabs" Example="TabsReorder">
+    <TabsReorder />
+</RadzenExample>
+
+<RadzenText Anchor="tabs#keyboard-navigation" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Keyboard Navigation
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    The following keys or key combinations provide a way for users to navigate and interact with Radzen Blazor Tabs component.
+</RadzenText>
+
+<KeyboardNavigationDataGrid Data="@shortcuts" />
+
+@code {
+    public List<KeyboardShortcut> shortcuts = new()
+    {
+        new KeyboardShortcut { Key = "Tab", Action = "Navigate to a Tabs component." },
+        new KeyboardShortcut { Key = "RightArrow", Action = "Focus next Tab in a horizontal tab list, wrapping from the last Tab to the first and skipping disabled Tabs." },
+        new KeyboardShortcut { Key = "LeftArrow", Action = "Focus previous Tab in a horizontal tab list, wrapping from the first Tab to the last and skipping disabled Tabs." },
+        new KeyboardShortcut { Key = "DownArrow", Action = "Focus next Tab in a vertical tab list, wrapping from the last Tab to the first and skipping disabled Tabs." },
+        new KeyboardShortcut { Key = "UpArrow", Action = "Focus previous Tab in a vertical tab list, wrapping from the first Tab to the last and skipping disabled Tabs." },
+        new KeyboardShortcut { Key = "Home", Action = "Focus the first Tab." },
+        new KeyboardShortcut { Key = "End", Action = "Focus the last Tab." },
+        new KeyboardShortcut { Key = "Space or Enter on a focused Tab", Action = "Select the Tab." },
+        new KeyboardShortcut { Key = "Delete on a focused closable Tab", Action = "Close the Tab." }
+    };
+}

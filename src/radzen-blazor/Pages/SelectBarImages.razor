@@ -1,0 +1,12 @@
+<div class="rz-p-12 rz-text-align-center">
+    <RadzenSelectBar @bind-Value=@value TValue="bool">
+        <Items>
+            <RadzenSelectBarItem Image="images/radzen-nuget.png" ImageStyle="zoom: 30%; margin-inline-end: 20px;" Text="On" Value="true" />
+            <RadzenSelectBarItem Text="Off" Value="false" />
+        </Items>
+    </RadzenSelectBar>
+</div>
+
+@code {
+    bool value;
+}

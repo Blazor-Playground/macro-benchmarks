@@ -101,6 +101,7 @@ and [local commands](cli-reference.md#clean-debug).
 | `pizza-walkthrough` | ms | Blazing Pizza navigation scenario |
 | `havit-walkthrough` | ms | Havit Bootstrap interaction scenario |
 | `mud-walkthrough` | ms | MUD Blazor interaction scenario |
+| `radzen-walkthrough` | ms | Visit every included offline Radzen gallery page and wait for async initialization and rendering; initial load and final return home excluded |
 | `uno-walkthrough` | ms | Uno Gallery navigation scenario |
 | `semi-walkthrough` | ms | Semi Avalonia: select each demo page and wait until it is rendered |
 

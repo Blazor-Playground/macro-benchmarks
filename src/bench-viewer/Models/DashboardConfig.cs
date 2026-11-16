@@ -23,6 +23,7 @@ public static class DashboardConfig
         "havit-bootstrap" => "Havit Bootstrap",
         "mud-blazor" => "Mud Blazor",
         "igniteui-light" => "Ignite UI Light",
+        "radzen-blazor" => "Radzen Blazor",
         "uno-gallery" => "Uno Gallery",
         "semi-avalonia" => "Semi Avalonia",
         "avalonia-bench" => "Avalonia Bench",
@@ -46,7 +47,7 @@ public static class DashboardConfig
     // Preferred app display order
     public static readonly List<string> AppOrder = new()
     {
-        "blazing-pizza", "havit-bootstrap", "mud-blazor", "igniteui-light", "blazor-perf", "empty-blazor",
+        "blazing-pizza", "havit-bootstrap", "mud-blazor", "igniteui-light", "radzen-blazor", "blazor-perf", "empty-blazor",
         "semi-avalonia", "avalonia-bench", "uno-gallery",
         "empty-browser", "empty-browser",
         "micro-benchmarks", "blazor-perf",
@@ -56,7 +57,7 @@ public static class DashboardConfig
     // Preferred metric display order
     public static readonly List<string> MetricOrder = new()
     {
-        "pizza-walkthrough", "havit-walkthrough", "mud-walkthrough", "igniteui-walkthrough", "semi-walkthrough", "uno-walkthrough",
+        "pizza-walkthrough", "havit-walkthrough", "mud-walkthrough", "igniteui-walkthrough", "radzen-walkthrough", "semi-walkthrough", "uno-walkthrough",
         "blazor-counter-heavy-wasm", "blazor-counter-heavy-server",
         "blazor-params-count-wasm", "blazor-params-count-server", "blazor-params-count-ssr", "blazor-params-count-htmlrenderer",
         "blazor-params-count-ssr-stress", "blazor-params-count-htmlrenderer-stress", "blazor-params-count-server-stress",
@@ -82,6 +83,6 @@ public static class DashboardConfig
     // Apps that are Blazor-based (cannot run in v8/node CLI engines)
     public static readonly HashSet<string> BlazorApps = new()
     {
-        "empty-blazor", "blazing-pizza", "havit-bootstrap", "bench-viewer", "mud-blazor", "igniteui-light", "blazor-perf"
+        "empty-blazor", "blazing-pizza", "havit-bootstrap", "bench-viewer", "mud-blazor", "igniteui-light", "radzen-blazor", "blazor-perf"
     };
 }

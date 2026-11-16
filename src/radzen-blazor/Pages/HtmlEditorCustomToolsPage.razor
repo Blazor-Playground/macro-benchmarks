@@ -1,0 +1,38 @@
+@page "/html-editor-custom-tools"
+
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Radzen Blazor HtmlEditor custom tools
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    Add your own buttons to the Blazor HTML Editor toolbar with the <code>RadzenHtmlEditorCustomTool</code> tag.
+</RadzenText>
+
+<RadzenText Anchor="html-editor-custom-tools#command-execute-event" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Custom command on Execute event
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    In its basic form you create a button and handle the <code>Execute</code> event of the HtmlEditor to implement the command.
+</RadzenText>
+<RadzenExample ComponentName="HtmlEditor" Example="HtmlEditorCustomToolExecute">
+    <HtmlEditorCustomToolExecute />
+</RadzenExample>
+
+<RadzenText Anchor="html-editor-custom-tools#command-template" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Custom tool with template
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    You can also specify custom UI via the <code>Template</code> of the RadzenHtmlEditorCustomTool.
+</RadzenText>
+<RadzenExample ComponentName="HtmlEditor" Example="HtmlEditorCustomToolTemplate">
+    <HtmlEditorCustomToolTemplate />
+</RadzenExample>
+
+<RadzenText Anchor="html-editor-custom-tools#command-dialog" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Custom dialog
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Create custom editor tools with dialog interfaces for specialized editing features.
+</RadzenText>
+<RadzenExample ComponentName="HtmlEditor" Example="HtmlEditorCustomToolDialog" AdditionalSourceCodePages=@(new [] {"/demos/Pages/HtmlEditorCustomDialog.razor"})>
+    <HtmlEditorCustomToolDialog />
+</RadzenExample>

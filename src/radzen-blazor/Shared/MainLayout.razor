@@ -1,0 +1,40 @@
+@inherits LayoutComponentBase
+
+<RadzenLayout>
+    <RadzenHeader>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" class="rz-px-4 rz-py-2">
+            <RadzenSidebarToggle Click="@(() => sidebarExpanded = !sidebarExpanded)" />
+            <RadzenLink Path="" Text="Radzen Blazor Gallery" class="gallery-title" />
+            <RadzenBadge Text="Offline benchmark" BadgeStyle="BadgeStyle.Secondary" />
+        </RadzenStack>
+    </RadzenHeader>
+    <RadzenSidebar @bind-Expanded="@sidebarExpanded">
+        <nav aria-label="Component gallery">
+            <RadzenPanelMenu>
+                <RadzenPanelMenuItem Text="Overview" Path="" Match="NavLinkMatch.All" />
+                @foreach (var group in GalleryPages.All.GroupBy(page => page.Category))
+                {
+                    <RadzenPanelMenuItem Text="@group.Key" Expanded="true">
+                        @foreach (var entry in group)
+                        {
+                            <RadzenPanelMenuItem Text="@entry.Title" Path="@entry.Path" />
+                        }
+                    </RadzenPanelMenuItem>
+                }
+            </RadzenPanelMenu>
+        </nav>
+    </RadzenSidebar>
+    <RadzenBody>
+        <main id="page-content" class="rz-p-4 rz-p-md-8">
+            @Body
+        </main>
+        <footer class="rz-p-4">
+            Examples adapted from <a href="https://github.com/radzenhq/radzen-blazor/tree/v13.1.0">Radzen Blazor v13.1.0</a>, MIT licensed.
+        </footer>
+    </RadzenBody>
+</RadzenLayout>
+<RadzenComponents />
+
+@code {
+    private bool sidebarExpanded = true;
+}

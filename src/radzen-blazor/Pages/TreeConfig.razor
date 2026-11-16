@@ -1,0 +1,65 @@
+@using System.IO
+@using Microsoft.EntityFrameworkCore
+@using RadzenBlazorDemos.Models.Northwind
+
+<RadzenCard class="rz-my-12 rz-mx-auto" style="max-width: 400px;">
+    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Inline definition</RadzenText>
+    <RadzenTree Expand=@OnExpand Collapse=@OnCollapse Change=@OnChange Style="width: 100%; height: 300px">
+        <RadzenTreeItem Text="BMW">
+            <ChildContent>
+                <RadzenTreeItem Text="M3" />
+                <RadzenTreeItem Text="M5" />
+            </ChildContent>
+            <Template>
+                <RadzenIcon Icon="directions_car" class="rz-me-2" />
+                <b>@context.Text</b>
+            </Template>
+        </RadzenTreeItem>
+        <RadzenTreeItem Text="Audi">
+            <ChildContent>
+                <RadzenTreeItem Text="RS4" />
+                <RadzenTreeItem Text="RS6" />
+            </ChildContent>
+            <Template>
+                <RadzenIcon Icon="directions_car" class="rz-me-2" />
+                <b>@context.Text</b>
+            </Template>
+        </RadzenTreeItem>
+        <RadzenTreeItem Text="Mercedes">
+            <Template>
+                <RadzenIcon Icon="directions_car" class="rz-me-2" />
+                <b>@context.Text</b>
+            </Template>
+            <ChildContent>
+                <RadzenTreeItem Text="C63 AMG" />
+                <RadzenTreeItem Text="S63 AMG" />
+            </ChildContent>
+        </RadzenTreeItem>
+    </RadzenTree>
+</RadzenCard>
+
+<EventConsole @ref=@console />
+
+@code {
+    EventConsole console;
+
+    void Log(string eventName, string value)
+    {
+        console.Log($"{eventName}: {value}");
+    }
+
+    void OnChange(TreeEventArgs args)
+    {
+        Log("Change", $"Item Text: {args.Text}");
+    }
+
+    void OnExpand(TreeExpandEventArgs args)
+    {
+        Log("Expand", $"Text: {args.Text}");
+    }
+
+    void OnCollapse(TreeEventArgs args)
+    {
+        Log("Collapse", $"Text: {args.Text}");
+    }
+}

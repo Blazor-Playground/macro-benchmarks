@@ -1,0 +1,20 @@
+@page "/popup"
+
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Blazor Popup
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    The Blazor Popup shows floating content anchored to an element via PopupService, for custom dropdowns and overlays.
+</RadzenText>
+
+<RadzenExample ComponentName="Popup" Example="PopupConfig">
+    <PopupConfig />
+</RadzenExample>
+
+<RadzenText Anchor="popup#datagrid" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Popup for <strong>TextBox</strong> with <strong>DataGrid</strong>.
+</RadzenText>
+
+<RadzenExample ComponentName="Popup" Example="PopupDataGrid">
+    <PopupDataGrid />
+</RadzenExample>

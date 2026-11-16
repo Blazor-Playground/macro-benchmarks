@@ -1,0 +1,15 @@
+@inject NotificationService NotificationService
+
+<RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="2rem" Wrap="FlexWrap.Wrap" class="rz-p-12">
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap">
+        <RadzenToggleButton ButtonStyle="ButtonStyle.Success" ToggleButtonStyle="ButtonStyle.Danger" ToggleShade="Shade.Default" Click=@(args => OnClick("Primary button"))
+                            Text="Toggle Severity" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Button" }})" />
+    </RadzenStack>
+</RadzenStack>
+
+@code {
+    private void OnClick(string text)
+    {
+        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "ToggleButton Clicked", Detail = text });
+    }
+}

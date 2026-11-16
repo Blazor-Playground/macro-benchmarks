@@ -1,0 +1,24 @@
+@inject NotificationService NotificationService
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="1rem" Wrap="FlexWrap.Wrap" class="rz-p-12">
+    <RadzenSplitButton Click=@(args => OnClick(args, "Primary split button")) AlwaysOpenPopup=true Text="Primary">
+        <ChildContent>
+            <RadzenSplitButtonItem Text="Item1" Value="1" />
+            <RadzenSplitButtonItem Text="Item2" Value="2" />
+        </ChildContent>
+    </RadzenSplitButton>
+</RadzenStack>
+
+@code {
+    void OnClick(RadzenSplitButtonItem item, string buttonName)
+    {
+        if (item != null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "SplitButton Item Clicked", Detail = $"{buttonName}, item with value {item.Value} clicked" });
+        }
+        else
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "SplitButton Clicked", Detail = $"{buttonName} clicked" });
+        }
+    }
+}

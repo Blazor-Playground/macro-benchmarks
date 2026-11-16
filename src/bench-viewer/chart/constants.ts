@@ -48,6 +48,7 @@ export const METRIC_UNITS: Record<string, string> = {
     'pizza-walkthrough': 'ms',
     'havit-walkthrough': 'ms',
     'mud-walkthrough': 'ms',
+    'radzen-walkthrough': 'ms',
     'uno-walkthrough': 'ms',
     'semi-walkthrough': 'ms',
     'blazor-js-to-cs-number': 'ops/sec',
@@ -109,6 +110,7 @@ export const METRIC_DISPLAY: Record<string, string> = {
     'havit-walkthrough': 'Havit Bootstrap Walkthrough',
     'mud-walkthrough': 'MudBlazor Walkthrough',
     'igniteui-walkthrough': 'Ignite Walkthrough',
+    'radzen-walkthrough': 'Radzen Blazor Walkthrough',
     'uno-walkthrough': 'Uno Gallery Walkthrough',
     'semi-walkthrough': 'Semi Avalonia Walkthrough',
 

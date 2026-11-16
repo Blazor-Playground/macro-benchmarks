@@ -1,0 +1,102 @@
+@page "/layout"
+<style>
+    .example-tabs .rz-layout {
+        height: 300px;
+    }
+</style>
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Blazor Layout
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    The Blazor Layout arranges a page into header, sidebar, body, and footer regions, with a collapsible sidebar.
+</RadzenText>
+
+<RadzenText Anchor="layout#sidebar-header-footer" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Sidebar, Header and Footer
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Create a standard layout with sidebar navigation, header, and footer sections using <code>RadzenLayout</code> components.
+</RadzenText>
+<RadzenExample ComponentName="Layout" Example="LayoutSidebarHeaderFooter" Documentation="false" Heading="false" Source="https://github.com/radzenhq/radzen-blazor/blob/master/Radzen.Blazor/RadzenLayout.cs">
+    <LayoutSidebarHeaderFooter />
+</RadzenExample>
+
+<RadzenText Anchor="layout#full-height-sidebar" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Full height Sidebar
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Create a sidebar that spans the full height of the viewport, sitting alongside the header and content.
+</RadzenText>
+<RadzenExample ComponentName="Layout" Example="LayoutFullHeightSidebar" Documentation="false" Heading="false" Source="https://github.com/radzenhq/radzen-blazor/blob/master/Radzen.Blazor/RadzenLayout.cs">
+    <LayoutFullHeightSidebar />
+</RadzenExample>
+
+<RadzenText Anchor="layout#overlay" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Overlay Sidebar
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Create a sidebar that overlays the content when opened, perfect for responsive mobile layouts.
+</RadzenText>
+<RadzenExample ComponentName="Layout" Example="LayoutSidebarOverlay" Documentation="false" Heading="false" Source="https://github.com/radzenhq/radzen-blazor/blob/master/Radzen.Blazor/RadzenLayout.cs">
+    <LayoutSidebarOverlay />
+</RadzenExample>
+
+<RadzenText Anchor="layout#overlay-full" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Full height overlay Sidebar
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Create a full-height overlay sidebar that covers the entire viewport height when opened.
+</RadzenText>
+<RadzenExample ComponentName="Layout" Example="LayoutSidebarFullHeightOverlay" Documentation="false" Heading="false" Source="https://github.com/radzenhq/radzen-blazor/blob/master/Radzen.Blazor/RadzenLayout.cs">
+    <LayoutSidebarFullHeightOverlay />
+</RadzenExample>
+
+<RadzenText Anchor="layout#right-sidebar" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Right Sidebar
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>Position="SidebarPosition.Right"</code> if you need to explicitly position the sidebar to the right, or <code>Position="SidebarPosition.End"</code> if you need to take into account <strong>RTL support</strong>.
+</RadzenText>
+<RadzenExample ComponentName="Layout" Example="LayoutRightSidebar" Documentation="false" Heading="false" Source="https://github.com/radzenhq/radzen-blazor/blob/master/Radzen.Blazor/RadzenLayout.cs">
+    <LayoutRightSidebar />
+</RadzenExample>
+
+<RadzenText Anchor="layout#right-full-height-sidebar" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Right full height Sidebar
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Position a full-height sidebar on the right side of the layout.
+</RadzenText>
+<RadzenExample ComponentName="Layout" Example="LayoutRightFullHeightSidebar" Documentation="false" Heading="false" Source="https://github.com/radzenhq/radzen-blazor/blob/master/Radzen.Blazor/RadzenLayout.cs">
+    <LayoutRightFullHeightSidebar />
+</RadzenExample>
+
+<RadzenText Anchor="layout#right-left-sidebar" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Right and Left Sidebar
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>Position="SidebarPosition.Right"</code> and <code>Position="SidebarPosition.Left"</code> if you need to explicitly position the sidebar to the right or to the left, without taking into account LTR or RTL direction.
+</RadzenText>
+<RadzenExample ComponentName="Layout" Example="LayoutRightLeftSidebar" Documentation="false" Heading="false" Source="https://github.com/radzenhq/radzen-blazor/blob/master/Radzen.Blazor/RadzenLayout.cs">
+    <LayoutRightLeftSidebar />
+</RadzenExample>
+
+<RadzenText Anchor="layout#start-end-sidebar" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Start and End Sidebar
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>Position="SidebarPosition.Start"</code> or <code>Position="SidebarPosition.End"</code> for international applications with <strong>RTL support</strong>.
+</RadzenText>
+<RadzenExample ComponentName="Layout" Example="LayoutStartEndSidebar" Documentation="false" Heading="false" Source="https://github.com/radzenhq/radzen-blazor/blob/master/Radzen.Blazor/RadzenLayout.cs">
+    <LayoutStartEndSidebar />
+</RadzenExample>
+
+<RadzenText Anchor="layout#icon-sidebar" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Icon Sidebar
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Create a compact icon-only sidebar that expands to show labels on hover or click.
+</RadzenText>
+<RadzenExample ComponentName="Layout" Example="LayoutIconSidebar" Documentation="false" Heading="false" Source="https://github.com/radzenhq/radzen-blazor/blob/master/Radzen.Blazor/RadzenLayout.cs">
+    <LayoutIconSidebar />
+</RadzenExample>

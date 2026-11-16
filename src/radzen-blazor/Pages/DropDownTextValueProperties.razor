@@ -1,0 +1,20 @@
+@using RadzenBlazorDemos.Models.Northwind
+
+@inherits DbContextPage
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0.5rem" class="rz-p-sm-12">
+    <RadzenLabel Text="Select Value" Component="DropDownTextValueProperties" />
+    <RadzenDropDown @bind-Value=@value Data=@customers TextProperty="@nameof(Customer.CompanyName)" ValueProperty="@nameof(Customer.CustomerID)" Style="width: 100%; max-width: 400px;" Name="DropDownTextValueProperties" />
+</RadzenStack>
+
+@code {
+    string value = "AROUT";
+    IEnumerable<Customer> customers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        customers = dbContext.Customers;
+    }
+}

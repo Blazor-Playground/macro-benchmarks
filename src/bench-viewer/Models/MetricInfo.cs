@@ -34,6 +34,7 @@ public class MetricInfo
         ["havit-walkthrough"] = new("havit-walkthrough", "Havit Bootstrap Walkthrough", "ms", "time"),
         ["mud-walkthrough"] = new("mud-walkthrough", "MudBlazor Walkthrough", "ms", "time"),
         ["igniteui-walkthrough"] = new("igniteui-walkthrough", "Ignite UI Walkthrough", "ms", "time"),
+        ["radzen-walkthrough"] = new("radzen-walkthrough", "Radzen Blazor Walkthrough", "ms", "time"),
         ["semi-walkthrough"] = new("semi-walkthrough", "Semi Avalonia Walkthrough", "ms", "time"),
         ["js-interop-ops"] = new("js-interop-ops", "JS Interop", "ops/sec", "throughput"),
         ["json-parse-ops"] = new("json-parse-ops", "JSON Parse", "ops/sec", "throughput"),

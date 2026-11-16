@@ -1,0 +1,233 @@
+@page "/datepicker"
+
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Blazor DatePicker
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    The Radzen Blazor DatePicker is a date and time picker with an inline calendar mode, time selection, date ranges, min/max and disabled dates, and DateOnly/TimeOnly binding.
+</RadzenText>
+
+<RadzenText Anchor="datepicker#get-set-value" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Get and Set the value of DatePicker
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    As all Radzen Blazor input components the <strong>DatePicker</strong> has a Value property which gets and sets the value of the component. Use <code>@@bind-Value</code> to get the user input.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerBindValue">
+    <DatePickerBindValue />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#immediate" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    DatePicker with immediate value update
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>Immediate="true"</code> to update the bound value as the user types a valid date, rather than waiting for the input to lose focus.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerImmediate">
+    <DatePickerImmediate />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#value-and-change-event" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Get and Set the value of DatePicker using Value and Change event
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Value property can be used to set the value of the component and <code>Change</code> event to get the user input.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerChangeEvent">
+    <DatePickerChangeEvent />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#datepicker-with-time" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    DatePicker with time
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>ShowTime="true"</code> to enable time selection alongside date selection.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerWithTime">
+    <DatePickerWithTime />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#hour-format" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Define hour format
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>HoursStep</code>, <code>MinutesStep</code>, and <code>SecondsStep</code> properties to configure time picker increments.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerHourFormat">
+    <DatePickerHourFormat />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#time-only-datepicker" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Time-only DatePicker
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>TimeOnly="true"</code> to display only the time picker without the date calendar.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerTimeOnly">
+    <DatePickerTimeOnly />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#special-disabled-dates" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    DatePicker with special or disabled dates
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>DateAttributes</code> property to highlight specific dates or disable certain dates from selection.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerSpecialDates">
+    <DatePickerSpecialDates />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#initial-view-date-and-year-change" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    DatePicker with initial view date and year range
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>InitialViewDate</code>, <code>YearRange</code>, and <code>InitialView</code> properties to control the calendar's starting view.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerInitialViewDate">
+    <DatePickerInitialViewDate />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#drill-down-navigation" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    DatePicker with drill-down navigation
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>NavigationMode="DatePickerNavigationMode.DrillDown"</code> to replace the month and year drop-downs with a clickable calendar title that drills up to a month grid and a year grid.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerDrillDown">
+    <DatePickerDrillDown />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#min-max-dates" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Set Min and Max dates
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>Min</code> and <code>Max</code> properties to restrict date selection to a specific range.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerMinMax">
+    <DatePickerMinMax />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#no-button" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    DatePicker with no button
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>ShowButton="false"</code> to hide the calendar icon button and open the picker by clicking the input field.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerNoButton">
+    <DatePickerNoButton />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#no-inputbox" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    DatePicker with no input box
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Hide the input field to display only the calendar button for date selection.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerNoInputBox">
+    <DatePickerNoInputBox />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#custom-footer" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    DatePicker with custom footer
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>FooterTemplate</code> property to add custom content at the bottom of the date picker calendar.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerFooterTemplate">
+    <DatePickerFooterTemplate />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#custom-input-parsing" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    DatePicker with custom input parsing
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    The Radzen Blazor <strong>DatePicker</strong> has a parameter named <code>ParseInput</code> which allows for a fully custom parse-method. This way you can accept inputs like '3012' or '30122023' and support more than one input-format. Click on the 'Edit Source' to see the implementation.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerParseInput">
+    <DatePickerParseInput />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#calendar" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    DatePicker as calendar
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>Inline="true"</code> to display the DatePicker as an always-visible calendar without an input field.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerCalendar">
+    <DatePickerCalendar />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#multiple" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Multiple dates selection
+ </RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>Multiple="true"</code> to enable selection of multiple dates in the calendar.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerMultiple">
+    <DatePickerMultiple />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#year-month-selection" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    DatePicker for year/month selection
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Set <code>ShowDays="false"</code> to pick only a year and month. The calendar opens in the month grid, the title drills up to the year grid and <code>CurrentDateChanged</code> reports the picked month.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerYearMonth">
+    <DatePickerYearMonth />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#dateonly-timeonly" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    DatePicker binds to types DateOnly or TimeOnly
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    <code>Value</code> property can be bound to values of type <code>DateOnly</code> or <code>TimeOnly</code>
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerWithDateOnlyTimeOnly">
+    <DatePickerWithDateOnlyTimeOnly />
+</RadzenExample>
+
+
+<RadzenText Anchor="datepicker#sizes" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    DatePicker Sizes
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>InputSize</code> property to set the DatePicker size. Available sizes are ExtraSmall, Small, Medium (default), and Large.
+</RadzenText>
+<RadzenExample ComponentName="DatePicker" Example="DatePickerSizes">
+    <DatePickerSizes />
+</RadzenExample>
+
+<RadzenText Anchor="datepicker#keyboard-navigation" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Keyboard Navigation
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    The following keys or key combinations provide a way for users to navigate and interact with Radzen Blazor DatePicker component.
+</RadzenText>
+
+<KeyboardNavigationDataGrid Data="@shortcuts" />
+
+@code {
+    public List<KeyboardShortcut> shortcuts = new()
+    {
+        new KeyboardShortcut { Key = "Tab", Action = "Navigate to a DatePicker component." },
+        new KeyboardShortcut { Key = "Alt + DownArrow", Action = "Open the calendar popup." },
+        new KeyboardShortcut { Key = "Tab on open popup", Action = "Navigate forward across available picker components." },
+        new KeyboardShortcut { Key = "Shift + Tab on open popup", Action = "Navigate backward across available picker components." },
+        new KeyboardShortcut { Key = "RightArrow on open popup", Action = "Move focus to the next day." },
+        new KeyboardShortcut { Key = "LeftArrow on open popup", Action = "Move focus to the previous day." },
+        new KeyboardShortcut { Key = "UpArrow on open popup", Action = "Move focus to the same day of the previous week." },
+        new KeyboardShortcut { Key = "DownArrow on open popup", Action = "Move focus to the same day of the next week." },
+        new KeyboardShortcut { Key = "Home on open popup", Action = "Move focus to the first day of the week." },
+        new KeyboardShortcut { Key = "End on open popup", Action = "Move focus to the last day of the week." },
+        new KeyboardShortcut { Key = "PageUp on open popup", Action = "Move focus to the same day of the previous month." },
+        new KeyboardShortcut { Key = "PageDown on open popup", Action = "Move focus to the same day of the next month." },
+        new KeyboardShortcut { Key = "Shift + PageUp on open popup", Action = "Move focus to the same day of the previous year." },
+        new KeyboardShortcut { Key = "Shift + PageDown on open popup", Action = "Move focus to the same day of the next year." },
+        new KeyboardShortcut { Key = "Enter or Space in an opened popup", Action = "Select the focused day and close the popup." },
+        new KeyboardShortcut { Key = "Enter or Space on the calendar title (drill-down navigation)", Action = "Drill up to month selection, then to year selection." },
+        new KeyboardShortcut { Key = "Arrow keys in month or year selection (drill-down navigation)", Action = "Move focus between months or years." },
+        new KeyboardShortcut { Key = "PageUp or PageDown in month or year selection (drill-down navigation)", Action = "Move focus to the previous or next year or page of years." },
+        new KeyboardShortcut { Key = "Esc in an opened popup", Action = "Close the popup." }
+    };
+}

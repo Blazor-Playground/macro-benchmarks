@@ -1,0 +1,21 @@
+@page "/requiredvalidator"
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Blazor RequiredValidator
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    Enforce mandatory field input with configurable error messages.
+</RadzenText>
+
+<RadzenExample ComponentName="RequiredValidator" Example="RequiredValidatorConfig" Source="https://github.com/radzenhq/radzen-blazor/blob/master/Radzen.Blazor/RadzenRequiredValidator.cs">
+    <RequiredValidatorConfig />
+</RadzenExample>
+
+<RadzenText Anchor="requiredvalidator#validate-radzendropdown" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Validate RadzenDropDown
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>RequiredValidator</code> to ensure a dropdown selection is made before form submission.
+</RadzenText>
+<RadzenExample ComponentName="RequiredValidator" Example="RequiredValidatorDropDown" Source="https://github.com/radzenhq/radzen-blazor/blob/master/Radzen.Blazor/RadzenRequiredValidator.cs">
+    <RequiredValidatorDropDown />
+</RadzenExample>

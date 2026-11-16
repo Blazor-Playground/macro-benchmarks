@@ -1,0 +1,99 @@
+@page "/radiobuttonlist"
+
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Blazor RadioButtonList
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    The Blazor RadioButtonList shows a set of radio buttons bound to data, with horizontal or vertical orientation and null value support.
+</RadzenText>
+
+<RadzenText  Anchor="radiobuttonlist#get-set-value" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Get and Set the value of RadioButtonList
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    As all Radzen Blazor input components the <strong>RadioButtonList</strong> has a Value property which gets and sets the value of the component. Use <code>@@bind-Value</code> to get the user input.
+</RadzenText>
+<RadzenExample ComponentName="RadioButtonList" Example="RadioButtonListBindValue">
+    <RadioButtonListBindValue />
+</RadzenExample>
+
+<RadzenText  Anchor="radiobuttonlist#value-and-change-event" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Get and Set the value of RadioButtonList using Value and Change event
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Value property can be used to set the value of the component and <code>Change</code> event to get the user input.
+</RadzenText>
+<RadzenExample ComponentName="RadioButtonList" Example="RadioButtonListChangeEvent">
+    <RadioButtonListChangeEvent />
+</RadzenExample>
+
+<RadzenText Anchor="radiobuttonlist#orientation" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Set RadioButtonList orientation and layout
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    RadioButtonList layout can be configured via various properties for position and alignment such as <code>Orientation</code>, <code>AlignItems</code>, and <code>JustifyContent</code>. The behavior is similar to <RadzenLink Text="RadzenStack" Path="/stack" />.
+</RadzenText>
+<RadzenExample ComponentName="RadioButtonList" Example="RadioButtonListOrientation">
+    <RadioButtonListOrientation />
+</RadzenExample>
+
+<RadzenText Anchor="radiobuttonlist#populate-items" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Populate RadioButtonList items from data
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>Data</code> property to dynamically populate RadioButtonList items from a collection.
+</RadzenText>
+<RadzenExample ComponentName="RadioButtonList" Example="RadioButtonListItemsFromData">
+    <RadioButtonListItemsFromData />
+</RadzenExample>
+
+<RadzenText Anchor="radiobuttonlist#populate-items-statically" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Statically declared and populated RadioButtonList items from data
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Combine statically declared items with data-bound items for flexible RadioButtonList configurations.
+</RadzenText>
+<RadzenExample ComponentName="RadioButtonList" Example="RadioButtonListDeclaredAndItemsFromData">
+    <RadioButtonListDeclaredAndItemsFromData />
+</RadzenExample>
+
+<RadzenText Anchor="radiobuttonlist#null-value" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    RadioButtonList with null value
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    RadioButtonList supports nullable value types, allowing no selection when the value is null.
+</RadzenText>
+<RadzenExample ComponentName="RadioButtonList" Example="RadioButtonListNullValue">
+    <RadioButtonListNullValue />
+</RadzenExample>
+
+<RadzenText Anchor="radiobuttonlist#populate-items-programmatically" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Populate items programmatically and disable item
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use loops to programmatically create RadioButtonList items and set individual items as disabled.
+</RadzenText>
+<RadzenExample ComponentName="RadioButtonList" Example="RadioButtonListForEach">
+    <RadioButtonListForEach />
+</RadzenExample>
+
+<RadzenText Anchor="radiobuttonlist#keyboard-navigation" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Keyboard Navigation
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    The following keys or key combinations provide a way for users to navigate and interact with Radzen Blazor RadioButtonList component.
+</RadzenText>
+
+<KeyboardNavigationDataGrid Data="@shortcuts" />
+
+@code {
+    public List<KeyboardShortcut> shortcuts = new()
+    {
+        new KeyboardShortcut { Key = "Tab", Action = "Move focus into the RadioButtonList." },
+        new KeyboardShortcut { Key = "Down or Right Arrow", Action = "Move focus to and select the next item." },
+        new KeyboardShortcut { Key = "Up or Left Arrow", Action = "Move focus to and select the previous item." },
+        new KeyboardShortcut { Key = "Home", Action = "Move focus to and select the first item." },
+        new KeyboardShortcut { Key = "End", Action = "Move focus to and select the last item." },
+        new KeyboardShortcut { Key = "Space or Enter", Action = "Select the focused item." }
+    };
+}

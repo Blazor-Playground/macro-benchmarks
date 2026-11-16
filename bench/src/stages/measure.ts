@@ -27,6 +27,7 @@ import { runPizzaWalkthrough } from '../lib/pizza-walkthrough.js';
 import { runHavitWalkthrough } from '../lib/havit-walkthrough.js';
 import { runMudWalkthrough } from '../lib/mud-walkthrough.js';
 import { runIgniteUIWalkthrough } from '../lib/igniteui-walkthrough.js';
+import { runRadzenWalkthrough } from '../lib/radzen-walkthrough.js';
 import { runUnoWalkthrough } from '../lib/uno-walkthrough.js';
 import { runSemiWalkthrough } from '../lib/semi-walkthrough.js';
 import { avaloniaScenario } from '../lib/avalonia-scenarios.js';
@@ -255,6 +256,7 @@ const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn; runs?: numbe
     { app: A.HavitBootstrap, metric: MetricKey.HavitWalkthrough, fn: runHavitWalkthrough as WalkthroughFn },
     { app: A.MudBlazor, metric: MetricKey.MudWalkthrough, fn: runMudWalkthrough as WalkthroughFn },
     { app: A.IgniteUILight, metric: MetricKey.IgniteUIWalkthrough, fn: runIgniteUIWalkthrough as WalkthroughFn },
+    { app: A.RadzenBlazor, metric: MetricKey.RadzenWalkthrough, fn: runRadzenWalkthrough },
     { app: A.UnoGallery, metric: MetricKey.UnoWalkthrough, fn: runUnoWalkthrough as WalkthroughFn },
     // selfNav: fresh browser per run so each Avalonia boot's WebGL context is fully
     // torn down, avoiding Chromium's live-context cap during the multi-run walkthrough.

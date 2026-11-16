@@ -1,0 +1,117 @@
+@page "/button"
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Blazor Button
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    The Radzen Blazor Button comes in filled, flat, outlined, and text variants, with sizes, icons, shades, busy and disabled states, and click handling.
+</RadzenText>
+
+<RadzenText Anchor="buttons#filled-buttons" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Filled Buttons
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    These are the default Radzen Buttons.
+</RadzenText>
+<RadzenExample ComponentName="Button" Example="ButtonFilled">
+    <ButtonFilled />
+</RadzenExample>
+
+<RadzenText Anchor="buttons#flat-buttons" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Flat Buttons
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>Variant="Variant.Flat"</code> for flat button variant.
+</RadzenText>
+<RadzenExample ComponentName="Button" Example="ButtonFlat">
+    <ButtonFlat />
+</RadzenExample>
+
+<RadzenText Anchor="buttons#outlined-buttons" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Outlined Buttons
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>Variant="Variant.Outlined"</code> for outlined button variant.
+</RadzenText>
+<RadzenExample ComponentName="Button" Example="ButtonOutlined">
+    <ButtonOutlined />
+</RadzenExample>
+
+<RadzenText Anchor="buttons#text-buttons" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Text Buttons
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>Variant="Variant.Text"</code> for text button variant.
+</RadzenText>
+<RadzenExample ComponentName="Button" Example="ButtonText">
+    <ButtonText />
+</RadzenExample>
+
+<RadzenText Anchor="buttons#content-in-buttons" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Content in Buttons
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Text, icons and images can be added to a button.
+</RadzenText>
+<RadzenExample ComponentName="Button" Example="ButtonContent">
+    <ButtonContent />
+</RadzenExample>
+
+<RadzenText Anchor="buttons#button-sizes" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Button Sizes
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>Size</code> property to set button size. Available sizes are ExtraSmall, Small, Medium (default), and
+    Large.
+</RadzenText>
+<RadzenExample ComponentName="Button" Example="ButtonSizes">
+    <ButtonSizes />
+</RadzenExample>
+
+<RadzenText Anchor="buttons#fab" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    FAB-like button
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    See how you can achieve Floating action button look and feel. See also the standalone <RadzenLink Path="/fab" >RadzenFab</RadzenLink> and <RadzenLink Path="/fab-menu" >RadzenFabMenu</RadzenLink> components.
+</RadzenText>
+<RadzenExample ComponentName="Button" Example="ButtonFab">
+    <ButtonFab />
+</RadzenExample>
+
+<RadzenText Anchor="buttons#disabled-button" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Disabled Button
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>Disabled="true"</code> to disable a button.
+</RadzenText>
+<RadzenExample ComponentName="Button" Example="ButtonDisabled">
+    <ButtonDisabled />
+</RadzenExample>
+
+<RadzenText Anchor="buttons#busy-button" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Busy button
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>IsBusy="true"</code> to show the busy indicator.
+</RadzenText>
+<RadzenExample ComponentName="Button" Example="ButtonBusy">
+    <ButtonBusy />
+</RadzenExample>
+
+<RadzenText Anchor="buttons#keyboard-navigation" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Keyboard Navigation
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    The following keys or key combinations provide a way for users to navigate and interact with Radzen Blazor Button
+    component.
+</RadzenText>
+
+<KeyboardNavigationDataGrid Data="@shortcuts" />
+
+@code {
+    public List<KeyboardShortcut> shortcuts = new()
+{
+new KeyboardShortcut { Key = "Tab", Action = "Navigate to a button." },
+new KeyboardShortcut { Key = "Enter", Action = "Click the focused button." },
+new KeyboardShortcut { Key = "Space", Action = "Click the focused button." }
+};
+}

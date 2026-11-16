@@ -13,6 +13,7 @@ Daily performance tracking for .NET WebAssembly in browsers. Automatically build
 | **havit-bootstrap** | Havit Blazor Bootstrap component library |
 | **mud-blazor** | MUD Blazor Material Design component library |
 | **igniteui-light** | Infragistics FOSS component library |
+| **radzen-blazor** | Offline Radzen component gallery using the NuGet library, with a full-page navigation walkthrough (.NET 9+) |
 | **avalonia-bench** | Minimal Avalonia app — startup plus virtualization, templates, styling, text, Skia drawing, rendering (FPS) and dispatcher scenarios |
 
 ## Pipeline stages
@@ -47,7 +48,7 @@ Default: `resolve-sdk,download-sdk,build,measure,transform-views`
 - **Download size** — compressed bytes over the wire (Chrome CDP)
 - **Time to managed** — cold (first load) and warm (min of reloads) to `dotnet_managed_ready`
 - **Memory peak** — max JS heap observed during load
-- **Walkthrough timing** — interactive navigation scenarios (pizza, havit, mud)
+- **Walkthrough timing** — interactive navigation scenarios (pizza, havit, mud, Radzen and other galleries)
 - **Microbenchmark ops/sec** — JS interop, JSON parse, exception handling
 
 **NET12 dev-loop** (`/net12-debug`) measures clean-Debug run-to-render,

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+  <PropertyGroup>
+    <TargetFramework>$(BenchmarkTargetFramework)</TargetFramework>
+    <DashName>radzen-blazor</DashName>
+    <RootNamespace>RadzenBlazorDemos</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="$(MicrosoftAspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="$(MicrosoftAspNetCoreVersion)" PrivateAssets="all" Condition="'$(MicrosoftAspNetCoreVersion)' == '$(BundledNETCoreAppPackageVersion)'" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="$(MicrosoftEntityFrameworkCoreVersion)" />
+    <PackageReference Include="Radzen.Blazor" Version="$(RadzenBlazorVersion)" />
+  </ItemGroup>
+</Project>

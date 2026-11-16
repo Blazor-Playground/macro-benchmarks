@@ -1,0 +1,49 @@
+@using RadzenBlazorDemos.Data
+@using RadzenBlazorDemos.Models.Northwind
+@using Microsoft.EntityFrameworkCore
+
+@inherits DbContextPage
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0.5rem" class="rz-p-12">
+    <RadzenLabel Text="Select Value" Component="DropDownDataGridFilteringLoadData" />
+    <RadzenDropDownDataGrid AllowClear="true" @bind-Value=value
+                    LoadData=@LoadData AllowFiltering="true"
+                    Data=@customers Count=@count TextProperty="@nameof(Customer.CompanyName)" ValueProperty="@nameof(Customer.CustomerID)" Name="DropDownDataGridFilteringLoadData" />
+</RadzenStack>
+
+@code {
+    IEnumerable<Customer> customers;
+    string value;
+    int count;
+
+    void LoadData(LoadDataArgs args)
+    {
+        var query = dbContext.Customers.AsQueryable();
+
+        if (!string.IsNullOrEmpty(args.Filter))
+        {
+            query = query.Where(c => c.CustomerID.ToLower().Contains(args.Filter.ToLower()) || c.ContactName.ToLower().Contains(args.Filter.ToLower()));
+        }
+
+        count = query.Count();
+
+        if (!string.IsNullOrEmpty(args.OrderBy))
+        {
+            query = query.OrderBy(args.OrderBy);
+        }
+
+        if (args.Skip != null)
+        {
+            query = query.Skip(args.Skip.Value);
+        }
+
+        if (args.Top != null)
+        {
+            query = query.Take(args.Top.Value);
+        }
+
+        customers = query.ToList();
+
+        InvokeAsync(StateHasChanged);
+    }
+}

@@ -1,0 +1,53 @@
+@page "/chart-tooltip"
+
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Radzen Blazor Chart Tooltip
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    Tooltips show the values behind a point on hover. You can customize their content, share one tooltip across series, split them, or turn them off.
+</RadzenText>
+
+<RadzenAlert AlertStyle="AlertStyle.Info" Variant="Variant.Flat" Shade="Shade.Lighter" AllowClose="false" class="rz-mb-8">
+Chart tooltips are displayed by the <code>RadzenChartTooltip</code> component. Add <code>&lt;RadzenChartTooltip /&gt;</code> or <code>&lt;RadzenComponents /&gt;</code> (which includes it) to your application layout as described in the
+<RadzenLink Text="getting started" Path="get-started" /> instructions — without it the chart renders normally but no tooltips appear.
+</RadzenAlert>
+
+<RadzenText Anchor="chart-tooltip#customize-tooltip-content" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Customize tooltip content
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    To customize the tooltip content use the <code>TooltipTemplate</code> setting of the series.
+</RadzenText>
+<RadzenExample ComponentName="Chart" Example="ChartToolTipContent">
+    <ChartToolTipContent />
+</RadzenExample>
+
+<RadzenText Anchor="chart-tooltip#shared-tooltip" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Shared tooltip
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Set <code>Shared="true"</code> on <code>RadzenChartTooltipOptions</code> to display a single tooltip listing the values of all series at the hovered category.
+</RadzenText>
+<RadzenExample ComponentName="Chart" Example="ChartSharedToolTip">
+    <ChartSharedToolTip />
+</RadzenExample>
+
+<RadzenText Anchor="chart-tooltip#split-tooltip" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Split tooltip
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Set <code>Split="true"</code> on <code>RadzenChartTooltipOptions</code> to render one small tooltip box per series, each anchored near its own data point at the hovered category.
+</RadzenText>
+<RadzenExample ComponentName="Chart" Example="ChartSplitToolTip">
+    <ChartSplitToolTip />
+</RadzenExample>
+
+<RadzenText Anchor="chart-tooltip#disable-tooltips" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Disable tooltips
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    To disable the tooltips, set the <code>Visible</code> property of the <code>RadzenChartTooltipOptions</code> tag to false.
+</RadzenText>
+<RadzenExample ComponentName="Chart" Example="ChartToolTipDisable">
+    <ChartToolTipDisable />
+</RadzenExample>

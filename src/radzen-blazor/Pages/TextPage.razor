@@ -1,0 +1,96 @@
+@page "/typography"
+
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Blazor Text
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    Format and style text in your application with predefined text styles.
+</RadzenText>
+
+<RadzenText Anchor="typography#text-style" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Text Style
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>TextStyle</code> property to apply a predefined text style.
+</RadzenText>
+<RadzenExample Example="TextStyles">
+    <TextStyles />
+</RadzenExample>
+
+<RadzenText Anchor="typography#text-tag-name" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Text Style and Tag Name
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    You can use <code>TextStyle</code> together with <code>TagName</code> to apply different styling while keeping the code semantically correct.
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    <code>TextStyle</code> controls only the visual style of the text, while <code>TagName</code> controls the HTML element that is rendered. Set <code>TagName</code> so that the document keeps a correct heading hierarchy as required by WCAG 1.3.1.
+</RadzenText>
+<RadzenExample Example="TextTagName">
+    <TextTagName />
+</RadzenExample>
+
+<RadzenText Anchor="typography#text-display-headings" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Display headings
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use display headings to emphasise a text or page title. Display headings are usually larger than traditional headings.
+</RadzenText>
+<RadzenExample Example="TextDisplayHeadings">
+    <TextDisplayHeadings />
+</RadzenExample>
+
+<RadzenText Anchor="typography#text-align" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Text Align
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    You can use <code>TextAlign</code> to align your text.
+</RadzenText>
+<RadzenExample Example="TextAlignment">
+    <TextAlignment />
+</RadzenExample>
+
+<RadzenText Anchor="typography#text-color" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Text Functional Colors
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    These are the theme's text color CSS variables. Each theme has its own text color values assigned. Change the theme to preview them. You can use CSS variables in styles e.g. <code>style="color: var(--rz-text-secondary-color);"</code>
+</RadzenText>
+<RadzenExample Example="TextColor">
+    <TextColor />
+</RadzenExample>
+
+<RadzenText Anchor="typography#text-transform" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Text Transform
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use CSS classes to capitalize text. E.g. <code>class="rz-text-uppercase"</code>.
+</RadzenText>
+<RadzenExample Example="TextTransform">
+    <TextTransform />
+</RadzenExample>
+
+<RadzenText Anchor="typography#text-wrap" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Text Wrap
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>rz-text-wrap</code>, <code>rz-text-nowrap</code>, and <code>rz-text-truncate</code> CSS classes to specify how the text content should wrap. E.g. <code>class="rz-text-truncate"</code>.
+</RadzenText>
+<RadzenExample Example="TextWrap">
+    <TextWrap />
+</RadzenExample>
+<RadzenRow>
+    <RadzenColumn Size="12">
+        <RadzenText Anchor="typography#video-radzen-text" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+            How Typography Works in Radzen Blazor Studio
+        </RadzenText>
+        <RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P">
+            Take full control of text styling in your Blazor applications using Radzen Blazor Studio.
+        </RadzenText>
+    <RadzenCard Variant="Variant.Outlined" class="rz-p-7">
+        <div class="embed-container">
+            <a href="https://www.youtube.com/watch?v=Gx1C4ybaEFE" target="_blank" rel="noopener noreferrer">Watch the tutorial online</a>
+        </div>
+    </RadzenCard>
+    </RadzenColumn>
+</RadzenRow>

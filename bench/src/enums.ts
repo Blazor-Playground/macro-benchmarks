@@ -44,6 +44,7 @@ export enum App {
     MudBlazor = 'mud-blazor',
     SemiAvalonia = 'semi-avalonia',
     IgniteUILight = 'igniteui-light',
+    RadzenBlazor = 'radzen-blazor',
     AvaloniaBench = 'avalonia-bench',
 }
 
@@ -59,6 +60,7 @@ export function getDefaultApps(): App[] {
         App.AvaloniaBench,
         App.UnoGallery,
         App.IgniteUILight,
+        App.RadzenBlazor,
         App.BlazorPerf,
     ];
 }
@@ -111,6 +113,7 @@ export enum MetricKey {
     HavitWalkthrough = 'havit-walkthrough',
     MudWalkthrough = 'mud-walkthrough',
     IgniteUIWalkthrough = 'igniteui-walkthrough',
+    RadzenWalkthrough = 'radzen-walkthrough',
     UnoWalkthrough = 'uno-walkthrough',
     SemiWalkthrough = 'semi-walkthrough',
     BlazorJsToCsNumber = 'blazor-js-to-cs-number',
@@ -187,6 +190,7 @@ export const APP_CONFIG: Record<App, AppConfig> = {
     [App.HavitBootstrap]: { browserOnly: true, internal: false, monoOnly: false },
     [App.MudBlazor]: { browserOnly: true, internal: false, monoOnly: false },
     [App.IgniteUILight]: { browserOnly: true, internal: false, monoOnly: false },
+    [App.RadzenBlazor]: { browserOnly: true, internal: false, monoOnly: false },
 
     // bench-viewer and uno-gallery only run on Mono (Uno's WASM bootstrap isn't CoreCLR-compatible).
     [App.BenchViewer]: { browserOnly: true, internal: false, monoOnly: true },
@@ -211,7 +215,7 @@ export const MONO_ONLY_PRESETS = new Set<Preset>([
 ]);
 
 /** Apps that use Blazor (DOM-dependent, no CLI engine support). */
-export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazorPerf, App.BlazingPizza, App.HavitBootstrap, App.BenchViewer, App.MudBlazor, App.IgniteUILight, App.BlazorPerf]);
+export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazorPerf, App.BlazingPizza, App.HavitBootstrap, App.BenchViewer, App.MudBlazor, App.IgniteUILight, App.RadzenBlazor, App.BlazorPerf]);
 export const CORECLR_R2R_PRESETS = new Set<Preset>([
     Preset.Aot, Preset.R2RPgo,
 ]);
@@ -345,6 +349,9 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     }
     if (app === App.MudBlazor && ctx.sdkInfo.major < 9) {
         return `MudBlazor app '${app}' does not build with SDK versions below 9.0.0`;
+    }
+    if (app === App.RadzenBlazor && ctx.sdkInfo.major < 9) {
+        return `Radzen Blazor app '${app}' does not build with SDK versions below 9.0.0`;
     }
     if (AVALONIA_APPS.has(app) && ctx.sdkInfo.major < 10) {
         return `Avalonia app '${app}' does not build with SDK versions below 10.0.0`;

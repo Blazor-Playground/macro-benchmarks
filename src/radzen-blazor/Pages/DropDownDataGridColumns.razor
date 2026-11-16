@@ -1,0 +1,28 @@
+@using RadzenBlazorDemos.Models.Northwind
+
+@inherits DbContextPage
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0.5rem" class="rz-p-12">
+    <RadzenLabel Text="Select Value" Component="DropDownDataGridColumns" />
+    <RadzenDropDownDataGrid @bind-Value=@value Data=@customers TextProperty="@nameof(Customer.CompanyName)" ValueProperty="@nameof(Customer.CustomerID)"
+                            AllowColumnResize="true" AllowFilteringByAllStringColumns="true" Name="DropDownDataGridColumns">
+        <Columns>
+            <RadzenDropDownDataGridColumn Property="@nameof(Customer.CustomerID)" Title="CustomerID" Width="100px" />
+            <RadzenDropDownDataGridColumn Property="@nameof(Customer.CompanyName)" Title="CompanyName" Width="200px" />
+            <RadzenDropDownDataGridColumn Property="@nameof(Customer.City)" Title="City" Width="100px" />
+            <RadzenDropDownDataGridColumn Property="@nameof(Customer.Country)" Title="Country" Width="100px" />
+        </Columns>
+    </RadzenDropDownDataGrid>
+</RadzenStack>
+
+@code {
+    string value = "AROUT";
+    IEnumerable<Customer> customers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        customers = dbContext.Customers;
+    }
+}

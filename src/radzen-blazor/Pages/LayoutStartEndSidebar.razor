@@ -1,0 +1,36 @@
+<RadzenLayout>
+    <RadzenHeader>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+            <RadzenSidebarToggle Click="@(() => startSidebarExpanded = !startSidebarExpanded)" />
+            <RadzenLabel Text="Header" />
+        </RadzenStack>
+    </RadzenHeader>
+    <RadzenSidebar Position="SidebarPosition.Start" @bind-Expanded="@startSidebarExpanded">
+        <RadzenPanelMenu>
+            <RadzenPanelMenuItem Text="Home" Icon="home" />
+            <RadzenPanelMenuItem Text="Users" Icon="account_box" />
+        </RadzenPanelMenu>
+        <div class="rz-p-4">
+            Start Sidebar
+        </div>
+    </RadzenSidebar>
+    <RadzenBody>
+        <div class="rz-p-4">
+            Body
+        </div>
+        <div class="rz-p-4">
+            <RadzenButton Text="Toggle start Sidebar" Click="@(() => startSidebarExpanded = !startSidebarExpanded)" />
+            <RadzenButton Text="Toggle end Sidebar" Click="@(() => endSidebarExpanded = !endSidebarExpanded)" />
+        </div>
+    </RadzenBody>
+    <RadzenSidebar Position="SidebarPosition.End" @bind-Expanded="@endSidebarExpanded" Style="width: 300px;">
+        <div class="rz-p-4">
+            End Sidebar
+        </div>
+    </RadzenSidebar>
+</RadzenLayout>
+
+@code {
+    bool startSidebarExpanded = true;
+    bool endSidebarExpanded = true;
+}

@@ -12,6 +12,7 @@ const WALKTHROUGHS: Readonly<Record<string, string>> = {
     'blazing-pizza': 'pizza-walkthrough',
     'mud-blazor': 'mud-walkthrough',
     'igniteui-light': 'igniteui-walkthrough',
+    'radzen-blazor': 'radzen-walkthrough',
     'semi-avalonia': 'semi-walkthrough',
     'uno-gallery': 'uno-walkthrough',
 };

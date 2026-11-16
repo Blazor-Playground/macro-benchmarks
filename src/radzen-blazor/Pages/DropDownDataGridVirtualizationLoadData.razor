@@ -1,0 +1,52 @@
+@using RadzenBlazorDemos.Data
+@using RadzenBlazorDemos.Models.Northwind
+@using Microsoft.EntityFrameworkCore
+
+@inherits DbContextPage
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0.5rem" class="rz-p-12">
+    <RadzenLabel Text="Select Value" Component="DropDownDataGridVirtualizationLoadData" />
+    <RadzenDropDownDataGrid @bind-Value=value Data=@customers LoadData=@LoadData Count="@count" AllowVirtualization="true" AllowClear="true"
+                    AllowFiltering="true" TextProperty="@nameof(Customer.CompanyName)" ValueProperty="@nameof(Customer.CustomerID)" Name="DropDownDataGridVirtualizationLoadData" />
+</RadzenStack>
+
+@code {
+    IEnumerable<Customer> customers;
+    string value = "NORTS";
+    int count;
+
+    string lastfilter;
+    async Task LoadData(LoadDataArgs args)
+    {
+        await Task.Yield();
+
+        var query = dbContext.Customers.AsQueryable();
+
+        if (!string.IsNullOrEmpty(args.Filter) && lastfilter != args.Filter)
+        {
+            args.Skip = 0;
+        }
+
+        if (!string.IsNullOrEmpty(args.Filter))
+        {
+            lastfilter = args.Filter;
+            query = query.Where(c => c.CustomerID.ToLower().Contains(args.Filter.ToLower()) || c.ContactName.ToLower().Contains(args.Filter.ToLower()) || c.CompanyName.ToLower().Contains(args.Filter.ToLower()));
+        }
+
+        if (!string.IsNullOrEmpty(args.OrderBy))
+        {
+            query = query.OrderBy(args.OrderBy);
+        }
+
+        count = await Task.FromResult(query.Count());
+
+        customers = await Task.FromResult(query.Skip(args.Skip.HasValue ? args.Skip.Value : 0).Take(args.Top.HasValue ? args.Top.Value : 10).ToList());
+
+        // Load selected items if outside of visible range
+        if (!string.IsNullOrEmpty(value) && !customers.Any(c => c.CustomerID == value))
+        {
+            var selected = await Task.FromResult(query.Where(c => c.CustomerID == value));
+            customers = customers.Concat(selected);
+        }
+    }
+}

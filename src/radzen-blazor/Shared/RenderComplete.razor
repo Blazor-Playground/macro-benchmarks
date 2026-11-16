@@ -1,0 +1,25 @@
+@inherits ComponentBase
+@implements IDisposable
+@inject RenderTracker Tracker
+@inject NavigationManager Navigation
+
+@code {
+    [Parameter] public int Generation { get; set; }
+
+    private int renderedGeneration = -1;
+
+    protected override void OnInitialized() => Tracker.Changed += OnChanged;
+
+    private void OnChanged() => _ = InvokeAsync(StateHasChanged);
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (Tracker.Pending == 0 && renderedGeneration != Tracker.Generation)
+        {
+            renderedGeneration = Tracker.Generation;
+            BenchmarkInterop.SetRendered(Navigation.ToBaseRelativePath(Navigation.Uri));
+        }
+    }
+
+    public void Dispose() => Tracker.Changed -= OnChanged;
+}

@@ -1,0 +1,18 @@
+@page "/"
+
+<PageTitle>Radzen Blazor Gallery</PageTitle>
+<h1>Radzen Blazor Gallery</h1>
+<RadzenText TextStyle="TextStyle.Subtitle1">
+    Official component examples running entirely in WebAssembly, with local Northwind data and the free Material theme.
+</RadzenText>
+<p>Choose a component in the sidebar or explore all @GalleryPages.All.Length demo pages below.</p>
+@foreach (var group in GalleryPages.All.GroupBy(page => page.Category))
+{
+    <h2>@group.Key</h2>
+    <RadzenStack Orientation="Orientation.Horizontal" Wrap="FlexWrap.Wrap" Gap="0.5rem">
+        @foreach (var entry in group)
+        {
+            <a href="@entry.Path" data-benchmark-route="@entry.Path" class="rz-link gallery-link">@entry.Title</a>
+        }
+    </RadzenStack>
+}

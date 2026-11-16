@@ -1,0 +1,19 @@
+@if (Heading)
+{
+    <RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">@Name</RadzenText>
+}
+<RadzenCard class="rz-my-4">
+    @ChildContent
+</RadzenCard>
+
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public string Name { get; set; }
+    [Parameter] public string ComponentName { get; set; }
+    [Parameter] public string Source { get; set; }
+    [Parameter] public string Example { get; set; }
+    [Parameter] public string DocumentationLink { get; set; }
+    [Parameter] public bool Heading { get; set; }
+    [Parameter] public bool Documentation { get; set; }
+    [Parameter] public IEnumerable<string> AdditionalSourceCodePages { get; set; }
+}

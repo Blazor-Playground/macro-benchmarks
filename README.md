@@ -13,6 +13,7 @@ Daily performance tracking for .NET WebAssembly in browsers. Automatically build
 | **havit-bootstrap** | Havit Blazor Bootstrap component library |
 | **mud-blazor** | MUD Blazor Material Design component library |
 | **igniteui-light** | Infragistics FOSS component library |
+| **inspect-web** | [dotnet-inspect](https://github.com/richlander/dotnet-inspect)'s browser build — compute-bound package/IL analysis in a Web Worker (opt-in prototype, .NET 12; see [src/inspect-web](src/inspect-web/README.md)) |
 | **avalonia-bench** | Minimal Avalonia app — startup plus virtualization, templates, styling, text, Skia drawing, rendering (FPS) and dispatcher scenarios |
 
 ## Pipeline stages
@@ -47,7 +48,7 @@ Default: `resolve-sdk,download-sdk,build,measure,transform-views`
 - **Download size** — compressed bytes over the wire (Chrome CDP)
 - **Time to managed** — cold (first load) and warm (min of reloads) to `dotnet_managed_ready`
 - **Memory peak** — max JS heap observed during load
-- **Walkthrough timing** — interactive navigation scenarios (pizza, havit, mud)
+- **Walkthrough timing** — interactive navigation scenarios (pizza, havit, mud) and the Inspect Web engine scenario
 - **Microbenchmark ops/sec** — JS interop, JSON parse, exception handling
 
 **NET12 dev-loop** (`/net12-debug`) measures clean-Debug run-to-render,

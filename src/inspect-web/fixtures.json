@@ -1,0 +1,8 @@
+{
+    "comment": "nuget.org responses Inspect Web requests for the walkthrough scenario at the pinned commit. Downloaded at restore and served by the walkthrough so measurement never depends on live nuget.org.",
+    "files": [
+        { "url": "https://api.nuget.org/v3/index.json", "path": "api.nuget.org/v3/index.json", "contentType": "application/json" },
+        { "url": "https://api.nuget.org/v3/registration5-gz-semver2/microsoft.netcore.app.ref/11.0.0-rc.1.26425.128.json", "path": "api.nuget.org/v3/registration5-gz-semver2/microsoft.netcore.app.ref/11.0.0-rc.1.26425.128.json", "contentType": "application/json" },
+        { "url": "https://globalcdn.nuget.org/packages/microsoft.extensions.primitives.10.0.0.nupkg", "path": "globalcdn.nuget.org/packages/microsoft.extensions.primitives.10.0.0.nupkg", "contentType": "application/octet-stream" }
+    ]
+}

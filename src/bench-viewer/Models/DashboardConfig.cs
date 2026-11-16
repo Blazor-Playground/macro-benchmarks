@@ -26,6 +26,7 @@ public static class DashboardConfig
         "uno-gallery" => "Uno Gallery",
         "semi-avalonia" => "Semi Avalonia",
         "avalonia-bench" => "Avalonia Bench",
+        "inspect-web" => "Inspect Web",
         "bench-viewer" => "Bench Viewer",
         _ => app
     };
@@ -47,7 +48,7 @@ public static class DashboardConfig
     public static readonly List<string> AppOrder = new()
     {
         "blazing-pizza", "havit-bootstrap", "mud-blazor", "igniteui-light", "blazor-perf", "empty-blazor",
-        "semi-avalonia", "avalonia-bench", "uno-gallery",
+        "semi-avalonia", "avalonia-bench", "uno-gallery", "inspect-web",
         "empty-browser", "empty-browser",
         "micro-benchmarks", "blazor-perf",
         "bench-viewer", 
@@ -56,7 +57,7 @@ public static class DashboardConfig
     // Preferred metric display order
     public static readonly List<string> MetricOrder = new()
     {
-        "pizza-walkthrough", "havit-walkthrough", "mud-walkthrough", "igniteui-walkthrough", "semi-walkthrough", "uno-walkthrough",
+        "pizza-walkthrough", "havit-walkthrough", "mud-walkthrough", "igniteui-walkthrough", "semi-walkthrough", "uno-walkthrough", "inspect-web-walkthrough",
         "blazor-counter-heavy-wasm", "blazor-counter-heavy-server",
         "blazor-params-count-wasm", "blazor-params-count-server", "blazor-params-count-ssr", "blazor-params-count-htmlrenderer",
         "blazor-params-count-ssr-stress", "blazor-params-count-htmlrenderer-stress", "blazor-params-count-server-stress",

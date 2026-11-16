@@ -45,6 +45,7 @@ export enum App {
     SemiAvalonia = 'semi-avalonia',
     IgniteUILight = 'igniteui-light',
     AvaloniaBench = 'avalonia-bench',
+    InspectWeb = 'inspect-web',
 }
 
 export function getDefaultApps(): App[] {
@@ -113,6 +114,7 @@ export enum MetricKey {
     IgniteUIWalkthrough = 'igniteui-walkthrough',
     UnoWalkthrough = 'uno-walkthrough',
     SemiWalkthrough = 'semi-walkthrough',
+    InspectWebWalkthrough = 'inspect-web-walkthrough',
     BlazorJsToCsNumber = 'blazor-js-to-cs-number',
     BlazorJsToCsString = 'blazor-js-to-cs-string',
     BlazorJsToCsJson = 'blazor-js-to-cs-json',
@@ -195,7 +197,13 @@ export const APP_CONFIG: Record<App, AppConfig> = {
     [App.SemiAvalonia]: { browserOnly: true, internal: false, monoOnly: false },
     // avalonia-bench: minimal Avalonia.Browser app for startup + Avalonia scenario benchmarks.
     [App.AvaloniaBench]: { browserOnly: true, internal: false, monoOnly: false },
+    // inspect-web: dotnet-inspect's browser build, checked out at a pinned commit by
+    // src/inspect-web/build.mjs. Opt-in (not in getDefaultApps) while it is a prototype.
+    [App.InspectWeb]: { browserOnly: true, internal: false, monoOnly: false },
 };
+
+/** Presets the inspect-web wrapper supports (its inner build skips src/Directory.Build.targets). */
+export const INSPECT_WEB_PRESETS = new Set<Preset>([Preset.NoWorkload, Preset.Aot]);
 
 // ── Preset Constraints ───────────────────────────────────────────────────────
 
@@ -348,6 +356,18 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     }
     if (AVALONIA_APPS.has(app) && ctx.sdkInfo.major < 10) {
         return `Avalonia app '${app}' does not build with SDK versions below 10.0.0`;
+    }
+    if (app === App.InspectWeb && ctx.sdkInfo.major < 12) {
+        return `Inspect Web prototype targets .NET 12 SDKs only`;
+    }
+    if (app === App.InspectWeb && !INSPECT_WEB_PRESETS.has(preset)) {
+        return `Inspect Web supports only presets ${[...INSPECT_WEB_PRESETS].join(', ')}`;
+    }
+    if (app === App.InspectWeb && runtime === Runtime.NativeAOTLLVM) {
+        return `Inspect Web does not support NativeAOT-LLVM`;
+    }
+    if (app === App.InspectWeb && ctx.runtimePackDirs && Object.keys(ctx.runtimePackDirs).length > 0) {
+        return `Inspect Web does not support from-source runtime packs yet`;
     }
     if (app === App.IgniteUILight && ctx.sdkInfo.major < 8) {
         return `Ignite UI Light app '${app}' does not build with SDK versions below 8.0.0`;

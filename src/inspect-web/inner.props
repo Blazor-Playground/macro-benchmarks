@@ -1,0 +1,6 @@
+<Project>
+  <!-- Imported into every dotnet-inspect project through CustomAfterMicrosoftCommonProps so the
+       inner build honors this repo's BenchmarkPreset and RuntimeFlavor. -->
+  <Import Project="..\presets.props" />
+  <Import Project="..\runtimes.props" />
+</Project>

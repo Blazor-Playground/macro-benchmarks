@@ -142,7 +142,20 @@ The entrypoint script symlinks pre-installed `node_modules` from `/opt/bench-dep
 |----------|---------|----------|
 | `benchmark.yml` | Daily 04:00 UTC, PR, manual | resolve → build → measure (matrix: app × preset) → aggregate → schedule |
 | `docker-build.yml` | Weekly, push to `docker/`/`bench/`, manual | Build and push container images to GHCR |
-| `schedule.yml` | Manual | Enumerate packs → dispatch benchmarks for untested SDK versions |
+| `schedule.yml` | Every 2 hours, manual | Enumerate packs → update tracking cache → dispatch benchmarks for untested SDK versions |
+
+Scheduled runs target .NET 12 daily builds. Manual scheduling can target
+stable servicing releases for .NET 8, 9, 10 or 11.
+.NET 11 GA starts with SDK `11.0.100` / runtime `11.0.0`; later stable patches
+are discovered from Microsoft's release metadata, like the older GA channels.
+Before GA, release discovery retains only the latest prerelease; once the channel
+is active, cached prereleases leave the scheduling catalog. Historical measurement
+files and published charts are not removed.
+
+The scheduler prepares a lock in memory and writes it only after pulling the
+latest tracking state, so renewing an expired tracked lock does not dirty the
+checkout before `git pull --rebase`. Tracking pull/push failures fail the job
+rather than being reported as another scheduler winning the lock.
 
 ### benchmark.yml job flow
 

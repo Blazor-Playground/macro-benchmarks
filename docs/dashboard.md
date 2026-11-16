@@ -1,5 +1,14 @@
 # Dashboard and NET12 focus
 
+## GA releases
+
+The main dashboard's release charts include .NET 8, 9, 10 and 11 as their
+measurements are published. .NET 11 GA uses SDK `11.0.100` / runtime `11.0.0`,
+with later servicing releases discovered automatically. Results use the existing
+supported Mono/CoreCLR presets; .NET 11 does not enable the .NET 12-only stock
+CoreCLR R2R or native-relink configurations. NET12 Focus and dev-loop remain
+SDK12-only.
+
 ## Dashboard preset filters
 
 The main dashboard includes full and profile-guided CoreCLR R2R presets even

@@ -311,6 +311,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     // ── Step 2: Fetch releases per channel ───────────────────────────────────
 
     const candidates: ReleaseCandidate[] = [];
+    const refreshedChannels = new Set<string>();
 
     for (const channel of channels) {
         const entry = index['releases-index'].find(
@@ -326,6 +327,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
             err(`Failed to fetch releases.json for ${channel} — skipping`);
             continue;
         }
+        refreshedChannels.add(channel);
 
         // Pre-GA channels (preview/go-live) have no GA release yet; include only the
         // single latest prerelease so an upcoming release (e.g. net11 RC) is measured
@@ -392,12 +394,16 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     for (const p of existingPacks) mergedMap.set(p.runtimePackVersion, p);
     for (const p of newPacks) mergedMap.set(p.runtimePackVersion, p);
 
-    // Filter to only versions still in the requested channels
+    // Drop cached prereleases superseded by the refreshed channel's latest prerelease or GA.
     const requestedMajors = new Set(releaseMajors);
+    const candidateVersions = new Set(candidates.map(c => c.runtimeVersion));
     const allPacks = [...mergedMap.values()]
         .filter(p => {
             const major = getVersionMajor(p.runtimePackVersion);
-            return requestedMajors.has(major);
+            return requestedMajors.has(major)
+                && (!p.runtimePackVersion.includes('-')
+                    || !refreshedChannels.has(`${major}.0`)
+                    || candidateVersions.has(p.runtimePackVersion));
         })
         .sort((a, b) => {
             // Sort by major descending, then by release date descending

@@ -31,7 +31,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const trackingDir = join(ctx.repoRoot, 'tracking');
 
     // Pull latest tracking state
-    await exec('git', ['-C', trackingDir, 'pull'], { throwOnError: false });
+    await exec('git', ['-C', trackingDir, 'pull']);
 
     // 0. Mark current SDK as done (if we just completed a benchmark run)
     if (ctx.sdkInfo?.sdkVersion) {
@@ -109,20 +109,20 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     }
 
     for (const pack of toDispatch) {
-        // Create lock file locally (even in dry-run, so repeated dry-runs see the lock)
-        const created = await createLockFile(trackingDir, pack.sdkVersion, ctx);
-        if (!created) {
+        const pendingLock = await prepareLock(trackingDir, pack.sdkVersion, ctx);
+        if (!pendingLock) {
             info(`Skipping ${pack.sdkVersion} — already locked by another scheduler`);
             continue;
         }
 
         if (ctx.dryRun) {
+            await writeFile(join(trackingDir, LOCK_DIR, `${pack.sdkVersion}.lock`), JSON.stringify(pendingLock, null, 2), 'utf-8');
             info(`[dry-run] workflow_dispatch benchmark.yml ref=${ctx.branch} sdk_version=${pack.sdkVersion}`);
             continue;
         }
 
         // Push lock to tracking before dispatching (so concurrent schedulers see it)
-        const pushed = await pushLockFile(trackingDir, pack.sdkVersion, ctx);
+        const pushed = await pushLockFile(trackingDir, pack.sdkVersion, pendingLock, ctx);
         if (!pushed) {
             info(`Skipping ${pack.sdkVersion} — another scheduler locked it concurrently`);
             continue;
@@ -359,16 +359,16 @@ async function buildLockedSet(trackingDir: string, verbose?: boolean): Promise<S
 }
 
 /**
- * Create a lock file locally for the given SDK version.
+ * Prepare a lock without changing tracked files before the pull-rebase.
  * Checks for existing non-expired locks (including from git after a pull).
  * If an expired lock has been attempted MAX_ATTEMPTS times, marks it as failed.
- * Returns true if the lock was written locally, false if already locked or marked failed.
+ * Returns null if already locked or marked failed.
  */
-async function createLockFile(
+async function prepareLock(
     trackingDir: string,
     sdkVersion: string,
     ctx: BenchContext,
-): Promise<boolean> {
+): Promise<LockFile | null> {
     const locksDir = join(trackingDir, LOCK_DIR);
     await mkdir(locksDir, { recursive: true });
 
@@ -382,7 +382,7 @@ async function createLockFile(
             const age = Date.now() - new Date(existing.dispatchedAt).getTime();
             if (age <= LOCK_TTL_MS) {
                 info(`Lock already exists for ${sdkVersion} (by run ${existing.ciRunId ?? 'unknown'})`);
-                return false;
+                return null;
             }
             // Expired lock — carry forward the attempt count
             previousAttempt = existing.attempt ?? 1;
@@ -398,35 +398,32 @@ async function createLockFile(
     if (previousAttempt >= MAX_ATTEMPTS) {
         info(`SDK ${sdkVersion} has failed ${previousAttempt} attempts — marking as permanently failed`);
         await markFailedFromSchedule(trackingDir, sdkVersion, previousAttempt, ctx);
-        return false;
+        return null;
     }
 
-    const lockContent: LockFile = {
+    return {
         dispatchedAt: new Date().toISOString(),
         ciRunId: ctx.ciRunId,
         attempt: nextAttempt,
     };
-    await writeFile(lockFile, JSON.stringify(lockContent, null, 2), 'utf-8');
-    info(`Lock file created for ${sdkVersion} (attempt ${nextAttempt}/${MAX_ATTEMPTS})`);
-    return true;
 }
 
 /**
- * Commit and push an already-created lock file to tracking.
+ * Commit and push a prepared lock file to tracking.
  * Uses pull-recheck-push with retries to handle concurrent schedulers.
  * Returns true if the lock was successfully pushed, false if another scheduler got it first.
  */
 async function pushLockFile(
     trackingDir: string,
     sdkVersion: string,
+    pendingLock: LockFile,
     ctx: BenchContext,
 ): Promise<boolean> {
     const lockRelPath = join(LOCK_DIR, `${sdkVersion}.lock`);
     const lockAbsPath = join(trackingDir, lockRelPath);
-    const pendingLock: LockFile = JSON.parse(await readFile(lockAbsPath, 'utf-8'));
-    await unlink(lockAbsPath);
+    let takenByAnotherScheduler = false;
 
-    return commitAndPushWithRetry({
+    const pushed = await commitAndPushWithRetry({
         dir: trackingDir,
         addPaths: [lockRelPath],
         commitMessage: `Lock ${sdkVersion}`,
@@ -442,6 +439,7 @@ async function pushLockFile(
                         const age = Date.now() - new Date(existing.dispatchedAt).getTime();
                         if (age <= LOCK_TTL_MS) {
                             info(`Lock taken by another scheduler for ${sdkVersion} (run ${existing.ciRunId ?? 'unknown'})`);
+                            takenByAnotherScheduler = true;
                             return false;
                         }
                         if (ctx.verbose) debug(`Overwriting expired lock for ${sdkVersion}`);
@@ -459,6 +457,10 @@ async function pushLockFile(
             await writeFile(lockAbsPath, JSON.stringify(lockContent, null, 2), 'utf-8');
         },
     });
+    if (!pushed && !takenByAnotherScheduler) {
+        throw new Error(`Cannot persist lock for ${sdkVersion} — tracking branch pull or push failed`);
+    }
+    return pushed;
 }
 
 async function revertLockFile(

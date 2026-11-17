@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-11-16T19:18:07.171Z",
+  "lastUpdated": "2026-11-17T16:47:32.498Z",
   "activeRelease": "net12",
   "releases": [
     "net8",
@@ -31,6 +31,7 @@
     "igniteui-light",
     "micro-benchmarks",
     "mud-blazor",
+    "radzen-blazor",
     "semi-avalonia",
     "uno-gallery"
   ],
@@ -299,6 +300,22 @@
       "download-size-cold",
       "download-size-warm",
       "memory-peak",
+      "server-requests-cold",
+      "server-requests-warm",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ],
+    "radzen-blazor": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-cold",
+      "download-size-warm",
+      "memory-peak",
+      "radzen-walkthrough",
       "server-requests-cold",
       "server-requests-warm",
       "time-to-create-dotnet-cold",

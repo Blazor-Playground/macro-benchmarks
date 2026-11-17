@@ -1,0 +1,6 @@
+{
+  "failedAt": "2026-11-17T05:28:08.999Z",
+  "reason": "Expired after 2 dispatch attempts without completing",
+  "failureKind": "expired-lock",
+  "attempts": 2
+}

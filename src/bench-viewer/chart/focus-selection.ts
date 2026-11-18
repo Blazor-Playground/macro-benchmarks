@@ -57,7 +57,7 @@ export function resolveFocusCohort(flavor: FocusFlavorOption, appRowKeys: Iterab
             : baselinePreset === 'native-relink'
                 ? 'Publish uses native-relink for this app: no no-workload rows exist in its loaded SDK 12 Focus metrics. This app-wide choice never fills individual gaps or replaces R2R/AOT.'
                 : baselinePreset === 'no-workload'
-                    ? 'Publish uses no-workload for this app. Any no-workload row retains this baseline across metrics, runtimes, profiles and date ranges, including all-null rows. Gaps stay missing.'
+                    ? 'Publish uses no-workload app-wide, including all-null or one-sided rows. Missing values never switch presets.'
                     : 'Publish baseline unavailable: neither no-workload nor native-relink rows exist in this app\'s loaded SDK 12 Focus metrics. Other presets are not substituted.',
     };
 }

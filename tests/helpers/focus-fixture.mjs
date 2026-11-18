@@ -21,6 +21,8 @@ export function fixtureResources(fixture = focusFixture()) {
         for (const [app, metrics] of Object.entries(bucket.appMetrics)) {
             for (const [key, rows] of Object.entries(metrics)) {
                 resources.set(`${bucket.path}/${app}_${key}.json`, rows);
+                const environments = bucket.environments?.[app]?.[key];
+                if (environments) resources.set(`${bucket.path}/${app}_${key}.environment.json`, environments);
             }
         }
     }
@@ -38,8 +40,29 @@ export function publicationFor(app, fixture = focusFixture()) {
             path: bucket.path,
             header: bucket.header,
             metrics: bucket.appMetrics[app],
+            environments: bucket.environments?.[app],
         })),
     };
+}
+
+export function monoGaFixture() {
+    const fixture = focusFixture();
+    const column = { ...fixture.buckets[0].header.columns[0],
+        sdkVersion: '11.0.100', releaseDate: '2026-09-01', major: 11, channel: '11.0',
+        runtimePackVersion: '11.0.0', bundledFrameworkTfm: 'net11.0',
+        isRuntimeCustomBuild: false, isAspnetCoreCustomBuild: false };
+    const metrics = Object.fromEntries(Object.keys(fixture.buckets[0].appMetrics['havit-bootstrap']).map(key => [key, {
+        'mono/no-workload/desktop/chrome': [100],
+        'mono/no-workload/mobile/chrome': [200],
+        'mono/aot/desktop/chrome': [300],
+        'mono/aot/mobile/chrome': [400],
+        'mono/no-workload/mobile/firefox': [900],
+    }]));
+    fixture.index.releases.push('net11');
+    fixture.buckets.push({ path: 'releases/net11',
+        header: { columns: [column], apps: { 'havit-bootstrap': Object.keys(metrics) } },
+        appMetrics: { 'havit-bootstrap': metrics } });
+    return fixture;
 }
 
 export function expectedComparison(app, flavor, startupProfile, fixture = focusFixture()) {

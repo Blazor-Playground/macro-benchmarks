@@ -117,6 +117,23 @@ export function focusPointDetail(metric: ComparisonMetric, point: ComparisonPoin
         ] },
     ];
     const observationRows: FocusDetailRow[] = [];
+    sections.push({ title: 'Environment', rows: (['coreclr', 'mono'] as const).flatMap(runtime => {
+        const environments = point.environments?.[runtime];
+        const label = runtime === 'coreclr' ? 'CoreCLR' : 'Mono';
+        const values = (key: 'os' | 'arch') => environments?.length
+            ? [...new Set(environments.map(env => env[key]))].join('; ') : 'Not recorded';
+        return [{ label: `${label} OS`, value: values('os') }, { label: `${label} architecture`, value: values('arch') }];
+    }) });
+    if (point.monoBaseline) {
+        const baseline = point.monoBaseline;
+        sections.push({ title: 'Mono .NET11 GA baseline', rows: [
+            { label: 'SDK', value: baseline.sdkVersion },
+            { label: 'Release day', value: `${baseline.day} (UTC)` },
+            { label: 'Runtime pack', value: baseline.runtimePackVersion || 'Not recorded' },
+            commitRow('SDK commit', baseline.sdkGitHash, 'dotnet/sdk'),
+            commitRow('Runtime commit', baseline.runtimeGitHash, 'dotnet/runtime'),
+        ] });
+    }
     if (observation.measuredAt) observationRows.push({ label: 'Measured at', value: utcTimestamp(observation.measuredAt) });
     if (observation.sourceId) observationRows.push({ label: 'Observation ID', value: observation.sourceId });
     if (observationRows.length) sections.push({ title: 'Observation', rows: observationRows });
@@ -479,6 +496,9 @@ export class FocusCharts {
                                     const raw = rawValue(point, series.key);
                                     const format = (value: number) => series.key === 'percent' ? signedPercent(value) : formatFocusValue(value, metric);
                                     const lines = [`${model.series[item.datasetIndex].label} raw: ${raw === null ? 'Not available' : format(raw)}`];
+                                    if (point.monoBaseline && (series.key === 'mono' || series.key === 'percent')) {
+                                        lines.push(`Mono .NET11 GA SDK ${point.monoBaseline.sdkVersion} (${point.monoBaseline.day})`);
+                                    }
                                     const window = windowFor(point, series.key);
                                     if (averaged && window) {
                                         const unit = series.key === 'percent' ? '%' : ` ${metric.unit}`;

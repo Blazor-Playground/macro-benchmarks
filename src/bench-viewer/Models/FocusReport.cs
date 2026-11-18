@@ -176,6 +176,7 @@ public sealed class FocusCohort
 public sealed class FocusPoint
 {
     public double? CoreclrBefore { get; init; }
+    public FocusObservation? MonoBaseline { get; init; }
     public FocusObservation Observation { get; init; } = new();
     public int Position { get; init; }
     public double? Coreclr { get; init; }

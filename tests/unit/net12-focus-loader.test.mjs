@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { focusFixture, fixtureResources, publicationFor } from '../helpers/focus-fixture.mjs';
+import { focusFixture, fixtureResources, monoGaFixture, publicationFor } from '../helpers/focus-fixture.mjs';
 import { FocusLoader } from '../../src/bench-viewer/wwwroot/chart/focus-loader.js';
 import { FocusSession } from '../../src/bench-viewer/wwwroot/chart/focus-interop.js';
 
@@ -43,6 +43,23 @@ test('loader fetches headers regardless of bucket names and only four selected-a
     assert.equal(metrics.length, 8);
     assert(metrics.every(key => /_(time-to-reach-managed-cold|havit-walkthrough|download-size-cold|compile-time)\.json$/.test(key)));
     assert.equal(data.buckets[0].header.columns[0].isRuntimeCustomBuild, null);
+});
+
+test('loader includes GA11 references and advertised per-cell environments', async () => {
+    const fixture = monoGaFixture();
+    const ga = fixture.buckets.at(-1);
+    ga.header.environments = { 'havit-bootstrap': ['compile-time'] };
+    ga.environments = { 'havit-bootstrap': { 'compile-time': {
+        'mono/no-workload/desktop/chrome': [[{ os: 'Ubuntu 24.04', arch: 'x64' }]],
+    } } };
+    const http = server(fixtureResources(fixture));
+    const data = await new FocusLoader(root, http.request).load('havit-bootstrap', signal());
+    assert.equal(data.buckets.length, 3);
+    assert.deepEqual(data.buckets.at(-1).environments['compile-time']['mono/no-workload/desktop/chrome'][0],
+        [{ os: 'Ubuntu 24.04', arch: 'x64' }]);
+    assert(http.requests.includes('releases/net11/havit-bootstrap_compile-time.environment.json'));
+    const broken = server(fixtureResources(fixture), key => key.endsWith('.environment.json') ? new Response('', { status: 500 }) : undefined);
+    await assert.rejects(new FocusLoader(root, broken.request).load('havit-bootstrap', signal()), /HTTP 500/);
 });
 
 test('publication-scoped caching, forced refresh, and independent data roots', async () => {

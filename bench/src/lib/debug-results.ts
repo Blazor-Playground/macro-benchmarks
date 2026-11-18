@@ -59,6 +59,19 @@ export interface DebugMeasurement {
     attempts: DebugAttempt[];
 }
 
+export interface DebugSdk {
+    version: string;
+    day: string | null;
+    sdkHash: string | null;
+    sdkCommitDateTime?: string | null;
+    runtimeHash: string | null;
+    runtimePackVersion?: string | null;
+    runtimeCommitDateTime?: string | null;
+    aspnetHash: string | null;
+    vmrHash: string | null;
+    vmrCommitDateTime?: string | null;
+}
+
 export interface DebugBatch {
     kind: 'debug-dev-loop';
     schemaVersion: 1;
@@ -70,18 +83,8 @@ export interface DebugBatch {
     configuration: 'Debug';
     measuredAt: string;
     smoke: boolean;
-    sdk: {
-        version: string;
-        day: string | null;
-        sdkHash: string | null;
-        sdkCommitDateTime?: string | null;
-        runtimeHash: string | null;
-        runtimePackVersion?: string | null;
-        runtimeCommitDateTime?: string | null;
-        aspnetHash: string | null;
-        vmrHash: string | null;
-        vmrCommitDateTime?: string | null;
-    };
+    sdk: DebugSdk;
+    monoFallback?: { branch: 'release/11.0'; reason: string };
     source: { harnessSha: string; harnessDigest: string; appDigest: string };
     environment: {
         os: string;
@@ -101,6 +104,7 @@ export interface DebugBatch {
         policy: string;
     };
     runtimes: Record<DebugRuntime, {
+        sdk?: DebugSdk;
         properties: Record<string, string>;
         measurements: Record<DebugKey, DebugMeasurement>;
     }>;
@@ -157,25 +161,21 @@ export function validateDebugBatch(value: unknown): asserts value is DebugBatch 
     if (b.kind !== 'debug-dev-loop' || b.schemaVersion !== 1 || (b.preset !== 'dev-loop' && b.preset !== 'debug') || b.configuration !== 'Debug'
         || typeof b.id !== 'string' || !b.id || typeof b.app !== 'string' || !/^[a-z0-9-]+$/.test(b.app)
         || b.methodology !== DEBUG_METHOD || !Number.isFinite(Date.parse(b.measuredAt))
-        || typeof b.smoke !== 'boolean' || !b.sdk || !/^\d+\.\d+\.\d+/.test(b.sdk.version)
-        || (b.sdk.day !== null && (!/^\d{4}-\d{2}-\d{2}$/.test(b.sdk.day)
-            || new Date(b.sdk.day).toISOString().slice(0, 10) !== b.sdk.day))
-        || [b.sdk.sdkHash, b.sdk.runtimeHash, b.sdk.aspnetHash, b.sdk.vmrHash]
-            .some(hash => hash !== null && (typeof hash !== 'string' || !/^[a-f0-9]{40}$/i.test(hash)))
-        || (b.sdk.runtimePackVersion !== undefined && b.sdk.runtimePackVersion !== null
-            && (typeof b.sdk.runtimePackVersion !== 'string' || !b.sdk.runtimePackVersion))
-        || [b.sdk.sdkCommitDateTime, b.sdk.runtimeCommitDateTime, b.sdk.vmrCommitDateTime]
-            .some(value => value !== undefined && value !== null
-                && (typeof value !== 'string' || !Number.isFinite(Date.parse(value))))
+        || typeof b.smoke !== 'boolean' || !validDebugSdk(b.sdk)
         || !b.source || Object.values(b.source).length !== 3 || Object.values(b.source).some(v => typeof v !== 'string' || !v)
         || !b.environment || typeof b.environment.runnerId !== 'string' || !b.environment.runnerId
         || typeof b.environment.controlled !== 'boolean' || !b.runtimes
         || (b.environment.comparisonScope !== undefined
             && !['local-paired', 'ci-paired'].includes(b.environment.comparisonScope))
         || (b.environment.comparisonScope === 'local-paired' && b.environment.controlled)) return fail();
+    if (b.monoFallback && (b.monoFallback.branch !== 'release/11.0'
+        || typeof b.monoFallback.reason !== 'string' || !b.monoFallback.reason
+        || !b.runtimes.mono?.sdk?.version.startsWith('11.') || Number(b.sdk.version.split('.')[0]) < 12)) return fail();
     for (const runtime of ['mono', 'coreclr'] as const) {
         const r = b.runtimes[runtime];
-        if (!r || !r.properties || Object.values(r.properties).some(v => typeof v !== 'string') || !r.measurements) return fail();
+        if (!r || !r.properties || Object.values(r.properties).some(v => typeof v !== 'string') || !r.measurements
+            || (r.sdk !== undefined && !validDebugSdk(r.sdk))) return fail();
+        if (r.sdk && r.sdk.version !== b.sdk.version && (runtime !== 'mono' || !b.monoFallback)) return fail();
         for (const key of DEBUG_KEYS) {
             const m = r.measurements[key];
             if (!m || !Number.isInteger(m.requested) || m.requested < 1 || !Array.isArray(m.attempts)
@@ -190,6 +190,12 @@ export function validateDebugBatch(value: unknown): asserts value is DebugBatch 
                 trials.add(a.trial);
                 if (a.status === 'ok' && (r.properties.Configuration !== 'Debug' || !r.properties.TargetFramework
                     || a.properties?.Configuration !== 'Debug' || !a.properties.TargetFramework)) return fail();
+                if (a.status === 'ok' && r.sdk && (a.properties?.NETCoreSdkVersion !== r.sdk.version
+                    || r.properties.NETCoreSdkVersion !== r.sdk.version)) return fail();
+                if (a.status === 'ok' && b.monoFallback) {
+                    const target = runtime === 'mono' ? 'net11.0' : `net${b.sdk.version.split('.')[0]}.0`;
+                    if (a.properties?.TargetFramework !== target || r.properties.TargetFramework !== target) return fail();
+                }
                 if (a.status === 'ok' && key === 'debug-hot-reload-edit-to-render'
                     && (!a.before || !a.after || hotReloadFailure(a.before, a.after,
                         a.navigations ?? -1, a.contextResets ?? -1, a.hostPidsBefore ?? [], a.hostPidsAfter ?? []))) return fail();
@@ -198,5 +204,18 @@ export function validateDebugBatch(value: unknown): asserts value is DebugBatch 
             if (m.status !== expected.status || m.successful !== expected.successful
                 || m.valueMs !== expected.valueMs || m.aggregation !== 'median' || m.reason !== expected.reason) return fail();
         }
+    }
+
+    function validDebugSdk(sdk: DebugSdk): boolean {
+        return !!sdk && /^\d+\.\d+\.\d+/.test(sdk.version)
+            && (sdk.day === null || (/^\d{4}-\d{2}-\d{2}$/.test(sdk.day)
+                && new Date(sdk.day).toISOString().slice(0, 10) === sdk.day))
+            && [sdk.sdkHash, sdk.runtimeHash, sdk.aspnetHash, sdk.vmrHash]
+                .every(hash => hash === null || (typeof hash === 'string' && /^[a-f0-9]{40}$/i.test(hash)))
+            && (sdk.runtimePackVersion === undefined || sdk.runtimePackVersion === null
+                || (typeof sdk.runtimePackVersion === 'string' && !!sdk.runtimePackVersion))
+            && [sdk.sdkCommitDateTime, sdk.runtimeCommitDateTime, sdk.vmrCommitDateTime]
+                .every(value => value === undefined || value === null
+                    || (typeof value === 'string' && Number.isFinite(Date.parse(value))));
     }
 }

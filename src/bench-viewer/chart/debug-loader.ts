@@ -1,4 +1,4 @@
-import type { DebugBatch, DebugIndex, DebugMeasurement, DebugPublication } from './debug-types.js';
+import type { DebugBatch, DebugIndex, DebugMeasurement, DebugPublication, DebugSdk } from './debug-types.js';
 
 function record(value: unknown): Record<string, unknown> {
     if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid Debug publication: expected object');
@@ -47,6 +47,20 @@ function segment(value: unknown): string {
     return result;
 }
 
+function sdkInfo(raw: unknown): DebugSdk {
+    const sdk = record(raw);
+    return {
+        version: text(sdk.version), day: utcDay(sdk.day),
+        sdkHash: optionalHash(sdk.sdkHash, 'SDK'),
+        sdkCommitDateTime: optionalTimestamp(sdk.sdkCommitDateTime),
+        runtimeHash: optionalHash(sdk.runtimeHash, 'runtime'),
+        runtimePackVersion: optionalText(sdk.runtimePackVersion),
+        runtimeCommitDateTime: optionalTimestamp(sdk.runtimeCommitDateTime),
+        vmrHash: optionalHash(sdk.vmrHash, 'VMR'),
+        vmrCommitDateTime: optionalTimestamp(sdk.vmrCommitDateTime),
+    };
+}
+
 export function parseDebugIndex(value: unknown): DebugIndex {
     const index = record(value);
     if (index.schemaVersion !== 1 || !Array.isArray(index.apps)) throw new Error('Unsupported Debug publication schema');
@@ -63,7 +77,7 @@ export function parseDebugIndex(value: unknown): DebugIndex {
     return { schemaVersion: 1, generation, lastUpdated: timestamp(index.lastUpdated), apps };
 }
 
-function measurement(raw: unknown): DebugMeasurement {
+function measurement(raw: unknown, expectedSdk?: string, expectedTfm?: string): DebugMeasurement {
     const m = record(raw);
     const status = text(m.status);
     if (!['ok', 'partial', 'not-run', 'unsupported-runtime', 'unsupported-app', 'unsupported-edit', 'build-failed',
@@ -94,6 +108,12 @@ function measurement(raw: unknown): DebugMeasurement {
         if (attempt.status === 'ok') {
             if (typeof attempt.valueMs !== 'number' || !Number.isFinite(attempt.valueMs) || attempt.valueMs <= 0) throw new Error('Invalid Debug duration');
             if (properties.Configuration !== 'Debug' || !properties.TargetFramework) throw new Error('Missing per-attempt clean-Debug configuration');
+            if (expectedSdk && record(attempt.properties).NETCoreSdkVersion !== expectedSdk) {
+                throw new Error('Per-attempt Debug SDK provenance does not match evaluated settings');
+            }
+            if (expectedTfm && record(attempt.properties).TargetFramework !== expectedTfm) {
+                throw new Error('Per-attempt Debug fallback target does not match its SDK');
+            }
             samples.push(attempt.valueMs);
         } else if (attempt.valueMs !== null) throw new Error('Failed Debug trial has a numeric duration');
     }
@@ -110,7 +130,8 @@ export function parseDebugPayload(value: unknown, index: DebugIndex, app: string
     }
     const ids = new Set<string>();
     return payload.batches.map(raw => {
-        const b = record(raw), sdk = record(b.sdk), source = record(b.source), environment = record(b.environment), runtimes = record(b.runtimes);
+        const b = record(raw), source = record(b.source), environment = record(b.environment), runtimes = record(b.runtimes);
+        const sdk = sdkInfo(b.sdk);
         const id = text(b.id);
         if (ids.has(id)) throw new Error('Duplicate Debug batch');
         ids.add(id);
@@ -126,12 +147,18 @@ export function parseDebugPayload(value: unknown, index: DebugIndex, app: string
             || b.methodology !== 'debug-sdk-defaults-v1') throw new Error('Not a supported clean-Debug cohort');
         const runtime = (name: string) => {
             const r = record(runtimes[name]), rawProps = record(r.properties);
+            const runtimeSdk = r.sdk === undefined ? undefined : sdkInfo(r.sdk);
+            if (runtimeSdk && runtimeSdk.version !== sdk.version && (name !== 'mono' || b.monoFallback === undefined)) {
+                throw new Error('A different Debug SDK requires explicit Mono fallback provenance');
+            }
             const properties: Record<string, string> = {};
             for (const [key, value] of Object.entries(rawProps)) {
                 if (typeof value !== 'string') throw new Error('Invalid evaluated Debug property');
                 properties[key] = value;
             }
-            const measurements = Object.fromEntries(Object.entries(record(r.measurements)).map(([key, value]) => [key, measurement(value)]));
+            const measurements = Object.fromEntries(Object.entries(record(r.measurements))
+                .map(([key, value]) => [key, measurement(value, runtimeSdk?.version,
+                    b.monoFallback !== undefined ? name === 'mono' ? 'net11.0' : `net${sdk.version.split('.')[0]}.0` : undefined)]));
             for (const key of ['debug-first-run-to-first-render', 'debug-incremental-run-to-first-render', 'debug-hot-reload-edit-to-render',
                 'debug-rebuild-edit-to-render', 'debug-incremental-build', 'havit-walkthrough']) {
                 if (!measurements[key]) throw new Error(`Missing Debug outcome for ${key}`);
@@ -139,20 +166,31 @@ export function parseDebugPayload(value: unknown, index: DebugIndex, app: string
             if (Object.values(measurements).some(m => m.successful) && (properties.Configuration !== 'Debug' || !properties.TargetFramework)) {
                 throw new Error('Successful result without evaluated clean-Debug configuration');
             }
-            return { properties, measurements };
+            if (runtimeSdk && Object.values(measurements).some(m => m.successful)
+                && (properties.NETCoreSdkVersion !== runtimeSdk.version
+                    || Object.values(measurements).some(m => m.successful && m.properties.NETCoreSdkVersion !== runtimeSdk.version))) {
+                throw new Error('Per-runtime Debug SDK provenance does not match evaluated settings');
+            }
+            return { properties, measurements, ...(runtimeSdk ? { sdk: runtimeSdk } : {}) };
         };
+        const mono = runtime('mono'), coreclr = runtime('coreclr');
+        let monoFallback: DebugBatch['monoFallback'];
+        if (b.monoFallback !== undefined) {
+            const fallback = record(b.monoFallback);
+            if (fallback.branch !== 'release/11.0' || !mono.sdk?.version.startsWith('11.')
+                || Number(sdk.version.split('.')[0]) < 12
+                || Object.values(mono.measurements).some(m => m.successful && m.properties.TargetFramework !== 'net11.0')
+                || (Object.values(mono.measurements).some(m => m.successful) && mono.properties.TargetFramework !== 'net11.0')
+                || (Object.values(coreclr.measurements).some(m => m.successful)
+                    && coreclr.properties.TargetFramework !== `net${sdk.version.split('.')[0]}.0`)) {
+                throw new Error('Invalid release/11.0 Mono fallback provenance');
+            }
+            monoFallback = { branch: 'release/11.0', reason: text(fallback.reason) };
+        }
         return {
             id, app, preset: b.preset, methodology: b.methodology, measuredAt: timestamp(b.measuredAt), smoke: flag(b.smoke),
-            sdk: {
-                version: text(sdk.version), day: utcDay(sdk.day),
-                sdkHash: optionalHash(sdk.sdkHash, 'SDK'),
-                sdkCommitDateTime: optionalTimestamp(sdk.sdkCommitDateTime),
-                runtimeHash: optionalHash(sdk.runtimeHash, 'runtime'),
-                runtimePackVersion: optionalText(sdk.runtimePackVersion),
-                runtimeCommitDateTime: optionalTimestamp(sdk.runtimeCommitDateTime),
-                vmrHash: optionalHash(sdk.vmrHash, 'VMR'),
-                vmrCommitDateTime: optionalTimestamp(sdk.vmrCommitDateTime),
-            },
+            sdk,
+            ...(monoFallback ? { monoFallback } : {}),
             source: { harnessSha: text(source.harnessSha), harnessDigest: text(source.harnessDigest), appDigest: text(source.appDigest) },
             environment: {
                 os: text(environment.os), arch: text(environment.arch), cpu: text(environment.cpu), cpuCount: count(environment.cpuCount),
@@ -163,7 +201,7 @@ export function parseDebugPayload(value: unknown, index: DebugIndex, app: string
                 controlled: flag(environment.controlled), policy: text(environment.policy),
                 ...(comparisonScope ? { comparisonScope } : {}),
             },
-            runtimes: { mono: runtime('mono'), coreclr: runtime('coreclr') },
+            runtimes: { mono, coreclr },
         };
     });
 }

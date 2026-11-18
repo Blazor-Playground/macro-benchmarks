@@ -11,6 +11,18 @@ export interface DebugMeasurement {
     properties: Record<string, string>;
 }
 
+export interface DebugSdk {
+    version: string;
+    day: string | null;
+    sdkHash: string | null;
+    sdkCommitDateTime: string | null;
+    runtimeHash: string | null;
+    runtimePackVersion: string | null;
+    runtimeCommitDateTime: string | null;
+    vmrHash: string | null;
+    vmrCommitDateTime: string | null;
+}
+
 export interface DebugBatch {
     id: string;
     app: string;
@@ -18,17 +30,8 @@ export interface DebugBatch {
     methodology: string;
     measuredAt: string;
     smoke: boolean;
-    sdk: {
-        version: string;
-        day: string | null;
-        sdkHash: string | null;
-        sdkCommitDateTime: string | null;
-        runtimeHash: string | null;
-        runtimePackVersion: string | null;
-        runtimeCommitDateTime: string | null;
-        vmrHash: string | null;
-        vmrCommitDateTime: string | null;
-    };
+    sdk: DebugSdk;
+    monoFallback?: { branch: 'release/11.0'; reason: string };
     source: { harnessSha: string; harnessDigest: string; appDigest: string };
     environment: {
         os: string; arch: string; cpu: string; cpuCount: number; memoryBytes: number; browser: string;
@@ -36,6 +39,7 @@ export interface DebugBatch {
         runnerClass: string; runnerId: string; controlled: boolean; comparisonScope?: 'local-paired' | 'ci-paired'; policy: string;
     };
     runtimes: Record<'mono' | 'coreclr', {
+        sdk?: DebugSdk;
         properties: Record<string, string>;
         measurements: Record<string, DebugMeasurement>;
     }>;
@@ -71,6 +75,7 @@ export interface DebugMetricReport extends ComparisonMetric {
     smoke: boolean;
     controlled: boolean;
     localPaired: boolean;
+    comparisonNote: string | null;
 }
 export interface DebugReport {
     app: string;

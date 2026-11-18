@@ -33,6 +33,27 @@ test('live metrics reuse the existing dev-loop preset without adding a Debug fla
     ]);
 });
 
+test('the Actions measurement command retains its prepared per-runtime SDK context', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'debug-sdk-context-'));
+    try {
+        const path = join(root, 'context.json');
+        const prepared = {
+            sdkInfo: { sdkVersion: '12.0.100-alpha.1.26565.106' },
+            debugDotnet: '/runner/dev-loop-dotnet/dotnet',
+            debugMonoDotnet: '/runner/dev-loop-mono11-dotnet/dotnet',
+            debugMonoSdkInfo: { sdkVersion: '11.0.100', runtimePackVersion: '11.0.0' },
+            debugMonoFallback: { branch: 'release/11.0', reason: 'Matching Mono pack is unavailable' },
+        };
+        await writeFile(path, JSON.stringify(prepared));
+        const ctx = await buildContext([
+            '--stages', 'measure-dev-loop', '--context', path, '--runtime', 'mono,coreclr',
+            '--debug-dotnet', prepared.debugDotnet, '--sdk-version', prepared.sdkInfo.sdkVersion,
+        ]);
+        for (const key of Object.keys(prepared) as (keyof typeof prepared)[]) assert.deepEqual(ctx[key], prepared[key]);
+        assert.deepEqual(ctx.runtimes, [Runtime.Mono, Runtime.CoreCLR]);
+    } finally { await rm(root, { recursive: true }); }
+});
+
 test('DevLoop sets only Configuration=Debug and does not inherit benchmark feature switches', async () => {
     const props = await readFile(new URL('../../src/presets.props', import.meta.url), 'utf8');
     const devLoop = props.match(/<PropertyGroup Condition="'\$\(BenchmarkPreset\)' == 'DevLoop'">([\s\S]*?)<\/PropertyGroup>/)![1];

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { debugBatch, debugResources } from '../helpers/debug-fixture.mjs';
+import { debugBatch, debugResources, mono11DebugBatch } from '../helpers/debug-fixture.mjs';
 import { parseDebugIndex, parseDebugPayload, DebugLoader } from '../../src/bench-viewer/wwwroot/chart/debug-loader.js';
 import { buildDebugReport } from '../../src/bench-viewer/wwwroot/chart/debug-data.js';
 import { DebugSession } from '../../src/bench-viewer/wwwroot/chart/debug-interop.js';
@@ -79,6 +79,38 @@ test('full explicitly paired local batches compare without being mislabeled as C
     assert.equal(buildDebugReport(publication([batch]), batch.app, '14d', now).metrics[0].comparison, null);
     batch.environment.controlled = true;
     assert.throws(() => publication([batch]), /must not claim CI control/);
+});
+test('explicit release11 Mono fallback compares across TFMs and exposes the distinct SDKs', () => {
+    const batch = mono11DebugBatch();
+    const parsed = publication([batch]);
+    const metric = buildDebugReport(parsed, batch.app, '14d', now).metrics[0];
+    assert.equal(metric.comparison.value, 25);
+    assert.match(metric.comparisonNote, /Mono\/net11.*11\.0\.100.*CoreCLR net12\.0/);
+    assert.match(metric.points[0].issue, /Cross-version comparison/);
+    assert.equal(parsed.batches[0].runtimes.mono.sdk.version, '11.0.100-rc.3.26522.148');
+    delete batch.monoFallback;
+    assert.throws(() => publication([batch]), /requires explicit Mono fallback/);
+});
+test('Mono fallback provenance cannot excuse the wrong SDK or target framework', () => {
+    for (const modify of [
+        b => { b.monoFallback.branch = 'main'; },
+        b => { b.runtimes.mono.sdk.version = b.sdk.version; },
+        b => { b.runtimes.mono.properties.TargetFramework = 'net12.0'; },
+        b => { b.runtimes.mono.measurements['debug-first-run-to-first-render'].attempts.at(-1).properties.NETCoreSdkVersion = '12.0.100'; },
+        b => { b.runtimes.coreclr.measurements['debug-first-run-to-first-render'].attempts[0].properties.TargetFramework = 'net13.0'; },
+    ]) {
+        const batch = mono11DebugBatch(); modify(batch);
+        assert.throws(() => publication([batch]));
+    }
+});
+test('rolling summaries reset at the cross-version Mono baseline transition', () => {
+    const old = debugBatch('havit-bootstrap', '2026-09-28');
+    const current = mono11DebugBatch();
+    const metric = buildDebugReport(publication([old, current]), current.app, '14d', now).metrics[0];
+    assert.equal(metric.points.length, 2);
+    assert.equal(metric.latest.monoWindow.count, 1);
+    assert.equal(metric.latest.coreclrWindow.count, 1);
+    assert.equal(metric.latest.percentWindow.count, 1);
 });
 test('date cropping, unavailable apps and older complete pairs stay honest', () => {
     const old = debugBatch('havit-bootstrap', '2026-09-28'), latest = debugBatch();

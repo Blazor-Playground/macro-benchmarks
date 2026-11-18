@@ -63,3 +63,16 @@ test('native app runtime and older SDK restrictions remain enforced', async () =
         assert.match(shouldSkipBuild(Runtime.Mono, app, Preset.NativeRelink, ctx) ?? '', /LLVM/);
     }
 });
+
+test('confirmed missing stock Mono packs are gaps, without blocking CoreCLR or source-built Mono', async () => {
+    const ctx = await buildContext([]);
+    ctx.sdkInfo = { major: 12, monoRuntimePackAvailable: false, runtimePackVersion: '12.0.0-test' } as BenchContext['sdkInfo'];
+    assert.match(shouldSkipBuild(Runtime.Mono, App.HavitBootstrap, Preset.DevLoop, ctx) ?? '', /Mono runtime pack.*not published/);
+    assert.match(shouldSkipMeasurement(Runtime.Mono, App.HavitBootstrap, Preset.DevLoop, ctx) ?? '', /not published/);
+    assert.equal(shouldSkipBuild(Runtime.CoreCLR, App.HavitBootstrap, Preset.NoWorkload, ctx), null);
+    ctx.runtimeBuildRequired = true;
+    assert.equal(shouldSkipBuild(Runtime.Mono, App.HavitBootstrap, Preset.DevLoop, ctx), null);
+    ctx.runtimeBuildRequired = false;
+    delete ctx.sdkInfo.monoRuntimePackAvailable;
+    assert.equal(shouldSkipBuild(Runtime.Mono, App.HavitBootstrap, Preset.DevLoop, ctx), null);
+});

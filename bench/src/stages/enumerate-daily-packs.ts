@@ -45,7 +45,6 @@ interface SourceManifest {
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const NUGET_FEED_BASE = 'https://pkgs.dev.azure.com/dnceng/public/_packaging';
-const RUNTIME_PACK_ID = 'microsoft.netcore.app.runtime.mono.browser-wasm';
 const WORKLOAD_PACK_ID = 'microsoft.net.sdk.webassembly.pack';
 const SDK_CDN = 'https://ci.dot.net/public/Sdk';
 const CONCURRENCY = 10;
@@ -233,7 +232,9 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     // ── Step 2: Fetch version indices ──────────────────────────────────────────
 
-    const runtimeIndexUrl = `${flatBaseUrl}/${RUNTIME_PACK_ID}/index.json`;
+    const runtimePackId = major >= 12 ? 'microsoft.netcore.app.runtime.browser-wasm'
+        : 'microsoft.netcore.app.runtime.mono.browser-wasm';
+    const runtimeIndexUrl = `${flatBaseUrl}/${runtimePackId}/index.json`;
     const workloadIndexUrl = `${flatBaseUrl}/${WORKLOAD_PACK_ID}/index.json`;
 
     const [idx, wlIdx] = await Promise.all([

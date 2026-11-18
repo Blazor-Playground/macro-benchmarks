@@ -157,12 +157,33 @@ requires a clean `gh-pages/` checkout tracking `origin/gh-pages` and changes onl
 `--dry-run` skips publication. Retries pull and recompute the batch union.
 
 Regular **Benchmark** runs include dev-loop jobs for stock SDK12:
-both supported apps, five trials, sequential paired runtimes per runner, and
-publication on `main`. PRs and custom runtime/ASP.NET selections skip this job;
+both supported apps, five trials, sequential paired runtimes on a native
+`ubuntu-24.04-arm` ARM64 runner, and publication on `main`.
+PRs and custom runtime/ASP.NET selections skip this job;
 dry runs collect one-trial smoke without publishing. Scheduling waits for its
 collection and publication to finish. One aggregate job prepares both result
 formats and publishes them in one commit/push. Evidence is retained on failure.
 There is no separate Clean Debug workflow or build flavor.
+
+If the matching Mono pack is missing, untimed setup selects the latest .NET11 GA
+SDK/net11.0 for Mono. CoreCLR keeps its selected SDK/TFM. Results record both
+SDKs and label the cross-version comparison. Setup fails on HTTP errors or
+missing GA inputs; it does not select nightlies or older releases.
+
+Local setup needs an installed primary SDK, an owned fallback directory and a
+JSON context with `sdkInfo` from `resolve-sdk`, or `{}` for installed-SDK lookup:
+
+```bash
+bench/node_modules/.bin/tsx bench/prepare-dev-loop.ts \
+  --context /owned/path/dev-loop-context.json \
+  --dotnet /owned/path/sdk12/dotnet \
+  --install-script /owned/path/dotnet-install.sh \
+  --mono-sdk-dir /owned/path/mono11-sdk
+bench/node_modules/.bin/tsx bench/src/main.ts \
+  --stages measure-dev-loop,transform-debug-views \
+  --context /owned/path/dev-loop-context.json \
+  --preset dev-loop --runtime mono,coreclr --debug-runs 5
+```
 
 ### Other pipeline examples
 

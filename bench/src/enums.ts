@@ -275,6 +275,10 @@ export function shouldSkipMeasurement(runtime: Runtime, app: App, preset: Preset
  * or null if the combination is valid.
  */
 export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx: BenchContext): string | null {
+    if (runtime === Runtime.Mono && ctx.sdkInfo.monoRuntimePackAvailable === false
+        && !ctx.runtimeBuildRequired && !ctx.runtimePackDirs?.[Runtime.Mono]) {
+        return `Mono runtime pack ${ctx.sdkInfo.runtimePackVersion} is not published`;
+    }
     // blazor-perf hosts a CoreCLR Kestrel server, so its server-side metrics ALWAYS run on
     // CoreCLR — a CoreCLR build must exist even when CoreCLR WASM is unavailable. In that case the
     // WASM *client* of that build falls back to Mono via clientRuntimeFor() (see build.ts); the

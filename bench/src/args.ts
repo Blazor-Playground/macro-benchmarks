@@ -314,7 +314,10 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
         chromiumChannel: loaded.chromiumChannel,
         debugRuns,
         debugScenarios,
-        debugDotnet: values['debug-dotnet'] || loaded.dotnetBin || 'dotnet',
+        debugDotnet: values['debug-dotnet'] || loaded.debugDotnet || loaded.dotnetBin || 'dotnet',
+        debugMonoDotnet: loaded.debugMonoDotnet,
+        debugMonoSdkInfo: loaded.debugMonoSdkInfo,
+        debugMonoFallback: loaded.debugMonoFallback,
         debugBrowserChannel: values['debug-browser-channel'] || '',
         debugViewsDir: resolve(values['debug-views-dir'] || resolve(artifactsDir, 'debug-views')),
 

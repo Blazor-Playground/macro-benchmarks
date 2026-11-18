@@ -25,6 +25,8 @@ export interface SdkInfo {
     aspnetCoreCommitMessage: string;
     aspnetCoreVersion: string;
     runtimePackVersion: string;
+    /** Whether the selected Mono pack exists; undefined in older records. */
+    monoRuntimePackAvailable?: boolean;
     isRuntimeCustomBuild?: boolean;
     runtimePR?: string;
     aspnetCorePR?: string;
@@ -118,6 +120,9 @@ export interface BenchContext {
     debugRuns?: number;
     debugScenarios?: string[];
     debugDotnet?: string;
+    debugMonoDotnet?: string;
+    debugMonoSdkInfo?: SdkInfo;
+    debugMonoFallback?: { branch: 'release/11.0'; reason: string };
     debugBrowserChannel?: string;
     debugViewsDir?: string;
 

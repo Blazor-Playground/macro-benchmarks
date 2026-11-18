@@ -93,9 +93,17 @@ render/update evidence. `transform-debug-views` writes immutable generations
 under `data/views/debug/`, separate from scalar publish grids.
 `publish-debug-views` requires a clean dedicated `gh-pages` checkout and uses
 `commitAndPushWithRetry`: each retry pulls and recomputes the batch union.
-The regular Benchmark workflow pairs dev-loop runtimes on one runner for
-both supported apps, with five trials and publication on `main`; dry runs are
-unpublished smoke. PR/custom-runtime jobs skip it.
+The Benchmark workflow pairs both runtimes on one `ubuntu-24.04-arm` runner,
+with native ARM64 SDKs and Chromium. Each app has five trials; `main` publishes
+the results. Dry runs are unpublished smoke; PR/custom-runtime jobs skip it.
+This pins the CI image, not local OS support: the harness runs on Linux and macOS.
+
+Before timing, `bench/prepare-dev-loop.ts` checks for the selected Mono pack.
+If missing, Mono uses the latest .NET11 GA SDK targeting net11.0; CoreCLR keeps
+its selected SDK/TFM. Both SDKs are recorded and the comparison is labelled
+cross-version. HTTP errors fail setup. Ordinary SDK12 publish jobs skip missing
+Mono packs; they do not substitute the SDK11 baseline.
+
 One aggregate job waits for both collectors, prepares their separate view
 formats, and commits/pushes all result views once. Scheduling waits for it.
 Failed live collection does not withhold valid legacy views, but prevents

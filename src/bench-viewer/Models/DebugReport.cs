@@ -59,6 +59,7 @@ public sealed class DebugMetricReport
     public bool Smoke { get; init; }
     public bool Controlled { get; init; }
     public bool LocalPaired { get; init; }
+    public string? ComparisonNote { get; init; }
     public List<DebugPoint> Points { get; init; } = new();
     public string Format(double? value) => value is null ? "Not available"
         : $"{(value.Value / Divisor).ToString(Unit == "ms" ? "N1" : "N2", CultureInfo.InvariantCulture)} {Unit}";

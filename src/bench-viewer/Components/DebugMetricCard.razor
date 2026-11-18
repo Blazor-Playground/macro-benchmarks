@@ -3,6 +3,7 @@
         <h3>@Metric.Title</h3>
         <p class="debug-boundary">@Metric.Boundary</p>
         <p class="focus-measurement">@Metric.Description</p>
+        @if (Metric.ComparisonNote != null) { <p class="focus-summary-note">@Metric.ComparisonNote</p> }
         @if (Metric.Comparison is { } comparison)
         {
             <div class="focus-kpi @comparison.Tone" aria-label="@($"{Metric.Title}: {comparison.Magnitude} {comparison.Verdict}")">

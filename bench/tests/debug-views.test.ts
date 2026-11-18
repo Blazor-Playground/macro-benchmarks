@@ -3,7 +3,7 @@ import test from 'node:test';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { debugBatch } from '../../tests/helpers/debug-fixture.mjs';
+import { debugBatch, mono11DebugBatch } from '../../tests/helpers/debug-fixture.mjs';
 import { validateDebugBatch, type DebugBatch } from '../src/lib/debug-results.js';
 import { writeDebugViews } from '../src/lib/debug-views.js';
 
@@ -69,4 +69,19 @@ test('full local paired provenance does not masquerade as controlled CI', () => 
     validateDebugBatch(batch);
     batch.environment.controlled = true;
     assert.throws(() => validateDebugBatch(batch), /Invalid/);
+});
+
+test('raw Mono11 fallback retains distinct SDKs and rejects contradictory per-attempt provenance', async () => {
+    const batch: DebugBatch = mono11DebugBatch();
+    validateDebugBatch(batch);
+    const dir = await mkdtemp(join(tmpdir(), 'debug-mono11-'));
+    try {
+        await writeDebugViews([batch], dir);
+        const index = JSON.parse(await readFile(join(dir, 'index.json'), 'utf8'));
+        const payload = JSON.parse(await readFile(join(dir, index.apps[0].file), 'utf8'));
+        assert.deepEqual(payload.batches[0].monoFallback, batch.monoFallback);
+        assert.equal(payload.batches[0].runtimes.mono.sdk.version, '11.0.100-rc.3.26522.148');
+        batch.runtimes.mono.measurements['debug-first-run-to-first-render'].attempts[0].properties!.NETCoreSdkVersion = '12.0.100';
+        assert.throws(() => validateDebugBatch(batch), /Invalid/);
+    } finally { await rm(dir, { recursive: true }); }
 });

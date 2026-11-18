@@ -97,12 +97,15 @@
                     A page reload or restart is a failure, never a substitute. Runtime capability failures remain visible.
                     CoreCLR WASM hot-reload enablement is tracked in <a href="https://github.com/dotnet/runtime/issues/134337">dotnet/runtime#134337</a>.</p>
                 <p>The dev-loop preset sets only Configuration=Debug. SDK defaults and actual evaluated settings are recorded separately for each runtime.
+                    Missing Mono packs use the latest .NET11 GA SDK/net11.0 baseline.
+                    These labelled pairs compare different SDKs and frameworks, not just runtime engines.
                     Older tuned DevLoop records and historical publish measurements do not supply these live metrics.
                     Each date/rerun is a distinct observation. History includes all recorded environments in the selected SDK date window;
                     source, environment and code-generation settings remain in the raw evidence.</p>
                 <p>Percentages compare CoreCLR duration with Mono in the same complete batch: positive means slower, negative faster.
                     The 5 avg is a trailing mean of up to five complete, non-smoke observations, with gaps resetting the window.
                     Counts are shown; percentage averages are means of same-batch percentages, not ratios of runtime averages.
+                    Rolling averages reset when entering or leaving the Mono/net11 fallback.
                     Colors are not statistical significance. Local paired batches disclose shared-host conditions and do not claim CI control.
                     Unsupported, failed and partial batches have no comparative headline.
                     This dashboard implements the Debug scenarios in <a href="https://github.com/dotnet/runtime/issues/133691">dotnet/runtime#133691</a>.</p>

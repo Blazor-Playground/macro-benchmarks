@@ -59,6 +59,22 @@ export function debugResources(batches = [debugBatch(), debugBatch('empty-blazor
     ]);
 }
 
+export function mono11DebugBatch(app = 'havit-bootstrap', day = '2026-09-29') {
+    const batch = debugBatch(app, day);
+    batch.monoFallback = { branch: 'release/11.0', reason: 'Matching Mono pack is unavailable (synthetic fixture)' };
+    for (const runtime of ['mono', 'coreclr']) {
+        const version = runtime === 'mono' ? '11.0.100-rc.3.26522.148' : batch.sdk.version;
+        const tfm = runtime === 'mono' ? 'net11.0' : 'net12.0';
+        batch.runtimes[runtime].sdk = { ...batch.sdk, version };
+        Object.assign(batch.runtimes[runtime].properties, { NETCoreSdkVersion: version, TargetFramework: tfm });
+        for (const metric of Object.values(batch.runtimes[runtime].measurements)) {
+            for (const attempt of metric.attempts) Object.assign(attempt.properties, { NETCoreSdkVersion: version, TargetFramework: tfm });
+        }
+    }
+    batch.runtimes.mono.sdk.runtimePackVersion = '11.0.0-rc.3.26522.148';
+    return batch;
+}
+
 export async function routeDebugFixture(page, resources = debugResources(), local = false) {
     await page.clock.setFixedTime(new Date('2026-09-30T12:00:00Z'));
     await routeLocalNavigation(page, { debug: local });

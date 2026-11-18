@@ -3,10 +3,28 @@ import { DEBUG_METRICS, type DebugBatch, type DebugMetricReport, type DebugPubli
 import type { FocusRange } from './focus-types.js';
 
 function measurementWindows(batches: readonly DebugBatch[], runtime: 'mono' | 'coreclr', key: string) {
-    return rollingWindows(batches.map(batch => {
+    return comparisonWindows(batches, batches.map(batch => {
         const metric = batch.runtimes[runtime].measurements[key];
         return !batch.smoke && metric?.status === 'ok' && isPositive(metric.valueMs) ? metric.valueMs : null;
-    }), batches.map(batch => ({ sdkVersion: batch.sdk.version, day: batch.sdk.day! })));
+    }));
+}
+
+function comparisonWindows(batches: readonly DebugBatch[], values: (number | null)[]) {
+    const result = [];
+    for (let start = 0; start < batches.length;) {
+        let end = start + 1;
+        while (end < batches.length && !!batches[end].monoFallback === !!batches[start].monoFallback) end++;
+        result.push(...rollingWindows(values.slice(start, end),
+            batches.slice(start, end).map(batch => ({ sdkVersion: batch.sdk.version, day: batch.sdk.day! }))));
+        start = end;
+    }
+    return result;
+}
+
+function fallbackNote(batch: DebugBatch): string | null {
+    return batch.monoFallback
+        ? `Mono/net11 (SDK ${batch.runtimes.mono.sdk!.version}) vs CoreCLR ${batch.runtimes.coreclr.properties.TargetFramework || '(not collected)'} (SDK ${batch.sdk.version}). Cross-version comparison.`
+        : null;
 }
 
 export function buildDebugReport(publication: DebugPublication, app: string, range: FocusRange,
@@ -22,7 +40,8 @@ export function buildDebugReport(publication: DebugPublication, app: string, ran
             const coreclr = batch.runtimes.coreclr.measurements[definition.key];
             const paired = batch.environment.controlled || batch.environment.comparisonScope === 'local-paired';
             const match = !batch.smoke && paired && mono?.status === 'ok' && coreclr?.status === 'ok'
-                && batch.runtimes.mono.properties.TargetFramework === batch.runtimes.coreclr.properties.TargetFramework;
+                && (batch.runtimes.mono.properties.TargetFramework === batch.runtimes.coreclr.properties.TargetFramework
+                    || !!batch.monoFallback);
             const percent = match ? percentVsMono(coreclr.valueMs, mono.valueMs) : null;
             return {
                 observation: {
@@ -40,7 +59,7 @@ export function buildDebugReport(publication: DebugPublication, app: string, ran
                     sourceId: batch.id,
                 }, position,
                 mono: mono?.valueMs ?? null, coreclr: coreclr?.valueMs ?? null, percent,
-                issue: match ? null : 'No complete same-batch paired measurement',
+                issue: match ? fallbackNote(batch) : 'No complete same-batch paired measurement',
                 monoWindow: null, coreclrWindow: null, percentWindow: null,
             };
         });
@@ -55,7 +74,7 @@ export function buildDebugReport(publication: DebugPublication, app: string, ran
             ...points[displayIndex],
             monoWindow: measurementWindows(allBatches, 'mono', definition.key)[fullIndex] ?? null,
             coreclrWindow: measurementWindows(allBatches, 'coreclr', definition.key)[fullIndex] ?? null,
-            percentWindow: rollingWindows(allPoints.map(point => point.percent), allPoints.map(point => point.observation))[fullIndex] ?? null,
+            percentWindow: comparisonWindows(allBatches, allPoints.map(point => point.percent))[fullIndex] ?? null,
         } : null;
         const mono = batch?.runtimes.mono.measurements[definition.key], coreclr = batch?.runtimes.coreclr.measurements[definition.key];
         const anyData = points.some(p => isPositive(p.mono) || isPositive(p.coreclr));
@@ -76,6 +95,7 @@ export function buildDebugReport(publication: DebugPublication, app: string, ran
             olderPair: pairIndex >= 0 && pairIndex < batches.length - 1,
             smoke: batch?.smoke ?? false, controlled: batch?.environment.controlled ?? false,
             localPaired: batch?.environment.comparisonScope === 'local-paired',
+            comparisonNote: batch ? fallbackNote(batch) : null,
         };
     });
     return {

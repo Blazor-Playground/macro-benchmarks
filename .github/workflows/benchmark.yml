@@ -155,7 +155,7 @@ jobs:
           retention-days: 7
 
   measure-dev-loop:
-    name: Dev-loop (${{ needs.resolve.outputs.sdk-version }})
+    name: Dev-loop ARM64 (${{ needs.resolve.outputs.sdk-version }})
     needs: resolve
     if: >-
       github.event_name != 'pull_request' &&
@@ -164,7 +164,7 @@ jobs:
       needs.resolve.outputs.aspnetcore-build-required != 'true' &&
       !inputs.runtime_commit && !inputs.runtime_pack && !inputs.runtime_pr &&
       !inputs.aspnetcore_commit && !inputs.aspnetcore_pr
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 120
     permissions:
       contents: read
@@ -191,7 +191,7 @@ jobs:
           }
           curl -fsSL https://dot.net/v1/dotnet-install.sh -o "$RUNNER_TEMP/dev-loop-dotnet-install.sh"
           bash "$RUNNER_TEMP/dev-loop-dotnet-install.sh" --version "$DEV_LOOP_SDK_VERSION" \
-            --install-dir "$RUNNER_TEMP/dev-loop-dotnet" --azure-feed https://ci.dot.net/public
+            --architecture arm64 --install-dir "$RUNNER_TEMP/dev-loop-dotnet" --azure-feed https://ci.dot.net/public
       - name: Prepare browser and producer
         run: |
           npm ci --no-audit --no-fund
@@ -213,6 +213,16 @@ jobs:
           }
           fs.writeFileSync('artifacts/dev-loop-context.json', JSON.stringify({ sdkInfo: source.sdkInfo }, null, 2));
           NODE
+      - name: Prepare release/11.0 Mono fallback when the selected Mono pack is unavailable
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          bench/node_modules/.bin/tsx bench/prepare-dev-loop.ts \
+            --context artifacts/dev-loop-context.json \
+            --dotnet "$RUNNER_TEMP/dev-loop-dotnet/dotnet" \
+            --install-script "$RUNNER_TEMP/dev-loop-dotnet-install.sh" \
+            --mono-sdk-dir "$RUNNER_TEMP/dev-loop-mono11-dotnet"
       - name: Measure paired dev-loop runtimes
         run: |
           bench/node_modules/.bin/tsx bench/src/main.ts --stages measure-dev-loop \

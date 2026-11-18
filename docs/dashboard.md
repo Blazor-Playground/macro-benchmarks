@@ -45,6 +45,9 @@ Published results come from `data/views/debug/`; local dev-loop results use
 `data/local-debug/`. These sources never substitute for one another, and publish
 or historical tuned DevLoop data never fills missing cells. Malformed resources are errors.
 Graphs show per-batch medians without smoothing; percentages default off.
+When Mono packs are missing, the baseline uses the latest .NET11 GA SDK/net11.0.
+Cards label these cross-version pairs; raw data records both SDKs.
+Rolling summaries reset when entering or leaving this baseline.
 Cards separately show latest values and **5 avg** trailing means of up to five
 complete, non-smoke observations, including available counts. Gaps reset each
 runtime's window; unsupported values remain unavailable. Percentage averages
@@ -55,8 +58,9 @@ Only in-range observations are displayed. As on Focus, rolling averages can use
 the immediately preceding four observations outside the visible window so the
 same endpoint keeps the same average when the date range changes.
 
-Percentages use the latest complete, non-smoke, paired same-runner batch with
-matching actual TFMs. Positive means longer duration. Older pairs and local
+Percentages use the latest complete, non-smoke, paired same-runner batch.
+TFMs must match unless the .NET11 fallback is recorded. Positive means longer
+duration. Older pairs and local
 shared-host experiments are labeled; colors do not imply significance.
 Smoke/partial batches have no comparative headline. Supported Mono hot-reload
 values remain visible when CoreCLR is unsupported.

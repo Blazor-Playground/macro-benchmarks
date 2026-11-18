@@ -1,17 +1,16 @@
-import { cp, mkdir, readFile, readdir, realpath, rename, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import { join, basename, dirname, resolve } from 'node:path';
 import { randomUUID, createHash } from 'node:crypto';
 import { cpus, arch, platform, release, totalmem } from 'node:os';
 import { createServer } from 'node:net';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 import { setTimeout as sleep } from 'node:timers/promises';
 import type { Browser, BrowserContext, Page, Response as BrowserResponse } from 'playwright';
 import type { BenchContext } from '../context.js';
 import { Preset, Runtime, parseRuntime } from '../enums.js';
+import { execCapture } from '../exec.js';
 import { buildSettings, msbuildArgs } from '../lib/build-settings.js';
 import { info, err } from '../log.js';
-import { parseArcadeDate } from '../lib/version-utils.js';
+import { installedDebugSdk } from '../lib/debug-sdk.js';
 import { runHavitWalkthrough } from '../lib/havit-walkthrough.js';
 import { DebugProcess, DebugProcessError } from '../lib/debug-process.js';
 import { DEBUG_BROWSER_SIGNAL_OPTIONS, installDebugCancellation, waitForDebugOperation } from '../lib/debug-cancellation.js';
@@ -22,7 +21,6 @@ import {
     type DebugAttempt, type DebugBatch, type DebugOutcome, type DebugRuntime, type DebugScenario,
 } from '../lib/debug-results.js';
 
-const execute = promisify(execFile);
 const PROJECTS: Record<string, string> = {
     'empty-blazor': 'EmptyBlazor.csproj', 'havit-bootstrap': 'HavitBootstrap.csproj',
 };
@@ -345,24 +343,21 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         || ctx.runtimePack || ctx.runtimePackDirs || ctx.aspnetCorePackagesDir) {
         throw new Error('Clean Debug requires an unmodified installed SDK, not custom runtime/ASP.NET packs');
     }
-    const requestedDotnet = ctx.debugDotnet || ctx.dotnetBin || 'dotnet';
-    const dotnet = await realpath(requestedDotnet.includes('/') ? requestedDotnet : (await execute('which', [requestedDotnet])).stdout.trim());
-    const sdk = (await execute(dotnet, ['--version'], { cwd: ctx.repoRoot })).stdout.trim();
-    if (ctx.sdkVersion && ctx.sdkVersion !== sdk) throw new Error(`Selected dotnet runs SDK ${sdk}, not requested ${ctx.sdkVersion}`);
-    if (ctx.sdkInfo && ctx.sdkInfo.sdkVersion !== sdk) throw new Error('Context SDK provenance does not match the installed SDK');
-    const sdkList = (await execute(dotnet, ['--list-sdks'])).stdout;
-    const sdkEntry = sdkList.split('\n').find(line => line.startsWith(`${sdk} [`));
-    const sdkBase = sdkEntry?.match(/\[(.*)\]/)?.[1];
-    let sdkHash: string | null = ctx.sdkInfo?.sdkGitHash || null;
-    if (!sdkHash && sdkBase) {
-        try {
-            const versionFile = await readFile(join(sdkBase, sdk, '.version'), 'utf8');
-            sdkHash = versionFile.match(/^[a-f0-9]{40}$/m)?.[0] || null;
-        } catch (error) {
-            if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
-            info('Installed SDK does not expose a .version source hash; retaining unknown provenance');
-        }
+    const primary = await installedDebugSdk(ctx.debugDotnet || ctx.dotnetBin || 'dotnet', ctx.sdkInfo);
+    if (ctx.sdkVersion && ctx.sdkVersion !== primary.sdk.version) {
+        throw new Error(`Selected dotnet runs SDK ${primary.sdk.version}, not requested ${ctx.sdkVersion}`);
     }
+    if ((ctx.debugMonoDotnet || ctx.debugMonoFallback || ctx.debugMonoSdkInfo)
+        && (!ctx.debugMonoFallback || !ctx.debugMonoSdkInfo || !ctx.debugMonoDotnet)) {
+        throw new Error('A separate Mono SDK requires the explicit release/11.0 fallback context from bench/prepare-dev-loop.ts');
+    }
+    const mono = ctx.debugMonoFallback
+        ? await installedDebugSdk(ctx.debugMonoDotnet!, ctx.debugMonoSdkInfo) : primary;
+    if (ctx.debugMonoFallback && (!mono.sdk.version.startsWith('11.') || mono.rid !== primary.rid)) {
+        throw new Error('Mono fallback requires a native SDK11 matching the primary SDK host architecture');
+    }
+    const sdks = { mono, coreclr: primary };
+    if (ctx.debugMonoFallback) info(ctx.debugMonoFallback.reason);
     const runs = ctx.debugRuns ?? 5;
     const scenarios = (ctx.debugScenarios ?? [...DEBUG_SCENARIOS]) as DebugScenario[];
     if (!Number.isInteger(runs) || runs < 1 || runs > 50 || scenarios.some(s => !DEBUG_SCENARIOS.includes(s))) {
@@ -373,7 +368,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     await mkdir(batchesDir, { recursive: true });
     const runRoot = resolve(ctx.artifactsDir, 'debug-runs', runId);
     await mkdir(runRoot, { recursive: true });
-    const sha = (await execute('git', ['rev-parse', 'HEAD'], { cwd: ctx.repoRoot })).stdout.trim();
+    const sha = await execCapture('git', ['rev-parse', 'HEAD'], { cwd: ctx.repoRoot });
     const sharedInputs = await Promise.all(['Directory.Build.props', 'Directory.Build.targets', 'versions.props', 'presets.props', 'runtimes.props', 'runtime-ready.mjs']
         .map(file => readFile(join(ctx.repoRoot, 'src', file), 'utf8')));
     const harnessDigest = digest(JSON.stringify([
@@ -400,15 +395,8 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
             const batch: DebugBatch = {
                 kind: 'debug-dev-loop', schemaVersion: 1, methodology: DEBUG_METHOD, id: `${runId}-${app}`,
                 app, preset: 'dev-loop', configuration: 'Debug', measuredAt: new Date().toISOString(), smoke: runs < 5,
-                sdk: {
-                    version: sdk, day: ctx.sdkInfo?.releaseDate || parseArcadeDate(sdk)?.toISOString().slice(0, 10) || null,
-                    sdkHash, sdkCommitDateTime: ctx.sdkInfo?.sdkCommitDateTime || null,
-                    runtimeHash: ctx.sdkInfo?.runtimeGitHash || null,
-                    runtimePackVersion: ctx.sdkInfo?.runtimePackVersion || null,
-                    runtimeCommitDateTime: ctx.sdkInfo?.runtimeCommitDateTime || null,
-                    aspnetHash: ctx.sdkInfo?.aspnetCoreGitHash || null, vmrHash: ctx.sdkInfo?.vmrGitHash || null,
-                    vmrCommitDateTime: ctx.sdkInfo?.vmrCommitDateTime || null,
-                },
+                sdk: primary.sdk,
+                ...(ctx.debugMonoFallback ? { monoFallback: ctx.debugMonoFallback } : {}),
                 source: { harnessSha: sha, harnessDigest, appDigest: supported ? await hashTree(join(ctx.repoRoot, 'src', app)) : 'unsupported' },
                 environment: {
                     os: `${platform()} ${release()}`, arch: arch(), cpu: cpus()[0]?.model || 'unknown',
@@ -421,8 +409,8 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
                     policy: `${POLICY};watcher=${process.env.DOTNET_USE_POLLING_FILE_WATCHER || 'native'};verbose=${ctx.verbose}`,
                 },
                 runtimes: {
-                    mono: { properties: {}, measurements: emptyDebugMeasurements(runs) },
-                    coreclr: { properties: {}, measurements: emptyDebugMeasurements(runs) },
+                    mono: { sdk: mono.sdk, properties: {}, measurements: emptyDebugMeasurements(runs) },
+                    coreclr: { sdk: primary.sdk, properties: {}, measurements: emptyDebugMeasurements(runs) },
                 },
             };
             const save = async () => {
@@ -440,6 +428,8 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
                 for (let trial = 1; trial <= runs; trial++) {
                     for (const runtime of (trial % 2 ? ['mono', 'coreclr'] : ['coreclr', 'mono']) as DebugRuntime[]) {
                         if (!ctx.runtimes.some(value => value === runtime)) continue;
+                        const { dotnet, sdk: runtimeSdk } = sdks[runtime];
+                        const sdk = runtimeSdk.version;
                         const unsupported = !supported ? `No clean-Debug render/edit adapter for ${app}`
                             : scenario === 'walkthrough' && app !== 'havit-bootstrap' ? 'This app has no elapsed-time walkthrough'
                                 : runtime === 'coreclr' && Number(sdk.split('.')[0]) < 11 ? 'CoreCLR browser runtime requires SDK 11 or later' : null;

@@ -6,6 +6,7 @@ import { banner, info } from '../log.js';
 import { getVersionMajor, populateVersionFields } from '../lib/version-utils.js';
 import { fetchGitHubCommitMetadata, fetchJson, githubHeaders, resolveGitHubToken, GITHUB_API } from '../lib/http.js';
 import { updateBuildLock } from '../lib/build-lock.js';
+import { monoPackAvailable } from '../lib/debug-sdk.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -288,6 +289,10 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         bootstrapSdkVersion: sdkEntry.entry.bootstrapSdkVersion,
         releaseDate: runtimeMeta?.commitDateTime.slice(0, 10) || sdkEntry.entry.releaseDate,
     });
+    if (!ctx.runtimeBuildRequired && !ctx.runtimePack && sdkInfo.major >= 12) {
+        sdkInfo.monoRuntimePackAvailable = await monoPackAvailable(sdkInfo.runtimePackVersion);
+        info(`Mono runtime pack available: ${sdkInfo.monoRuntimePackAvailable}`);
+    }
 
     info(`SDK: ${sdkVersion} (${sdkEntry.source})`);
     if (ctx.runtimeBuildRequired) {

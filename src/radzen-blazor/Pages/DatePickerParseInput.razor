@@ -1,0 +1,23 @@
+<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Gap="0.5rem" class="rz-p-12">
+    <RadzenLabel Text="Select Date" Component="DatePickerParseInput" />
+    <RadzenDatePicker @bind-Value=@value ParseInput="@ParseDate" Name="DatePickerParseInput" />
+</RadzenStack>
+
+@code {
+    DateTime? value = DateTime.Now;
+
+    public DateTime? ParseDate(string input)
+    {
+        string[] formats = { "dd-MM-yyyy", "dd/MM/yyyy", "dd-MM-yy", "dd/MM/yy", "ddMMyyyy", "ddMMyy", "dd-MM", "dd/MM", "ddMM" };
+
+        foreach (var format in formats)
+        {
+            if (DateTime.TryParseExact(input, format, null, System.Globalization.DateTimeStyles.None, out var result))
+            {
+                return result;
+            }
+        }
+
+        return null;
+    }
+}

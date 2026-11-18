@@ -1,0 +1,6 @@
+body { margin: 0; }
+.gallery-title { color: inherit; font-size: 1.25rem; font-weight: 600; }
+.gallery-link { padding: .5rem 1rem; border: var(--rz-border-base-300); border-radius: var(--rz-border-radius); }
+#page-content { min-height: 80vh; }
+.rz-sidebar nav { height: 100%; overflow-y: auto; }
+#blazor-error-ui { display: none; position: fixed; bottom: 0; background: lightyellow; padding: 1rem; width: 100%; z-index: 2000; }

@@ -18,6 +18,23 @@ test('default app selection retains Uno before .NET 12', async () => {
     assert.equal(ctx.apps.includes(App.UnoGallery), true);
 });
 
+test('Radzen is selected by default and supports modern browser benchmark presets', async () => {
+    const ctx = await buildContext([]);
+    assert(ctx.apps.includes(App.RadzenBlazor));
+    for (const major of [9, 10, 11, 12]) {
+        ctx.sdkInfo = { major } as BenchContext['sdkInfo'];
+        for (const preset of [Preset.DevLoop, Preset.NoWorkload, Preset.Aot]) {
+            assert.equal(shouldSkipBuild(Runtime.Mono, App.RadzenBlazor, preset, ctx), null);
+            assert.equal(shouldSkipMeasurement(Runtime.Mono, App.RadzenBlazor, preset, ctx), null);
+        }
+    }
+    ctx.sdkInfo = { major: 12 } as BenchContext['sdkInfo'];
+    assert.equal(shouldSkipBuild(Runtime.CoreCLR, App.RadzenBlazor, Preset.NoWorkload, ctx), null);
+    ctx.sdkInfo = { major: 8 } as BenchContext['sdkInfo'];
+    assert.match(shouldSkipBuild(Runtime.Mono, App.RadzenBlazor, Preset.NoWorkload, ctx) ?? '', /below 9/);
+    assert.match(shouldSkipMeasurement(Runtime.Mono, App.RadzenBlazor, Preset.NoWorkload, ctx) ?? '', /below 9/);
+});
+
 test('explicit native apps build and measure with .NET 12 native relink', async () => {
     const ctx = await buildContext([
         '--app',

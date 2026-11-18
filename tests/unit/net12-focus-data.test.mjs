@@ -77,6 +77,22 @@ test('percentages use Mono as denominator, with finite positive inputs and displ
     assert.throws(() => comparisonLabel(NaN, 's'), /finite/);
 });
 
+test('Radzen publications use their own walkthrough samples in all four dashboard cards', () => {
+    const fixture = focusFixture();
+    fixture.index.apps.push('radzen-blazor');
+    for (const bucket of fixture.buckets) {
+        const { 'havit-walkthrough': walkthrough, ...metrics } = bucket.appMetrics['havit-bootstrap'];
+        bucket.appMetrics['radzen-blazor'] = { ...metrics, 'radzen-walkthrough': walkthrough };
+        bucket.header.apps['radzen-blazor'] = Object.keys(bucket.appMetrics['radzen-blazor']);
+    }
+    fixture.index.metrics['radzen-blazor'] = fixture.buckets[0].header.apps['radzen-blazor'];
+    const result = report('radzen-blazor', '14d', now, fixture);
+    assert.deepEqual(result.metrics.map(metric => metric.status), ['ready', 'ready', 'ready', 'ready']);
+    assert.equal(result.metrics[1].key, 'radzen-walkthrough');
+    assert.deepEqual(result.metrics.map(metric => [metric.latest.mono, metric.latest.coreclr]),
+        [[401, 767], [7567, 22227], [4575150, 4965317], [30726, 33811]]);
+});
+
 test('unit conversion is presentation-only, with binary MiB and publish milliseconds to seconds', () => {
     const metrics = focusMetrics('havit-bootstrap');
     assert.equal(formatFocusValue(767, metrics[0]), '767 ms');

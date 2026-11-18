@@ -48,7 +48,7 @@ See [history commands](local-runtime-measurements.md#add-daily-before-measuremen
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--sdk-channel <ch>` | `11.0` | SDK channel (e.g. 11.0, 9.0) |
+| `--sdk-channel <ch>` | `12.0` | SDK channel (e.g. 12.0 daily, 11.0 GA) |
 | `--sdk-version <ver>` | | Exact SDK version (overrides channel) |
 | `--runtime <rt>` | `mono` | Runtime flavor: `mono`, `coreclr` |
 | `--runtime-pack <ver>` | | Specific runtime pack version |
@@ -60,7 +60,7 @@ Comma-separated lists that restrict which combinations get built and measured.
 
 | Flag | Valid values |
 |------|-------------|
-| `--app <list>` | empty-browser, empty-blazor, blazing-pizza, havit-bootstrap, mud-blazor, micro-benchmarks, uno-gallery, igniteui-light, blazor-perf, semi-avalonia, avalonia-bench |
+| `--app <list>` | empty-browser, empty-blazor, blazing-pizza, havit-bootstrap, mud-blazor, micro-benchmarks, uno-gallery, igniteui-light, radzen-blazor, blazor-perf, semi-avalonia, avalonia-bench |
 | `--preset <list>` | dev-loop, no-workload, native-relink, aot, r2r-pgo, no-jiterp, invariant, no-reflection-emit |
 | `--engine <list>` | chrome, firefox, v8, node |
 | `--profile <list>` | desktop, mobile |
@@ -107,7 +107,7 @@ These options apply to `measure-dev-loop`, not a separate build flavor.
 |------|---------|-------------|
 | `--major <n>` | `11` | .NET major version for daily enumeration |
 | `--months <n>` | `3` | History months to scan |
-| `--release-majors <list>` | `8,9,10` | Majors for release enumeration |
+| `--release-majors <list>` | `8,9,10,11` | Majors for release enumeration |
 | `--force-enumerate` | `false` | Re-resolve all versions (ignore cache) |
 
 ### Consolidation

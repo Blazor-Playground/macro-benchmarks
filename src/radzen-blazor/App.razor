@@ -1,0 +1,26 @@
+@inherits ComponentBase
+@inject RenderTracker Tracker
+
+<Router AppAssembly="typeof(App).Assembly" OnNavigateAsync="OnNavigate">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="typeof(MainLayout)">
+            <h1>Page not included</h1>
+            <p>This offline benchmark omits service-dependent demos and the online playground.</p>
+            <a href="">Return to the gallery</a>
+        </LayoutView>
+    </NotFound>
+</Router>
+<RenderComplete Generation="@Tracker.Generation" />
+
+@code {
+    private Task OnNavigate(NavigationContext context)
+    {
+        Tracker.BeginNavigation();
+        return Task.CompletedTask;
+    }
+
+    protected override void OnInitialized() => BenchmarkInterop.SetManagedReady();
+}

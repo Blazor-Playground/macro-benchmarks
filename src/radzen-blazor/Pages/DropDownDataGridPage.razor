@@ -1,0 +1,175 @@
+@page "/dropdown-datagrid"
+
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Blazor DropDownDataGrid
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    Show tabular data inside a dropdown with the Blazor DropDownDataGrid - multiple columns, filtering, paging, and single or multiple selection.
+</RadzenText>
+
+<RadzenText Anchor="dropdown-datagrid#get-set-value" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Get and Set the value of DropDownDataGrid
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    As all Radzen Blazor input components the <strong>DropDownDataGrid</strong> has a Value property which gets and sets the value of the component. Use <code>@@bind-Value</code> to get the user input.
+</RadzenText>
+<RadzenExample ComponentName="DropDownDataGrid" Example="DropDownDataGridBindValue">
+    <DropDownDataGridBindValue />
+</RadzenExample>
+
+<RadzenText Anchor="dropdown-datagrid#value-and-change-event" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Get and Set the value of DropDownDataGrid using Value and Change event
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Value property can be used to set the value of the component and <code>Change</code> event to get the user input.
+</RadzenText>
+<RadzenExample ComponentName="DropDownDataGrid" Example="DropDownDataGridChangeEvent">
+    <DropDownDataGridChangeEvent />
+</RadzenExample>
+
+<RadzenText Anchor="dropdown-datagrid#text-value-properties" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Define Text and Value properties
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>TextProperty</code> and <code>ValueProperty</code> properties to specify which fields to display and use as values.
+    When <code>Data</code> contains objects, set <code>TextProperty</code> or a <code>Template</code>; otherwise the items are displayed and announced to assistive technology via their <code>ToString()</code> result, which is the type name for plain classes.
+</RadzenText>
+<RadzenExample ComponentName="DropDownDataGrid" Example="DropDownDataGridTextValueProperties">
+    <DropDownDataGridTextValueProperties />
+</RadzenExample>
+
+<RadzenText Anchor="dropdown-datagrid#template" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    DropDownDataGrid with custom header, footer, value and item templates
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>HeaderTemplate</code>, <code>FooterTemplate</code>, <code>ValueTemplate</code>, and <code>Template</code> properties to customize the appearance.
+</RadzenText>
+<RadzenExample ComponentName="DropDownDataGrid" Example="DropDownDataGridTemplate">
+    <DropDownDataGridTemplate />
+</RadzenExample>
+
+<RadzenText Anchor="dropdown-datagrid#multiple-columns" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Define multiple columns
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Add multiple <code>RadzenDropDownDataGridColumn</code> components to display additional data columns in the dropdown grid.
+</RadzenText>
+<RadzenExample ComponentName="DropDownDataGrid" Example="DropDownDataGridColumns">
+    <DropDownDataGridColumns />
+</RadzenExample>
+
+<RadzenText Anchor="dropdown-datagrid#filtering-case-sensitivity-and-filter-operator" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Filtering case sensitivity and filter operator
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Configure filtering behavior with <code>FilterCaseSensitivity</code> and <code>FilterOperator</code> properties.
+</RadzenText>
+<RadzenExample ComponentName="DropDownDataGrid" Example="DropDownDataGridFiltering">
+    <DropDownDataGridFiltering />
+</RadzenExample>
+
+<RadzenText Anchor="dropdown-datagrid#custom-filtering-with-loaddata" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Custom filtering with <strong>LoadData</strong> event
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>LoadData</code> event to implement custom filtering logic and load data on-demand.
+</RadzenText>
+<RadzenExample ComponentName="DropDownDataGrid" Example="DropDownDataGridFilteringLoadData">
+    <DropDownDataGridFilteringLoadData />
+</RadzenExample>
+
+<RadzenText Anchor="dropdown-datagrid#multiple-selection" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Multiple selection
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>Multiple="true"</code> to enable selection of multiple items from the dropdown grid.
+</RadzenText>
+<RadzenExample ComponentName="DropDownDataGrid" Example="DropDownDataGridMultiple">
+    <DropDownDataGridMultiple />
+</RadzenExample>
+
+<RadzenText Anchor="dropdown-datagrid#virtualization-with-iqueryable" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    DropDownDataGrid virtualization with <strong>IQueryable</strong> event
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Enable virtualization with <code>IQueryable</code> to efficiently handle large datasets by loading items on demand.
+</RadzenText>
+<RadzenExample ComponentName="DropDownDataGrid" Example="DropDownDataGridVirtualization">
+    <DropDownDataGridVirtualization />
+</RadzenExample>
+
+<RadzenText Anchor="dropdown-datagrid#virtualization-with-loaddata" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    DropDownDataGrid virtualization with <strong>LoadData</strong> event
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Combine virtualization with the <code>LoadData</code> event for custom data loading with large datasets.
+</RadzenText>
+<RadzenExample ComponentName="DropDownDataGrid" Example="DropDownDataGridVirtualizationLoadData">
+    <DropDownDataGridVirtualizationLoadData />
+</RadzenExample>
+
+<RadzenText Anchor="dropdown-datagrid#density" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Control DropDown's DataGrid Density with <strong>Density</strong> parameter
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>Density</code> property to control the spacing and compactness of rows in the dropdown grid.
+</RadzenText>
+<RadzenExample ComponentName="DropDownDataGrid" Example="DropDownDataGridDensity">
+    <DropDownDataGridDensity />
+</RadzenExample>
+
+<RadzenText Anchor="dropdown-datagrid#dynamic" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    DropDownDataGrid binding to dynamic data
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Bind the DropDownDataGrid to dynamic data sources where columns and data are determined at runtime.
+</RadzenText>
+<RadzenExample ComponentName="DropDownDataGrid" Example="DropDownDataGridDynamicData">
+    <DropDownDataGridDynamicData />
+</RadzenExample>
+
+
+
+<RadzenText Anchor="dropdown-datagrid#sizes" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    DropDownDataGrid Sizes
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>InputSize</code> property to set the DropDownDataGrid size. Available sizes are ExtraSmall, Small, Medium (default), and Large.
+</RadzenText>
+<RadzenExample ComponentName="DropDownDataGrid" Example="DropDownDataGridSizes">
+    <DropDownDataGridSizes />
+</RadzenExample>
+
+<RadzenText Anchor="dropdown-datagrid#keyboard-navigation" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Keyboard Navigation
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    The following keys or key combinations provide a way for users to navigate and interact with Radzen Blazor DropDownDataGrid component.
+</RadzenText>
+
+<KeyboardNavigationDataGrid Data="@shortcuts" />
+
+@code {
+    public List<KeyboardShortcut> shortcuts = new()
+    {
+        new KeyboardShortcut { Key = "Tab", Action = "Close the popup and move focus to the next element." },
+        new KeyboardShortcut { Key = "Alt + DownArrow", Action = "Open DropDownDataGrid popup." },
+        new KeyboardShortcut { Key = "DownArrow on closed popup", Action = "Move active row to the next DropDownDataGrid item; for single (non-Multiple) select it also commits the selection." },
+        new KeyboardShortcut { Key = "UpArrow on closed popup", Action = "Move active row to the previous DropDownDataGrid item; for single (non-Multiple) select it also commits the selection." },
+        new KeyboardShortcut { Key = "DownArrow in an opened popup", Action = "Focus next DropDownDataGrid item." },
+        new KeyboardShortcut { Key = "UpArrow in an opened popup", Action = "Focus previous DropDownDataGrid item." },
+        new KeyboardShortcut { Key = "Home", Action = "Move active row to the first DropDownDataGrid item." },
+        new KeyboardShortcut { Key = "End", Action = "Move active row to the last DropDownDataGrid item." },
+        new KeyboardShortcut { Key = "Ctrl + Home", Action = "Move active row to the first DropDownDataGrid item." },
+        new KeyboardShortcut { Key = "Ctrl + End", Action = "Move active row to the last DropDownDataGrid item." },
+        new KeyboardShortcut { Key = "PageDown", Action = "Move active row forward by a page (PageSize rows)." },
+        new KeyboardShortcut { Key = "PageUp", Action = "Move active row back by a page (PageSize rows)." },
+        new KeyboardShortcut { Key = "LeftArrow", Action = "Goes to the previous DropDownDataGrid page (only when the grid is not virtualized)." },
+        new KeyboardShortcut { Key = "RightArrow", Action = "Goes to the next DropDownDataGrid page (only when the grid is not virtualized)." },
+        new KeyboardShortcut { Key = "Enter on a closed popup", Action = "Open the DropDownDataGrid popup." },
+        new KeyboardShortcut { Key = "Enter in an opened popup", Action = "Select the focused DropDownDataGrid item and close the popup." },
+        new KeyboardShortcut { Key = "Delete or Backspace", Action = "Clear the current selection (when AllowClear is set). Backspace clears only when the drop-down itself is focused, not the filter input. In multiple selection mode all selected items are cleared." },
+        new KeyboardShortcut { Key = "Ctrl + A", Action = "Multiple selection: select all items when AllowSelectAll is enabled. If all items are already selected, the selection is cleared." },
+        new KeyboardShortcut { Key = "Esc in an opened popup", Action = "Close the popup (focus returns to the DropDownDataGrid)." }
+    };
+}

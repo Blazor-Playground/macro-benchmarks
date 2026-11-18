@@ -1,0 +1,15 @@
+@inherits Radzen.RadzenComponent
+
+<a style=@Style @attributes=@Attributes @onclick=@OnClick @onclick:preventDefault>@ChildContent</a>
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    async Task OnClick()
+    {
+        if (Attributes.TryGetValue("href", out var href))
+        {
+            await JSRuntime.InvokeVoidAsync("scrollToElement", href);
+        }
+    }
+}

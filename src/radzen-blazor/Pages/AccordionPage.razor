@@ -1,0 +1,88 @@
+@page "/accordion"
+
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Blazor Accordion
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    The Blazor Accordion shows collapsible panels with single or multiple expand modes, dynamic items, and expand/collapse events.
+</RadzenText>
+
+<RadzenText Anchor="accordion#single-expand" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Accordion with single expand
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    By default, only one accordion item can be expanded at a time, automatically collapsing others.
+</RadzenText>
+<RadzenExample ComponentName="Accordion" Example="AccordionSingleExpand">
+    <AccordionSingleExpand />
+</RadzenExample>
+
+<RadzenText Anchor="accordion#multiple-expand" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Accordion with multiple expand
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Set <code>Multiple</code> to <code>true</code> to enable multiple expand.
+</RadzenText>
+<RadzenExample ComponentName="Accordion" Example="AccordionMultipleExpand">
+    <AccordionMultipleExpand />
+</RadzenExample>
+
+<RadzenText Anchor="accordion#dynamic-items" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Dynamically create Accordion items
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use two-way binding <code>@("@bind-Selected")</code> to bind items selection to your model.
+</RadzenText>
+<RadzenExample ComponentName="Accordion" Example="AccordionDynamicItems">
+    <AccordionDynamicItems />
+</RadzenExample>
+
+<RadzenText Anchor="accordion#expand-collapse-events" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Expand/Collapse events
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Handle <code>Expand</code> and <code>Collapse</code> events to respond when accordion items are opened or closed.
+</RadzenText>
+<RadzenExample ComponentName="Accordion" Example="AccordionEvents">
+    <AccordionEvents />
+</RadzenExample>
+
+<RadzenText Anchor="accordion#client-render-mode" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Client-side rendering
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Set <code>RenderMode</code> to <code>AccordionRenderMode.Client</code> to handle expand/collapse with JavaScript. All items are rendered initially and toggled client-side for faster interaction.
+</RadzenText>
+<RadzenExample ComponentName="Accordion" Example="AccordionClientRenderMode">
+    <AccordionClientRenderMode />
+</RadzenExample>
+
+<RadzenText Anchor="accordion#disable-expand-collapse" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Disable expand/collapse
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>Disabled="true"</code> on accordion items to prevent them from being expanded or collapsed.
+</RadzenText>
+<RadzenExample ComponentName="Accordion" Example="AccordionDisableExpandCollapse">
+    <AccordionDisableExpandCollapse />
+</RadzenExample>
+<RadzenText Anchor="accordion#keyboard-navigation" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Keyboard Navigation
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    The following keys or key combinations provide a way for users to navigate and interact with Radzen Blazor Accordion component.
+</RadzenText>
+
+<KeyboardNavigationDataGrid Data="@shortcuts" />
+
+@code {
+    public List<KeyboardShortcut> shortcuts = new()
+    {
+        new KeyboardShortcut { Key = "Tab", Action = "Move focus to the next/previous focusable element; each header is part of the page Tab sequence." },
+        new KeyboardShortcut { Key = "DownArrow", Action = "Focus the next enabled item (stops at the last; disabled items are skipped)." },
+        new KeyboardShortcut { Key = "UpArrow", Action = "Focus the previous enabled item (stops at the first; disabled items are skipped)." },
+        new KeyboardShortcut { Key = "Home", Action = "Focus the first enabled item." },
+        new KeyboardShortcut { Key = "End", Action = "Focus the last enabled item." },
+        new KeyboardShortcut { Key = "Space or Enter", Action = "Change the state of a focused Accordion item switching between expanded and collapsed." }
+    };
+}

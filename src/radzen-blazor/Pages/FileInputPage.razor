@@ -1,0 +1,40 @@
+@page "/fileinput"
+
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Blazor FileInput
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    The Blazor FileInput uploads a file as base64 with preview support, bound directly to your model.
+</RadzenText>
+
+<RadzenExample ComponentName="FileInput" Example="FileInputConfig">
+    <FileInputConfig />
+</RadzenExample>
+
+<RadzenText Anchor="fileinput#byte-array" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Byte Array Support
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    The <strong>FileInput</strong> component also supports the use of the <strong>byte[]</strong> type.
+</RadzenText>
+<RadzenExample ComponentName="FileInput" Example="FileInputByteArray">
+    <FileInputByteArray />
+</RadzenExample>
+
+<RadzenText Anchor="fileinput#keyboard-navigation" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Keyboard Navigation
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    The following keys or key combinations provide a way for users to navigate and interact with Radzen Blazor FileInput component.
+</RadzenText>
+
+<KeyboardNavigationDataGrid Data="@shortcuts" />
+
+@code {
+    public List<KeyboardShortcut> shortcuts = new()
+    {
+        new KeyboardShortcut { Key = "Tab", Action = "Navigate forward across FileInput buttons." },
+        new KeyboardShortcut { Key = "Shift + Tab", Action = "Navigate backward across FileInput buttons." },
+        new KeyboardShortcut { Key = "Enter or Space", Action = "Click the focused FileInput button." }
+    };
+}

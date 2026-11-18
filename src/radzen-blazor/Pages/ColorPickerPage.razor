@@ -1,0 +1,52 @@
+@page "/colorpicker"
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Blazor ColorPicker
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    The Blazor ColorPicker lets users choose a color with HSV and RGBA modes, opacity, and predefined palettes.
+</RadzenText>
+
+<RadzenText Anchor="colorpicker#configuration" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    ColorPicker configuration
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>ShowHSV</code>, <code>ShowRGBA</code>, <code>ShowColors</code>, <code>ShowButton</code> and <code>ShowArrow</code> properties to configure which parts of the ColorPicker are displayed.
+</RadzenText>
+<RadzenExample ComponentName="ColorPicker" Example="ColorPickerConfig">
+    <ColorPickerConfig />
+</RadzenExample>
+
+<RadzenText Anchor="colorpicker#sizes" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    ColorPicker Sizes
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>InputSize</code> property to set the ColorPicker size. Available sizes are ExtraSmall, Small, Medium (default), and Large.
+</RadzenText>
+<RadzenExample ComponentName="ColorPicker" Example="ColorPickerSizes">
+    <ColorPickerSizes />
+</RadzenExample>
+
+<RadzenText Anchor="colorpicker#keyboard-navigation" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Keyboard Navigation
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    The following keys or key combinations provide a way for users to navigate and interact with Radzen Blazor ColorPicker component.
+</RadzenText>
+
+<KeyboardNavigationDataGrid Data="@shortcuts" />
+
+@code {
+    public List<KeyboardShortcut> shortcuts = new()
+    {
+        new KeyboardShortcut { Key = "Tab", Action = "Navigate to a ColorPicker." },
+        new KeyboardShortcut { Key = "Tab in an opened ColorPicker popup", Action = "Navigate forward across available pickers or predefined colors." },
+        new KeyboardShortcut { Key = "Shift + Tab in an opened ColorPicker popup", Action = "Navigate backward across available pickers or predefined colors." },
+        new KeyboardShortcut { Key = "Space or Enter", Action = "Open the ColorPicker popup and focus the first available item in the popup." },
+        new KeyboardShortcut { Key = "Space or Enter on a focused Predefined color in the ColorPicker", Action = "Select the color and close the ColorPicker popup." },
+        new KeyboardShortcut { Key = "Arrow keys on a focused Saturation picker", Action = "Change color's saturation." },
+        new KeyboardShortcut { Key = "Left/Right arrow keys on a focused Hue picker", Action = "Change color's hue." },
+        new KeyboardShortcut { Key = "Left/Right arrow keys on a focused Alpha picker", Action = "Change color's opacity." },
+        new KeyboardShortcut { Key = "Up/Down arrow keys in a focused RGBA input", Action = "Change color's RGBA values." },
+        new KeyboardShortcut { Key = "Esc", Action = "Close the ColorPicker popup." }
+    };
+}

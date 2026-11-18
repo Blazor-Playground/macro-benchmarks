@@ -1,0 +1,29 @@
+@page "/datafilter"
+
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Blazor DataFilter
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    Filter Entity Framework data sources without writing extra code.
+</RadzenText>
+
+<RadzenExample ComponentName="DataFilter" Example="DataFilterIQueryable">
+    <DataFilterIQueryable />
+</RadzenExample>
+
+<RadzenText Anchor="datafilter#keyboard-navigation" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Keyboard Navigation
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    The following keys or key combinations provide a way for users to navigate and interact with Radzen Blazor DataFilter component.
+</RadzenText>
+
+<KeyboardNavigationDataGrid Data="@shortcuts" />
+
+@code {
+    public List<KeyboardShortcut> shortcuts = new()
+    {
+        new KeyboardShortcut { Key = "Tab", Action = "Navigate forward across available filter components." },
+        new KeyboardShortcut { Key = "Shift + Tab", Action = "Navigate backward across available filter components." }
+    };
+}

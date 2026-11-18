@@ -1,0 +1,18 @@
+@inherits DbContextPage
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0.5rem" class="rz-p-12">
+    <RadzenLabel Text="Select Value" Component="DropDownDataGridDensity" />
+    <RadzenDropDownDataGrid @bind-Value=@value Data=@companyNames Density="Density.Compact" Name="DropDownDataGridDensity" />
+</RadzenStack>
+
+@code {
+    string value = "Around the Horn";
+    IEnumerable<string> companyNames;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        companyNames = dbContext.Customers.Select(c => c.CompanyName).Distinct();
+    }
+}

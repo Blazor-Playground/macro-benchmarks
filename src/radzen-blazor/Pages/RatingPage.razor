@@ -1,0 +1,78 @@
+@page "/rating"
+
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Blazor Rating
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    The Blazor Rating captures a star rating, with a configurable number of stars and disabled or read-only modes.
+</RadzenText>
+
+<RadzenText Anchor="rating#get-set-value" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Get and Set the value of Rating
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    As all Radzen Blazor input components the <strong>Rating</strong> has a Value property which gets and sets the value of the component. Use <code>@@bind-Value</code> to get the user input.
+</RadzenText>
+<RadzenExample ComponentName="Rating" Example="RatingBindValue">
+    <RatingBindValue />
+</RadzenExample>
+
+<RadzenText Anchor="rating#value-and-change-event" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Get and Set the value of Rating using Value and Change event
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Value property can be used to set the value of the component and <code>Change</code> event to get the user input.
+</RadzenText>
+<RadzenExample ComponentName="Rating" Example="RatingChangeEvent">
+    <RatingChangeEvent />
+</RadzenExample>
+
+<RadzenText Anchor="rating#number-of-stars" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Set number of stars
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>Stars</code> property to configure the number of stars displayed in the rating component.
+</RadzenText>
+<RadzenExample ComponentName="Rating" Example="RatingStars">
+    <RatingStars />
+</RadzenExample>
+
+<RadzenText Anchor="rating#disabled-rating" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Disabled Rating
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>Disabled="true"</code> to disable the Rating and prevent user interaction.
+</RadzenText>
+<RadzenExample ComponentName="Rating" Example="RatingDisabled">
+    <RatingDisabled />
+</RadzenExample>
+
+<RadzenText  Anchor="rating#readonly-rating" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Read-only Rating
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>ReadOnly="true"</code> to display a rating that users can view but not modify.
+</RadzenText>
+<RadzenExample ComponentName="Rating" Example="RatingReadOnly">
+    <RatingReadOnly />
+</RadzenExample>
+
+<RadzenText Anchor="rating#keyboard-navigation" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Keyboard Navigation
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    The following keys or key combinations provide a way for users to navigate and interact with Radzen Blazor Rating component.
+</RadzenText>
+
+<KeyboardNavigationDataGrid Data="@shortcuts" />
+
+@code {
+    public List<KeyboardShortcut> shortcuts = new()
+    {
+        new KeyboardShortcut { Key = "Tab", Action = "Navigate to the clear button or the selected Rating star." },
+        new KeyboardShortcut { Key = "Shift + Tab", Action = "Navigate to the previous focusable element." },
+        new KeyboardShortcut { Key = "RightArrow or UpArrow", Action = "Select and focus the next Rating star." },
+        new KeyboardShortcut { Key = "LeftArrow or DownArrow", Action = "Select and focus the previous Rating star." },
+        new KeyboardShortcut { Key = "Space or Enter", Action = "Select the focused Rating star or clear the value when the clear button is focused." }
+    };
+}

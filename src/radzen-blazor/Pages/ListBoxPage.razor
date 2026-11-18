@@ -1,0 +1,132 @@
+@page "/listbox"
+
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Blazor ListBox
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    The Blazor ListBox shows a selectable list for single or multiple selection, with filtering and virtualization for large data.
+</RadzenText>
+
+<RadzenText Anchor="listbox#get-set-value" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Get and Set the value of ListBox
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    As all Radzen Blazor input components the <strong>ListBox</strong> has a Value property which gets and sets the value of the component. Use <code>@@bind-Value</code> to get the user input.
+</RadzenText>
+<RadzenExample ComponentName="ListBox" Example="ListBoxBindValue">
+    <ListBoxBindValue />
+</RadzenExample>
+
+<RadzenText Anchor="listbox#value-and-change-event" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Get and Set the value of ListBox using Value and Change event
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Value property can be used to set the value of the component and <code>Change</code> event to get the user input.
+</RadzenText>
+<RadzenExample ComponentName="ListBox" Example="ListBoxChangeEvent">
+    <ListBoxChangeEvent />
+</RadzenExample>
+
+<RadzenText Anchor="listbox#text-value-properties" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Define Text and Value properties
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>TextProperty</code> and <code>ValueProperty</code> properties to specify which fields to display and use as values.
+</RadzenText>
+<RadzenExample ComponentName="ListBox" Example="ListBoxTextValueProperties">
+    <ListBoxTextValueProperties />
+</RadzenExample>
+
+<RadzenText Anchor="listbox#template" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    ListBox with template
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>Template</code> property to customize how items are displayed in the list box.
+</RadzenText>
+<RadzenExample ComponentName="ListBox" Example="ListBoxTemplate">
+    <ListBoxTemplate />
+</RadzenExample>
+
+<RadzenText Anchor="listbox#multiple-selection" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    ListBox <strong>multiple</strong> selection
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>Multiple="true"</code> to enable selection of multiple items in the list box.
+</RadzenText>
+<RadzenExample ComponentName="ListBox" Example="ListBoxMultiple">
+    <ListBoxMultiple />
+</RadzenExample>
+
+<RadzenText  Anchor="listbox#filtering" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Filtering case sensitivity and filter operator
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Configure filtering behavior with <code>FilterCaseSensitivity</code> and <code>FilterOperator</code> properties.
+</RadzenText>
+<RadzenExample ComponentName="ListBox" Example="ListBoxFiltering">
+    <ListBoxFiltering />
+</RadzenExample>
+
+<RadzenText Anchor="listbox#loaddata-event" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Custom filtering with <strong>LoadData</strong> event
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>LoadData</code> event to implement custom filtering logic and load data on-demand.
+</RadzenText>
+<RadzenExample ComponentName="ListBox" Example="ListBoxFilteringLoadData">
+    <ListBoxFilteringLoadData />
+</RadzenExample>
+
+<RadzenText Anchor="listbox#loading" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Loading indicator
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>LoadingTemplate</code> together with the <code>IsLoading</code> property to show a loading indicator while data is being fetched. <code>LoadingTemplate</code> takes precedence over the items and the empty message.
+</RadzenText>
+<RadzenExample ComponentName="ListBox" Example="ListBoxLoading">
+    <ListBoxLoading />
+</RadzenExample>
+
+<RadzenText Anchor="listbox#virtualization-using-iqueryable" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    ListBox virtualization using <strong>IQueryable</strong>
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Enable virtualization with <code>IQueryable</code> to efficiently handle large datasets by loading items on demand.
+</RadzenText>
+<RadzenExample ComponentName="ListBox" Example="ListBoxVirtualization">
+    <ListBoxVirtualization />
+</RadzenExample>
+
+<RadzenText Anchor="listbox#virtualization-with-loaddata" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    ListBox virtualization with <strong>LoadData</strong> event
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Combine virtualization with the <code>LoadData</code> event for custom data loading with large datasets.
+</RadzenText>
+<RadzenExample ComponentName="ListBox" Example="ListBoxVirtualizationLoadData">
+    <ListBoxVirtualizationLoadData />
+</RadzenExample>
+
+<RadzenText Anchor="listbox#keyboard-navigation" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Keyboard Navigation
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    The following keys or key combinations provide a way for users to navigate and interact with Radzen Blazor ListBox component.
+</RadzenText>
+
+<KeyboardNavigationDataGrid Data="@shortcuts" />
+
+@code {
+    public List<KeyboardShortcut> shortcuts = new()
+    {
+        new KeyboardShortcut { Key = "Tab", Action = "Navigate to a ListBox component." },
+        new KeyboardShortcut { Key = "Space or Enter", Action = "Select the focused ListBox item. In multiple selection mode the selection of the focused item is toggled." },
+        new KeyboardShortcut { Key = "DownArrow / RightArrow", Action = "Focus the next ListBox item. In single selection mode the item is also selected." },
+        new KeyboardShortcut { Key = "UpArrow / LeftArrow", Action = "Focus the previous ListBox item. In single selection mode the item is also selected." },
+        new KeyboardShortcut { Key = "Home", Action = "Focus the first ListBox item. In single selection mode the item is also selected." },
+        new KeyboardShortcut { Key = "End", Action = "Focus the last ListBox item. In single selection mode the item is also selected." },
+        new KeyboardShortcut { Key = "Delete", Action = "Clear the selection when AllowClear is enabled. In multiple selection mode all selected items are cleared." },
+        new KeyboardShortcut { Key = "Ctrl + A", Action = "Multiple selection: select all items when AllowSelectAll is enabled. If all items are already selected, the selection is cleared." },
+        new KeyboardShortcut { Key = "Alphanumeric", Action = "Focus next ListBox item starting with typed key." }
+    };
+}

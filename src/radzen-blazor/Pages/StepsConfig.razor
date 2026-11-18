@@ -1,0 +1,122 @@
+@using RadzenBlazorDemos.Data
+@using RadzenBlazorDemos.Models.Northwind
+@using Microsoft.EntityFrameworkCore
+
+@inherits DbContextPage
+
+
+<RadzenSteps Change=@OnChange>
+    <Steps>
+        <RadzenStepsItem Text="Customers">
+            <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">1. Select a Customer to continue</RadzenText>
+            <RadzenDataGrid ColumnWidth="200px" AllowFiltering="true" AllowPaging="true" AllowSorting="true" Data="@customers" TItem="Customer" @bind-Value="@selectedCustomers">
+                <Columns>
+                    <RadzenDataGridColumn Property="CustomerID" Title="Customer ID" Width="140px" />
+                    <RadzenDataGridColumn Property="CompanyName" Title="Company Name" />
+                    <RadzenDataGridColumn Property="ContactName" Title="Contact Name" />
+                    <RadzenDataGridColumn Property="ContactTitle" Title="Contact Title" />
+                    <RadzenDataGridColumn Property="@nameof(Employee.Address)" Title="Address" />
+                    <RadzenDataGridColumn Property="@nameof(Employee.City)" Title="City" Width="140px" />
+                    <RadzenDataGridColumn Property="@nameof(Employee.Region)" Title="Region" Width="140px" />
+                    <RadzenDataGridColumn Property="@nameof(Employee.PostalCode)" Title="Postal Code" Width="140px" />
+                    <RadzenDataGridColumn Property="@nameof(Employee.Country)" Title="Country" Width="140px" />
+                    <RadzenDataGridColumn Property="Phone" Title="Phone" Width="140px" />
+                    <RadzenDataGridColumn Property="Fax" Title="Fax" Width="140px" />
+                </Columns>
+            </RadzenDataGrid>
+        </RadzenStepsItem>
+        <RadzenStepsItem Text="Orders" Disabled="@(selectedCustomers == null || selectedCustomers != null && !selectedCustomers.Any())">
+            <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">2. Select an Order to continue</RadzenText>
+            <RadzenDataGrid ColumnWidth="150px" PageSize="5" AllowFiltering="true" AllowPaging="true" AllowSorting="true"
+                        Data="@ordersByCustomers" @bind-Value="@selectedOrders">
+                <Columns>
+                    <RadzenDataGridColumn Width="120px" Property="OrderID" Title="Order ID" />
+                    <RadzenDataGridColumn Width="200px" Property="Customer.CompanyName" Title="Customer" />
+                    <RadzenDataGridColumn Property="Employee.LastName" Title="Employee">
+                        <Template Context="order">
+                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                                <RadzenImage Path="@order.Employee?.Photo" style="width: 40px; height: 40px; border-radius: 8px;" AlternateText="@(order.Employee?.FirstName + " " + order.Employee?.LastName)" />
+                                <span>@order.Employee?.LastName</span>
+                            </RadzenStack>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="@nameof(Order.OrderDate)" Title="Order Date">
+                        <Template Context="order">
+                            @String.Format("{0:d}", order.OrderDate)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="@nameof(Order.RequiredDate)" Title="Required Date">
+                        <Template Context="order">
+                            @String.Format("{0:d}", order.RequiredDate)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="@nameof(Order.ShippedDate)" Title="Shipped Date">
+                        <Template Context="order">
+                            @String.Format("{0:d}", order.ShippedDate)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="@nameof(Order.Freight)" Title="Freight">
+                        <Template Context="order">
+                            @String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", order.Freight)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="@nameof(Order.ShipName)" Title="Ship Name" />
+                    <RadzenDataGridColumn Property="ShipAddress" Title="Address" />
+                    <RadzenDataGridColumn Property="@nameof(Order.ShipCity)" Title="City" />
+                    <RadzenDataGridColumn Property="ShipRegion" Title="Region" />
+                    <RadzenDataGridColumn Property="ShipPostalCode" Title="Postal Code" />
+                    <RadzenDataGridColumn Property="@nameof(Order.ShipCountry)" Title="Country" />
+                </Columns>
+            </RadzenDataGrid>
+        </RadzenStepsItem>
+        <RadzenStepsItem Text="Order Details" Disabled="@(selectedOrders == null || selectedOrders != null && !selectedOrders.Any())">
+            <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">Order Details</RadzenText>
+            <RadzenDataGrid AllowFiltering="true" AllowPaging="true" AllowSorting="true"
+                        Data="@(orderDetailsByOrders)" ColumnWidth="200px">
+                <Columns>
+                    <RadzenDataGridColumn Property="Product.ProductName" Title="Product" />
+                    <RadzenDataGridColumn Property="@nameof(OrderDetail.Quantity)" Title="Quantity" />
+                    <RadzenDataGridColumn Property="@nameof(OrderDetail.Discount)" Title="Discount" FormatString="{0:P}" />
+                </Columns>
+            </RadzenDataGrid>
+        </RadzenStepsItem>
+    </Steps>
+</RadzenSteps>
+
+<EventConsole @ref=@console />
+
+@code {
+    EventConsole console;
+    IEnumerable<Customer> customers;
+    IEnumerable<Order> orders;
+    IEnumerable<OrderDetail> orderDetails;
+
+    IList<Customer> selectedCustomers;
+    IList<Order> selectedOrders;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        customers = dbContext.Customers.ToList();
+        orders = dbContext.Orders.Include("Customer").Include("Employee").ToList();
+        orderDetails = dbContext.OrderDetails.Include("Product").ToList();
+    }
+
+    IEnumerable<Order> ordersByCustomers;
+    IEnumerable<OrderDetail> orderDetailsByOrders;
+
+    void OnChange(int index)
+    {
+        console.Log($"Step with index {index} was selected.");
+
+        if (index == 1)
+        {
+            ordersByCustomers = selectedCustomers != null && selectedCustomers.Any() ? orders.Where(o => o.CustomerID == selectedCustomers[0].CustomerID) : Enumerable.Empty<Order>();
+        }
+        else if (index == 2)
+        {
+            orderDetailsByOrders = selectedOrders != null && selectedOrders.Any() ? orderDetails.Where(o => o.OrderID == selectedOrders[0].OrderID) : Enumerable.Empty<OrderDetail>();
+        }
+    }
+}

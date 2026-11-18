@@ -1,0 +1,53 @@
+@page "/pager"
+
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Blazor Pager
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    Configurable page sizes and density options.
+</RadzenText>
+
+<RadzenExample ComponentName="Pager" Example="PagerConfig">
+    <PagerConfig />
+</RadzenExample>
+
+<RadzenText Anchor="pager#allow-reload" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Allow Reload
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>AllowReload</code> property to show a reload button. Handle the <code>PageReload</code> event to refresh the current page data.
+</RadzenText>
+<RadzenExample ComponentName="Pager" Example="PagerReload">
+    <PagerReload />
+</RadzenExample>
+
+<RadzenText Anchor="pager#pager-density" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Pager Density
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>Density</code> property to change the size and density of the pager - <code>Density="Density.Compact"</code>.
+</RadzenText>
+<RadzenExample ComponentName="Pager" Example="PagerDensity">
+    <PagerDensity />
+</RadzenExample>
+
+<RadzenText Anchor="pager#keyboard-navigation" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Keyboard Navigation
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    The following keys or key combinations provide a way for users to navigate and interact with Radzen Blazor Pager component.
+</RadzenText>
+
+<KeyboardNavigationDataGrid Data="@shortcuts" />
+
+@code {
+    public List<KeyboardShortcut> shortcuts = new()
+    {
+        new KeyboardShortcut { Key = "Tab", Action = "Navigate to the active Pager button." },
+        new KeyboardShortcut { Key = "LeftArrow", Action = "Focus previous Pager button." },
+        new KeyboardShortcut { Key = "RightArrow", Action = "Focus next Pager button." },
+        new KeyboardShortcut { Key = "Home", Action = "Focus first Pager button." },
+        new KeyboardShortcut { Key = "End", Action = "Focus last Pager button." },
+        new KeyboardShortcut { Key = "Enter or Space", Action = "Activate the focused Pager button." }
+    };
+}

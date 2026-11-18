@@ -1,0 +1,60 @@
+@using System.Collections
+@using RadzenBlazorDemos.Data
+@using RadzenBlazorDemos.Models.Northwind
+@using Microsoft.EntityFrameworkCore
+
+@inherits DbContextPage
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0.5rem" class="rz-p-sm-12">
+    <RadzenLabel Text="Select Value" Component="DropDownGrouping" />
+    <RadzenDropDown @bind-Value=value AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="DropDownGrouping"
+                    Data=@groupedData ValueProperty="OrderID" TextProperty="OrderID" ItemRender="ItemRender" Style="width: 100%; max-width: 400px;">
+        <Template>
+            <span style="display:inline-block; font-weight: @(context.CompanyName != null ? "bold" : "normal");">
+                @(context.CompanyName ?? $"OrderID: {context.OrderID}, Order date: {string.Format("{0:d}", context.OrderDate)}")</span>
+        </Template>
+    </RadzenDropDown>
+</RadzenStack>
+
+@code {
+    int? value;
+    IEnumerable<GroupData> groupedData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        var orders = dbContext.Orders.Where(o => o.CustomerID != null).Include("Customer").ToList();
+
+        groupedData = orders.GroupBy(g => g.Customer.CompanyName)
+            .SelectMany(i => new GroupData[] { new GroupData { CompanyName = i.Key, OrderID = null } }
+                .Concat(i.Select(o =>
+                    new GroupData
+                    {
+                        OrderID = o.OrderID,
+                        OrderDate = o.OrderDate
+                    }))).ToList();
+    }
+
+    void ItemRender(DropDownItemRenderEventArgs<int?> args)
+    {
+        var data = (GroupData)args.Item;
+        if (data.CompanyName != null)
+        {
+            // Use this code to prevent default item selection for group items.
+            args.Disabled = true;
+            args.Attributes.Add("style", "opacity: 1");
+        }
+        else
+        {
+            args.Attributes.Add("style", "margin-inline-start: 1rem");
+        }
+    }
+
+    class GroupData
+    {
+        public string CompanyName { get; set; }
+        public int? OrderID { get; set; }
+        public DateTime? OrderDate { get; set; }
+    }
+}

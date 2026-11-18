@@ -1,0 +1,169 @@
+@page "/autocomplete"
+
+<RadzenText TextStyle="TextStyle.H2" TagName="TagName.H1" class="rz-pt-8">
+    Blazor AutoComplete
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-pb-4">
+    The Blazor AutoComplete suggests matching items as the user types, with templates, custom filter operators, and on-demand data loading.
+</RadzenText>
+
+<RadzenText Anchor="autocomplete#get-set-value" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Get and Set the value of AutoComplete
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    As all Radzen Blazor input components the <strong>AutoComplete</strong> has a Value property which gets and sets the value of the component. Use <code>@@bind-Value</code> to get the user input.
+</RadzenText>
+<RadzenExample ComponentName="AutoComplete" Example="AutoCompleteBindValue">
+    <AutoCompleteBindValue />
+</RadzenExample>
+
+<RadzenText Anchor="autocomplete#value-and-change-event" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Get and Set the value of AutoComplete using Value and Change event
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Value property can be used to set the value of the component and <code>Change</code> event to get the user input.
+</RadzenText>
+<RadzenExample ComponentName="AutoComplete" Example="AutoCompleteChangeEvent">
+    <AutoCompleteChangeEvent />
+</RadzenExample>
+
+<RadzenText Anchor="autocomplete#get-selected" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Get the selected item of AutoComplete
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>SelectedItem</code> property to get the currently selected item from the AutoComplete.
+</RadzenText>
+<RadzenExample ComponentName="AutoComplete" Example="AutoCompleteSelectedItem">
+    <AutoCompleteSelectedItem />
+</RadzenExample>
+
+<RadzenText Anchor="autocomplete#placeholder" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Define AutoComplete placeholder
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>Placeholder</code> property to display a hint text when the AutoComplete is empty.
+</RadzenText>
+<RadzenExample ComponentName="AutoComplete" Example="AutoCompletePlaceholder">
+    <AutoCompletePlaceholder />
+</RadzenExample>
+
+<RadzenText Anchor="autocomplete#template" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Define AutoComplete template
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>Template</code> property to customize how items are displayed in the AutoComplete dropdown.
+</RadzenText>
+<RadzenExample ComponentName="AutoComplete" Example="AutoCompleteTemplate">
+    <AutoCompleteTemplate />
+</RadzenExample>
+
+<RadzenText Anchor="autocomplete#filter-operator" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Change AutoComplete filter operator, case sensitivity and delay
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Show items that <b>start with</b> a specific string, case insensitive after 100ms
+</RadzenText>
+<RadzenExample ComponentName="AutoComplete" Example="AutoCompleteFilterOperator">
+    <AutoCompleteFilterOperator />
+</RadzenExample>
+
+<RadzenText Anchor="autocomplete#load-on-demand" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Load data on-demand in AutoComplete and apply custom filter and sort
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>LoadData</code> event to load data on-demand and implement custom filtering and sorting logic.
+</RadzenText>
+<RadzenExample ComponentName="AutoComplete" Example="AutoCompleteLoadData">
+    <AutoCompleteLoadData />
+</RadzenExample>
+
+<RadzenText Anchor="autocomplete#empty-and-loading-templates" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Empty and Loading templates
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>EmptyTemplate</code> to customize the popup when there are no matching items and <code>LoadingTemplate</code> together with the <code>IsLoading</code> property to show a loading indicator while data is being fetched. <code>LoadingTemplate</code> takes precedence over the items and the <code>EmptyTemplate</code>.
+</RadzenText>
+<RadzenExample ComponentName="AutoComplete" Example="AutoCompleteEmptyAndLoadingTemplates">
+    <AutoCompleteEmptyAndLoadingTemplates />
+</RadzenExample>
+
+<RadzenText Anchor="autocomplete#list-of-strings" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    AutoComplete with a List of Strings
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    AutoComplete can work directly with a list of strings without the need to define text and value properties.
+</RadzenText>
+<RadzenExample ComponentName="AutoComplete" Example="AutoCompleteListOfStrings">
+    <AutoCompleteListOfStrings />
+</RadzenExample>
+
+<RadzenText Anchor="autocomplete#multiline" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Multiline AutoComplete
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>Multiple</code> property to enable multiline AutoComplete that supports selecting multiple items.
+</RadzenText>
+<RadzenExample ComponentName="AutoComplete" Example="AutoCompleteWithMultilines">
+    <AutoCompleteWithMultilines />
+</RadzenExample>
+
+<RadzenText Anchor="autocomplete#open-on-focus" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Open on Focus
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>OpenOnFocus</code> property to automatically open the AutoComplete dropdown when the input receives focus.
+</RadzenText>
+<RadzenExample ComponentName="AutoComplete" Example="AutoCompleteOpenOnFocus">
+    <AutoCompleteOpenOnFocus />
+</RadzenExample>
+
+<RadzenText Anchor="autocomplete#combo-box" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    ComboBox (restrict to list)
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Combine <code>OpenOnFocus</code> with a <code>Change</code> handler that validates the typed value against the data source to make the AutoComplete behave like a combo box: type to filter, but only values that exist in the list are accepted. A dropdown chevron is added with the same <code>rz-dropdown-trigger</code> markup the <strong>DropDown</strong> uses so it matches the surrounding theme.
+</RadzenText>
+<RadzenExample ComponentName="AutoComplete" Example="AutoCompleteComboBox">
+    <AutoCompleteComboBox />
+</RadzenExample>
+
+<RadzenText Anchor="autocomplete#disabled-autocomplete" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    Disabled AutoComplete
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use <code>Disabled="true"</code> to disable the AutoComplete and prevent user interaction.
+</RadzenText>
+<RadzenExample ComponentName="AutoComplete" Example="AutoCompleteDisabled">
+    <AutoCompleteDisabled />
+</RadzenExample>
+
+<RadzenText Anchor="autocomplete#sizes" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-8">
+    AutoComplete Sizes
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    Use the <code>InputSize</code> property to set the AutoComplete size. Available sizes are ExtraSmall, Small, Medium (default), and Large.
+</RadzenText>
+<RadzenExample ComponentName="AutoComplete" Example="AutoCompleteSizes">
+    <AutoCompleteSizes />
+</RadzenExample>
+
+<RadzenText Anchor="autocomplete#keyboard-navigation" TextStyle="TextStyle.H5" TagName="TagName.H2" class="rz-pt-12">
+    Keyboard Navigation
+</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1" class="rz-mb-8">
+    The following keys or key combinations provide a way for users to navigate and interact with Radzen Blazor AutoComplete component.
+</RadzenText>
+
+<KeyboardNavigationDataGrid Data="@shortcuts" />
+
+@code {
+    public List<KeyboardShortcut> shortcuts = new()
+    {
+        new KeyboardShortcut { Key = "Tab", Action = "Navigate to the component." },
+        new KeyboardShortcut { Key = "DownArrow", Action = "Focus the next AutoComplete list item." },
+        new KeyboardShortcut { Key = "UpArrow", Action = "Focus the previous AutoComplete list item." },
+        new KeyboardShortcut { Key = "Enter", Action = "Select the focused AutoComplete list item and close the AutoComplete popup." },
+        new KeyboardShortcut { Key = "Tab in an opened popup", Action = "Select the focused AutoComplete list item, close the popup and move focus to the next element." },
+        new KeyboardShortcut { Key = "Esc", Action = "Close the opened AutoComplete popup." }
+    };
+}

@@ -45,6 +45,7 @@
     <UnoCoreExtensionsVersion>4.1.1</UnoCoreExtensionsVersion>
     <MicrosoftExtensionsLoggingVersion>9.0.0</MicrosoftExtensionsLoggingVersion>
     <MudBlazorVersion>9.1.0</MudBlazorVersion>
+    <RadzenBlazorVersion>13.1.0</RadzenBlazorVersion>
     <MudBlazorAspNetCoreVersion>9.0.3</MudBlazorAspNetCoreVersion>
     <BlazorAnalyticsVersion>4.0.0</BlazorAnalyticsVersion>
     <BytexDigitalCookieConsentVersion>1.2.1</BytexDigitalCookieConsentVersion>

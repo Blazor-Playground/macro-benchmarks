@@ -2,7 +2,7 @@ import { readFile, writeFile, mkdir, chmod, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { type BenchContext, type SdkInfo } from '../context.js';
+import { recordRuntimeSdk, runtimeBuildContext, type BenchContext, type SdkInfo } from '../context.js';
 import { Runtime } from '../enums.js';
 import { exec } from '../exec.js';
 import { banner, info } from '../log.js';
@@ -137,7 +137,7 @@ async function restoreRuntimePack(
 
 // ── Stage Entry Point ────────────────────────────────────────────────────────
 
-export async function run(ctx: BenchContext): Promise<BenchContext> {
+async function downloadSdk(ctx: BenchContext): Promise<BenchContext> {
     banner('Download SDK');
 
     if (!ctx.sdkInfo) throw new Error('download-sdk stage requires ctx.sdkInfo (run resolve-sdk first)');
@@ -156,6 +156,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
             info(`SDK ${sdkInfo.sdkVersion} already installed — skipping download`);
             skipInstall = true;
         }
+
     }
 
     // ── Step 2: Install SDK ──────────────────────────────────────────────
@@ -221,4 +222,19 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         buildLabel,
         runtimePackDirs,
     };
+}
+
+export async function run(ctx: BenchContext): Promise<BenchContext> {
+    const result = await downloadSdk(ctx);
+    const sources = result.sdkInfo.runtimeSources;
+    if (!sources) return result;
+    for (const runtime of [Runtime.CoreCLR, Runtime.Mono] as const) {
+        const source = sources[runtime];
+        if (!source?.sdkInfo || !ctx.runtimes.includes(runtime)) continue;
+        const selected = runtimeBuildContext(result, runtime);
+        const prepared = selected.sdkDir === result.sdkDir ? result : await downloadSdk(selected);
+        sources[runtime] = recordRuntimeSdk(source, prepared.sdkInfo);
+    }
+    await writeFile(join(result.sdkDir, 'sdk-info.json'), JSON.stringify(result.sdkInfo, null, 2) + '\n');
+    return result;
 }

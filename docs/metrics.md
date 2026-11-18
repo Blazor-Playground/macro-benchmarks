@@ -53,6 +53,11 @@ available, evaluated settings, phase offsets and per-attempt evidence. Missing
 hashes and dates stay unknown. Local pairs record
 `comparisonScope=local-paired` and `controlled=false`.
 
+Source-built rows record both `runtimeSources` and the selected `runtimeSource`.
+`runtimeGitHash`, commit metadata and `runtimePackVersion` describe that row's
+runtime. Headers retain both sources. Older results without the map remain
+same-source records.
+
 Edits occur only in isolated copies. Cancellation closes owned browser/app/watch
 processes, restores source and persists the cancelled attempt; repeated signals
 do not skip cleanup. Shared SDK build servers are never stopped. Process cleanup

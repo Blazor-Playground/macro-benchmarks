@@ -21,6 +21,21 @@ export interface ComparisonObservation {
 export type ComparisonPoint = Omit<FocusPoint, 'observation'> & {
     observation: ComparisonObservation;
 };
+export function baselineSourceTooltip(
+    point: Pick<ComparisonPoint, 'baselineSources' | 'coreclrBefore'>,
+    series: FocusSeries,
+): string[] {
+    if (!point.baselineSources) return [];
+    const hasCoreclrBefore = point.coreclrBefore !== undefined;
+    const sources = series === 'mono' ? [point.baselineSources.mono] :
+        series === 'coreclrBefore' ? [point.baselineSources.coreclr] :
+            series === 'coreclr' ? [hasCoreclrBefore ? undefined : point.baselineSources.coreclr] :
+                hasCoreclrBefore ? [point.baselineSources.mono] :
+                    [point.baselineSources.mono, point.baselineSources.coreclr];
+    return sources.flatMap(source => source ? [
+        `${source.repo ? source.repo + ' ' : ''}${source.ref.replace('refs/remotes/origin/', '')} ${source.commit.slice(0, 12)}; SDK ${source.sdk ?? 'Not recorded'}; ${source.tfm ?? 'TFM Not recorded'}`,
+    ] : []);
+}
 export type ComparisonMetric = Pick<FocusMetricReport, 'id' | 'title' | 'unit' | 'divisor' | 'coreclrLabel' | 'monoLabel'
     | 'comparisonLabel' | 'coreclrBeforeLabel' | 'fixedReference'> & {
     points: ComparisonPoint[];
@@ -93,9 +108,11 @@ export function focusPointDetail(metric: ComparisonMetric, point: ComparisonPoin
     }
 
     const observation = point.observation;
+    const hasCoreclrBefore = point.coreclrBefore !== undefined;
+    const observationIsCoreclrAnchor = point.baselineSources !== undefined && !hasCoreclrBefore;
     const sections: FocusDetailSection[] = [
         { title: 'Measurement', rows: measurementRows },
-        { title: 'SDK', rows: [
+        { title: observationIsCoreclrAnchor ? 'SDK (CoreCLR comparison anchor)' : 'SDK', rows: [
             { label: 'Version', value: observation.sdkVersion },
             { label: 'Build day', value: `${observation.day} (UTC)` },
             { label: 'SDK commit date', value: observation.sdkCommitDateTime
@@ -107,7 +124,7 @@ export function focusPointDetail(metric: ComparisonMetric, point: ComparisonPoin
                 commitRow('VMR commit', observation.vmrGitHash, 'dotnet/dotnet'),
             ] : []),
         ] },
-        { title: 'Runtime', rows: [
+        { title: observationIsCoreclrAnchor ? 'Runtime (CoreCLR comparison anchor)' : 'Runtime', rows: [
             { label: 'Runtime pack', value: observation.runtimePackVersion || 'Not recorded' },
             { label: 'Runtime commit date', value: observation.runtimeCommitDateTime
                 ? utcTimestamp(observation.runtimeCommitDateTime) : 'Not recorded' },
@@ -116,6 +133,24 @@ export function focusPointDetail(metric: ComparisonMetric, point: ComparisonPoin
             commitRow('Runtime commit', observation.runtimeGitHash, 'dotnet/runtime'),
         ] },
     ];
+    if (point.baselineSources) {
+        for (const runtime of ['mono', 'coreclr'] as const) {
+            const source = point.baselineSources[runtime];
+            const title = runtime === 'mono' ? 'Mono runtime source'
+                : hasCoreclrBefore ? 'CoreCLR before runtime source' : 'CoreCLR runtime source';
+            sections.push({ title, rows: source ? [
+                { label: 'Repository', value: source.repo ?? 'dotnet/runtime' },
+                { label: 'Source ref', value: source.ref },
+                { label: 'SDK', value: source.sdk ?? 'Not recorded' },
+                { label: 'Target framework', value: source.tfm ?? 'Not recorded' },
+                { label: 'Runtime pack', value: source.runtimePackVersion ?? 'Not recorded' },
+                { label: 'Runtime commit date', value: source.committedAt ? utcTimestamp(source.committedAt) : 'Not recorded' },
+                { label: 'Author', value: source.commitAuthor || 'Not recorded' },
+                { label: 'Subject', value: source.commitMessage || 'Not recorded' },
+                commitRow('Runtime commit', source.commit, source.repo ?? 'dotnet/runtime'),
+            ] : [{ label: 'Source', value: 'Not recorded' }] });
+        }
+    }
     const observationRows: FocusDetailRow[] = [];
     sections.push({ title: 'Environment', rows: (['coreclr', 'mono'] as const).flatMap(runtime => {
         const environments = point.environments?.[runtime];
@@ -499,6 +534,7 @@ export class FocusCharts {
                                     if (point.monoBaseline && (series.key === 'mono' || series.key === 'percent')) {
                                         lines.push(`Mono .NET11 GA SDK ${point.monoBaseline.sdkVersion} (${point.monoBaseline.day})`);
                                     }
+                                    lines.push(...baselineSourceTooltip(point, series.key));
                                     const window = windowFor(point, series.key);
                                     if (averaged && window) {
                                         const unit = series.key === 'percent' ? '%' : ` ${metric.unit}`;

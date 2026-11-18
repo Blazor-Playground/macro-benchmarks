@@ -36,6 +36,7 @@ async function sourceSelectionFixture(t) {
     git(source, 'add', '.');
     git(source, 'commit', '--quiet', '-m', 'source fixture');
     const main = git(source, 'rev-parse', 'HEAD');
+    git(source, 'branch', 'release/11.0', main);
     git(source, 'checkout', '--quiet', '-b', 'contributor-fix');
     await writeFile(join(source, 'tracked.txt'), 'requested revision\n');
     git(source, 'commit', '--quiet', '-am', 'requested ref fixture');

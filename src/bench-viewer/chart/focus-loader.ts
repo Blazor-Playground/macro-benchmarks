@@ -1,6 +1,6 @@
 import { focusMetrics, isEligible, isMonoGa } from './focus-data.js';
 import { FocusPublicationError } from './focus-types.js';
-import type { FocusColumn, FocusEnvironmentRows, FocusHeader, FocusIndex, FocusPublication, FocusRows } from './focus-types.js';
+import type { FocusColumn, FocusEnvironmentRows, FocusHeader, FocusIndex, FocusPublication, FocusRows, FocusRuntimeSource } from './focus-types.js';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -41,6 +41,33 @@ function optionalBoolean(value: unknown, where: string): boolean | null {
     return value;
 }
 
+function runtimeSources(value: unknown, where: string): FocusColumn['runtimeSources'] {
+    if (value === undefined || value === null) return undefined;
+    const sources = record(value, where);
+    const result: Partial<Record<'mono' | 'coreclr', FocusRuntimeSource>> = {};
+    for (const [runtime, raw] of Object.entries(sources)) {
+        if (runtime !== 'mono' && runtime !== 'coreclr') throw new FocusPublicationError(`${where}: invalid runtime ${runtime}.`);
+        const source = record(raw, `${where}.${runtime}`);
+        const field = (key: string) => `${where}.${runtime}.${key}`;
+        const commit = text(source.commit, field('commit'));
+        const committedAt = text(source.committedAt, field('committedAt'));
+        if (!/^[a-f0-9]{40}$/i.test(commit) || !Number.isFinite(Date.parse(committedAt))) {
+            throw new FocusPublicationError(`${where}.${runtime}: invalid commit or timestamp.`);
+        }
+        if (typeof source.commitAuthor !== 'string' || typeof source.commitMessage !== 'string') {
+            throw new FocusPublicationError(`${where}.${runtime}: expected recorded author/message strings.`);
+        }
+        result[runtime] = {
+            repo: text(source.repo, field('repo')), ref: text(source.ref, field('ref')),
+            commit, committedAt, commitAuthor: source.commitAuthor, commitMessage: source.commitMessage,
+            sdkVersion: optionalText(source.sdkVersion, field('sdkVersion')),
+            targetFramework: optionalText(source.targetFramework, field('targetFramework')),
+            runtimePackVersion: optionalText(source.runtimePackVersion, field('runtimePackVersion')),
+        };
+    }
+    return result;
+}
+
 function day(value: unknown, where: string): string {
     const result = text(value, where);
     const parsed = Date.parse(result);
@@ -77,7 +104,7 @@ export function parseFocusHeader(value: unknown, path: string): FocusHeader {
         if (typeof column.major !== 'number' || !Number.isInteger(column.major)) {
             throw new FocusPublicationError(`${field('major')}: expected an integer.`);
         }
-        return {
+        const parsed: FocusColumn = {
             sdkVersion: text(column.sdkVersion, field('sdkVersion')),
             releaseDate: day(column.releaseDate, field('releaseDate')),
             major: column.major,
@@ -101,6 +128,11 @@ export function parseFocusHeader(value: unknown, path: string): FocusHeader {
             runtimePR: optionalText(column.runtimePR, field('runtimePR')),
             aspnetCorePR: optionalText(column.aspnetCorePR, field('aspnetCorePR')),
         };
+        if (isEligible(parsed)) {
+            const sources = runtimeSources(column.runtimeSources, field('runtimeSources'));
+            if (sources) parsed.runtimeSources = sources;
+        }
+        return parsed;
     });
     const apps: Record<string, string[]> = {};
     for (const [app, metrics] of Object.entries(record(input.apps, `${path} apps`))) {

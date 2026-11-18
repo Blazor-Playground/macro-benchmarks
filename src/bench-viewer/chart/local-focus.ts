@@ -18,13 +18,26 @@ interface LocalRun {
 interface LocalData {
     schemaVersion: number; title: string; note?: string; createdAt: string; warnings: string[];
     comparisonPath?: string;
+    setup?: { beforeRef?: unknown };
     before: LocalRun; after: LocalRun;
     monoBefore?: LocalRun;
+    monoSource?: MonoSource;
     beforeHistory?: LocalHistoryEntry[];
 }
 interface LocalHistoryEntry {
     day: string; commit: string; status: 'pending' | 'running' | 'passed' | 'failed';
     error?: string; before?: LocalRun; monoBefore?: LocalRun;
+    monoSource?: MonoSource;
+}
+interface MonoSource { ref: string; commit: string }
+const crossBranchWarning = 'Mono uses release/11.0 while CoreCLR uses main. These are cross-branch controls, not a same-source pair; SDK, TFM and ASP.NET versions may differ.';
+function monoCommit(beforeCommit: string, source?: MonoSource): string {
+    if (source === undefined) return beforeCommit;
+    if (!source || source.ref !== 'refs/remotes/origin/release/11.0' ||
+        typeof source.commit !== 'string' || !/^[a-f0-9]{40}$/i.test(source.commit)) {
+        throw new Error('Invalid explicit Mono release/11.0 baseline provenance.');
+    }
+    return source.commit;
 }
 function validateRun(run: LocalRun, side: string): void {
     if (!run?.manifest || !['coreclr', 'mono'].includes(run.manifest.runtime) ||
@@ -71,6 +84,18 @@ function mode(run: LocalRun): string {
     return run.manifest.runtime === 'coreclr' ? 'publish/R2R' : 'publish/AOT';
 }
 
+function baselineSource(run: LocalRun, ref: string) {
+    const source = run.manifest.sdkInfo;
+    return {
+        ref, commit: source.runtimeGitHash, sdk: source.sdkVersion,
+        tfm: typeof source.bundledFrameworkTfm === 'string' ? source.bundledFrameworkTfm : null,
+        runtimePackVersion: source.runtimePackVersion,
+        ...(typeof source.runtimeCommitDateTime === 'string' ? { committedAt: source.runtimeCommitDateTime } : {}),
+        ...(typeof source.runtimeCommitAuthor === 'string' ? { commitAuthor: source.runtimeCommitAuthor } : {}),
+        ...(typeof source.runtimeCommitMessage === 'string' ? { commitMessage: source.runtimeCommitMessage } : {}),
+    };
+}
+
 export function localFocusReport(raw: unknown, profile: FocusProfile = DEFAULT_FOCUS_SELECTION.startupProfile, view: 'history' | 'matched' = 'history') {
     const data = raw as LocalData;
     if (!['history', 'matched'].includes(view)) throw new Error('Select historical baselines or a matched pair.');
@@ -95,12 +120,14 @@ function localSingleReport(raw: unknown, profile: FocusProfile) {
         data.warnings.some(warning => typeof warning !== 'string')) throw new Error('Invalid local comparison bundle.');
     validateRun(data.before, 'before');
     validateRun(data.after, 'after');
+    const expectedMonoCommit = monoCommit(data.before.manifest.sdkInfo.runtimeGitHash, data.monoSource);
+    if (data.monoSource !== undefined && !data.monoBefore) throw new Error('Explicit Mono provenance has no Mono control.');
     if (data.monoBefore) {
         validateRun(data.monoBefore, 'Mono before');
         if (data.after.manifest.runtime !== 'coreclr' || data.monoBefore.manifest.runtime !== 'mono' ||
-            data.monoBefore.manifest.sdkInfo.runtimeGitHash !== data.before.manifest.sdkInfo.runtimeGitHash ||
+            data.monoBefore.manifest.sdkInfo.runtimeGitHash !== expectedMonoCommit ||
             dirty(data.monoBefore) !== false) {
-            throw new Error('Mono before must be a pristine source build at the same baseline commit as CoreCLR before.');
+            throw new Error('Mono before must be a pristine source build at the same baseline commit or its explicit release/11.0 commit.');
         }
 
     }
@@ -151,6 +178,12 @@ function localSingleReport(raw: unknown, profile: FocusProfile) {
         sourceId: null,
         bucket: 'local', columnIndex: 0, variant,
     };
+    const beforeRef = typeof data.setup?.beforeRef === 'string' && data.setup.beforeRef
+        ? data.setup.beforeRef : undefined;
+    const baselineSources: FocusPoint['baselineSources'] = data.monoSource && data.monoBefore ? {
+        mono: baselineSource(data.monoBefore, data.monoSource.ref),
+        ...(beforeRef ? { coreclr: baselineSource(data.before, beforeRef) } : {}),
+    } : undefined;
     const metrics: FocusMetricReport[] = focusMetrics('havit-bootstrap').map(metric => {
         const metricProfile = metric.id === 'startup' ? profile : 'desktop';
         const before = resultFor(data.before, metricProfile);
@@ -162,7 +195,8 @@ function localSingleReport(raw: unknown, profile: FocusProfile) {
         const percent = percentVsMono(afterValue, beforeValue);
         const secondaryPercent = data.monoBefore ? percentVsMono(afterValue, coreclrBefore) : null;
         const point: FocusPoint = { observation, position: 0, coreclr: afterValue, mono: beforeValue, coreclrBefore,
-            percent, issue: null, coreclrWindow: null, monoWindow: null, percentWindow: null };
+            percent, issue: null, coreclrWindow: null, monoWindow: null, percentWindow: null,
+            ...(baselineSources ? { baselineSources } : {}) };
         return {
             ...metric, profile: metricProfile, coreclrPreset: preset, monoPreset: reference.manifest.preset,
             coreclrLabel: afterLabel, monoLabel: beforeLabel,
@@ -182,7 +216,8 @@ function localSingleReport(raw: unknown, profile: FocusProfile) {
         comparisonKind: 'local', app: 'havit-bootstrap', apps: ['havit-bootstrap'], range: '14d',
         flavor: 'release-release', flavorLabel: 'After versus before', startupProfile: profile,
         startDay: day, endDay: day, lastUpdated: data.createdAt,
-        targetFrameworks: [...new Set([data.before, data.after].map(run => String(run.manifest.sdkInfo.bundledFrameworkTfm ?? 'Unknown')))],
+        targetFrameworks: [...new Set([data.before, data.after, ...(data.monoBefore ? [data.monoBefore] : [])]
+            .map(run => String(run.manifest.sdkInfo.bundledFrameworkTfm ?? 'Unknown')))],
         availableStartDay: day, availableEndDay: day, excludedCustomBuilds: 0,
         cohort: { baselinePreset: reference.manifest.preset === 'no-workload' ? 'no-workload' : null,
             usesBaseline: reference.manifest.preset === 'no-workload',
@@ -197,7 +232,8 @@ function localSingleReport(raw: unknown, profile: FocusProfile) {
     return {
         status: 'ready', report,
         metadata: {
-            title: data.title, note: data.note ?? '', runtime, variant: data.after.manifest.variant, profiles,
+            title: data.title, note: [data.note, ...(data.monoSource ? [crossBranchWarning] : [])].filter(Boolean).join(' '),
+            runtime, variant: data.after.manifest.variant, profiles,
             hasHistory: Array.isArray(data.beforeHistory), isHistory: false,
             comparisonPath: data.comparisonPath ?? '',
             afterMeasuredAt: new Date(afterResult.meta.benchmarkDateTime).toISOString(), afterRounds: rounds,
@@ -205,6 +241,7 @@ function localSingleReport(raw: unknown, profile: FocusProfile) {
             hasMonoReference: !!data.monoBefore,
             primaryFormula: data.monoBefore ? '100 × (CoreCLR after / Mono before − 1)' : '100 × (after / before − 1)',
             monoCommit: data.monoBefore?.manifest.sdkInfo.runtimeGitHash ?? '',
+            monoSourceRef: data.monoSource?.ref ?? '',
             monoSdk: data.monoBefore?.manifest.sdkInfo.sdkVersion ?? '',
             monoPack: data.monoBefore?.manifest.sdkInfo.runtimePackVersion ?? '',
             monoColdSamples: data.monoBefore ? resultFor(data.monoBefore, profile)?.samples?.['time-to-reach-managed-cold'] ?? null : null,
@@ -216,7 +253,7 @@ function localSingleReport(raw: unknown, profile: FocusProfile) {
             afterColdSamples: afterResult.samples?.['time-to-reach-managed-cold'] ?? null,
             beforeWarm: positive(beforeResult.metrics['time-to-reach-managed-warm']),
             afterWarm: positive(afterResult.metrics['time-to-reach-managed-warm']),
-            warnings: data.warnings,
+            warnings: data.monoSource ? [...new Set([...data.warnings, crossBranchWarning])] : data.warnings,
         },
     };
 }
@@ -234,13 +271,14 @@ function localHistoryReport(data: LocalData, profile: FocusProfile) {
         }
         seen.add(entry.day);
         if (entry.status !== 'passed') return null;
-        if (!!entry.monoBefore !== withMono) throw new Error('Daily baseline history must consistently include matched Mono controls.');
+        if (!!entry.monoBefore !== withMono) throw new Error('Daily baseline history must consistently include Mono controls.');
+        monoCommit(entry.commit, entry.monoSource);
         if (!entry.before || entry.before.manifest.sdkInfo.runtimeGitHash !== entry.commit || dirty(entry.before) !== false ||
             entry.before.manifest.variant !== data.after.manifest.variant) {
             throw new Error(`Daily baseline ${entry.day} must be a clean matching-mode source build.`);
         }
         return localSingleReport({ ...data, beforeHistory: undefined, before: entry.before,
-            monoBefore: entry.monoBefore }, profile);
+            monoBefore: entry.monoBefore, monoSource: entry.monoSource }, profile);
     });
     let latestIndex = -1;
     reports.forEach((report, index) => { if (report) latestIndex = index; });
@@ -281,7 +319,12 @@ function localHistoryReport(data: LocalData, profile: FocusProfile) {
                     vmrCommitDateTime: typeof baseline?.vmrCommitDateTime === 'string'
                         ? baseline.vmrCommitDateTime : null,
                     bundledFrameworkTfm: typeof baseline?.bundledFrameworkTfm === 'string' ? baseline.bundledFrameworkTfm : null } };
-            return original ? { ...original, position: index, observation, coreclr: null } : {
+            const baselineSources = entry.monoSource && entry.monoBefore && entry.before ? {
+                mono: baselineSource(entry.monoBefore, entry.monoSource.ref),
+                coreclr: baselineSource(entry.before, 'refs/remotes/origin/main'),
+            } : undefined;
+            return original ? { ...original, position: index, observation, coreclr: null,
+                ...(baselineSources ? { baselineSources } : {}) } : {
                 position: index, observation, coreclr: null, mono: null, coreclrBefore: null, percent: null,
                 issue: null, coreclrWindow: null, monoWindow: null, percentWindow: null,
             };
@@ -312,7 +355,7 @@ function localHistoryReport(data: LocalData, profile: FocusProfile) {
                 baselineDescription: 'Daily UTC main source snapshots compared with a separately measured fixed after reference.' } },
         metadata: { ...latest.metadata, title: data.title, isHistory: true, hasHistory: true,
             afterLabel: latest.metadata.afterLabel.replace('After (', 'After reference ('),
-            note: `${data.note ?? ''} Daily baselines: ${reports.filter(Boolean).length}/${days.length} passed. ` +
+            note: `${data.note ?? ''} ${days.some(entry => entry.monoSource) ? crossBranchWarning + ' Per-point tooltips record both source pins and SDK/TFM identities. ' : ''}Daily baselines: ${reports.filter(Boolean).length}/${days.length} passed. ` +
                 'The dashed after line is one fixed reference from its recorded tree, not an observation on each source date.',
             warnings: [...latest.metadata.warnings.filter(warning =>
                 !failed.some(entry => warning.startsWith(`${entry.day} ${entry.commit}:`))), ...failed

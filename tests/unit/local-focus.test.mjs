@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import { localFocusReport } from '../../src/bench-viewer/wwwroot/chart/local-focus.js';
-import { fixedReferenceTooltip, focusChartModel } from '../../src/bench-viewer/wwwroot/chart/focus-chart.js';
+import { baselineSourceTooltip, fixedReferenceTooltip, focusChartModel, focusPointDetail } from '../../src/bench-viewer/wwwroot/chart/focus-chart.js';
 
 test('default NET12 flavor/profile controls have no stray Razor closing brace in sidebar markup', async () => {
     const page = await readFile(new URL('../../src/bench-viewer/Pages/Net12Focus.razor', import.meta.url), 'utf8');
@@ -128,6 +128,61 @@ test('Mono reference makes the main percentage CoreCLR-after versus Mono-before 
     assert.throws(() => localFocusReport(data), /same baseline commit/);
 });
 
+test('single cross-branch report exposes Mono and CoreCLR-before sources without relabeling CoreCLR after', () => {
+    const data = fixture();
+    data.setup = { beforeRef: 'refs/remotes/origin/main' };
+    data.before.manifest.sdkInfo.runtimeGitHash = 'a'.repeat(40);
+    data.before.manifest.sdkInfo.sdkVersion = '12.0.100';
+    data.before.manifest.sdkInfo.bundledFrameworkTfm = 'net12.0';
+    data.after.manifest.sdkInfo.runtimeGitHash = 'b'.repeat(40);
+    data.after.manifest.sdkInfo.sdkVersion = '12.0.100';
+    data.after.manifest.sdkInfo.bundledFrameworkTfm = 'net12.0';
+    data.monoBefore = structuredClone(data.before);
+    data.monoBefore.manifest.runtime = 'mono';
+    data.monoBefore.manifest.sdkInfo.runtimeGitHash = 'd'.repeat(40);
+    data.monoBefore.manifest.sdkInfo.sdkVersion = '11.0.100';
+    data.monoBefore.manifest.sdkInfo.bundledFrameworkTfm = 'net11.0';
+    data.monoBefore.results.forEach(result => { result.meta.runtime = 'mono'; });
+    data.monoSource = { ref: 'refs/remotes/origin/release/11.0', commit: 'd'.repeat(40) };
+
+    const metric = localFocusReport(data, 'desktop').report.metrics[0];
+    const point = metric.points[0];
+    assert.equal(point.baselineSources.mono.commit, 'd'.repeat(40));
+    assert.equal(point.baselineSources.coreclr.commit, 'a'.repeat(40));
+    assert.match(baselineSourceTooltip(point, 'mono').join(' '),
+        /release\/11.0 dddddddddddd; SDK 11.0.100; net11.0/);
+    assert.match(baselineSourceTooltip(point, 'coreclrBefore').join(' '),
+        /main aaaaaaaaaaaa; SDK 12.0.100; net12.0/);
+    assert.deepEqual(baselineSourceTooltip(point, 'coreclr'), []);
+
+    const detail = focusPointDetail(metric, point, false);
+    assert.equal(detail.sections.find(section => section.title === 'SDK').rows
+        .find(row => row.label === 'Version').value, '12.0.100');
+    assert.equal(detail.sections.find(section => section.title === 'Runtime').rows
+        .find(row => row.label === 'Runtime commit').value, 'b'.repeat(40));
+    const mono = detail.sections.find(section => section.title === 'Mono runtime source');
+    assert.equal(mono.rows.find(row => row.label === 'Source ref').value, 'refs/remotes/origin/release/11.0');
+    assert.equal(mono.rows.find(row => row.label === 'SDK').value, '11.0.100');
+    assert.equal(mono.rows.find(row => row.label === 'Runtime commit').value, 'd'.repeat(40));
+    const before = detail.sections.find(section => section.title === 'CoreCLR before runtime source');
+    assert.equal(before.rows.find(row => row.label === 'Source ref').value, 'refs/remotes/origin/main');
+    assert.equal(before.rows.find(row => row.label === 'Runtime commit').value, 'a'.repeat(40));
+    assert.equal(detail.sections.some(section => section.title === 'CoreCLR runtime source'), false);
+
+    delete data.setup.beforeRef;
+    const missingCoreRefPoint = localFocusReport(data, 'desktop').report.metrics[0].points[0];
+    assert.deepEqual(Object.keys(missingCoreRefPoint.baselineSources), ['mono']);
+    assert.deepEqual(baselineSourceTooltip(missingCoreRefPoint, 'coreclrBefore'), []);
+
+    const legacyPoint = localFocusReport(fixture(), 'desktop').report.metrics[0].points[0];
+    assert.equal(legacyPoint.baselineSources, undefined);
+    assert.deepEqual(baselineSourceTooltip(legacyPoint, 'mono'), []);
+    const legacyDetail = focusPointDetail(localFocusReport(fixture(), 'desktop').report.metrics[0], legacyPoint, false);
+    assert.ok(legacyDetail.sections.some(section => section.title === 'SDK'));
+    assert.ok(legacyDetail.sections.some(section => section.title === 'Runtime'));
+    assert.equal(legacyDetail.sections.some(section => section.title.includes('runtime source')), false);
+});
+
 test('cross-variant local report explicitly identifies interpreter, R2R and composite R2R without relabeling measurements', () => {
     const data = fixture();
     data.monoBefore = structuredClone(data.before);
@@ -217,6 +272,7 @@ test('daily three-series history uses a Mono control matched to each day rather 
             row.meta.runtime = 'mono';
             row.metrics['time-to-reach-managed-cold'] = 100 + index * 50;
         });
+
         return { day, commit: before.manifest.sdkInfo.runtimeGitHash, status: 'passed', before, monoBefore };
     });
     const result = localFocusReport(data);
@@ -229,6 +285,60 @@ test('daily three-series history uses a Mono control matched to each day rather 
     const mismatched = structuredClone(data);
     mismatched.beforeHistory[1].monoBefore.manifest.sdkInfo.runtimeGitHash = 'f'.repeat(40);
     assert.throws(() => localFocusReport(mismatched), /same baseline commit/);
+});
+
+test('mixed legacy and split-source history preserves provenance and rejects mismatched Mono evidence', () => {
+    const data = fixture();
+    const entry = (day, commit) => {
+        const before = structuredClone(data.before);
+        before.manifest.sdkInfo.runtimeGitHash = commit;
+        const monoBefore = structuredClone(before);
+        monoBefore.manifest.runtime = 'mono';
+        monoBefore.results.forEach(row => { row.meta.runtime = 'mono'; });
+        return { day, commit, status: 'passed', before, monoBefore };
+    };
+    const legacy = entry('2026-10-11', 'a'.repeat(40));
+    const split = entry('2026-11-16', 'b'.repeat(40));
+    split.monoSource = { ref: 'refs/remotes/origin/release/11.0', commit: 'c'.repeat(40) };
+    Object.assign(split.monoBefore.manifest.sdkInfo, {
+        runtimeGitHash: split.monoSource.commit, sdkVersion: '11.0.100',
+        bundledFrameworkTfm: 'net11.0', runtimePackVersion: '11.0.1-dev',
+        runtimeCommitDateTime: '2026-11-15T10:00:00Z',
+        runtimeCommitAuthor: 'Mono author', runtimeCommitMessage: 'Mono source',
+    });
+    Object.assign(split.before.manifest.sdkInfo, {
+        sdkVersion: '12.0.100', bundledFrameworkTfm: 'net12.0',
+        runtimeCommitDateTime: '2026-11-16T10:00:00Z',
+    });
+    data.monoSource = split.monoSource;
+    data.monoBefore = structuredClone(split.monoBefore);
+    data.beforeHistory = [legacy, split];
+    const report = localFocusReport(data);
+    const points = report.report.metrics[0].points;
+    assert.equal(points[0].baselineSources, undefined, 'Legacy point must not inherit the root Mono source');
+    assert.deepEqual(points[1].baselineSources.mono, {
+        ref: split.monoSource.ref, commit: 'c'.repeat(40), sdk: '11.0.100', tfm: 'net11.0',
+        runtimePackVersion: '11.0.1-dev', committedAt: '2026-11-15T10:00:00Z',
+        commitAuthor: 'Mono author', commitMessage: 'Mono source',
+    });
+    assert.equal(points[1].baselineSources.coreclr.commit, 'b'.repeat(40));
+    assert.equal(points[1].baselineSources.coreclr.committedAt, '2026-11-16T10:00:00Z');
+    assert.match(baselineSourceTooltip(points[1], 'mono').join(' '), /release\/11.0 cccccccccccc; SDK 11.0.100; net11.0/);
+    assert.match(baselineSourceTooltip(points[1], 'coreclrBefore').join(' '), /main bbbbbbbbbbbb; SDK 12.0.100; net12.0/);
+    assert.match(report.metadata.note, /cross-branch controls, not a same-source pair/);
+    for (const mutate of [
+        row => { row.monoSource.ref = 'refs/remotes/origin/main'; },
+        row => { row.monoSource.commit = 'bad'; },
+        row => { row.monoBefore.manifest.sdkInfo.runtimeGitHash = 'd'.repeat(40); },
+        row => { row.monoBefore.manifest.sdkInfo.localRuntime.source.dirty = true; },
+    ]) {
+        const invalid = structuredClone(data);
+        mutate(invalid.beforeHistory[1]);
+        assert.throws(() => localFocusReport(invalid), /Mono|pristine/);
+    }
+    const invalidLegacy = structuredClone(data);
+    invalidLegacy.beforeHistory[0].monoBefore.manifest.sdkInfo.runtimeGitHash = split.monoSource.commit;
+    assert.throws(() => localFocusReport(invalidLegacy), /same baseline commit/);
 });
 
 test('fixed after reference retains its own measured date and tree, not each baseline observation', () => {

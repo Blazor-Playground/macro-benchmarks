@@ -74,6 +74,12 @@ jobs:
       runtime-build-required: ${{ steps.sdk-version.outputs.runtime-build-required }}
       runtime-commit: ${{ steps.sdk-version.outputs.runtime-commit }}
       runtime-repo: ${{ steps.sdk-version.outputs.runtime-repo }}
+      mono-runtime-ref: ${{ steps.sdk-version.outputs.mono-runtime-ref }}
+      mono-runtime-commit: ${{ steps.sdk-version.outputs.mono-runtime-commit }}
+      mono-runtime-repo: ${{ steps.sdk-version.outputs.mono-runtime-repo }}
+      coreclr-runtime-ref: ${{ steps.sdk-version.outputs.coreclr-runtime-ref }}
+      coreclr-runtime-commit: ${{ steps.sdk-version.outputs.coreclr-runtime-commit }}
+      coreclr-runtime-repo: ${{ steps.sdk-version.outputs.coreclr-runtime-repo }}
       aspnetcore-build-required: ${{ steps.sdk-version.outputs.aspnetcore-build-required }}
       aspnetcore-commit: ${{ steps.sdk-version.outputs.aspnetcore-commit }}
       aspnetcore-repo: ${{ steps.sdk-version.outputs.aspnetcore-repo }}
@@ -117,6 +123,12 @@ jobs:
           RUNTIME_BUILD=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.runtimeBuildRequired ? 'true' : 'false')")
           RUNTIME_COMMIT=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.runtimeCommit || '')")
           RUNTIME_REPO=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.runtimeRepo || 'dotnet/runtime')")
+          MONO_RUNTIME_REF=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); const core=c.sdkInfo?.runtimeSources?.coreclr; console.log(c.sdkInfo?.runtimeSources?.mono?.ref || core?.ref || c.runtimeRef || c.runtimeCommit || '')")
+          MONO_RUNTIME_COMMIT=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); const core=c.sdkInfo?.runtimeSources?.coreclr; console.log(c.sdkInfo?.runtimeSources?.mono?.commit || core?.commit || c.runtimeCommit || '')")
+          MONO_RUNTIME_REPO=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); const core=c.sdkInfo?.runtimeSources?.coreclr; console.log(c.sdkInfo?.runtimeSources?.mono?.repo || core?.repo || c.runtimeRepo || 'dotnet/runtime')")
+          CORECLR_RUNTIME_REF=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.sdkInfo?.runtimeSources?.coreclr?.ref || c.runtimeRef || c.runtimeCommit || '')")
+          CORECLR_RUNTIME_COMMIT=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.sdkInfo?.runtimeSources?.coreclr?.commit || c.runtimeCommit || '')")
+          CORECLR_RUNTIME_REPO=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.sdkInfo?.runtimeSources?.coreclr?.repo || c.runtimeRepo || 'dotnet/runtime')")
           ASPNETCORE_BUILD=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.aspnetCoreBuildRequired ? 'true' : 'false')")
           ASPNETCORE_COMMIT=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.aspnetCoreCommit || '')")
           ASPNETCORE_REPO=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.aspnetCoreRepo || 'dotnet/aspnetcore')")
@@ -126,12 +138,22 @@ jobs:
           echo "runtime-build-required=$RUNTIME_BUILD" >> "$GITHUB_OUTPUT"
           echo "runtime-commit=$RUNTIME_COMMIT" >> "$GITHUB_OUTPUT"
           echo "runtime-repo=$RUNTIME_REPO" >> "$GITHUB_OUTPUT"
+          echo "mono-runtime-ref=$MONO_RUNTIME_REF" >> "$GITHUB_OUTPUT"
+          echo "mono-runtime-commit=$MONO_RUNTIME_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "mono-runtime-repo=$MONO_RUNTIME_REPO" >> "$GITHUB_OUTPUT"
+          echo "coreclr-runtime-ref=$CORECLR_RUNTIME_REF" >> "$GITHUB_OUTPUT"
+          echo "coreclr-runtime-commit=$CORECLR_RUNTIME_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "coreclr-runtime-repo=$CORECLR_RUNTIME_REPO" >> "$GITHUB_OUTPUT"
           echo "aspnetcore-build-required=$ASPNETCORE_BUILD" >> "$GITHUB_OUTPUT"
           echo "aspnetcore-commit=$ASPNETCORE_COMMIT" >> "$GITHUB_OUTPUT"
           echo "aspnetcore-repo=$ASPNETCORE_REPO" >> "$GITHUB_OUTPUT"
           echo "SDK version: $SDK_VERSION" >&2
           echo "Runtime commit: $COMMIT_DATE $COMMIT_MSG" >&2
           echo "Runtime build required: $RUNTIME_BUILD" >&2
+          if [ "$RUNTIME_BUILD" = true ]; then
+            echo "Mono source: $MONO_RUNTIME_REPO@$MONO_RUNTIME_COMMIT ($MONO_RUNTIME_REF)" >&2
+            echo "CoreCLR source: $CORECLR_RUNTIME_REPO@$CORECLR_RUNTIME_COMMIT ($CORECLR_RUNTIME_REF)" >&2
+          fi
           echo "ASP.NET Core build required: $ASPNETCORE_BUILD" >&2
 
       # App list drives the per-app build shard matrix; --print-apps is dry-run aware, and a
@@ -246,11 +268,13 @@ jobs:
           retention-days: 14
           if-no-files-found: error
 
-  # ── Job 2a: Build Runtime Mono (only when building from source) ─────────────
+  # ── Job 2a: Build Runtime Mono from the .NET 11 baseline source ─────────────
   build-runtime-mono:
     name: Build Runtime (Mono)
     needs: resolve
     if: needs.resolve.outputs.runtime-build-required == 'true'
+    outputs:
+      runtime-pack-version: ${{ steps.pack.outputs.runtime-pack-version }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -260,9 +284,9 @@ jobs:
         shell: bash
         run: |
           git clone --no-checkout --filter=blob:none \
-            "https://github.com/${{ needs.resolve.outputs.runtime-repo }}.git" runtime-src
+            "https://github.com/${{ needs.resolve.outputs.mono-runtime-repo }}.git" runtime-src
           cd runtime-src
-          git checkout ${{ needs.resolve.outputs.runtime-commit }}
+          git checkout --detach "${{ needs.resolve.outputs.mono-runtime-commit }}"
 
       - name: Build Mono browser-wasm
         shell: bash
@@ -274,6 +298,10 @@ jobs:
       - name: Find and extract runtime pack
         id: pack
         shell: bash
+        env:
+          SOURCE_REPO: ${{ needs.resolve.outputs.mono-runtime-repo }}
+          SOURCE_REF: ${{ needs.resolve.outputs.mono-runtime-ref }}
+          SOURCE_COMMIT: ${{ needs.resolve.outputs.mono-runtime-commit }}
         run: |
           NUPKG=$(find runtime-src/artifacts/packages/Release/Shipping \
             -iname 'Microsoft.NETCore.App.Runtime.Mono.browser-wasm.*.nupkg' \
@@ -288,8 +316,21 @@ jobs:
             exit 1
           fi
           echo "Found nupkg: $NUPKG" >&2
+          PACK_VERSION=$(basename "$NUPKG")
+          PACK_VERSION=${PACK_VERSION#Microsoft.NETCore.App.Runtime.Mono.browser-wasm.}
+          PACK_VERSION=${PACK_VERSION%.nupkg}
+          echo "runtime-pack-version=$PACK_VERSION" >> "$GITHUB_OUTPUT"
           mkdir -p runtime-pack-mono
           unzip -o "$NUPKG" -d runtime-pack-mono
+          PACK_VERSION="$PACK_VERSION" node <<'NODE'
+          const fs = require('node:fs');
+          fs.writeFileSync('runtime-pack-mono/benchmark-source.json', JSON.stringify({
+            repo: process.env.SOURCE_REPO,
+            ref: process.env.SOURCE_REF,
+            commit: process.env.SOURCE_COMMIT,
+            runtimePackVersion: process.env.PACK_VERSION,
+          }) + '\n');
+          NODE
 
       - name: Upload runtime pack
         uses: actions/upload-artifact@v7
@@ -298,11 +339,13 @@ jobs:
           path: runtime-pack-mono/
           retention-days: 3
 
-  # ── Job 2b: Build Runtime CoreCLR (only when building from source) ─────────
+  # ── Job 2b: Build Runtime CoreCLR from the selected custom source ──────────
   build-runtime-coreclr:
     name: Build Runtime (CoreCLR)
     needs: resolve
     if: needs.resolve.outputs.runtime-build-required == 'true'
+    outputs:
+      runtime-pack-version: ${{ steps.pack.outputs.runtime-pack-version }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -312,9 +355,9 @@ jobs:
         shell: bash
         run: |
           git clone --no-checkout --filter=blob:none \
-            "https://github.com/${{ needs.resolve.outputs.runtime-repo }}.git" runtime-src
+            "https://github.com/${{ needs.resolve.outputs.coreclr-runtime-repo }}.git" runtime-src
           cd runtime-src
-          git checkout ${{ needs.resolve.outputs.runtime-commit }}
+          git checkout --detach "${{ needs.resolve.outputs.coreclr-runtime-commit }}"
 
       - name: Build CoreCLR browser-wasm
         shell: bash
@@ -325,6 +368,10 @@ jobs:
       - name: Find and extract runtime pack
         id: pack
         shell: bash
+        env:
+          SOURCE_REPO: ${{ needs.resolve.outputs.coreclr-runtime-repo }}
+          SOURCE_REF: ${{ needs.resolve.outputs.coreclr-runtime-ref }}
+          SOURCE_COMMIT: ${{ needs.resolve.outputs.coreclr-runtime-commit }}
         run: |
           NUPKG=$(find runtime-src/artifacts/packages/Release/Shipping \
             -iname 'Microsoft.NETCore.App.Runtime.browser-wasm.*.nupkg' \
@@ -341,8 +388,21 @@ jobs:
             exit 1
           fi
           echo "Found nupkg: $NUPKG" >&2
+          PACK_VERSION=$(basename "$NUPKG")
+          PACK_VERSION=${PACK_VERSION#Microsoft.NETCore.App.Runtime.browser-wasm.}
+          PACK_VERSION=${PACK_VERSION%.nupkg}
+          echo "runtime-pack-version=$PACK_VERSION" >> "$GITHUB_OUTPUT"
           mkdir -p runtime-pack-coreclr
           unzip -o "$NUPKG" -d runtime-pack-coreclr
+          PACK_VERSION="$PACK_VERSION" node <<'NODE'
+          const fs = require('node:fs');
+          fs.writeFileSync('runtime-pack-coreclr/benchmark-source.json', JSON.stringify({
+            repo: process.env.SOURCE_REPO,
+            ref: process.env.SOURCE_REF,
+            commit: process.env.SOURCE_COMMIT,
+            runtimePackVersion: process.env.PACK_VERSION,
+          }) + '\n');
+          NODE
 
       - name: Upload runtime pack
         uses: actions/upload-artifact@v7
@@ -494,7 +554,7 @@ jobs:
   # ── Job 3b: Collect build manifests + generate the measure matrix ──────────
   build-collect:
     name: Collect builds (${{ needs.resolve.outputs.sdk-version }})
-    needs: [resolve, build]
+    needs: [resolve, build, build-runtime-mono, build-runtime-coreclr]
     if: |
       always()
       && needs.resolve.result == 'success'
@@ -523,6 +583,31 @@ jobs:
         with:
           name: bench-context
           path: ${{ env.ARTIFACTS_DIR }}
+
+      - name: Record source-built runtime pack versions
+        if: needs.resolve.outputs.runtime-build-required == 'true'
+        shell: bash
+        env:
+          MONO_RUNTIME_PACK_VERSION: ${{ needs.build-runtime-mono.outputs.runtime-pack-version }}
+          CORECLR_RUNTIME_PACK_VERSION: ${{ needs.build-runtime-coreclr.outputs.runtime-pack-version }}
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = `${process.env.ARTIFACTS_DIR}/bench-context.json`;
+          const context = JSON.parse(fs.readFileSync(path, 'utf8'));
+          const versions = {
+            mono: process.env.MONO_RUNTIME_PACK_VERSION,
+            coreclr: process.env.CORECLR_RUNTIME_PACK_VERSION,
+          };
+          for (const [runtime, version] of Object.entries(versions)) {
+            const source = context.sdkInfo?.runtimeSources?.[runtime];
+            if (!source?.commit || !version) {
+              throw new Error(`Missing ${runtime} source or runtime pack version`);
+            }
+            source.runtimePackVersion = version;
+          }
+          fs.writeFileSync(path, JSON.stringify(context, null, 2) + '\n');
+          NODE
 
       - name: Download build reports
         uses: actions/download-artifact@v8

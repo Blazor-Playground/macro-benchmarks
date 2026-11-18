@@ -1,19 +1,51 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
-import { type BenchContext, type SdkInfo } from '../context.js';
+import {
+    type BenchContext,
+    type RuntimeSourceInfo,
+    type RuntimeSources,
+    type SdkInfo,
+    recordRuntimeSdk,
+} from '../context.js';
+import { Runtime } from '../enums.js';
 import { banner, info } from '../log.js';
-import { getVersionMajor, populateVersionFields } from '../lib/version-utils.js';
-import { fetchGitHubCommitMetadata, fetchJson, githubHeaders, resolveGitHubToken, GITHUB_API } from '../lib/http.js';
+import { compareVersions, getVersionMajor, populateVersionFields } from '../lib/version-utils.js';
+import {
+    fetchGitHubCommitInfo,
+    fetchGitHubCommitMetadata,
+    fetchJson,
+    githubHeaders,
+    resolveGitHubToken,
+    GITHUB_API,
+} from '../lib/http.js';
 import { updateBuildLock } from '../lib/build-lock.js';
 import { monoPackAvailable } from '../lib/debug-sdk.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
+export const MONO_RUNTIME_REPO = 'dotnet/runtime';
+export const MONO_RUNTIME_REF = 'release/11.0';
+
 interface TaggedPack {
     entry: SdkInfo;
     source: 'daily' | 'release';
 }
+
+export interface RuntimeSourceSelection {
+    repo: string;
+    ref: string;
+    commitish?: string;
+}
+
+export type SourceBuiltRuntimeSources = RuntimeSources & {
+    [Runtime.Mono]: RuntimeSourceInfo;
+    [Runtime.CoreCLR]: RuntimeSourceInfo;
+};
+
+export type RuntimeSourceResolver = (
+    selection: RuntimeSourceSelection,
+) => Promise<RuntimeSourceInfo>;
 
 // ── Pack list loading ────────────────────────────────────────────────────────
 
@@ -206,6 +238,50 @@ async function fetchCommitMetadata(repo: string, sha: string): Promise<{
     return data;
 }
 
+export async function resolveRuntimeSource(
+    selection: RuntimeSourceSelection,
+): Promise<RuntimeSourceInfo> {
+    const token = await resolveGitHubToken();
+    const commitish = selection.commitish ?? selection.ref;
+    const data = await fetchGitHubCommitInfo(selection.repo, commitish, token);
+    if (!data) {
+        throw new Error(`Could not resolve runtime ref '${commitish}' from ${selection.repo}`);
+    }
+    return {
+        repo: selection.repo,
+        ref: selection.ref,
+        commit: data.sha,
+        committedAt: data.commitDateTime,
+        commitAuthor: data.commitAuthor,
+        commitMessage: data.commitMessage,
+    };
+}
+
+function validateRuntimeSource(source: RuntimeSourceInfo, label: string): void {
+    if (!/^[0-9a-f]{40}$/i.test(source.commit)) {
+        throw new Error(`${label} runtime source did not resolve to a full 40-character commit`);
+    }
+    if (!source.repo || !source.ref || !source.committedAt) {
+        throw new Error(`${label} runtime source is missing repository, ref, or commit time`);
+    }
+}
+
+export async function resolveSourceBuiltRuntimeSources(
+    coreclrSelection: RuntimeSourceSelection,
+    resolver: RuntimeSourceResolver = resolveRuntimeSource,
+): Promise<SourceBuiltRuntimeSources> {
+    const [coreclr, mono] = await Promise.all([
+        resolver(coreclrSelection),
+        resolver({ repo: MONO_RUNTIME_REPO, ref: MONO_RUNTIME_REF }),
+    ]);
+    validateRuntimeSource(coreclr, 'CoreCLR');
+    validateRuntimeSource(mono, 'Mono');
+    return {
+        [Runtime.CoreCLR]: coreclr,
+        [Runtime.Mono]: mono,
+    };
+}
+
 // ── Stage Entry Point ────────────────────────────────────────────────────────
 
 export async function run(ctx: BenchContext): Promise<BenchContext> {
@@ -221,7 +297,12 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         info(`PR #${ctx.runtimePR}: ${pr.prTitle}`);
         info(`  repo: ${pr.runtimeRepo}, branch: ${pr.branchName}`);
         info(`  head commit: ${pr.runtimeCommit.slice(0, 10)}`);
-        ctx = { ...ctx, runtimeCommit: pr.runtimeCommit, runtimeRepo: pr.runtimeRepo };
+        ctx = {
+            ...ctx,
+            runtimeCommit: pr.runtimeCommit,
+            runtimeRepo: pr.runtimeRepo,
+            runtimeRef: pr.branchName,
+        };
     }
 
     // ── Step 0b: Resolve --aspnetcore-pr to commit + repo ────────────────
@@ -239,11 +320,31 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     // ── Step 0c: Mark runtime build required ─────────────────────────────
     let runtimeMeta: { commitDateTime: string; commitAuthor: string; commitMessage: string } | undefined;
+    let runtimeSources: SourceBuiltRuntimeSources | undefined;
     if (ctx.runtimeCommit) {
-        info(`Runtime commit specified: ${ctx.runtimeCommit.slice(0, 10)} — will build from source`);
-        ctx = { ...ctx, runtimeBuildRequired: true };
-        info(`Fetching runtime commit metadata for ${ctx.runtimeCommit.slice(0, 10)} from ${ctx.runtimeRepo}...`);
-        runtimeMeta = await fetchCommitMetadata(ctx.runtimeRepo, ctx.runtimeCommit);
+        const coreclrSelection = {
+            repo: ctx.runtimeRepo,
+            ref: ctx.runtimeRef || ctx.runtimeCommit,
+            commitish: ctx.runtimeCommit,
+        };
+        info(`CoreCLR runtime selected: ${coreclrSelection.ref} (${ctx.runtimeRepo})`);
+        info(`Mono runtime baseline: ${MONO_RUNTIME_REF} (${MONO_RUNTIME_REPO})`);
+        runtimeSources = await resolveSourceBuiltRuntimeSources(coreclrSelection);
+        const coreclrSource = runtimeSources[Runtime.CoreCLR];
+        const monoSource = runtimeSources[Runtime.Mono];
+        ctx = {
+            ...ctx,
+            runtimeCommit: coreclrSource.commit,
+            runtimeRef: coreclrSource.ref,
+            runtimeBuildRequired: true,
+        };
+        runtimeMeta = {
+            commitDateTime: coreclrSource.committedAt,
+            commitAuthor: coreclrSource.commitAuthor,
+            commitMessage: coreclrSource.commitMessage,
+        };
+        info(`CoreCLR source pin: ${coreclrSource.commit.slice(0, 10)} (${coreclrSource.ref})`);
+        info(`Mono source pin: ${monoSource.commit.slice(0, 10)} (${monoSource.ref})`);
     }
 
     // ── Step 0d: Mark aspnetcore build required ──────────────────────────
@@ -288,7 +389,20 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         workloadVersion: sdkEntry.entry.workloadVersion,
         bootstrapSdkVersion: sdkEntry.entry.bootstrapSdkVersion,
         releaseDate: runtimeMeta?.commitDateTime.slice(0, 10) || sdkEntry.entry.releaseDate,
+        runtimeSources,
     });
+    if (runtimeSources) {
+        runtimeSources.coreclr = recordRuntimeSdk(runtimeSources.coreclr, sdkInfo);
+        if (ctx.runtimes.includes(Runtime.Mono)) {
+            const monoSdk = packs.map(pack => pack.entry)
+                .filter(pack => getVersionMajor(pack.sdkVersion) === 11 && !pack.isPrerelease)
+                .sort((a, b) => compareVersions(b.sdkVersion, a.sdkVersion))[0];
+            if (!monoSdk) throw new Error('Mono release/11.0 source builds require a .NET 11 GA SDK in the pack catalogs.');
+            runtimeSources.mono = recordRuntimeSdk(runtimeSources.mono, {
+                ...monoSdk, isRuntimeCustomBuild: true,
+            });
+        }
+    }
     if (!ctx.runtimeBuildRequired && !ctx.runtimePack && sdkInfo.major >= 12) {
         sdkInfo.monoRuntimePackAvailable = await monoPackAvailable(sdkInfo.runtimePackVersion);
         info(`Mono runtime pack available: ${sdkInfo.monoRuntimePackAvailable}`);

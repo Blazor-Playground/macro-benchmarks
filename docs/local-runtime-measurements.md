@@ -13,8 +13,9 @@ node bench/iterate.mjs
 ```
 
 Use the **runtime checkout root**, not `artifacts/` or Shipping.
-Bootstrap builds clean Mono interpreter and CoreCLR composite controls at the
-merge base, then CoreCLR composite from your checkout, including edits.
+Bootstrap builds Mono interpreter from `origin/release/11.0`, CoreCLR composite
+from the merge base with `origin/main`, then CoreCLR composite from your edited
+checkout. Mono and CoreCLR are **cross-branch controls, not a same-source pair**.
 Allow time and disk space for three builds.
 
 Omit the path to clone runtime into `artifacts/local-runtime-comparisons/`
@@ -54,10 +55,32 @@ A complete range is a no-op. After and matched controls are not remeasured.
 Settings come from the current comparison, not `quick-start.json`.
 Two owned clones reuse control builds without switching the after checkout.
 
-`--fetch` refreshes runtime `origin/main` without switching HEAD. Otherwise the
-local ref is used. Selection pins it once, choosing first-parent snapshots at UTC
-day end; today stops at invocation time. Deepen shallow history if needed.
+CoreCLR history uses `origin/main`; Mono uses `origin/release/11.0`.
+If the Mono ref is missing, fetch it first:
+
+```bash
+git -C <runtime-checkout> fetch --no-tags origin \
+  refs/heads/release/11.0:refs/remotes/origin/release/11.0
+```
+
+`--fetch` refreshes both refs without switching HEAD; otherwise selection is local.
+Each tip is frozen once. History selects its first-parent commit at or before
+UTC day end by **committer timestamp**, capped at invocation time for today.
+Missing refs or history fail without substituting another branch; fetch or deepen
+the checkout as needed.
 Same-commit dates may share cached evidence, not independent samples.
+
+Each runtime uses its checkout's SDK and records its SHA, TFM, ASP.NET, packages
+and compiler. Mono may target `net11.0` while CoreCLR targets `net12.0`: this is
+not a runtime-only comparison. Explicit `--sdk`, `--tfm` and `--aspnet-version`
+overrides must work for every affected build.
+
+New comparisons and history entries record
+`monoSource: { ref: "refs/remotes/origin/release/11.0", commit: "<Mono SHA>" }`;
+history `commit` remains the CoreCLR SHA. An entry without `monoSource` keeps its
+own same-source validation, never the root descriptor. Existing points, gaps and
+the fixed CoreCLR reference are unchanged. Point tooltips show each source,
+SDK and TFM.
 
 `--dry-run` does not fetch, build or change results. `--output <directory>` selects
 the cache location; otherwise the comparison's output is used when recognizable,

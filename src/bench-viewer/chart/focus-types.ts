@@ -59,6 +59,19 @@ export interface FocusColumn {
     isAspnetCoreCustomBuild: boolean | null;
     runtimePR: string | null;
     aspnetCorePR: string | null;
+    runtimeSources?: Partial<Record<'mono' | 'coreclr', FocusRuntimeSource>>;
+}
+
+export interface FocusRuntimeSource {
+    repo: string;
+    ref: string;
+    commit: string;
+    committedAt: string;
+    commitAuthor: string;
+    commitMessage: string;
+    sdkVersion: string | null;
+    targetFramework: string | null;
+    runtimePackVersion: string | null;
 }
 
 export interface FocusHeader {
@@ -121,6 +134,10 @@ export interface FocusPoint {
     coreclrBefore?: number | null;
     monoBaseline?: FocusObservation;
     environments?: { mono?: FocusEnvironment[]; coreclr?: FocusEnvironment[] };
+    baselineSources?: Partial<Record<'mono' | 'coreclr', {
+        repo?: string; ref: string; commit: string; sdk: string | null; tfm: string | null;
+        committedAt?: string; commitAuthor?: string; commitMessage?: string; runtimePackVersion?: string | null;
+    }>>;
     observation: FocusObservation;
     position: number;
     coreclr: number | null;

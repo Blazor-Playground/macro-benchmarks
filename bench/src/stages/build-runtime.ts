@@ -1,30 +1,72 @@
-import { mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import { existsSync } from 'node:fs';
-import { type BenchContext } from '../context.js';
+import { getRuntimeSource, type BenchContext, type RuntimeSourceInfo, type RuntimeSources } from '../context.js';
 import { Runtime } from '../enums.js';
 import { exec } from '../exec.js';
-import { banner, info, err } from '../log.js';import { findNupkg, parseVersionFromNupkg } from '../lib/package-utils.js';
+import { banner, info } from '../log.js';
+import { findNupkg, parseVersionFromNupkg } from '../lib/package-utils.js';
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const MONO_RUNTIME_PACK_GLOB = 'Microsoft.NETCore.App.Runtime.Mono.browser-wasm';
 const CORECLR_RUNTIME_PACK_GLOB = 'Microsoft.NETCore.App.Runtime.browser-wasm';
 const WEBASSEMBLY_SDK_PACK_ID = 'Microsoft.NET.Sdk.WebAssembly.Pack';
+const SOURCE_RECORD = 'benchmark-source.json';
+
+export function validateRuntimePackSource(value: unknown, source: RuntimeSourceInfo): string {
+    if (!value || typeof value !== 'object'
+        || !('repo' in value) || value.repo !== source.repo
+        || !('ref' in value) || value.ref !== source.ref
+        || !('commit' in value) || value.commit !== source.commit
+        || !('runtimePackVersion' in value) || typeof value.runtimePackVersion !== 'string'
+        || !value.runtimePackVersion) {
+        throw new Error(`Runtime pack does not match ${source.repo}@${source.commit}; rebuild or download the matching pack.`);
+    }
+    return value.runtimePackVersion;
+}
+
+async function sourceRecord(directory: string, source: RuntimeSourceInfo): Promise<string> {
+    let text: string;
+    try { text = await readFile(join(directory, SOURCE_RECORD), 'utf8'); }
+    catch (error) {
+        if (!(error instanceof Error) || !('code' in error) || error.code !== 'ENOENT') throw error;
+        throw new Error(`Missing source record in ${directory}; rebuild the matching runtime.`, { cause: error });
+    }
+    return validateRuntimePackSource(JSON.parse(text), source);
+}
+
+async function prebuiltSources(ctx: BenchContext, packs: Partial<Record<Runtime, string>>): Promise<RuntimeSources | undefined> {
+    if (!ctx.sdkInfo.runtimeSources) return undefined;
+    const sources = { ...ctx.sdkInfo.runtimeSources };
+    for (const runtime of [Runtime.Mono, Runtime.CoreCLR] as const) {
+        const source = sources[runtime];
+        const directory = packs[runtime];
+        if (!source || !directory) continue;
+        sources[runtime] = { ...source, runtimePackVersion: await sourceRecord(directory, source) };
+    }
+    return sources;
+}
 
 // ── R2R artifact capture ─────────────────────────────────────────────────────
 
 // Locate the host crossgen2 (emits browser-wasm R2R images) and the built WebAssembly SDK pack
 // (carries the CoreCLR R2R targets). These are consumed by build.ts for the CoreCLR `aot` preset.
-async function captureR2RArtifacts(cloneDir: string): Promise<Pick<BenchContext, 'crossgen2Dir' | 'runtimePackagesDir' | 'r2rPackVersion'>> {
+async function captureR2RArtifacts(ctx: BenchContext): Promise<Pick<BenchContext, 'crossgen2Dir' | 'runtimePackagesDir' | 'r2rPackVersion'>> {
     const result: Pick<BenchContext, 'crossgen2Dir' | 'runtimePackagesDir' | 'r2rPackVersion'> = {};
+    if (!ctx.runtimes.includes(Runtime.CoreCLR)) return result;
+    const cloneDir = getSourceCloneDir(ctx, Runtime.CoreCLR);
     const r2rRoot = join(cloneDir, 'artifacts', 'bin', 'coreclr', 'browser.wasm.Release');
+    const shippingDir = join(cloneDir, 'artifacts', 'packages', 'Release', 'Shipping');
+    const source = getRuntimeSource(ctx.sdkInfo, Runtime.CoreCLR);
+    if (source && (existsSync(r2rRoot) || existsSync(shippingDir))) {
+        await sourceRecord(getBuildArtifactsDir(cloneDir), source);
+    }
     if (existsSync(r2rRoot)) {
         for (const arch of ['x64', 'arm64', 'x86']) {
             const cg = join(r2rRoot, arch, 'crossgen2');
             if (existsSync(cg)) { result.crossgen2Dir = cg; break; }
         }
     }
-    const shippingDir = join(cloneDir, 'artifacts', 'packages', 'Release', 'Shipping');
     if (existsSync(shippingDir)) {
         const packNupkg = await findNupkg(shippingDir, WEBASSEMBLY_SDK_PACK_ID);
         if (packNupkg) {
@@ -37,8 +79,8 @@ async function captureR2RArtifacts(cloneDir: string): Promise<Pick<BenchContext,
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function getRuntimeCloneDir(artifactsDir: string): string {
-    return join(artifactsDir, 'runtime-src');
+function getRuntimeCloneDir(artifactsDir: string, flavor?: 'mono' | 'coreclr'): string {
+    return join(artifactsDir, flavor ? `runtime-src-${flavor}` : 'runtime-src');
 }
 
 function getBuildArtifactsDir(cloneDir: string): string {
@@ -49,6 +91,14 @@ function getExtractDir(artifactsDir: string, flavor: 'mono' | 'coreclr'): string
     return join(artifactsDir, `runtime-pack-${flavor}`);
 }
 
+function getSourceCloneDir(ctx: BenchContext, runtime: Runtime): string {
+    const source = getRuntimeSource(ctx.sdkInfo, runtime);
+    if (!source) return getRuntimeCloneDir(ctx.artifactsDir);
+    return getRuntimeCloneDir(
+        ctx.artifactsDir,
+        runtime === Runtime.CoreCLR ? 'coreclr' : 'mono',
+    );
+}
 
 // ── Clone ────────────────────────────────────────────────────────────────────
 
@@ -177,37 +227,28 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     if (hasPrebuiltPacks && Object.keys(prebuiltPackDirs).length >= ctx.runtimes.filter(r => r !== Runtime.NativeAOTLLVM).length) {
         info('All runtime packs found as pre-built artifacts — skipping build');
 
-        // Detect version from pack contents
-        for (const [_runtime, packDir] of Object.entries(prebuiltPackDirs)) {
-            const versionFile = join(packDir, '.version');
-            if (existsSync(versionFile)) {
-                info(`Pack version file found at ${versionFile}`);
-            }
-        }
-
+        const sources = await prebuiltSources(ctx, prebuiltPackDirs);
         const buildLabel = `${ctx.sdkInfo.sdkVersion}_${runtimeCommit.slice(0, 10)}`;
-        const r2r = await captureR2RArtifacts(getRuntimeCloneDir(artifactsDir));
+        const r2r = await captureR2RArtifacts(ctx);
         return {
             ...ctx,
+            sdkInfo: {
+                ...ctx.sdkInfo,
+                ...(sources ? {
+                    runtimeSources: sources,
+                    runtimePackVersion: sources.coreclr?.runtimePackVersion ?? ctx.sdkInfo.runtimePackVersion,
+                } : {}),
+            },
             runtimePackDirs: prebuiltPackDirs,
             buildLabel,
             ...r2r,
         };
     }
 
-    // ── Step 2: Clone runtime repo ───────────────────────────────────────
-    const cloneDir = getRuntimeCloneDir(artifactsDir);
-    await cloneRuntime(runtimeRepo, runtimeCommit, cloneDir);
-
-    // Prevent runtime's eslint from walking up to the workspace root
-    const eslintSentinel = join(cloneDir, '.eslintrc.cjs');
-    if (!existsSync(eslintSentinel)) {
-        await writeFile(eslintSentinel, 'module.exports = { root: true };\n');
-    }
-
-    // ── Step 3: Build each requested flavor ──────────────────────────────
+    // ── Step 2: Build each requested flavor ──────────────────────────────
     const runtimePackDirs: Partial<Record<Runtime, string>> = ctx.runtimePackDirs ?? {};
     let runtimePackVersion = ctx.sdkInfo.runtimePackVersion;
+    let runtimeSources: RuntimeSources | undefined = ctx.sdkInfo.runtimeSources;
 
     for (const runtime of ctx.runtimes) {
         if (runtime === Runtime.NativeAOTLLVM) {
@@ -216,6 +257,22 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         }
 
         const flavor = runtime === Runtime.CoreCLR ? 'coreclr' : 'mono';
+        const source = getRuntimeSource(ctx.sdkInfo, runtime);
+        const sourceRepo = source?.repo ?? runtimeRepo;
+        const sourceCommit = source?.commit ?? runtimeCommit;
+        if (!sourceCommit) {
+            throw new Error(`No source commit resolved for ${flavor}`);
+        }
+        const cloneDir = getSourceCloneDir(ctx, runtime);
+        info(`${flavor} source: ${sourceRepo}@${sourceCommit.slice(0, 10)}${source ? ` (${source.ref})` : ''}`);
+        await cloneRuntime(sourceRepo, sourceCommit, cloneDir);
+
+        // Prevent runtime's eslint from walking up to the workspace root
+        const eslintSentinel = join(cloneDir, '.eslintrc.cjs');
+        if (!existsSync(eslintSentinel)) {
+            await writeFile(eslintSentinel, 'module.exports = { root: true };\n');
+        }
+
         const buildArtifactsDir = getBuildArtifactsDir(cloneDir);
 
         // Build
@@ -249,23 +306,42 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         const version = parseVersionFromNupkg(foundNupkg, packPrefix);
         info(`Built ${flavor} runtime pack: ${version}`);
         runtimePackVersion = version;
+        if (source) {
+            await writeFile(join(buildArtifactsDir, SOURCE_RECORD), JSON.stringify({
+                repo: source.repo, ref: source.ref, commit: source.commit, runtimePackVersion: version,
+            }) + '\n');
+            runtimeSources = {
+                ...runtimeSources,
+                [runtime]: {
+                    ...source,
+                    runtimePackVersion: version,
+                },
+            };
+        }
 
         // Extract
         const extractDir = getExtractDir(artifactsDir, flavor);
+        await rm(extractDir, { recursive: true, force: true });
         await extractNupkg(foundNupkg, extractDir);
+        if (source) {
+            await writeFile(join(extractDir, SOURCE_RECORD), JSON.stringify({
+                repo: source.repo, ref: source.ref, commit: source.commit, runtimePackVersion: version,
+            }) + '\n');
+        }
         runtimePackDirs[runtime] = extractDir;
 
         info(`Runtime pack for ${runtime}: ${extractDir}`);
     }
 
-    // ── Step 4: Update context ───────────────────────────────────────────
+    // ── Step 3: Update context ───────────────────────────────────────────
     const updatedSdkInfo = {
         ...ctx.sdkInfo,
-        runtimePackVersion,
+        runtimePackVersion: runtimeSources?.coreclr?.runtimePackVersion ?? runtimePackVersion,
+        ...(runtimeSources ? { runtimeSources } : {}),
     };
 
     const buildLabel = `${ctx.sdkInfo.sdkVersion}_${runtimeCommit.slice(0, 10)}`;
-    const r2r = await captureR2RArtifacts(cloneDir);
+    const r2r = await captureR2RArtifacts({ ...ctx, sdkInfo: updatedSdkInfo });
 
     return {
         ...ctx,

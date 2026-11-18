@@ -1,6 +1,6 @@
 import { readFile, writeFile, readdir, rm, mkdir, stat } from 'node:fs/promises';
 import { join, basename } from 'node:path';
-import { type BenchContext, type BuildManifestEntry } from '../context.js';
+import { recordRuntimeSdk, runtimeBuildContext, sdkInfoForRuntime, type BenchContext, type BuildManifestEntry } from '../context.js';
 import {
     Preset, type Runtime,
     App,
@@ -199,15 +199,16 @@ function getPublishArgs(
 // ── Build phase (shared for non-workload and workload presets) ───────────────
 
 async function buildPhase(
-    ctx: BenchContext,
+    context: BenchContext,
     presets: Preset[],
     succeeded: BuildManifestEntry[],
     failed: BuildFailure[],
 ): Promise<void> {
-    const nugetPackagesDir = join(ctx.artifactsDir, 'nuget-packages');
+    const nugetPackagesDir = join(context.artifactsDir, 'nuget-packages');
     const dotnetEnv = { NUGET_PACKAGES: nugetPackagesDir };
 
-    for (const runtime of ctx.runtimes) {
+    for (const runtime of context.runtimes) {
+        const ctx = runtimeBuildContext(context, runtime);
         for (const app of ctx.apps) {
             const appBase = join(ctx.repoRoot, 'src', app);
             const appDir = APP_CONFIG[app].projectPath
@@ -265,6 +266,7 @@ async function buildPhase(
                     }
                     succeeded.push({ app: app as App, preset, runtime, compileTimeMs, integrity, publishDir,
                         environment: measurementEnvironment(),
+                        ...(ctx.sdkInfo.runtimeSources ? { runtimeSources: ctx.sdkInfo.runtimeSources } : {}),
                         ...(readyToRun ? { readyToRun } : {}),
                         ...(preset === Preset.DevLoop ? { presetRevision: DEV_LOOP_REVISION } : {}) });
                 } catch (e) {
@@ -315,20 +317,30 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const nonWorkloadPresets = ctx.presets.filter(p => NON_WORKLOAD_PRESETS.has(p));
     const workloadPresets = ctx.presets.filter(p => !NON_WORKLOAD_PRESETS.has(p));
 
-    // Validate no pre-installed workload
+    const sdkContexts = new Map<string, BenchContext>();
+    for (const runtime of ctx.runtimes) {
+        const selected = runtimeBuildContext(ctx, runtime);
+        const existing = sdkContexts.get(selected.dotnetBin);
+        if (existing) existing.runtimes.push(runtime);
+        else sdkContexts.set(selected.dotnetBin, { ...selected, runtimes: [runtime] });
+    }
+
+    // Validate each SDK before installing its workload.
     banner('Validate wasm-tools workload is NOT installed');
-    const wlOutput = await dotnetWorkloadList(ctx.dotnetBin);
-    if (isWorkloadInstalled(wlOutput)) {
-        if (ctx.isCI) {
-            throw new Error(
-                'wasm-tools workload is already installed before non-workload builds. '
-                + 'The SDK should not have a workload pre-installed.\n'
-                + `dotnet workload list output:\n${wlOutput}`,
-            );
+    for (const sdk of sdkContexts.values()) {
+        const wlOutput = await dotnetWorkloadList(sdk.dotnetBin);
+        if (isWorkloadInstalled(wlOutput)) {
+            if (ctx.isCI) {
+                throw new Error(
+                    'wasm-tools workload is already installed before non-workload builds. '
+                    + 'The SDK should not have a workload pre-installed.\n'
+                    + `dotnet workload list output:\n${wlOutput}`,
+                );
+            }
+            info('wasm-tools is already installed (cached SDK). Non-workload results may differ from CI.');
+        } else {
+            info(`SDK ${sdk.sdkInfo.sdkVersion}: wasm-tools is not installed`);
         }
-        info('wasm-tools is already installed (cached SDK). Non-workload results may differ from CI.');
-    } else {
-        info('Confirmed: wasm-tools workload is NOT installed');
     }
 
     const succeeded: BuildManifestEntry[] = [];
@@ -344,13 +356,14 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     // CoreCLR aot is ReadyToRun (WasmBuildNative=false) and does not need the wasm-tools workload,
     // except for native-component apps (uno-gallery, semi-avalonia) whose R2R build still relinks.
     if (workloadPresets.length > 0) {
-        const workloadNeeded = workloadPresets.some(p =>
-            ctx.runtimes.some(r => ctx.apps.some(a => !shouldSkipBuild(r, a, p, ctx) && presetNeedsWorkload(r, p, a))));
-        if (workloadNeeded) {
-            banner('Install wasm-tools workload');
-            await dotnetWorkloadInstall(ctx.dotnetBin, 'wasm-tools', { cwd: ctx.repoRoot });
+        for (const sdk of sdkContexts.values()) {
+            const workloadNeeded = workloadPresets.some(p =>
+                sdk.runtimes.some(r => sdk.apps.some(a => !shouldSkipBuild(r, a, p, sdk) && presetNeedsWorkload(r, p, a))));
+            if (!workloadNeeded) continue;
+            banner(`Install wasm-tools for SDK ${sdk.sdkInfo.sdkVersion}`);
+            await dotnetWorkloadInstall(sdk.dotnetBin, 'wasm-tools', { cwd: ctx.repoRoot });
 
-            const verifyOutput = await dotnetWorkloadList(ctx.dotnetBin);
+            const verifyOutput = await dotnetWorkloadList(sdk.dotnetBin);
             const workloadVersion = parseWorkloadVersion(verifyOutput);
             if (!workloadVersion) {
                 throw new Error(
@@ -360,10 +373,16 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
             }
             info(`wasm-tools workload installed: ${workloadVersion}`);
 
-            ctx.sdkInfo.workloadVersion = workloadVersion;
-            await writeFile(sdkInfoPath, JSON.stringify(ctx.sdkInfo, null, 2) + '\n');
-        } else {
-            info('No requested workload-preset build needs the wasm-tools workload (CoreCLR R2R) — skipping install');
+            sdk.sdkInfo.workloadVersion = workloadVersion;
+            if (ctx.sdkInfo.runtimeSources) {
+                for (const runtime of sdk.runtimes) {
+                    if (runtime !== R.Mono && runtime !== R.CoreCLR) continue;
+                    const source = ctx.sdkInfo.runtimeSources[runtime];
+                    if (source) ctx.sdkInfo.runtimeSources[runtime] = recordRuntimeSdk(source, sdk.sdkInfo);
+                }
+            } else {
+                ctx.sdkInfo.workloadVersion = workloadVersion;
+            }
         }
 
         // Phase B: Workload presets (native-free CoreCLR R2R builds here too, without the workload)
@@ -392,7 +411,9 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         JSON.stringify(succeeded, null, 2) + '\n',
     );
 
-    const sdkInfoContent = await readFile(sdkInfoPath, 'utf-8');
+    ctx.sdkInfo = sdkInfoForRuntime(ctx.sdkInfo, R.CoreCLR);
+    const sdkInfoContent = JSON.stringify(ctx.sdkInfo, null, 2) + '\n';
+    await writeFile(sdkInfoPath, sdkInfoContent);
     await writeFile(join(resultsDir, 'sdk-info.json'), sdkInfoContent);
     await writeFile(join(ctx.artifactsDir, 'results', '.run-id'), runId);
 

@@ -6,6 +6,7 @@ const WALKTHROUGHS = {
     'blazing-pizza': 'pizza-walkthrough',
     'mud-blazor': 'mud-walkthrough',
     'igniteui-light': 'igniteui-walkthrough',
+    'radzen-blazor': 'radzen-walkthrough',
     'semi-avalonia': 'semi-walkthrough',
     'uno-gallery': 'uno-walkthrough',
 };
@@ -15,8 +16,8 @@ export function focusMetrics(app) {
             description: 'Time to managed (cold): time-to-reach-managed-cold. JS bootstrap to managed-ready, not time to create .NET or navigation-to-LCP.' },
         { id: 'walkthrough', title: 'Walkthrough', key: WALKTHROUGHS[app] ?? null, unit: 's', divisor: 1000,
             description: 'App-specific scripted navigation; initial page load is excluded.' },
-        { id: 'download', title: 'Cold download size', key: 'download-size-cold', unit: 'MB', divisor: 1_000_000,
-            description: 'First cold-load encoded bytes, displayed in decimal MB (1 MB = 1,000,000 bytes).' },
+        { id: 'download', title: 'Cold download size', key: 'download-size-cold', unit: 'MiB', divisor: 1_048_576,
+            description: 'First cold-load encoded bytes, displayed in binary MiB (1 MiB = 1,048,576 bytes).' },
         { id: 'build', title: 'Build time', key: 'compile-time', unit: 's', divisor: 1000,
             description: 'Clean publish duration, excluding the preceding restore and SDK/workload installation.' },
     ];
@@ -44,7 +45,7 @@ export function comparisonLabel(value, unit) {
         return { value, magnitude: '0.0%', verdict: 'same', tone: 'neutral' };
     return {
         value, magnitude: `${rounded}%`,
-        verdict: unit === 'MB' ? (value > 0 ? 'larger' : 'smaller') : (value > 0 ? 'slower' : 'faster'),
+        verdict: unit === 'MiB' ? (value > 0 ? 'larger' : 'smaller') : (value > 0 ? 'slower' : 'faster'),
         tone: value > 0 ? 'worse' : 'better',
     };
 }
@@ -151,7 +152,20 @@ export function buildFocusReport(publication, app, range, now = new Date(), sele
             if (seen.has(id))
                 throw new FocusPublicationError(`Duplicate SDK/variant identity in ${bucket.path}: ${column.sdkVersion}. Retry the publication.`);
             seen.add(id);
-            observations.push({ id, sdkVersion: column.sdkVersion, day: column.releaseDate, bucket: bucket.path, columnIndex, variant: column });
+            observations.push({
+                id, sdkVersion: column.sdkVersion, day: column.releaseDate,
+                sdkCommitDateTime: column.sdkCommitDateTime,
+                runtimeCommitDateTime: column.runtimeCommitDateTime,
+                sdkGitHash: column.sdkGitHash || null,
+                runtimeGitHash: column.runtimeGitHash || null,
+                runtimePackVersion: column.runtimePackVersion,
+                vmrGitHash: column.vmrGitHash || null,
+                vmrCommitDateTime: column.vmrCommitDateTime,
+                runtimeCommitAuthor: column.runtimeCommitAuthor ?? null,
+                runtimeCommitMessage: column.runtimeCommitMessage ?? null,
+                measuredAt: null, sourceId: null,
+                bucket: bucket.path, columnIndex, variant: column,
+            });
         });
     }
     observations.sort(orderObservations);

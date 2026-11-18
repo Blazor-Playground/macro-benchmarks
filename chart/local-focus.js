@@ -22,6 +22,10 @@ function validateRun(run, side) {
         if (rows.has(key))
             throw new Error(`Duplicate ${side} local row ${key}.`);
         rows.add(key);
+        const rounds = result.meta.timingAggregation?.rounds;
+        if (rounds !== undefined && (!Number.isInteger(rounds) || rounds < 1)) {
+            throw new Error(`Invalid ${side} recorded aggregation count.`);
+        }
     }
 }
 function resultFor(run, profile) {
@@ -41,7 +45,24 @@ function mode(run) {
         return 'publish/R2R composite';
     return run.manifest.runtime === 'coreclr' ? 'publish/R2R' : 'publish/AOT';
 }
-export function localFocusReport(raw, profile = DEFAULT_FOCUS_SELECTION.startupProfile) {
+export function localFocusReport(raw, profile = DEFAULT_FOCUS_SELECTION.startupProfile, view = 'history') {
+    const data = raw;
+    if (!['history', 'matched'].includes(view))
+        throw new Error('Select historical baselines or a matched pair.');
+    if (view === 'matched') {
+        const result = localSingleReport(raw, profile);
+        if (data.before.manifest.sdkInfo.runtimeGitHash !== data.after.manifest.sdkInfo.runtimeGitHash ||
+            dirty(data.before) !== false || data.before.manifest.variant !== data.after.manifest.variant) {
+            throw new Error('A matched pair requires a clean before at the same base commit and runtime mode as after.');
+        }
+        return { ...result, metadata: { ...result.metadata, title: `${data.title} · Matched pair`,
+                note: 'Same base commit and runtime mode; before is clean, after includes the recorded local changes.' } };
+    }
+    if (data?.beforeHistory !== undefined)
+        return localHistoryReport(data, profile);
+    return localSingleReport(raw, profile);
+}
+function localSingleReport(raw, profile) {
     const data = raw;
     if (!data || data.schemaVersion !== 1 || typeof data.title !== 'string' ||
         (data.note !== undefined && typeof data.note !== 'string') ||
@@ -77,17 +98,34 @@ export function localFocusReport(raw, profile = DEFAULT_FOCUS_SELECTION.startupP
     const variant = {
         sdkVersion: source.sdkVersion, major: Number(source.major), channel: String(source.channel ?? ''),
         releaseDate: String(source.releaseDate ?? ''), sdkGitHash: String(source.sdkGitHash ?? ''),
+        sdkCommitDateTime: typeof source.sdkCommitDateTime === 'string' ? source.sdkCommitDateTime : null,
         vmrGitHash: String(source.vmrGitHash ?? ''), runtimeGitHash: source.runtimeGitHash,
+        vmrCommitDateTime: typeof source.vmrCommitDateTime === 'string' ? source.vmrCommitDateTime : null,
         aspnetCoreGitHash: String(source.aspnetCoreGitHash ?? ''), runtimePackVersion: source.runtimePackVersion,
         aspnetCoreVersion: typeof source.aspnetCoreVersion === 'string' ? source.aspnetCoreVersion : null,
         workloadVersion: typeof source.workloadVersion === 'string' ? source.workloadVersion : null,
         bootstrapSdkVersion: typeof source.bootstrapSdkVersion === 'string' ? source.bootstrapSdkVersion : null,
         bundledFrameworkTfm: typeof source.bundledFrameworkTfm === 'string' ? source.bundledFrameworkTfm : null,
         runtimeCommitDateTime: typeof source.runtimeCommitDateTime === 'string' ? source.runtimeCommitDateTime : null,
+        runtimeCommitAuthor: typeof source.runtimeCommitAuthor === 'string' ? source.runtimeCommitAuthor : null,
+        runtimeCommitMessage: typeof source.runtimeCommitMessage === 'string' ? source.runtimeCommitMessage : null,
         isRuntimeCustomBuild: true, isAspnetCoreCustomBuild: null, runtimePR: null, aspnetCorePR: null,
     };
-    const observation = { id: 'local-before-after', sdkVersion: source.sdkVersion, day, bucket: 'local',
-        columnIndex: 0, variant };
+    const observation = {
+        id: 'local-before-after', sdkVersion: source.sdkVersion, day,
+        sdkCommitDateTime: variant.sdkCommitDateTime,
+        runtimeCommitDateTime: variant.runtimeCommitDateTime,
+        sdkGitHash: variant.sdkGitHash || null,
+        runtimeGitHash: variant.runtimeGitHash || null,
+        runtimePackVersion: variant.runtimePackVersion,
+        vmrGitHash: variant.vmrGitHash || null,
+        vmrCommitDateTime: variant.vmrCommitDateTime,
+        runtimeCommitAuthor: variant.runtimeCommitAuthor ?? null,
+        runtimeCommitMessage: variant.runtimeCommitMessage ?? null,
+        measuredAt: resultFor(data.after, profile).meta.benchmarkDateTime,
+        sourceId: null,
+        bucket: 'local', columnIndex: 0, variant,
+    };
     const metrics = focusMetrics('havit-bootstrap').map(metric => {
         const metricProfile = metric.id === 'startup' ? profile : 'desktop';
         const before = resultFor(data.before, metricProfile);
@@ -129,10 +167,16 @@ export function localFocusReport(raw, profile = DEFAULT_FOCUS_SELECTION.startupP
     };
     const beforeResult = resultFor(data.before, profile);
     const afterResult = resultFor(data.after, profile);
+    const rounds = afterResult.meta.timingAggregation?.rounds ?? null;
+    if (rounds !== null && (!Number.isInteger(rounds) || rounds < 1))
+        throw new Error('Invalid recorded after aggregation count.');
     return {
         status: 'ready', report,
         metadata: {
             title: data.title, note: data.note ?? '', runtime, variant: data.after.manifest.variant, profiles,
+            hasHistory: Array.isArray(data.beforeHistory), isHistory: false,
+            comparisonPath: data.comparisonPath ?? '',
+            afterMeasuredAt: new Date(afterResult.meta.benchmarkDateTime).toISOString(), afterRounds: rounds,
             beforeLabel: coreclrBeforeLabel, afterLabel, monoLabel,
             hasMonoReference: !!data.monoBefore,
             primaryFormula: data.monoBefore ? '100 × (CoreCLR after / Mono before − 1)' : '100 × (after / before − 1)',
@@ -150,5 +194,106 @@ export function localFocusReport(raw, profile = DEFAULT_FOCUS_SELECTION.startupP
             afterWarm: positive(afterResult.metrics['time-to-reach-managed-warm']),
             warnings: data.warnings,
         },
+    };
+}
+function localHistoryReport(data, profile) {
+    if (!Array.isArray(data.beforeHistory) || !data.beforeHistory.length)
+        throw new Error('Invalid local baseline history.');
+    const days = [...data.beforeHistory].sort((a, b) => a.day.localeCompare(b.day));
+    const seen = new Set();
+    const withMono = days.some(entry => entry.status === 'passed' && !!entry.monoBefore);
+    const reports = days.map(entry => {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(entry.day) ||
+            !Number.isFinite(Date.parse(entry.day)) || new Date(entry.day).toISOString().slice(0, 10) !== entry.day || seen.has(entry.day) ||
+            !/^[a-f0-9]{40}$/i.test(entry.commit) || !['pending', 'running', 'passed', 'failed'].includes(entry.status)) {
+            throw new Error('Invalid or duplicate daily baseline entry.');
+        }
+        seen.add(entry.day);
+        if (entry.status !== 'passed')
+            return null;
+        if (!!entry.monoBefore !== withMono)
+            throw new Error('Daily baseline history must consistently include matched Mono controls.');
+        if (!entry.before || entry.before.manifest.sdkInfo.runtimeGitHash !== entry.commit || dirty(entry.before) !== false ||
+            entry.before.manifest.variant !== data.after.manifest.variant) {
+            throw new Error(`Daily baseline ${entry.day} must be a clean matching-mode source build.`);
+        }
+        return localSingleReport({ ...data, beforeHistory: undefined, before: entry.before,
+            monoBefore: entry.monoBefore }, profile);
+    });
+    let latestIndex = -1;
+    reports.forEach((report, index) => { if (report)
+        latestIndex = index; });
+    const latest = latestIndex < 0 ? localSingleReport({ ...data, beforeHistory: undefined }, profile) : reports[latestIndex];
+    const failed = days.filter(entry => entry.status === 'failed');
+    const metrics = latest.report.metrics.map((metric, metricIndex) => {
+        const points = days.map((entry, index) => {
+            const original = reports[index]?.report.metrics[metricIndex].points[0];
+            const baseline = entry.before?.manifest.sdkInfo;
+            const observation = { ...(original?.observation ?? metric.points[0].observation),
+                id: `local-main-${entry.day}-${entry.commit}`, day: entry.day, columnIndex: index,
+                sdkVersion: baseline?.sdkVersion ?? 'Unmeasured',
+                sdkCommitDateTime: typeof baseline?.sdkCommitDateTime === 'string'
+                    ? baseline.sdkCommitDateTime : null,
+                runtimeCommitDateTime: typeof baseline?.runtimeCommitDateTime === 'string'
+                    ? baseline.runtimeCommitDateTime : null,
+                sdkGitHash: typeof baseline?.sdkGitHash === 'string' ? baseline.sdkGitHash : null,
+                runtimeGitHash: entry.commit,
+                runtimePackVersion: typeof baseline?.runtimePackVersion === 'string' ? baseline.runtimePackVersion : null,
+                vmrGitHash: typeof baseline?.vmrGitHash === 'string' ? baseline.vmrGitHash : null,
+                vmrCommitDateTime: typeof baseline?.vmrCommitDateTime === 'string'
+                    ? baseline.vmrCommitDateTime : null,
+                runtimeCommitAuthor: typeof baseline?.runtimeCommitAuthor === 'string' ? baseline.runtimeCommitAuthor : null,
+                runtimeCommitMessage: typeof baseline?.runtimeCommitMessage === 'string' ? baseline.runtimeCommitMessage : null,
+                measuredAt: entry.before ? resultFor(entry.before, metric.profile)?.meta.benchmarkDateTime ?? null : null,
+                sourceId: entry.commit,
+                variant: { ...metric.points[0].observation.variant,
+                    sdkVersion: baseline?.sdkVersion ?? 'Unmeasured', runtimeGitHash: entry.commit,
+                    sdkCommitDateTime: typeof baseline?.sdkCommitDateTime === 'string'
+                        ? baseline.sdkCommitDateTime : null,
+                    runtimePackVersion: baseline?.runtimePackVersion ?? '',
+                    runtimeCommitDateTime: typeof baseline?.runtimeCommitDateTime === 'string'
+                        ? baseline.runtimeCommitDateTime : null,
+                    runtimeCommitAuthor: typeof baseline?.runtimeCommitAuthor === 'string'
+                        ? baseline.runtimeCommitAuthor : null,
+                    runtimeCommitMessage: typeof baseline?.runtimeCommitMessage === 'string'
+                        ? baseline.runtimeCommitMessage : null,
+                    vmrCommitDateTime: typeof baseline?.vmrCommitDateTime === 'string'
+                        ? baseline.vmrCommitDateTime : null,
+                    bundledFrameworkTfm: typeof baseline?.bundledFrameworkTfm === 'string' ? baseline.bundledFrameworkTfm : null } };
+            return original ? { ...original, position: index, observation, coreclr: null } : {
+                position: index, observation, coreclr: null, mono: null, coreclrBefore: null, percent: null,
+                issue: null, coreclrWindow: null, monoWindow: null, percentWindow: null,
+            };
+        });
+        const last = latestIndex < 0 ? null : points[latestIndex];
+        const afterRow = resultFor(data.after, metric.profile);
+        const reference = afterRow ? { value: metric.key ? positive(afterRow.metrics[metric.key]) : null,
+            label: metric.coreclrLabel.replace('After (', 'After reference ('),
+            measuredAt: new Date(afterRow.meta.benchmarkDateTime).toISOString(), sdkVersion: data.after.manifest.sdkInfo.sdkVersion,
+            commit: data.after.manifest.sdkInfo.runtimeGitHash, dirty: dirty(data.after),
+            rounds: afterRow.meta.timingAggregation?.rounds ?? null } : undefined;
+        return { ...metric, points, latest: metric.latest ? last : null,
+            fixedReference: reference, coreclrLabel: reference?.label ?? metric.coreclrLabel,
+            comparisonLabel: withMono ? 'Fixed after reference vs historical Mono baseline (%)'
+                : 'Fixed after reference vs historical baseline (%)',
+            status: last && metric.comparison ? 'ready' : 'incomplete-pair',
+            comparison: last ? metric.comparison : null,
+            secondaryComparison: last ? metric.secondaryComparison : null,
+            pairCount: points.filter(point => point.percent !== null).length,
+            hasNewerIncomplete: latestIndex >= 0 && latestIndex < days.length - 1,
+            message: latestIndex < 0 ? 'No daily baseline has completed successfully.' : metric.message };
+    });
+    return {
+        ...latest,
+        report: { ...latest.report, metrics, startDay: days[0].day, endDay: days.at(-1).day,
+            availableStartDay: days[0].day, availableEndDay: days.at(-1).day,
+            cohort: { ...latest.report.cohort,
+                baselineDescription: 'Daily UTC main source snapshots compared with a separately measured fixed after reference.' } },
+        metadata: { ...latest.metadata, title: data.title, isHistory: true, hasHistory: true,
+            afterLabel: latest.metadata.afterLabel.replace('After (', 'After reference ('),
+            note: `${data.note ?? ''} Daily baselines: ${reports.filter(Boolean).length}/${days.length} passed. ` +
+                'The dashed after line is one fixed reference from its recorded tree, not an observation on each source date.',
+            warnings: [...latest.metadata.warnings.filter(warning => !failed.some(entry => warning.startsWith(`${entry.day} ${entry.commit}:`))), ...failed
+                    .map(day => `${day.day}: ${day.status}${day.error ? ` — ${day.error}` : ''}`)] },
     };
 }

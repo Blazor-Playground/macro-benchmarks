@@ -143,7 +143,7 @@ export function mergeDatasets(activeDatasets, frozenPointsByRow, metric) {
     const mergedDatasets = [];
     const consumedFrozenRows = new Set();
     for (const ds of activeDatasets) {
-        if (ds.zone !== 'active')
+        if (ds.zone !== 'active' || !Object.hasOwn(PRESET_DASH, parseRowKey(ds.rowKey).preset))
             continue;
         ds.data.sort((a, b) => a.x - b.x);
         const frozenPts = frozenPointsByRow[ds.rowKey];
@@ -156,6 +156,8 @@ export function mergeDatasets(activeDatasets, frozenPointsByRow, metric) {
     }
     // Add standalone datasets for frozen-only rows (no active data)
     for (const [rowKey, points] of Object.entries(frozenPointsByRow)) {
+        if (!Object.hasOwn(PRESET_DASH, parseRowKey(rowKey).preset))
+            continue;
         if (consumedFrozenRows.has(rowKey))
             continue;
         if (points.length === 0)

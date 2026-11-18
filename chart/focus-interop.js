@@ -56,7 +56,7 @@ export class FocusSession {
             throw error;
         }
     }
-    async loadLocal(baseUri, startupProfile) {
+    async loadLocal(baseUri, startupProfile, view = 'history') {
         if (this.disposed)
             throw new Error('This focus view has been disposed.');
         this.controller?.abort();
@@ -72,7 +72,7 @@ export class FocusSession {
             });
             if (!response.ok)
                 throw new Error(`Local comparison data returned HTTP ${response.status}. Copy a dashboard.json bundle into the local viewer first.`);
-            const result = localFocusReport(await response.json(), startupProfile);
+            const result = localFocusReport(await response.json(), startupProfile, view);
             if (controller.signal.aborted || generation !== this.generation || this.disposed)
                 return JSON.stringify({ status: 'cancelled' });
             this.report = result.report;
@@ -111,8 +111,8 @@ export function getFocusConfiguration() {
 export function loadFocusReport(id, app, range, flavor, startupProfile, force) {
     return sessionFor(id).load(app, range, force, { flavor, startupProfile });
 }
-export async function loadLocalFocusReport(id, baseUri, startupProfile) {
-    return sessionFor(id).loadLocal(baseUri, startupProfile);
+export async function loadLocalFocusReport(id, baseUri, startupProfile, view) {
+    return sessionFor(id).loadLocal(baseUri, startupProfile, view);
 }
 export function renderFocusCharts(id, averaged, bands, percentage, measurements) {
     sessionFor(id).render(id, averaged, bands, { percentage, measurements });

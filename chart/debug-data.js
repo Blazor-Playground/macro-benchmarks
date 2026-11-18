@@ -1,10 +1,26 @@
 import { comparisonLabel, historyBounds, isPositive, percentVsMono, rollingWindows } from './focus-data.js';
 import { DEBUG_METRICS } from './debug-types.js';
 function measurementWindows(batches, runtime, key) {
-    return rollingWindows(batches.map(batch => {
+    return comparisonWindows(batches, batches.map(batch => {
         const metric = batch.runtimes[runtime].measurements[key];
         return !batch.smoke && metric?.status === 'ok' && isPositive(metric.valueMs) ? metric.valueMs : null;
-    }), batches.map(batch => ({ sdkVersion: batch.sdk.version, day: batch.sdk.day })));
+    }));
+}
+function comparisonWindows(batches, values) {
+    const result = [];
+    for (let start = 0; start < batches.length;) {
+        let end = start + 1;
+        while (end < batches.length && !!batches[end].monoFallback === !!batches[start].monoFallback)
+            end++;
+        result.push(...rollingWindows(values.slice(start, end), batches.slice(start, end).map(batch => ({ sdkVersion: batch.sdk.version, day: batch.sdk.day }))));
+        start = end;
+    }
+    return result;
+}
+function fallbackNote(batch) {
+    return batch.monoFallback
+        ? `Mono/net11 (SDK ${batch.runtimes.mono.sdk.version}) vs CoreCLR ${batch.runtimes.coreclr.properties.TargetFramework || '(not collected)'} (SDK ${batch.sdk.version}). Cross-version comparison.`
+        : null;
 }
 export function buildDebugReport(publication, app, range, now = new Date()) {
     const bounds = historyBounds(range, now);
@@ -18,12 +34,26 @@ export function buildDebugReport(publication, app, range, now = new Date()) {
             const coreclr = batch.runtimes.coreclr.measurements[definition.key];
             const paired = batch.environment.controlled || batch.environment.comparisonScope === 'local-paired';
             const match = !batch.smoke && paired && mono?.status === 'ok' && coreclr?.status === 'ok'
-                && batch.runtimes.mono.properties.TargetFramework === batch.runtimes.coreclr.properties.TargetFramework;
+                && (batch.runtimes.mono.properties.TargetFramework === batch.runtimes.coreclr.properties.TargetFramework
+                    || !!batch.monoFallback);
             const percent = match ? percentVsMono(coreclr.valueMs, mono.valueMs) : null;
             return {
-                observation: { sdkVersion: batch.sdk.version, day: batch.sdk.day }, position,
+                observation: {
+                    sdkVersion: batch.sdk.version, day: batch.sdk.day,
+                    sdkGitHash: batch.sdk.sdkHash,
+                    sdkCommitDateTime: batch.sdk.sdkCommitDateTime,
+                    runtimeGitHash: batch.sdk.runtimeHash,
+                    runtimePackVersion: batch.sdk.runtimePackVersion,
+                    runtimeCommitDateTime: batch.sdk.runtimeCommitDateTime,
+                    vmrGitHash: batch.sdk.vmrHash,
+                    vmrCommitDateTime: batch.sdk.vmrCommitDateTime,
+                    runtimeCommitAuthor: null,
+                    runtimeCommitMessage: null,
+                    measuredAt: batch.measuredAt,
+                    sourceId: batch.id,
+                }, position,
                 mono: mono?.valueMs ?? null, coreclr: coreclr?.valueMs ?? null, percent,
-                issue: match ? null : 'No complete same-batch paired measurement',
+                issue: match ? fallbackNote(batch) : 'No complete same-batch paired measurement',
                 monoWindow: null, coreclrWindow: null, percentWindow: null,
             };
         });
@@ -38,7 +68,7 @@ export function buildDebugReport(publication, app, range, now = new Date()) {
             ...points[displayIndex],
             monoWindow: measurementWindows(allBatches, 'mono', definition.key)[fullIndex] ?? null,
             coreclrWindow: measurementWindows(allBatches, 'coreclr', definition.key)[fullIndex] ?? null,
-            percentWindow: rollingWindows(allPoints.map(point => point.percent), allPoints.map(point => point.observation))[fullIndex] ?? null,
+            percentWindow: comparisonWindows(allBatches, allPoints.map(point => point.percent))[fullIndex] ?? null,
         } : null;
         const mono = batch?.runtimes.mono.measurements[definition.key], coreclr = batch?.runtimes.coreclr.measurements[definition.key];
         const anyData = points.some(p => isPositive(p.mono) || isPositive(p.coreclr));
@@ -59,6 +89,7 @@ export function buildDebugReport(publication, app, range, now = new Date()) {
             olderPair: pairIndex >= 0 && pairIndex < batches.length - 1,
             smoke: batch?.smoke ?? false, controlled: batch?.environment.controlled ?? false,
             localPaired: batch?.environment.comparisonScope === 'local-paired',
+            comparisonNote: batch ? fallbackNote(batch) : null,
         };
     });
     return {

@@ -31,6 +31,8 @@ export class DebugSession {
                 return JSON.stringify({ status: 'cancelled' });
             this.publication = { app, value };
             this.report = buildDebugReport(value, app, range, this.now());
+            const resource = value.index.apps.find(item => item.id === app);
+            this.report.rawDataPath = resource ? new URL(resource.file, this.loader.root).href : null;
             return JSON.stringify({ status: 'ready', report: this.report });
         }
         catch (error) {
@@ -66,9 +68,9 @@ function session(id) {
         throw new Error('Debug session no longer exists');
     return result;
 }
-export function createDebugSession(base) {
+export function createDebugSession(base, local = false) {
     const id = crypto.randomUUID();
-    sessions.set(id, new DebugSession(new DebugLoader(new URL('data/views/debug/', base))));
+    sessions.set(id, new DebugSession(new DebugLoader(new URL(local ? 'data/local-debug/' : 'data/views/debug/', base))));
     return id;
 }
 export function loadDebugReport(id, app, range, force) {

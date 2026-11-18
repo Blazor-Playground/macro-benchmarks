@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { publicationFor } from '../helpers/focus-fixture.mjs';
-import { focusPointDetail, wrapFocusTooltipText } from '../../src/bench-viewer/wwwroot/chart/focus-chart.js';
+import { monoGaFixture, publicationFor } from '../helpers/focus-fixture.mjs';
+import { FocusCharts, focusPointDetail, wrapFocusTooltipText } from '../../src/bench-viewer/wwwroot/chart/focus-chart.js';
 import { buildFocusReport, formatFocusValue } from '../../src/bench-viewer/wwwroot/chart/focus-data.js';
 
 test('native tooltip text wraps at word boundaries without dropping labels or measurements', () => {
@@ -76,4 +76,41 @@ test('historical point details show missing SDK and VMR dates without inferring 
         section.rows.map(row => [`${section.title}/${row.label}`, row.value])));
     assert.equal(rows.get('SDK/SDK commit date'), 'Not recorded');
     assert.equal(rows.get('SDK/VMR commit date'), 'Not recorded');
+});
+
+test('raw and averaged hover labels identify GA baselines even when the latest point uses Mono12', () => {
+    const fixture = monoGaFixture();
+    fixture.buckets[1].appMetrics['havit-bootstrap']['time-to-reach-managed-cold']['mono/no-workload/mobile/chrome'][13] = null;
+    const report = buildFocusReport(publicationFor('havit-bootstrap', fixture), 'havit-bootstrap', '14d', new Date('2026-09-20'));
+    const metric = report.metrics[0], index = metric.points.findIndex(point => point.monoBaseline);
+    assert(index >= 0);
+    assert.equal(metric.latest.monoBaseline, undefined);
+    const names = ['Chart', 'document', 'HTMLCanvasElement'];
+    const originals = names.map(name => Object.getOwnPropertyDescriptor(globalThis, name));
+    const configs = [];
+    class Canvas {
+        clientWidth = 500;
+        constructor(id) { this.id = id; }
+        getContext() { return { canvas: this, save() {}, restore() {}, measureText: text => ({ width: text.length * 7 }) }; }
+    }
+    class Chart {
+        constructor(_context, config) { configs.push(config); }
+        destroy() {}
+    }
+    const charts = new FocusCharts();
+    Object.assign(globalThis, { Chart, HTMLCanvasElement: Canvas, document: { getElementById: id => new Canvas(id) } });
+    try {
+        for (const averaged of [false, true]) {
+            configs.length = 0;
+            charts.render('tooltip-ga', report, averaged, false, { measurements: true, percentage: true });
+            const label = configs[0].options.plugins.tooltip.callbacks.label;
+            for (const datasetIndex of [1, 2]) {
+                assert.match(label({ datasetIndex, dataIndex: index }).join(' '), /Mono .NET11 GA SDK 11\.0\.100 \(2026-09-01\)/);
+                assert.doesNotMatch(label({ datasetIndex, dataIndex: index + 1 }).join(' '), /NET11 GA/);
+            }
+        }
+    } finally {
+        charts.dispose();
+        names.forEach((name, i) => originals[i] ? Object.defineProperty(globalThis, name, originals[i]) : Reflect.deleteProperty(globalThis, name));
+    }
 });

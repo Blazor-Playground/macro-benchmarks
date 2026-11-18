@@ -79,8 +79,8 @@ else
             <div class="focus-cohort">
                 <p class="focus-eyebrow">COMPARISON CONTEXT</p>
                 <dl>
-                    <div><dt>Channel</dt><dd>SDK 12 only</dd></div>
-                    <div><dt>Actual target framework</dt><dd>@(report == null ? "Loading metadata..." : string.Join(", ", report.TargetFrameworks.DefaultIfEmpty("Unknown")))</dd></div>
+                    <div><dt>Channel</dt><dd>SDK 12; Mono can use .NET11 GA</dd></div>
+                    <div><dt>SDK12 target framework</dt><dd>@(report == null ? "Loading metadata..." : string.Join(", ", report.TargetFrameworks.DefaultIfEmpty("Unknown")))</dd></div>
                     <div><dt>Publish baseline</dt><dd class="focus-baseline" title="@report?.Cohort.BaselineDescription"
                         data-preset="@report?.Cohort.BaselinePreset">@(report == null ? "Loading metadata..." : !report.Cohort.UsesBaseline ? "Not used (R2R vs AOT)" : report.Cohort.BaselinePreset ?? "Unavailable")</dd></div>
                 </dl>
@@ -93,7 +93,7 @@ else
                 <p>Four signals in one view. CoreCLR compared with Mono.</p>
             </div>
             <div class="focus-provenance">
-                <span><strong>Historical comparison, not a controlled same-runner result.</strong> Same SDK/variant and per-metric profile; presets follow the selected flavor. Hardware and browser provenance are unverified.</span>
+                <span><strong>Historical comparison, not a controlled same-runner result.</strong> Missing Mono points can use a labelled .NET11 GA baseline. Hardware and browser provenance are unverified.</span>
                 <a href="#focus-methodology">Details</a>
             </div>
             <div class="focus-chart-toolbar">
@@ -166,7 +166,7 @@ else
                     Green means less elapsed time or fewer bytes; red means more. These colors do not imply statistical significance.
                     The smaller <strong>5 avg</strong> is the mean of up to five consecutive per-SDK percentages ending at that same SDK, regardless of graph controls.</p>
                 <p>Each SDK build has a distinct, equally spaced position, including builds sharing a day. The dates are SDK build/release days in UTC, not exact measurement times.
-                    Missing values break the affected curve and reset its average. No earlier result outside the selected range supplies a headline.
+                    Missing values break the affected curve and reset its average. SDK12 points outside the selected range do not supply a headline.
                     Band bounds are the raw minimum and maximum of each exact rolling window, not uncertainty estimates.</p>
                 <p>Percentage curve controls the comparison line, its axis and parity reference. Actual measurements controls both runtime curves and their units axis.
                     Smoothing and min-max bands apply only to enabled curves. Turning both off removes the charts without changing either summary, raw values or data selectors.</p>
@@ -179,7 +179,10 @@ else
                 <p>The startup profile selector affects only time-to-managed (cold). Mobile emulates 3x CPU slowdown, 20 Mbps download, 5 Mbps upload and 70 ms latency;
                     desktop has no throttling. This timer runs from JS bootstrap to managed-ready, not navigation to full rendering.
                     Walkthrough, download and build comparisons use their published desktop/Chromium rows for the selected flavor.
-                    Download bytes are not assumed profile-independent. Missing selected runtime, preset or profile rows stay missing; there is no per-point fallback.</p>
+                    Download bytes are not assumed profile-independent.</p>
+                <p>Missing Mono12 at a valid CoreCLR point uses the latest .NET11 GA measurement for the same app, preset, profile and Chromium.
+                    Its SDK/day is shown and may be outside the history window. Other gaps stay missing.
+                    Comparison averages reset when the baseline changes.</p>
                 <p>Build time excludes restore. Download sizes use binary MiB (1 MiB = 1,048,576 bytes). SDK 12 does not imply a net12.0 target: the actual recorded TFM is shown in the settings.
                     Refresh data loads a new publication; local flavor, profile and range changes reuse the loaded all-row data.</p>
                 <p>Published headers have representative timestamps, not reliable per-cell execution provenance. The inspected Havit Mono/CoreCLR jobs used different runners.

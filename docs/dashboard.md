@@ -120,9 +120,8 @@ no other preset is substituted. Explicit CoreCLR R2R and Mono AOT slots always
 remain `aot`.
 
 Effective labels, comparison context, tooltips and card row metadata disclose the
-choice. There is no per-cell, per-metric or per-runtime fallback: missing selected
-rows and non-overlapping SDK variants remain gaps. A Mono-only app has no
-CoreCLR comparison.
+choice. Missing values never switch presets. A Mono-only app has no CoreCLR
+comparison.
 
 **Startup profile** affects only cold startup. Mobile emulates 3x CPU slowdown,
 20 Mbps download, 5 Mbps upload and 70 ms latency; desktop has no throttling.
@@ -142,10 +141,13 @@ The actual recorded TFM is shown separately: an SDK 12 build can target
 
 ## Comparisons and history
 
-Each card uses its newest complete CoreCLR/Mono pair inside the selected date
-range. Values must be finite and positive, from the same bucket/column/full SDK
-variant, with matching effective profile and engine and the selected preset pair.
-There is no nearest-date or independent-latest-runtime matching.
+Each card uses its newest SDK12 point with a valid Mono comparison in range.
+Values must be finite and positive, with the selected presets, profile and engine.
+Mono12 comes from the same SDK column.
+If Mono12 is missing at a valid CoreCLR point, it uses the latest valid .NET11
+GA Mono measurement for the same app and row. The baseline SDK/day is shown
+and may be outside the history window. Valid Mono12 values are unchanged;
+other gaps stay missing.
 
 The percentage is `100 * (CoreCLR / Mono - 1)`. Positive means slower/larger;
 negative means faster/smaller. The headline shows the magnitude and verdict.
@@ -156,12 +158,12 @@ produce a ratio.
 The smaller **5 avg** is the mean of up to five consecutive per-SDK percentages
 ending at that same matched SDK. It is not a ratio of runtime means and remains
 visible when graph smoothing or visibility changes. Its accessible description
-states the actual count and SDK/day span.
+states the actual count and SDK/day span. Baseline changes reset the window.
 
 If newer data is incomplete, the older complete pair is labeled. SDK day, age and
 version appear once below the grid when cards share a build; differing latest
-variants are grouped there by metric name. No out-of-range result supplies a
-headline.
+variants are grouped there by metric name. Out-of-range SDK12 points never
+supply a headline.
 
 The 14-day window includes today and the preceding thirteen UTC days. Month
 ranges subtract one, three, six or twelve calendar months with end-of-month
@@ -169,7 +171,7 @@ clamping. Filtering uses `releaseDate`, the **SDK build/release day**, not the
 storage bucket's runtime-commit week or representative measurement timestamp.
 Each ordered SDK variant gets a distinct, equally spaced x position, including
 builds sharing a day. Date labels indicate **SDK order, not elapsed time**.
-Short history is disclosed, not supplemented with older SDK channels.
+GA references do not add SDK12 history points.
 
 ## Graph settings
 
@@ -193,7 +195,7 @@ Optional **20%-opacity min-max bands** show raw extrema from each exact rolling
 window, on that series' axis. Boundaries are open; only fills close. One-point
 windows have zero spread. Bands are observed ranges, not confidence intervals.
 Raw mode disables bands while retaining their preference. Hover tooltips expose
-raw values, means, extrema, counts and spans; there is no inspection panel.
+raw values, means, extrema, counts and spans.
 Focus uses Chart.js's built-in canvas tooltip and color boxes. Text wraps to the
 canvas width; averaged mode uses compact spacing and one unit suffix for each
 mean/min/max line. Raw values, SDK/day and each series' window count and span
@@ -207,8 +209,8 @@ when enabled, the SDK version/build day/commit timestamp/full hash, the VMR
 commit timestamp/full hash when available, and the runtime-pack
 version/commit timestamp/full hash. Focus results also show the recorded
 runtime commit author and subject. Hashes link to their repository commits.
-Historical timestamps that were not published are shown as **Not recorded**,
-rather than inferred from the SDK build day or benchmark time. Keyboard users
+OS and architecture are shown per runtime; build time uses the build host.
+Missing environments and timestamps are **Not recorded**, not inferred. Keyboard users
 can focus a graph and press Enter or Space to toggle its latest visible point;
 Escape or the close button dismisses the panel.
 
@@ -218,8 +220,8 @@ the four-card desktop layout.
 
 ## Data source and limits
 
-Home, Focus and Delta request app-relative `data/views/`. Focus loads headers
-before selecting SDK12 buckets, then only the chosen app's relevant metric files.
+Home, Focus and Delta request app-relative `data/views/`. Focus loads SDK12
+history and .NET11 GA reference metrics for the selected app.
 It validates schema/array lengths and rechecks the index around loading, with
 one bounded retry. Required-resource, HTTP and malformed-data failures are
 visible errors, not unavailable metrics.
@@ -230,7 +232,9 @@ Aborted selections cannot overwrite newer reports. Focus charts have a separate
 lifetime from Home charts.
 
 These are historical dimension-matched results, not certified same-environment
-experiments. Published cells omit exact hardware/browser, evaluated build settings,
+experiments. New runs retain OS/architecture per metric, including replica and
+build hosts. Older cells lack this data. Published cells still omit exact
+hardware/browser, evaluated build settings,
 methodology revision and reliable per-cell timestamps. The examined Havit runtime
 jobs used different runners. Header timestamps are representative; index refresh
 time is not measurement time. A stable marker does not prove atomic publication

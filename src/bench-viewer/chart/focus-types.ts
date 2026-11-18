@@ -26,6 +26,8 @@ export interface FocusCohort extends Omit<FocusFlavorOption, 'id' | 'label'> {
 }
 export type FocusSeries = 'coreclr' | 'mono' | 'percent' | 'coreclrBefore';
 export type FocusRows = Record<string, (number | null)[]>;
+export interface FocusEnvironment { os: string; arch: string }
+export type FocusEnvironmentRows = Record<string, (FocusEnvironment[] | null)[]>;
 
 export interface FocusIndex {
     lastUpdated: string;
@@ -62,12 +64,14 @@ export interface FocusColumn {
 export interface FocusHeader {
     columns: FocusColumn[];
     apps: Record<string, string[]>;
+    environments?: Record<string, string[]>;
 }
 
 export interface FocusBucket {
     path: string;
     header: FocusHeader;
     metrics: Record<string, FocusRows>;
+    environments?: Record<string, FocusEnvironmentRows>;
 }
 
 export interface FocusPublication {
@@ -115,6 +119,8 @@ export interface FocusComparison {
 
 export interface FocusPoint {
     coreclrBefore?: number | null;
+    monoBaseline?: FocusObservation;
+    environments?: { mono?: FocusEnvironment[]; coreclr?: FocusEnvironment[] };
     observation: FocusObservation;
     position: number;
     coreclr: number | null;

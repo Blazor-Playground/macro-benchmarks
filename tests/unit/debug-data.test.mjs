@@ -4,6 +4,7 @@ import { debugBatch, debugResources, mono11DebugBatch } from '../helpers/debug-f
 import { parseDebugIndex, parseDebugPayload, DebugLoader } from '../../src/bench-viewer/wwwroot/chart/debug-loader.js';
 import { buildDebugReport } from '../../src/bench-viewer/wwwroot/chart/debug-data.js';
 import { DebugSession } from '../../src/bench-viewer/wwwroot/chart/debug-interop.js';
+import { focusPointDetail } from '../../src/bench-viewer/wwwroot/chart/focus-chart.js';
 
 const now = new Date('2026-09-30T12:00:00Z');
 function publication(batches = [debugBatch()]) {
@@ -54,6 +55,15 @@ test('Debug labels distinguish command-start timing from save-to-render timing',
     assert.equal(byId['hot-reload'].boundary, byId.rebuild.boundary);
     assert.match(byId['hot-reload'].description, /without restarting or losing state/);
     assert.equal(byId.walkthrough.title, 'End-to-end walkthrough');
+});
+
+test('point details expose the recorded dev-loop OS and architecture', () => {
+    const batch = debugBatch();
+    batch.environment.os = 'Ubuntu 24.04.1 LTS';
+    const metric = buildDebugReport(publication([batch]), batch.app, '14d', now).metrics[0];
+    const environment = focusPointDetail(metric, metric.latest, false).sections.find(section => section.title === 'Environment');
+    assert(environment.rows.some(row => row.label === 'Mono OS' && row.value === 'Ubuntu 24.04.1 LTS'));
+    assert(environment.rows.some(row => row.label === 'CoreCLR architecture' && row.value === 'arm64'));
 });
 test('smoke, uncontrolled, partial and different-TFM results never produce comparable pairs', () => {
     for (const modify of [

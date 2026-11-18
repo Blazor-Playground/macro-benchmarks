@@ -1,7 +1,7 @@
 import { readFile, writeFile, readdir, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
-import { type BenchContext, type SdkInfo } from '../context.js';
+import { type BenchContext, type MeasurementEnvironment, type SdkInfo } from '../context.js';
 import { banner, info, debug } from '../log.js';
 import { ensureBranchCheckout } from '../lib/branch-checkout.js';
 import { isPrerelease, getVersionMajor, compareVersions } from '../lib/version-utils.js';
@@ -17,6 +17,8 @@ interface ResultFile {
         profile: string;
         engine: string;
         app: string;
+        environment?: MeasurementEnvironment;
+        buildEnvironment?: MeasurementEnvironment;
         [key: string]: unknown;
     };
     metrics: Record<string, number>;
@@ -27,13 +29,17 @@ interface LoadedResult extends SdkInfo {
     rowKey: string;
     app: string;
     metrics: Record<string, number>;
+    environments: Record<string, MeasurementEnvironment[]>;
 }
+
+type EnvironmentRows = Record<string, (MeasurementEnvironment[] | null)[]>;
 
 interface ViewHeader {
     columns?: SdkInfo[];
     apps?: Record<string, string[]>;
     week?: string;
     release?: string;
+    environments?: Record<string, string[]>;
 }
 
 interface ViewIndex {
@@ -96,7 +102,10 @@ async function loadResults(ctx: BenchContext): Promise<LoadedResult[]> {
 
     // Group files by (commit, rowKey, app) so multiple replica nodes of the same
     // measurement pool together instead of overwriting each other in the grid.
-    const groups = new Map<string, { base: Omit<LoadedResult, 'metrics'>; replicas: { metrics: Record<string, number>; rawSamples?: Record<string, number[]> }[] }>();
+    const groups = new Map<string, { base: Omit<LoadedResult, 'metrics' | 'environments'>; replicas: {
+        metrics: Record<string, number>; rawSamples?: Record<string, number[]>;
+        environment?: MeasurementEnvironment; buildEnvironment?: MeasurementEnvironment;
+    }[] }>();
 
     for (const { path: filepath, filename } of resultFiles) {
         const raw = await readFile(filepath, 'utf-8');
@@ -117,7 +126,11 @@ async function loadResults(ctx: BenchContext): Promise<LoadedResult[]> {
             throw new Error(`Missing or unknown sdkVersion in ${filename}`);
         }
 
-        const { runtime, preset, profile: rawProfile, engine, app, ...sdkFields } = m;
+        const { runtime, preset, profile: rawProfile, engine, app, environment, buildEnvironment, ...sdkFields } = m;
+        for (const env of [environment, buildEnvironment]) {
+            if (env !== undefined && (!env || typeof env.os !== 'string' || !env.os
+                || typeof env.arch !== 'string' || !env.arch)) throw new Error(`Invalid environment in ${filename}`);
+        }
         const profile = rawProfile || 'desktop';
         const rowKey = `${runtime}/${preset}/${profile}/${engine}`;
         const key = `${sdkFields.runtimeGitHash}|${sdkFields.sdkVersion}|${rowKey}|${app}`;
@@ -126,7 +139,7 @@ async function loadResults(ctx: BenchContext): Promise<LoadedResult[]> {
             g = { base: { ...sdkFields, rowKey, app }, replicas: [] };
             groups.set(key, g);
         }
-        g.replicas.push({ metrics: data.metrics, rawSamples: data.rawSamples });
+        g.replicas.push({ metrics: data.metrics, rawSamples: data.rawSamples, environment, buildEnvironment });
     }
 
     let pooledGroups = 0;
@@ -135,7 +148,19 @@ async function loadResults(ctx: BenchContext): Promise<LoadedResult[]> {
             ? g.replicas[0].metrics
             : mergeReplicaMetrics(g.replicas);
         if (g.replicas.length > 1) pooledGroups++;
-        results.push({ ...g.base, metrics });
+        const environments = Object.fromEntries(Object.keys(metrics).map(key => {
+            const recorded = new Map<string, MeasurementEnvironment>();
+            const usesSamples = g.replicas.length > 1 && g.replicas.some(replica => replica.rawSamples?.[key]?.length);
+            let complete = true;
+            for (const replica of g.replicas) {
+                if (usesSamples ? !replica.rawSamples?.[key]?.length : !Number.isFinite(replica.metrics[key])) continue;
+                const env = key === 'compile-time' ? replica.buildEnvironment : replica.environment;
+                if (!env) complete = false;
+                else recorded.set(JSON.stringify(env), env);
+            }
+            return [key, complete ? [...recorded.values()] : []];
+        }));
+        results.push({ ...g.base, metrics, environments });
     }
 
     if (ctx.verbose && pooledGroups > 0) {
@@ -320,7 +345,7 @@ async function writeBucketView(
     for (const r of results) {
         const key = columnKey(r);
         if (!columnMap.has(key)) {
-            const { rowKey, app, metrics, ...column } = r;
+            const { rowKey, app, metrics, environments, ...column } = r;
             columnMap.set(key, column);
         }
     }
@@ -358,6 +383,7 @@ async function writeBucketView(
         'server-requests-cold', 'server-requests-warm',
     ]);
     const grid = new Map<string, Map<string, Map<string, (number | null)[]>>>();
+    const environmentGrid = new Map<string, EnvironmentRows>();
 
     for (const r of results) {
         const ci = colIndex.get(columnKey(r))!;
@@ -373,11 +399,17 @@ async function writeBucketView(
                 rowMap.set(r.rowKey, new Array(columns.length).fill(null));
             }
             rowMap.get(r.rowKey)![ci] = Math.round(value);
+            const environmentKey = `${r.app}_${metricKey}`;
+            if (!environmentGrid.has(environmentKey)) environmentGrid.set(environmentKey, {});
+            const environmentRows = environmentGrid.get(environmentKey)!;
+            environmentRows[r.rowKey] ??= new Array(columns.length).fill(null);
+            environmentRows[r.rowKey][ci] = r.environments[metricKey]?.length ? r.environments[metricKey] : null;
         }
     }
 
     // Write data files and collect app manifest
     const appsManifest: Record<string, string[]> = {};
+    const environmentManifest: Record<string, string[]> = {};
 
     for (const [app, metricMap] of grid) {
         appsManifest[app] = [];
@@ -411,21 +443,31 @@ async function writeBucketView(
                 join(dir, dataFile),
             );
             const data: Record<string, (number | null)[]> = {};
+            const environmentFile = `${app}_${metricKey}.environment.json`;
+            const existingEnvironments = existingHeader?.environments?.[app]?.includes(metricKey)
+                ? await readJsonIfExists<EnvironmentRows>(join(dir, environmentFile)) : null;
+            if (existingHeader?.environments?.[app]?.includes(metricKey) && !existingEnvironments) {
+                throw new Error(`Missing advertised environment file: ${join(dir, environmentFile)}`);
+            }
+            const environmentData: EnvironmentRows = {};
 
             let existingRowsKept = 0;
             let existingValuesCarried = 0;
             for (const [rowKey, values] of Object.entries(existingData || {})) {
                 const merged = new Array(columns.length).fill(null) as (number | null)[];
+                const mergedEnvironments: (MeasurementEnvironment[] | null)[] = new Array(columns.length).fill(null);
                 for (const [columnId, oldIndex] of existingColumnIndex) {
                     const newIndex = colIndex.get(columnId);
                     if (newIndex === undefined || oldIndex >= values.length) continue;
                     if (values[oldIndex] !== null && values[oldIndex] !== undefined) {
                         merged[newIndex] = values[oldIndex];
+                        mergedEnvironments[newIndex] = existingEnvironments?.[rowKey]?.[oldIndex] ?? null;
                         existingValuesCarried++;
                     }
                 }
                 if (merged.some(v => v !== null)) {
                     data[rowKey] = merged;
+                    environmentData[rowKey] = mergedEnvironments;
                     existingRowsKept++;
                 }
             }
@@ -437,12 +479,14 @@ async function writeBucketView(
             for (const [rowKey, values] of rowMap || []) {
                 if (!data[rowKey]) {
                     data[rowKey] = new Array(columns.length).fill(null);
+                    environmentData[rowKey] = new Array(columns.length).fill(null);
                     newRowsAdded++;
                 }
                 for (let index = 0; index < values.length; index++) {
                     if (values[index] !== null) {
                         if (data[rowKey][index] !== null) valuesOverwritten++;
                         data[rowKey][index] = values[index];
+                        environmentData[rowKey][index] = environmentGrid.get(`${app}_${metricKey}`)?.[rowKey]?.[index] ?? null;
                         newValuesWritten++;
                     }
                 }
@@ -456,6 +500,10 @@ async function writeBucketView(
                 await writeFile(join(dir, dataFile), JSON.stringify(data), 'utf-8');
                 if (ctx.verbose) debug(`  wrote ${dataFile}`);
                 writtenMetricKeys.push(metricKey);
+                if (Object.values(environmentData).some(cells => cells.some(cell => cell?.length))) {
+                    await writeFile(join(dir, environmentFile), JSON.stringify(environmentData), 'utf8');
+                    (environmentManifest[app] ??= []).push(metricKey);
+                }
             }
         }
 
@@ -467,7 +515,8 @@ async function writeBucketView(
     }
 
     // Write header AFTER data files
-    const header: ViewHeader = { columns, apps: sortAppsManifest(appsManifest) };
+    const header: ViewHeader = { columns, apps: sortAppsManifest(appsManifest),
+        ...(Object.keys(environmentManifest).length ? { environments: environmentManifest } : {}) };
     if (type === 'week') header.week = label;
     else header.release = label;
 

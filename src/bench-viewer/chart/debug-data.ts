@@ -58,6 +58,10 @@ export function buildDebugReport(publication: DebugPublication, app: string, ran
                     measuredAt: batch.measuredAt,
                     sourceId: batch.id,
                 }, position,
+                environments: {
+                    mono: [{ os: batch.environment.os, arch: batch.environment.arch }],
+                    coreclr: [{ os: batch.environment.os, arch: batch.environment.arch }],
+                },
                 mono: mono?.valueMs ?? null, coreclr: coreclr?.valueMs ?? null, percent,
                 issue: match ? fallbackNote(batch) : 'No complete same-batch paired measurement',
                 monoWindow: null, coreclrWindow: null, percentWindow: null,

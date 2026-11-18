@@ -22,6 +22,7 @@ import {
     findEntryFile,
 } from '../lib/measure-utils.js';
 import { PROFILES } from '../lib/throttle-profiles.js';
+import { measurementEnvironment } from '../lib/environment.js';
 import { getEngineCommand, parseCliOutput } from '../lib/internal-utils.js';
 import { runPizzaWalkthrough } from '../lib/pizza-walkthrough.js';
 import { runHavitWalkthrough } from '../lib/havit-walkthrough.js';
@@ -191,6 +192,8 @@ function buildMeta(
         engine,
         app: entry.app,
         benchmarkDateTime: new Date().toISOString(),
+        environment: measurementEnvironment(),
+        ...(entry.environment ? { buildEnvironment: entry.environment } : {}),
     };
     if (ctx.ciRunId) {
         meta.ciRunId = ctx.ciRunId;

@@ -11,6 +11,7 @@ import { execCapture } from '../exec.js';
 import { buildSettings, msbuildArgs } from '../lib/build-settings.js';
 import { info, err } from '../log.js';
 import { installedDebugSdk } from '../lib/debug-sdk.js';
+import { measurementEnvironment } from '../lib/environment.js';
 import { runHavitWalkthrough } from '../lib/havit-walkthrough.js';
 import { DebugProcess, DebugProcessError } from '../lib/debug-process.js';
 import { DEBUG_BROWSER_SIGNAL_OPTIONS, installDebugCancellation, waitForDebugOperation } from '../lib/debug-cancellation.js';
@@ -399,7 +400,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
                 ...(ctx.debugMonoFallback ? { monoFallback: ctx.debugMonoFallback } : {}),
                 source: { harnessSha: sha, harnessDigest, appDigest: supported ? await hashTree(join(ctx.repoRoot, 'src', app)) : 'unsupported' },
                 environment: {
-                    os: `${platform()} ${release()}`, arch: arch(), cpu: cpus()[0]?.model || 'unknown',
+                    os: `${measurementEnvironment().os} ${release()}`, arch: arch(), cpu: cpus()[0]?.model || 'unknown',
                     cpuCount: cpus().length, memoryBytes: totalmem(), browser: browserVersion,
                     browserChannel: browserChannel || 'chromium', playwright: playwrightPackage.version, node: process.version,
                     headless: ctx.headless, runnerClass: process.env.RUNNER_ENVIRONMENT || 'local-shared-host',

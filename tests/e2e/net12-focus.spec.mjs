@@ -1,8 +1,40 @@
 import { test, expect } from 'playwright/test';
-import { expectedComparison, focusFixture, FOCUS_FIXTURE_TIME, routeFocusFixture } from '../helpers/focus-fixture.mjs';
+import { expectedComparison, focusFixture, monoGaFixture, FOCUS_FIXTURE_TIME, routeFocusFixture } from '../helpers/focus-fixture.mjs';
 
 const path = '/macro-benchmarks/net12-focus';
 const titles = ['Cold startup', 'Walkthrough', 'Cold download size', 'Build time'];
+
+test('GA baseline and recorded environments appear in the point side pane', async ({ page }) => {
+    const fixture = monoGaFixture();
+    const latest = fixture.buckets[1], ga = fixture.buckets.at(-1), key = 'time-to-reach-managed-cold';
+    for (const rows of Object.values(latest.appMetrics['havit-bootstrap'])) rows['mono/no-workload/desktop/chrome'][14] = null;
+    latest.header.environments = { 'havit-bootstrap': [key] };
+    latest.environments = { 'havit-bootstrap': { [key]: {
+        'coreclr/no-workload/desktop/chrome': latest.header.columns.map(() => [{ os: 'Ubuntu 24.04', arch: 'arm64' }]),
+    } } };
+    ga.header.environments = { 'havit-bootstrap': [key] };
+    ga.environments = { 'havit-bootstrap': { [key]: {
+        'mono/no-workload/desktop/chrome': [[{ os: 'Ubuntu 22.04', arch: 'x64' }]],
+    } } };
+    await open(page, fixture);
+    const card = page.locator('[data-metric="startup"]');
+    await expect(card).toHaveAttribute('data-status', 'ready');
+    await expect(card.locator('.focus-summary-note')).toContainText('.NET11 GA SDK 11.0.100');
+    await expect(card.locator('.focus-values dd')).toHaveText(['767 ms', '100 ms']);
+    const canvas = card.locator('canvas');
+    const point = await canvas.evaluate(element => {
+        const chart = Chart.getChart(element), last = chart.getDatasetMeta(0).data.at(-1);
+        return { x: last.x, y: last.y };
+    });
+    await canvas.click({ position: point });
+    const detail = page.getByRole('dialog', { name: 'Cold startup' });
+    await expect(detail).toContainText('Mono .NET11 GA baseline');
+    await expect(detail).toContainText('11.0.100');
+    await expect(detail).toContainText('Ubuntu 24.04');
+    await expect(detail).toContainText('arm64');
+    await expect(detail).toContainText('Ubuntu 22.04');
+    await expect(detail).toContainText('x64');
+});
 
 async function selectComparison(page, flavor = 'release-release', profile = 'desktop') {
     await page.locator('#focus-flavor').selectOption(flavor);

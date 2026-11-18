@@ -28,6 +28,12 @@ export function isSdk12(column) {
 export function isEligible(column) {
     return isSdk12(column) && column.isRuntimeCustomBuild !== true && column.isAspnetCoreCustomBuild !== true;
 }
+export function isMonoGa(column) {
+    return column.major === 11 && column.channel === '11.0' && /^11\.0\.\d+$/.test(column.sdkVersion)
+        && (!column.runtimePackVersion || /^11\.0\.\d+$/.test(column.runtimePackVersion))
+        && (!column.bundledFrameworkTfm || column.bundledFrameworkTfm === 'net11.0')
+        && column.isRuntimeCustomBuild !== true && column.isAspnetCoreCustomBuild !== true;
+}
 export function isPositive(value) {
     return value !== null && Number.isFinite(value) && value > 0;
 }
@@ -95,13 +101,17 @@ export function orderObservations(a, b) {
         || a.sdkVersion.localeCompare(b.sdkVersion, 'en', { numeric: true })
         || a.id.localeCompare(b.id);
 }
-export function rollingWindows(values, observations, size = FOCUS_WINDOW_SIZE) {
+export function rollingWindows(values, observations, size = FOCUS_WINDOW_SIZE, groups) {
     if (!Number.isInteger(size) || size < 1)
         throw new RangeError('Window size must be a positive integer.');
     if (values.length !== observations.length)
         throw new RangeError('Every value needs an observation.');
+    if (groups && groups.length !== values.length)
+        throw new RangeError('Every value needs a baseline group.');
     let window = [];
     return values.map((value, index) => {
+        if (groups && index > 0 && groups[index] !== groups[index - 1])
+            window = [];
         if (value === null || !Number.isFinite(value)) {
             window = [];
             return null;
@@ -131,6 +141,17 @@ function pairIssue(coreclr, mono, percent) {
         return 'CoreCLR measurement missing; no runtime was substituted.';
     return percent === null ? 'The comparison exceeds the finite numeric range.' : null;
 }
+function observationFor(column, bucket, columnIndex) {
+    return {
+        id: variantKey(column), sdkVersion: column.sdkVersion, day: column.releaseDate,
+        sdkCommitDateTime: column.sdkCommitDateTime, runtimeCommitDateTime: column.runtimeCommitDateTime,
+        sdkGitHash: column.sdkGitHash || null, runtimeGitHash: column.runtimeGitHash || null,
+        runtimePackVersion: column.runtimePackVersion, vmrGitHash: column.vmrGitHash || null,
+        vmrCommitDateTime: column.vmrCommitDateTime, runtimeCommitAuthor: column.runtimeCommitAuthor ?? null,
+        runtimeCommitMessage: column.runtimeCommitMessage ?? null, measuredAt: null, sourceId: null,
+        bucket, columnIndex, variant: column,
+    };
+}
 export function buildFocusReport(publication, app, range, now = new Date(), selection = DEFAULT_FOCUS_SELECTION) {
     const flavor = resolveFocusSelection(selection);
     if (!publication.index.apps.includes(app))
@@ -138,10 +159,14 @@ export function buildFocusReport(publication, app, range, now = new Date(), sele
     const { startDay, endDay } = historyBounds(range, now);
     const buckets = new Map(publication.buckets.map(bucket => [bucket.path, bucket]));
     const observations = [];
+    const monoGa = [];
     const seen = new Set();
     let excludedCustomBuilds = 0;
     for (const bucket of publication.buckets) {
         bucket.header.columns.forEach((column, columnIndex) => {
+            if (isMonoGa(column) && column.releaseDate <= endDay) {
+                monoGa.push(observationFor(column, bucket.path, columnIndex));
+            }
             if (!isSdk12(column))
                 return;
             if (!isEligible(column)) {
@@ -152,29 +177,28 @@ export function buildFocusReport(publication, app, range, now = new Date(), sele
             if (seen.has(id))
                 throw new FocusPublicationError(`Duplicate SDK/variant identity in ${bucket.path}: ${column.sdkVersion}. Retry the publication.`);
             seen.add(id);
-            observations.push({
-                id, sdkVersion: column.sdkVersion, day: column.releaseDate,
-                sdkCommitDateTime: column.sdkCommitDateTime,
-                runtimeCommitDateTime: column.runtimeCommitDateTime,
-                sdkGitHash: column.sdkGitHash || null,
-                runtimeGitHash: column.runtimeGitHash || null,
-                runtimePackVersion: column.runtimePackVersion,
-                vmrGitHash: column.vmrGitHash || null,
-                vmrCommitDateTime: column.vmrCommitDateTime,
-                runtimeCommitAuthor: column.runtimeCommitAuthor ?? null,
-                runtimeCommitMessage: column.runtimeCommitMessage ?? null,
-                measuredAt: null, sourceId: null,
-                bucket: bucket.path, columnIndex, variant: column,
-            });
+            observations.push(observationFor(column, bucket.path, columnIndex));
         });
     }
     observations.sort(orderObservations);
+    monoGa.sort((a, b) => a.sdkVersion.localeCompare(b.sdkVersion, 'en', { numeric: true }) || orderObservations(a, b));
     const cohort = resolveFocusCohort(flavor, publication.buckets
         .filter(bucket => bucket.header.columns.some(isEligible))
         .flatMap(bucket => (bucket.header.apps[app] ?? []).flatMap(key => Object.keys(bucket.metrics[key] ?? {}))));
     const metrics = focusMetrics(app).map(definition => {
         const profile = definition.id === 'startup' ? selection.startupProfile : 'desktop';
         const rowKeys = focusRowKeys(cohort, profile);
+        const gaBaseline = [...monoGa].reverse().find(observation => {
+            const bucket = buckets.get(observation.bucket);
+            if (!definition.key || !(bucket.header.apps[app] ?? []).includes(definition.key))
+                return false;
+            const rows = bucket.metrics[definition.key];
+            if (!rows)
+                throw new FocusPublicationError(`Advertised ${app}/${definition.key} was not loaded from ${bucket.path}.`);
+            return isPositive(rows[rowKeys.mono]?.[observation.columnIndex] ?? null);
+        });
+        const gaValue = gaBaseline && definition.key
+            ? buckets.get(gaBaseline.bucket).metrics[definition.key][rowKeys.mono][gaBaseline.columnIndex] : null;
         let advertised = false;
         let hasCohortRows = false;
         const allPoints = observations.map(observation => {
@@ -185,18 +209,34 @@ export function buildFocusReport(publication, app, range, now = new Date(), sele
                 throw new FocusPublicationError(`Advertised ${app}/${definition.key} was not loaded from ${bucket.path}.`);
             advertised ||= available;
             hasCohortRows ||= !!rows && (rowKeys.mono in rows || rowKeys.coreclr in rows);
-            const mono = rows?.[rowKeys.mono]?.[observation.columnIndex] ?? null;
+            const recordedMono = rows?.[rowKeys.mono]?.[observation.columnIndex] ?? null;
             const coreclr = rows?.[rowKeys.coreclr]?.[observation.columnIndex] ?? null;
+            const monoBaseline = recordedMono === null && isPositive(coreclr) ? gaBaseline : undefined;
+            const mono = monoBaseline ? gaValue : recordedMono;
             const percent = percentVsMono(coreclr, mono);
-            return { observation, position: 0, mono, coreclr, percent, issue: pairIssue(coreclr, mono, percent),
+            const environments = (runtime) => {
+                const source = runtime === 'mono' && monoBaseline ? monoBaseline : observation;
+                const row = rowKeys[runtime];
+                return definition.key ? buckets.get(source.bucket).environments?.[definition.key]?.[row]?.[source.columnIndex] ?? undefined : undefined;
+            };
+            return { observation, position: 0, mono, coreclr, percent,
+                ...(monoBaseline ? { monoBaseline } : {}),
+                environments: { mono: environments('mono'), coreclr: environments('coreclr') },
+                issue: monoBaseline ? `Mono .NET11 GA baseline: SDK ${monoBaseline.sdkVersion}, ${monoBaseline.day}.`
+                    : pairIssue(coreclr, mono, percent),
                 monoWindow: null, coreclrWindow: null, percentWindow: null };
         });
         // Compute before date cropping: the first visible point keeps its preceding four observations.
-        const monoWindows = rollingWindows(allPoints.map(p => isPositive(p.mono) ? p.mono : null), observations);
+        const baselineGroups = allPoints.map(p => p.monoBaseline?.id ?? 'sdk12');
+        const monoWindows = rollingWindows(allPoints.map(p => isPositive(p.mono) ? p.mono : null), observations, FOCUS_WINDOW_SIZE, baselineGroups);
         const coreclrWindows = rollingWindows(allPoints.map(p => isPositive(p.coreclr) ? p.coreclr : null), observations);
-        const percentWindows = rollingWindows(allPoints.map(p => p.percent), observations);
+        const percentWindows = rollingWindows(allPoints.map(p => p.percent), observations, FOCUS_WINDOW_SIZE, baselineGroups);
         allPoints.forEach((point, i) => {
-            point.monoWindow = monoWindows[i];
+            point.monoWindow = point.monoBaseline ? {
+                mean: point.mono, min: point.mono, max: point.mono, count: 1,
+                firstSdk: point.monoBaseline.sdkVersion, lastSdk: point.monoBaseline.sdkVersion,
+                firstDay: point.monoBaseline.day, lastDay: point.monoBaseline.day,
+            } : monoWindows[i];
             point.coreclrWindow = coreclrWindows[i];
             point.percentWindow = percentWindows[i];
         });

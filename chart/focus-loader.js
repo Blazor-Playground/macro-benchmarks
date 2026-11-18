@@ -1,4 +1,4 @@
-import { focusMetrics, isEligible } from './focus-data.js';
+import { focusMetrics, isEligible, isMonoGa } from './focus-data.js';
 import { FocusPublicationError } from './focus-types.js';
 function isRecord(value) {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -101,7 +101,28 @@ export function parseFocusHeader(value, path) {
     for (const [app, metrics] of Object.entries(record(input.apps, `${path} apps`))) {
         apps[segment(app, 'App ID')] = strings(metrics, `${path} ${app}`).map(metric => segment(metric, 'Metric key'));
     }
-    return { columns, apps };
+    const environments = input.environments === undefined ? undefined
+        : Object.fromEntries(Object.entries(record(input.environments, `${path} environments`))
+            .map(([app, metrics]) => [segment(app, 'App ID'), strings(metrics, `${path} environment metrics`)
+                .map(metric => segment(metric, 'Metric key'))]));
+    return { columns, apps, ...(environments ? { environments } : {}) };
+}
+export function parseFocusEnvironments(value, count, path) {
+    return Object.fromEntries(Object.entries(record(value, path)).map(([key, cells]) => {
+        if (!/^[a-z0-9-]+\/[a-z0-9-]+\/[a-z0-9-]+\/[a-z0-9-]+$/.test(key)
+            || !Array.isArray(cells) || cells.length !== count)
+            throw new FocusPublicationError(`${path}: invalid environment row.`);
+        return [key, cells.map(cell => {
+                if (cell === null)
+                    return null;
+                if (!Array.isArray(cell) || !cell.length)
+                    throw new FocusPublicationError(`${path}: expected recorded environments.`);
+                return cell.map(raw => {
+                    const env = record(raw, path);
+                    return { os: text(env.os, `${path} OS`), arch: text(env.arch, `${path} architecture`) };
+                });
+            })];
+    }));
 }
 export function parseFocusRows(value, count, path) {
     const rows = record(value, path);
@@ -184,16 +205,21 @@ export class FocusLoader {
                     path, header: parseFocusHeader(await this.json(`${path}/header.json`, signal, true), path),
                 })));
                 // Commit-week names cannot determine SDK build-day ranges; inspect the columns first.
-                const buckets = await Promise.all(headers.filter(bucket => bucket.header.columns.some(isEligible)).map(async (bucket) => {
+                const buckets = await Promise.all(headers.filter(bucket => bucket.header.columns.some(column => isEligible(column) || isMonoGa(column))).map(async (bucket) => {
                     const metrics = {};
+                    const environments = {};
                     await Promise.all(focusMetrics(app).map(async (definition) => {
                         const key = definition.key;
                         if (key === null || !(bucket.header.apps[app] ?? []).includes(key))
                             return;
                         const path = `${bucket.path}/${app}_${key}.json`;
                         metrics[key] = parseFocusRows(await this.json(path, signal, true), bucket.header.columns.length, path);
+                        if (bucket.header.environments?.[app]?.includes(key)) {
+                            const environmentPath = `${bucket.path}/${app}_${key}.environment.json`;
+                            environments[key] = parseFocusEnvironments(await this.json(environmentPath, signal, true), bucket.header.columns.length, environmentPath);
+                        }
                     }));
-                    return { ...bucket, metrics };
+                    return { ...bucket, metrics, environments };
                 }));
                 publication = { index, buckets };
             }

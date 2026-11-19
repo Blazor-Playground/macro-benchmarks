@@ -289,7 +289,7 @@
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/43418943638"
     },
     {
-      "sdkVersion": "12.0.100-alpha.1.26564.104",
+      "sdkVersion": "12.0.100-alpha.1.26564.101",
       "runtimeGitHash": "00178ee32a0d46acf976f96f1d6fa4a65f8dfc74",
       "aspnetCoreGitHash": "59835e6087e90b972a905dc303523cfbb5d828ef",
       "sdkGitHash": "3450faa58bf7e1ed0487f56d4b68b6c64ae60508",
@@ -302,9 +302,9 @@
       "aspnetCoreCommitDateTime": "2026-11-12T23:34:07Z",
       "aspnetCoreCommitAuthor": "David Fowler",
       "aspnetCoreCommitMessage": "Avoid parsing common Content-Type values when resolving response encoding (#70201)",
-      "aspnetCoreVersion": "12.0.0-alpha.1.26564.104",
-      "runtimePackVersion": "12.0.0-alpha.1.26564.104",
-      "workloadVersion": "12.0.0-alpha.1.26564.104",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26564.101",
+      "runtimePackVersion": "12.0.0-alpha.1.26564.101",
+      "workloadVersion": "12.0.0-alpha.1.26564.101",
       "bootstrapSdkVersion": "12.0.100-alpha.1.26557.102",
       "releaseDate": "2026-11-14",
       "major": 12,
@@ -317,9 +317,9 @@
         "compilation": "full",
         "composite": true
       },
-      "benchmarkDateTime": "2026-11-19T03:48:31.440Z",
-      "ciRunId": "44452261585",
-      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/44452261585"
+      "benchmarkDateTime": "2026-11-19T04:58:43.833Z",
+      "ciRunId": "44459729044",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/44459729044"
     },
     {
       "sdkVersion": "12.0.100-alpha.1.26565.104",

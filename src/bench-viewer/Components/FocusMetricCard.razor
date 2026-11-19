@@ -11,6 +11,10 @@
         {
             <p class="focus-measurement" title="@Metric.Description">@ProfileLabel / Chromium</p>
         }
+        @if (!Loading && LoadError == null && Metric.Latest?.MonoBaseline is { } baseline)
+        {
+            <p class="focus-summary-note">Mono baseline: .NET11 GA SDK @baseline.SdkVersion (@baseline.Day). Cross-version comparison.</p>
+        }
         @if (!Loading && LoadError == null && Metric.Comparison is { } comparison)
         {
             <div class="focus-kpi @comparison.Tone" aria-label="@($"{Metric.Title}: {comparison.Magnitude} {comparison.Verdict}")">

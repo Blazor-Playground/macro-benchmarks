@@ -18,6 +18,7 @@ import { banner, info, err } from '../log.js';
 import { type BuildFailure, getBuildResultsDir, writeBuildShardReport } from '../lib/build-reports.js';
 import { buildExecutionArgs, buildSettings, DEV_LOOP_REVISION, msbuildArgs } from '../lib/build-settings.js';
 import { r2rSettings, readyToRunMetadata } from '../lib/r2r-settings.js';
+import { measurementEnvironment } from '../lib/environment.js';
 
 // MSBuildProjectName drives the artifacts/{bin,obj}/<name>/<label>/<flavor>/<preset> layout
 // (see src/Directory.Build.props). appDir may be a .csproj (projectPath apps) or a directory.
@@ -263,6 +264,7 @@ async function buildPhase(
                         readyToRun = await readyToRunMetadata(preset, nugetPackagesDir, ctx.repoRoot, ctx.r2rSettings.composite);
                     }
                     succeeded.push({ app: app as App, preset, runtime, compileTimeMs, integrity, publishDir,
+                        environment: measurementEnvironment(),
                         ...(readyToRun ? { readyToRun } : {}),
                         ...(preset === Preset.DevLoop ? { presetRevision: DEV_LOOP_REVISION } : {}) });
                 } catch (e) {

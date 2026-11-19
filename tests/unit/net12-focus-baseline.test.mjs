@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { focusFixture, publicationFor } from '../helpers/focus-fixture.mjs';
+import { focusFixture, monoGaFixture, publicationFor } from '../helpers/focus-fixture.mjs';
 import { buildFocusReport } from '../../src/bench-viewer/wwwroot/chart/focus-data.js';
 import { focusChartModel } from '../../src/bench-viewer/wwwroot/chart/focus-chart.js';
+import { focusPointDetail } from '../../src/bench-viewer/wwwroot/chart/focus-chart.js';
 
 const app = 'semi-avalonia';
 const now = new Date('2026-09-20T12:00:00Z');
@@ -192,4 +193,91 @@ test('ineligible-only buckets cannot change the SDK12 app baseline', () => {
     custom.metrics['compile-time']['mono/no-workload/mobile/chrome'] = custom.header.columns.map(() => 1);
     publication.buckets.push(custom);
     assert.equal(report(publication).cohort.baselinePreset, 'native-relink');
+});
+
+test('missing Mono12 uses matching GA11 rows without adding GA dates to SDK12 history', () => {
+    const fixture = monoGaFixture();
+    for (const bucket of fixture.buckets.slice(0, -1)) {
+        for (const rows of Object.values(bucket.appMetrics['havit-bootstrap'])) {
+            for (const [key, values] of Object.entries(rows)) if (key.startsWith('mono/')) values.fill(null);
+        }
+    }
+    for (const flavor of ['release-release', 'r2r-release', 'r2r-aot']) {
+        for (const startupProfile of ['desktop', 'mobile']) {
+            const result = buildFocusReport(publicationFor('havit-bootstrap', fixture), 'havit-bootstrap', '14d', now,
+                { flavor, startupProfile });
+            for (const metric of result.metrics) {
+                assert.equal(metric.status, 'ready');
+                const expected = (flavor === 'r2r-aot' ? 300 : 100) + (metric.id === 'startup' && startupProfile === 'mobile' ? 100 : 0);
+                assert.equal(metric.latest.mono, expected);
+                assert.equal(metric.latest.monoBaseline.sdkVersion, '11.0.100');
+                assert.equal(metric.latest.monoBaseline.day, '2026-09-01');
+                assert.equal(metric.latest.monoWindow.count, 1, 'one GA measurement is not five measurements');
+                assert.equal(metric.latest.monoWindow.lastSdk, '11.0.100');
+                assert(metric.points.every(p => p.observation.sdkVersion.startsWith('12.')));
+                assert.equal(metric.comparison.value, 100 * (metric.latest.coreclr / expected - 1));
+            }
+        }
+    }
+});
+
+test('valid Mono12 wins, invalid values do not fall back, and comparison windows reset at transition', () => {
+    const fixture = monoGaFixture();
+    const rows = fixture.buckets[1].appMetrics['havit-bootstrap']['time-to-reach-managed-cold'];
+    const original = rows['mono/no-workload/mobile/chrome'][12];
+    rows['mono/no-workload/mobile/chrome'][13] = 0;
+    rows['mono/no-workload/mobile/chrome'][14] = null;
+    const startup = buildFocusReport(publicationFor('havit-bootstrap', fixture), 'havit-bootstrap', '14d', now).metrics[0];
+    assert.equal(startup.points.at(-3).mono, original);
+    assert.equal(startup.points.at(-3).monoBaseline, undefined);
+    assert.equal(startup.points.at(-2).mono, 0);
+    assert.equal(startup.points.at(-2).monoBaseline, undefined);
+    assert.equal(startup.latest.mono, 200);
+    assert.equal(startup.latest.percentWindow.count, 1);
+    const detail = focusPointDetail(startup, startup.latest, false);
+    assert(detail.sections.some(s => s.title === 'Mono .NET11 GA baseline' && s.rows.some(r => r.value === '11.0.100')));
+});
+
+test('latest valid GA measurement excludes previews, custom builds and wrong-profile rows', () => {
+    const fixture = monoGaFixture();
+    const ga = fixture.buckets.at(-1);
+    ga.header.columns.push(
+        { ...ga.header.columns[0], sdkVersion: '11.0.101', releaseDate: '2026-09-02', runtimePackVersion: '11.0.1' },
+        { ...ga.header.columns[0], sdkVersion: '11.0.102-preview.1', releaseDate: '2026-09-03' },
+        { ...ga.header.columns[0], sdkVersion: '11.0.103', releaseDate: '2026-09-04', isRuntimeCustomBuild: true });
+    for (const rows of Object.values(ga.appMetrics['havit-bootstrap'])) {
+        for (const values of Object.values(rows)) values.push(500, 700, 900);
+    }
+    for (const bucket of fixture.buckets.slice(0, -1)) {
+        for (const rows of Object.values(bucket.appMetrics['havit-bootstrap'])) {
+            for (const [key, values] of Object.entries(rows)) if (key.startsWith('mono/')) values.fill(null);
+        }
+    }
+    const publication = publicationFor('havit-bootstrap', fixture);
+    let metric = buildFocusReport(publication, 'havit-bootstrap', '14d', now).metrics[0];
+    assert.equal(metric.latest.mono, 500);
+    assert.equal(metric.latest.monoBaseline.sdkVersion, '11.0.101');
+    delete ga.appMetrics['havit-bootstrap']['time-to-reach-managed-cold']['mono/no-workload/mobile/chrome'];
+    metric = buildFocusReport(publicationFor('havit-bootstrap', fixture), 'havit-bootstrap', '14d', now).metrics[0];
+    assert.equal(metric.latest, null, 'desktop and Firefox cannot replace the selected mobile/Chromium row');
+});
+
+test('point details keep separate main and GA-baseline environments; older records stay unknown', () => {
+    const fixture = monoGaFixture();
+    const latest = fixture.buckets[1];
+    const key = 'time-to-reach-managed-cold';
+    latest.appMetrics['havit-bootstrap'][key]['mono/no-workload/mobile/chrome'][14] = null;
+    latest.environments = { 'havit-bootstrap': { [key]: {
+        'coreclr/aot/mobile/chrome': latest.header.columns.map(() => [{ os: 'Ubuntu 24.04', arch: 'arm64' }]),
+    } } };
+    const ga = fixture.buckets.at(-1);
+    ga.environments = { 'havit-bootstrap': { [key]: {
+        'mono/no-workload/mobile/chrome': [[{ os: 'Ubuntu 22.04', arch: 'x64' }]],
+    } } };
+    const metric = buildFocusReport(publicationFor('havit-bootstrap', fixture), 'havit-bootstrap', '14d', now).metrics[0];
+    const environment = focusPointDetail(metric, metric.latest, false).sections.find(section => section.title === 'Environment');
+    assert(environment.rows.some(row => row.label === 'CoreCLR architecture' && row.value === 'arm64'));
+    assert(environment.rows.some(row => row.label === 'Mono OS' && row.value === 'Ubuntu 22.04'));
+    const old = focusPointDetail(metric, metric.points[0], false).sections.find(section => section.title === 'Environment');
+    assert(old.rows.every(row => row.value === 'Not recorded'));
 });

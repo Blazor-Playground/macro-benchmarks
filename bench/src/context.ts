@@ -46,7 +46,13 @@ export interface SdkInfo {
 
 // ── Build Manifest Entry (populated by build stage) ──────────────────────────
 
+export interface MeasurementEnvironment {
+    os: string;
+    arch: string;
+}
+
 export interface BuildManifestEntry {
+    environment?: MeasurementEnvironment;
     app: App;
     preset: Preset;
     runtime: Runtime;

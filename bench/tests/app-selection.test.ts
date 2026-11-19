@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { buildContext } from '../src/args.js';
 import { type BenchContext } from '../src/context.js';
-import { App, Preset, Runtime, shouldSkipBuild, shouldSkipMeasurement } from '../src/enums.js';
+import { App, Preset, Runtime, shouldSkipBuild, shouldSkipDeployment, shouldSkipMeasurement } from '../src/enums.js';
 
 test('default .NET 12 app selection includes native apps', async () => {
     const ctx = await buildContext([]);
@@ -16,6 +16,34 @@ test('default app selection retains Uno before .NET 12', async () => {
     const ctx = await buildContext(['--sdk-channel', '11.0']);
 
     assert.equal(ctx.apps.includes(App.UnoGallery), true);
+});
+
+test('the dashboard deploys on CoreCLR even before the .NET 12 sample app switch', async () => {
+    const ctx = await buildContext([]);
+    ctx.sdkInfo = { ...ctx.sdkInfo, major: 11, isPrerelease: false, monoRuntimePackAvailable: true };
+    assert.equal(shouldSkipDeployment(Runtime.CoreCLR, App.BenchViewer, Preset.NoWorkload, ctx), null);
+    assert.match(shouldSkipDeployment(Runtime.Mono, App.BenchViewer, Preset.NoWorkload, ctx) ?? '', /only with 'coreclr'/);
+    assert.match(shouldSkipDeployment(Runtime.CoreCLR, App.BenchViewer, Preset.DevLoop, ctx) ?? '', /no-workload/);
+    assert.equal(shouldSkipDeployment(Runtime.Mono, App.RadzenBlazor, Preset.NoWorkload, ctx), null);
+    assert.match(shouldSkipDeployment(Runtime.CoreCLR, App.RadzenBlazor, Preset.NoWorkload, ctx) ?? '', /only with 'mono'/);
+
+    ctx.sdkInfo = { ...ctx.sdkInfo, major: 10 };
+    assert.match(shouldSkipDeployment(Runtime.CoreCLR, App.BenchViewer, Preset.NoWorkload, ctx) ?? '', /below 11/);
+});
+
+test('.NET 12 static sample apps deploy on CoreCLR except Uno', async () => {
+    const ctx = await buildContext([]);
+    ctx.sdkInfo = { ...ctx.sdkInfo, major: 12, monoRuntimePackAvailable: true };
+    assert.equal(shouldSkipDeployment(Runtime.CoreCLR, App.RadzenBlazor, Preset.NoWorkload, ctx), null);
+    assert.match(shouldSkipDeployment(Runtime.Mono, App.RadzenBlazor, Preset.NoWorkload, ctx) ?? '', /only with 'coreclr'/);
+    assert.equal(shouldSkipDeployment(Runtime.CoreCLR, App.AvaloniaBench, Preset.NativeRelink, ctx), null);
+    assert.match(shouldSkipDeployment(Runtime.CoreCLR, App.BlazorPerf, Preset.NoWorkload, ctx) ?? '', /Kestrel/);
+    assert.equal(shouldSkipDeployment(Runtime.Mono, App.UnoGallery, Preset.NativeRelink, ctx), null);
+    assert.match(shouldSkipDeployment(Runtime.CoreCLR, App.UnoGallery, Preset.NativeRelink, ctx) ?? '', /Mono-only/);
+
+    ctx.sdkInfo.monoRuntimePackAvailable = false;
+    assert.equal(shouldSkipDeployment(Runtime.CoreCLR, App.RadzenBlazor, Preset.NoWorkload, ctx), null);
+    assert.match(shouldSkipDeployment(Runtime.Mono, App.UnoGallery, Preset.NativeRelink, ctx) ?? '', /not published/);
 });
 
 test('Radzen is selected by default and supports modern browser benchmark presets', async () => {

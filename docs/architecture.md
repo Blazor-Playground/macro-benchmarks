@@ -60,7 +60,7 @@ The CLI executes stages in the order specified by `--stages`:
 | Stage | Purpose |
 |-------|---------|
 | `build` | `dotnet publish` each (app × preset × runtime) combination; record compile time and file integrity |
-| `deploy-latest-app` | If SDK is latest daily: copy wwwroot to `gh-pages/apps/{app}/` |
+| `deploy-latest-app` | If SDK is latest daily: copy the CoreCLR viewer to `gh-pages/` and sample apps to `gh-pages/apps/{app}/` (CoreCLR starting with .NET 12, Mono for Uno or older SDKs) |
 
 ### Measurement
 | Stage | Purpose |

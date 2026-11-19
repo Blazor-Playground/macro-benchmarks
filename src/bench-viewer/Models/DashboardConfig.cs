@@ -47,7 +47,7 @@ public static class DashboardConfig
     // Preferred app display order
     public static readonly List<string> AppOrder = new()
     {
-        "blazing-pizza", "havit-bootstrap", "mud-blazor", "igniteui-light", "radzen-blazor", "blazor-perf", "empty-blazor",
+        "havit-bootstrap", "blazing-pizza", "mud-blazor", "igniteui-light", "radzen-blazor", "blazor-perf", "empty-blazor",
         "semi-avalonia", "avalonia-bench", "uno-gallery",
         "empty-browser", "empty-browser",
         "micro-benchmarks", "blazor-perf",

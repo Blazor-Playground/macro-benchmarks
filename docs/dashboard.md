@@ -21,6 +21,10 @@ The R2R presets are `aot` and `r2r-pgo`, which follow the selected SDK's
 composite default. Unknown presets in historical data are ignored by filters
 and charts.
 
+The Radzen walkthrough is measured only on desktop Chrome. Its chart uses
+those measurements even when the profile filter is set to mobile. Runtime and
+preset filters still apply.
+
 Byte-valued charts and detail panels use binary units: MiB is 1,048,576 bytes
 and KiB is 1,024 bytes. OpenTelemetry heap, working-set, and allocation-rate
 values are likewise displayed as MiB or MiB/s; their historical persisted
@@ -87,9 +91,10 @@ output directory; no copy into the viewer is needed. `VIEWER_DATA_URL` selects
 published data independently. Test fixtures are synthetic, not measurements.
 
 The Blazor viewer is in `src/bench-viewer`. Home and `/net12-focus` share
-branding and mode links at the top of their left pane. Home keeps its app tabs,
-filters and update links. Delta reports remain accessible through point details
-or their existing route, not a mode tab.
+branding and mode links at the top of their left pane. On Home, Havit Bootstrap
+is the first app tab and opens by default when its data is available. Delta
+reports remain accessible through point details or their existing route, not a
+mode tab.
 
 ## Focus selections
 
@@ -238,7 +243,8 @@ or immutable per-cell provenance.
 
 ## Build and preview
 
-Run from the repository root with a compatible .NET SDK and Node 24+.
+Run from the repository root with a .NET SDK that supports CoreCLR WebAssembly
+(.NET 11 GA or later) and Node 24+.
 No benchmark stages, Docker or wasm-tools installation are needed.
 On macOS with Homebrew, include `/opt/homebrew/bin` in `PATH`.
 
@@ -248,7 +254,12 @@ npm run build:viewer
 node --experimental-strip-types tests/helpers/serve-viewer.mjs
 ```
 
-`build:viewer` publishes only `BenchViewer.csproj` to `artifacts/bench-viewer`.
+`build:viewer` publishes only `BenchViewer.csproj` to `artifacts/bench-viewer`
+using CoreCLR and the `no-workload` preset. The Pages deployment copies this
+viewer to the site root. Static sample apps deploy with CoreCLR starting
+with .NET 12. Older sample app deployments and Uno Gallery still use Mono.
+If the selected SDK has no Mono runtime pack and no custom pack is supplied,
+the existing Uno Gallery snapshot stays in place.
 The project restores locked viewer npm dependencies, compiles TypeScript before
 static-asset discovery, and copies Bootstrap CSS/map/license. Generated assets
 are ignored; the first publish includes fingerprinted modules and an import map.

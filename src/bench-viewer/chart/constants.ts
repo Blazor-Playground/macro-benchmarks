@@ -206,7 +206,7 @@ export const BUILD_METRICS = new Set([
 
 // Walkthrough metrics are only collected for chrome/desktop (includes avalonia-bench scenarios)
 export const WALKTHROUGH_METRICS = new Set([
-    'pizza-walkthrough', 'havit-walkthrough', 'mud-walkthrough', 'uno-walkthrough', 'semi-walkthrough',
+    'pizza-walkthrough', 'havit-walkthrough', 'mud-walkthrough', 'radzen-walkthrough', 'uno-walkthrough', 'semi-walkthrough',
     'avalonia-virtualized-scroll-ops', 'avalonia-control-templates-ops',
     'avalonia-text-layout-ops', 'avalonia-skia-drawing-ops',
     'avalonia-fps-layout-resize', 'avalonia-fps-render-transforms',

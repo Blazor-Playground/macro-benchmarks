@@ -1,6 +1,15 @@
 import { expect, test } from 'playwright/test';
 import { focusFixture, routeFocusFixture } from '../helpers/focus-fixture.mjs';
 
+test('Havit Bootstrap is the first and initially selected app tab', async ({ page }) => {
+    await routeFocusFixture(page);
+    await page.goto('/macro-benchmarks/');
+
+    const tabs = page.locator('main .nav-tabs');
+    await expect(tabs.getByRole('link').first()).toHaveText('Havit Bootstrap');
+    await expect(tabs.locator('.nav-link.active')).toHaveText('Havit Bootstrap');
+});
+
 test('R2R presets are selectable before their first published results', async ({ page }) => {
     const fixture = focusFixture();
     fixture.index.dimensions.presets = ['no-workload', 'aot', 'unknown-preset'];

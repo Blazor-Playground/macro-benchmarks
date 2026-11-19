@@ -2,15 +2,15 @@ import { join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile, rm, mkdir, cp, readdir, unlink } from 'node:fs/promises';
 import { type BenchContext } from '../context.js';
-import { App, Runtime, Preset, shouldSkipDeployment } from '../enums.js';
+import { App, deploymentRuntimeFor, shouldSkipDeployment } from '../enums.js';
 import { ensureBranchCheckout } from '../lib/branch-checkout.js';
 import { commitAndPush } from '../lib/git-push.js';
 import { banner, info } from '../log.js';
 
 // ── Stage: deploy-latest-app ─────────────────────────────────────────────────
 //
-// Deploys the published wwwroot of each app (no-workload preset) to
-// gh-pages/apps/<appname>/ so they are browsable on GitHub Pages.
+// Deploys the CoreCLR viewer to the GitHub Pages root and sample apps to
+// gh-pages/apps/<appname>/. Sample apps switch to CoreCLR on .NET 12 except Uno.
 //
 // Only runs when the current SDK is the latest daily build.
 
@@ -30,13 +30,14 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const deployedApps: string[] = [];
 
     for (const app of ctx.apps) {
-        const validPreset = ctx.presets.find(preset => shouldSkipDeployment(Runtime.Mono, app, preset, ctx) === null);
+        const runtime = deploymentRuntimeFor(app, ctx.sdkInfo.major);
+        const validPreset = ctx.presets.find(preset => shouldSkipDeployment(runtime, app, preset, ctx) === null);
         if (!validPreset) {
-            info(`Skipping ${app} — no valid preset found for deployment`);
+            info(`Skipping ${app} — no valid preset found for ${runtime} deployment`);
             continue;
         }
 
-        const publishDir = join(ctx.artifactsDir, 'publish', app, Runtime.Mono, ctx.buildLabel, validPreset);
+        const publishDir = join(ctx.artifactsDir, 'publish', app, runtime, ctx.buildLabel, validPreset);
         const wwwrootSrc = join(publishDir, 'wwwroot');
 
         if (!existsSync(wwwrootSrc)) {
@@ -83,7 +84,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         }
 
         deployedApps.push(app);
-        info(`Deployed ${app} → apps/${app}/`);
+        info(`Deployed ${app} (${runtime}) → ${app === App.BenchViewer ? '/' : `apps/${app}/`}`);
     }
 
     if (deployedApps.length === 0) {

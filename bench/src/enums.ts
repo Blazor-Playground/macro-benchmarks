@@ -192,8 +192,8 @@ export const APP_CONFIG: Record<App, AppConfig> = {
     [App.IgniteUILight]: { browserOnly: true, internal: false, monoOnly: false },
     [App.RadzenBlazor]: { browserOnly: true, internal: false, monoOnly: false },
 
-    // bench-viewer and uno-gallery only run on Mono (Uno's WASM bootstrap isn't CoreCLR-compatible).
-    [App.BenchViewer]: { browserOnly: true, internal: false, monoOnly: true },
+    [App.BenchViewer]: { browserOnly: true, internal: false, monoOnly: false },
+    // Uno's WASM bootstrap isn't CoreCLR-compatible.
     [App.UnoGallery]: { browserOnly: true, internal: false, monoOnly: true },
     // semi-avalonia gains CoreCLR from .NET 12 (gated in shouldSkipBuild).
     [App.SemiAvalonia]: { browserOnly: true, internal: false, monoOnly: false },
@@ -236,6 +236,13 @@ export const NON_BLAZOR_REDUCED_PRESETS = new Set<Preset>([Preset.NativeRelink, 
 export const NATIVE_COMPONENT_APPS = new Set<App>([App.UnoGallery, App.SemiAvalonia, App.AvaloniaBench]);
 
 
+export function deploymentRuntimeFor(app: App, sdkMajor: number): Runtime {
+    if (app === App.BenchViewer || (sdkMajor >= 12 && !APP_CONFIG[app].monoOnly)) {
+        return Runtime.CoreCLR;
+    }
+    return Runtime.Mono;
+}
+
 export function shouldSkipDeployment(runtime: Runtime, app: App, preset: Preset, ctx: BenchContext): string | null {
     const build = shouldSkipBuild(runtime, app, preset, ctx);
     if (build) {
@@ -244,8 +251,9 @@ export function shouldSkipDeployment(runtime: Runtime, app: App, preset: Preset,
     if (APP_CONFIG[app].kestrelHosted) {
         return `Kestrel-hosted app '${app}' cannot be deployed as static site`;
     }
-    if (runtime === Runtime.CoreCLR) {
-        return `We deploy only Mono for now`;
+    const deploymentRuntime = deploymentRuntimeFor(app, ctx.sdkInfo.major);
+    if (runtime !== deploymentRuntime) {
+        return `App '${app}' deploys only with '${deploymentRuntime}'`;
     }
     if (BLAZOR_APPS.has(app) && preset !== Preset.NoWorkload) {
         return `Blazor app '${app}' deploy with no-workload preset only`;

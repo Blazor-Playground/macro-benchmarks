@@ -1,1 +1,1 @@
-{"coreclr/aot/desktop/chrome":[31,41,29],"coreclr/dev-loop/desktop/chrome":[46,36,32],"coreclr/no-workload/desktop/chrome":[36,38,33],"coreclr/r2r-pgo/desktop/chrome":[32,39,40]}
+{"coreclr/aot/desktop/chrome":[31,41,37,29],"coreclr/dev-loop/desktop/chrome":[46,36,36,32],"coreclr/no-workload/desktop/chrome":[36,38,40,33],"coreclr/r2r-pgo/desktop/chrome":[32,39,37,40]}

@@ -1,6 +1,39 @@
 {
   "columns": [
     {
+      "sdkVersion": "12.0.100-alpha.1.26569.103",
+      "runtimeGitHash": "4ab5617c35e2ad7950ffb32ff91a9975951cc165",
+      "aspnetCoreGitHash": "327f5f8da154aa73a4d070f85ff64eae467e4d76",
+      "sdkGitHash": "dadf881084cc5e6b5cb0dba8e528f6620dd51542",
+      "vmrGitHash": "930f4e6e05be27717fcd6a7df183d1b4ed64cca7",
+      "sdkCommitDateTime": "2026-11-16T17:46:05Z",
+      "vmrCommitDateTime": "2026-11-19T08:17:54Z",
+      "runtimeCommitDateTime": "2026-11-19T01:01:26Z",
+      "runtimeCommitAuthor": "Andy Ayers",
+      "runtimeCommitMessage": "JIT: preserve unused Swift error results (#137526)",
+      "aspnetCoreCommitDateTime": "2026-11-19T00:02:00Z",
+      "aspnetCoreCommitAuthor": "Rich Lander",
+      "aspnetCoreCommitMessage": "Use Ubuntu Resolute for the Playwright benchmark image (#70685)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26569.103",
+      "runtimePackVersion": "12.0.0-alpha.1.26569.103",
+      "workloadVersion": "12.0.0-alpha.1.26569.103",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26557.102",
+      "releaseDate": "2026-11-19",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "monoRuntimePackAvailable": false,
+      "readyToRun": {
+        "compilation": "full",
+        "composite": true
+      },
+      "benchmarkDateTime": "2026-11-20T00:19:52.207Z",
+      "ciRunId": "44642198540",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/44642198540"
+    },
+    {
       "sdkVersion": "12.0.100-alpha.1.26569.107",
       "runtimeGitHash": "4ab5617c35e2ad7950ffb32ff91a9975951cc165",
       "aspnetCoreGitHash": "327f5f8da154aa73a4d070f85ff64eae467e4d76",

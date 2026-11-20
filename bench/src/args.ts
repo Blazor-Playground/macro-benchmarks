@@ -285,6 +285,7 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
         runtimePack: values['runtime-pack'] || loaded.runtimePack || '',
         runtimeCommit: values['runtime-commit'] || loaded.runtimeCommit || '',
         runtimeRepo: values['runtime-repo'] || loaded.runtimeRepo || 'dotnet/runtime',
+        runtimeRef: values['runtime-commit'] ? '' : loaded.runtimeRef || '',
         runtimePR: values['runtime-pr'] || loaded.runtimePR || '',
         runtimeBuildRequired: loaded.runtimeBuildRequired ?? false,
 

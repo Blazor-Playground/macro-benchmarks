@@ -13,6 +13,8 @@ import { formatResults, loadCurrentComparisonData, readCurrentComparison, readLe
 import { runCommand } from '../../bench/local-command.mjs';
 import { historyCommand, quickStart } from '../../bench/runtime-bench.mjs';
 import { localFocusReport } from '../../src/bench-viewer/wwwroot/chart/local-focus.js';
+import { loadLocalComparisonData } from '../../bench/local-comparison-data.mjs';
+import { MONO_BASELINE_REF } from '../../bench/local-baseline-sources.mjs';
 
 const now = () => new Date('2026-10-14T12:00:00Z');
 const git = (cwd, ...args) => execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8' }).trim();
@@ -43,6 +45,7 @@ async function fixture(t) {
         commits[`2026-10-${day}`] = git(runtimeRepo, 'rev-parse', 'HEAD');
     }
     git(runtimeRepo, 'update-ref', 'refs/remotes/origin/main', commits['2026-10-14']);
+    git(runtimeRepo, 'update-ref', 'refs/remotes/origin/release/11.0', commits['2026-10-14']);
     git(runtimeRepo, 'checkout', '--quiet', '-b', 'side-branch', commits['2026-10-10']);
     await writeFile(join(runtimeRepo, 'side.txt'), 'not first-parent main\n');
     git(runtimeRepo, 'add', '.');
@@ -67,6 +70,7 @@ async function fixture(t) {
     const builds = [];
     const publishRuntime = async (options, sourceOverride) => {
         const commit = git(options['runtime-repo'], 'rev-parse', 'HEAD');
+        const sdkVersion = JSON.parse(await readFile(join(options['runtime-repo'], 'global.json'), 'utf8')).sdk.version;
         publishes.push({ runtime: options.runtime, checkout: options['runtime-repo'], commit });
         if (failCommit === commit && options.runtime === 'coreclr') throw new Error('fixture unsupported composite snapshot');
         const runDir = join(root, `measured-${++measured}`);
@@ -77,7 +81,8 @@ async function fixture(t) {
         const manifestPath = join(runDir, 'manifest.json');
         await writeFile(manifestPath, JSON.stringify({
             runDir, runtime: options.runtime, preset, variant: options.variant, configuration: options.configuration,
-            sdkInfo: { sdkVersion: '12.0.100', runtimePackVersion: '12.0.0-fixture', bundledFrameworkTfm: 'net12.0',
+            sdkInfo: { sdkVersion, runtimePackVersion: `${sdkVersion.split('.')[0]}.0.0-fixture`,
+                bundledFrameworkTfm: `net${sdkVersion.split('.')[0]}.0`,
                 runtimeGitHash: commit, localRuntime: { source: sourceOverride ?? {
                     checkout: options['runtime-repo'], hash: commit,
                     dirty: git(options['runtime-repo'], 'status', '--porcelain') !== '',
@@ -186,7 +191,38 @@ test('history uses two reusable clean source clones, caches repeated commits, ap
     execFileSync('git', ['-C', upstream, 'commit', '--quiet', '-m', 'next day'], {
         env: { ...process.env, GIT_AUTHOR_DATE: '2026-10-15T10:00:00Z', GIT_COMMITTER_DATE: '2026-10-15T10:00:00Z' },
     });
+
+    test('recent-day collection retains complete same-source history instead of migrating its Mono controls', async t => {
+        const f = await fixture(t);
+        await collectRecentBefore(f.options, 2, f.dependencies);
+        const saved = await readCurrentComparison(f.artifacts);
+        for (const entry of saved.comparison.beforeHistory) delete entry.monoSource;
+        await writeFile(saved.path, JSON.stringify(saved.comparison));
+        const original = structuredClone(saved.comparison.beforeHistory);
+        const measured = f.publishes.length;
+        git(f.runtimeRepo, 'update-ref', MONO_BASELINE_REF, f.commits['2026-10-10']);
+        await collectRecentBefore(f.options, 2, f.dependencies);
+        assert.equal(f.publishes.length, measured);
+        assert.deepEqual((await readCurrentComparison(f.artifacts)).comparison.beforeHistory, original);
+    });
+
+    test('history warns about stale Mono refs and rejects a ref that loses a saved Mono commit', async t => {
+        const f = await fixture(t);
+        git(f.runtimeRepo, 'update-ref', MONO_BASELINE_REF, f.commits['2026-10-10']);
+        await collectRecentBefore(f.options, 1, f.dependencies);
+        const saved = await readCurrentComparison(f.artifacts);
+        assert.ok(saved.comparison.warnings.some(warning =>
+            warning.startsWith('History uses local origin/release/11.0 last committed 2026-10-10')));
+        const measured = f.publishes.length;
+        git(f.runtimeRepo, 'update-ref', MONO_BASELINE_REF, f.commits['2026-10-09']);
+        await assert.rejects(collectRecentBefore(f.options, 1, f.dependencies),
+            /origin\/release\/11.0 cannot preserve.*no saved dates were replaced/);
+        assert.equal(f.publishes.length, measured);
+        assert.equal((await readCurrentComparison(f.artifacts)).path, saved.path);
+    });
+
     git(f.runtimeRepo, 'fetch', '--quiet', upstream, 'main:refs/remotes/origin/main');
+    git(f.runtimeRepo, 'update-ref', 'refs/remotes/origin/release/11.0', git(f.runtimeRepo, 'rev-parse', 'refs/remotes/origin/main'));
     const next = await collectRecentBefore(f.options, 7, {
         ...f.dependencies, now: () => new Date('2026-10-15T12:00:00Z'),
     });
@@ -206,6 +242,80 @@ test('history uses two reusable clean source clones, caches repeated commits, ap
     assert.equal(iterated.comparison.beforeHistory.length, 9);
     assert.notDeepEqual(iterated.comparison.after, f.initialAfter);
     assert.equal(localFocusReport(await loadCurrentComparisonData(f.artifacts)).report.metrics[0].points.length, 9);
+    assert.deepEqual(f.snapshot(), f.original);
+});
+
+test('new history uses net11 Mono and main CoreCLR with independent SDKs while legacy entries never inherit root provenance', async t => {
+    const f = await fixture(t);
+    const upstream = join(f.root, 'mono-upstream');
+    git(f.root, 'clone', '--quiet', f.runtimeRepo, upstream);
+    git(upstream, 'checkout', '--quiet', '--detach', f.commits['2026-10-10']);
+    git(upstream, 'config', 'user.name', 'Fixture');
+    git(upstream, 'config', 'user.email', 'fixture@example.invalid');
+    await writeFile(join(upstream, 'global.json'), '{"sdk":{"version":"11.0.100"}}');
+    git(upstream, 'add', '.');
+    execFileSync('git', ['-C', upstream, 'commit', '--quiet', '-m', 'net11 only'], {
+        env: { ...process.env, GIT_AUTHOR_DATE: '2026-10-13T09:00:00Z', GIT_COMMITTER_DATE: '2026-10-13T09:00:00Z' },
+    });
+    const monoSha = git(upstream, 'rev-parse', 'HEAD');
+    git(f.runtimeRepo, 'fetch', '--quiet', upstream, `+HEAD:${MONO_BASELINE_REF}`);
+    const initial = await readCurrentComparison(f.artifacts);
+    const legacy = { day: '2026-10-10', commit: f.original.head, status: 'passed',
+        before: initial.comparison.before, monoBefore: initial.comparison.monoBefore };
+    const monoRoot = await measureBefore({ ...f.options, runtime: 'mono', variant: 'no-workload',
+        'before-variant': 'no-workload', 'include-mono-before': false }, monoSha,
+    { ...f.measurementDependencies, baselineSourceRef: MONO_BASELINE_REF });
+    initial.comparison.monoBefore = monoRoot.before;
+    initial.comparison.monoSource = { ref: MONO_BASELINE_REF, commit: monoSha };
+    initial.comparison.beforeHistory = [legacy];
+    await writeFile(initial.path, JSON.stringify(initial.comparison));
+    f.publishes.length = 0;
+    await collectBeforeRange(f.options, '2026-10-13', '2026-10-14', f.dependencies);
+    const current = await readCurrentComparison(f.artifacts);
+    assert.deepEqual(current.comparison.beforeHistory[0], legacy);
+    assert.deepEqual(current.comparison.after, initial.comparison.after);
+    assert.ok(current.comparison.beforeHistory.slice(1).every(row => row.monoSource.commit === monoSha));
+    assert.deepEqual(f.publishes.filter(row => row.runtime === 'mono'), [],
+        'Identical Mono source across days reuses the already measured Mono cache');
+    assert.ok(current.comparison.beforeHistory.slice(1).every(row =>
+        row.monoBefore.manifestPath === monoRoot.before.manifestPath));
+    const data = await loadLocalComparisonData(current.comparison);
+    assert.equal(data.beforeHistory[0].monoBefore.manifest.sdkInfo.runtimeGitHash, legacy.commit);
+    assert.equal(data.beforeHistory[0].monoSource, undefined);
+    const latest = data.beforeHistory.at(-1);
+    assert.equal(latest.before.manifest.sdkInfo.runtimeGitHash, f.commits['2026-10-14']);
+    assert.equal(latest.monoBefore.manifest.sdkInfo.runtimeGitHash, monoSha);
+    assert.equal(latest.before.manifest.sdkInfo.sdkVersion, '12.0.100');
+    assert.equal(latest.monoBefore.manifest.sdkInfo.sdkVersion, '11.0.100');
+    assert.equal(latest.monoBefore.manifest.sdkInfo.bundledFrameworkTfm, 'net11.0');
+    assert.match(formatResults(data), /cross-branch controls, not a same-source pair/);
+    assert.match(formatResults(data), /release\/11.0/);
+    assert.equal(localFocusReport(data).report.metrics[0].points.at(-1).baselineSources.mono.commit, monoSha);
+    for (const descriptor of [null, { ref: MONO_BASELINE_REF, commit: 'bad' },
+        { ref: 'refs/remotes/origin/main', commit: monoSha }]) {
+        const invalid = structuredClone(current.comparison);
+        invalid.beforeHistory.at(-1).monoSource = descriptor;
+        await assert.rejects(loadLocalComparisonData(invalid), /Invalid explicit Mono/);
+    }
+    const path = current.comparison.beforeHistory.at(-1).monoBefore.manifestPath;
+    const original = await readFile(path, 'utf8');
+    for (const mutate of [
+        manifest => { manifest.sdkInfo.runtimeGitHash = f.commits['2026-10-14']; },
+        manifest => { manifest.sdkInfo.localRuntime.source.dirty = true; },
+    ]) {
+        const manifest = JSON.parse(original);
+        mutate(manifest);
+        await writeFile(path, JSON.stringify(manifest));
+        await assert.rejects(loadLocalComparisonData(current.comparison), /Historical|Mono before/);
+    }
+    await writeFile(path, original);
+    const legacyPath = legacy.monoBefore.manifestPath;
+    const oldManifest = await readFile(legacyPath, 'utf8');
+    const invalidOld = JSON.parse(oldManifest);
+    invalidOld.sdkInfo.runtimeGitHash = monoSha;
+    await writeFile(legacyPath, JSON.stringify(invalidOld));
+    await assert.rejects(loadLocalComparisonData(current.comparison), /Historical monoBefore/);
+    await writeFile(legacyPath, oldManifest);
     assert.deepEqual(f.snapshot(), f.original);
 });
 

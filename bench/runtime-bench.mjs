@@ -14,6 +14,7 @@ import {
 } from './local-history.mjs';
 import { loadLocalComparisonData } from './local-comparison-data.mjs';
 import { runCommand } from './local-command.mjs';
+import { selectMonoBaseline } from './local-baseline-sources.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const statePath = join(root, 'artifacts', 'local-runtime', 'quick-start.json');
@@ -31,15 +32,16 @@ const help = `Runtime contributor quick start (run from macro-benchmarks; Node.j
   node bench/runtime-bench.mjs history add [--from YYYY-MM-DD [--to YYYY-MM-DD|today]] [--fetch]
     Add missing dates to the current experiment, newest first; keep passed dates and after.
     No dates: add days since the latest complete before, through today.
-    One --from: that day only. --fetch explicitly refreshes runtime origin/main.
+    One --from: that day only. --fetch refreshes origin/main and origin/release/11.0.
   node bench/runtime-bench.mjs history drop --from YYYY-MM-DD [--to YYYY-MM-DD]
   node bench/runtime-bench.mjs history drop --all
     Remove dates from active history only. Keep raw files, caches, after and matched control.
     Both history commands accept --dry-run and --output <control-cache-directory>.
     Dates are inclusive UTC. Dry runs never fetch, build, or change results.
 
-origin/main is the local tracking ref; only an explicit history add --fetch refreshes it.
-Defaults: Mono interpreter control + CoreCLR publish/R2R composite BEFORE and AFTER.
+Branch refs are local; only an explicit history add --fetch refreshes them.
+Defaults: Mono release/11.0 interpreter control + CoreCLR main publish/R2R composite BEFORE and AFTER.
+Mono and CoreCLR are cross-branch controls, not a same-source pair.
 Use --variant r2r to switch both CoreCLR sides to non-composite R2R.
 Release, Chrome/desktop+mobile, 10 cold + 5 warm loads,
 1 Havit walkthrough. Installed Google Chrome is preferred; otherwise use Playwright
@@ -292,7 +294,8 @@ export async function historyCommand(action, args, {
     now = () => new Date(), outputDir = defaultComparisonOutput, defaults = selectDefaults,
     check = checkPrerequisites, report = reportPrerequisites,
     fetchMain = runtimeRepo => runCommand('git',
-        ['fetch', '--no-tags', 'origin', 'refs/heads/main:refs/remotes/origin/main'], { cwd: runtimeRepo }),
+        ['fetch', '--no-tags', 'origin', 'refs/heads/main:refs/remotes/origin/main',
+            'refs/heads/release/11.0:refs/remotes/origin/release/11.0'], { cwd: runtimeRepo }),
     select = selectRangeCommits,
 } = {}) {
     const values = parseHistoryOptions(action, args);
@@ -318,10 +321,22 @@ export async function historyCommand(action, args, {
     }
     const options = currentHistoryOptions(current, data, output);
     if (values['dry-run']) {
-        if (values.fetch) console.log('Dry run: --fetch is skipped; planning from the existing local origin/main.');
+        if (values.fetch) console.log('Dry run: --fetch is skipped; planning from existing local branch refs.');
         const plan = select(options['runtime-repo'], range.from, range.to, stamp, current.comparison);
+        if (data.monoBefore || data.beforeHistory?.some(entry => entry.monoBefore)) {
+            let tip;
+            plan.days = plan.days.map(day => {
+                const cutoff = new Date(Math.min(Date.parse(`${day.day}T00:00:00Z`) + 86_400_000 - 1, stamp.getTime()));
+                const monoSource = selectMonoBaseline(options['runtime-repo'], cutoff, tip);
+                tip ??= monoSource.selectedTip;
+                return { ...day, monoSource };
+            });
+        }
         console.log(`Would add before controls, newest first: ${plan.days.map(day => `${day.day} ${day.commit}`).join(', ')}.\n` +
             `Existing dates and after unchanged. Control output: ${output}`);
+        for (const day of plan.days.filter(day => day.monoSource)) {
+            console.log(`${day.day} Mono ${day.monoSource.ref}: ${day.monoSource.commit} (cross-branch)`);
+        }
         return { comparisonPath: current.path, selection: plan, dryRun: true };
     }
     for (const key of ['WasmReadyToRunProfile', 'PublishReadyToRunCrossgen2ExtraArgs']) {

@@ -36,6 +36,7 @@ async function fixture(t, { longPath = false } = {}) {
     git(runtime, 'commit', '--quiet', '-m', 'baseline fixture');
     const baseline = git(runtime, 'rev-parse', 'HEAD');
     git(runtime, 'update-ref', 'refs/remotes/origin/main', baseline);
+    git(runtime, 'update-ref', 'refs/remotes/origin/release/11.0', baseline);
     await writeFile(join(runtime, 'tracked.txt'), 'committed change\n');
     git(runtime, 'add', 'tracked.txt');
     git(runtime, 'commit', '--quiet', '-m', 'runtime change fixture');
@@ -70,16 +71,18 @@ async function fixture(t, { longPath = false } = {}) {
                 measure: options.measure, args: options.measureArgs,
                 excludedSources: options['exclude-source'],
                 runtime: options.runtime, variant: options.variant,
+                sdk: options.sdk,
             });
             const runDir = join(root, `measurement-${++count}`);
             const resultsDir = join(runDir, 'results');
             await mkdir(resultsDir, { recursive: true });
             await mkdir(join(runDir, 'logs'));
             const manifestPath = join(runDir, 'manifest.json');
+            const sdkVersion = JSON.parse(await readFile(join(options['runtime-repo'], 'global.json'), 'utf8')).sdk.version;
             await writeFile(manifestPath, JSON.stringify({
                 runDir, runtime: options.runtime, preset: options.variant === 'no-workload' ? 'no-workload' : 'aot',
                 variant: options.variant, configuration: options.configuration,
-                sdkInfo: { sdkVersion: '12.0.100', runtimePackVersion: '12.0.0-fixture', bundledFrameworkTfm: 'net12.0',
+                sdkInfo: { sdkVersion, runtimePackVersion: '12.0.0-fixture', bundledFrameworkTfm: `net${sdkVersion.split('.')[0]}.0`,
                     runtimeGitHash: git(options['runtime-repo'], 'rev-parse', 'HEAD'),
                     localRuntime: { source: { checkout: options['runtime-repo'],
                         dirty: git(options['runtime-repo'], 'status', '--porcelain') !== '' } } },
@@ -204,6 +207,40 @@ test('every uncached publish rebuilds its own WebAssembly SDK pack after native 
     await compare({ ...f.options, 'include-mono-before': true }, f.dependencies);
     assert.equal(f.calls.filter(call => call.args[0] === 'msbuild').length, 1);
     assert.equal(f.calls.find(call => call.args[0] === 'msbuild').cwd, f.runtime);
+});
+
+test('automatic Mono control pins release/11.0 independently and keys its cache by its own source/global.json', async t => {
+    const f = await fixture(t);
+    const upstream = join(f.root, 'net11');
+    git(f.root, 'clone', '--quiet', f.runtime, upstream);
+    git(upstream, 'checkout', '--quiet', '--detach', f.baseline);
+    git(upstream, 'config', 'user.name', 'Fixture');
+    git(upstream, 'config', 'user.email', 'fixture@example.invalid');
+    await writeFile(join(upstream, 'global.json'), '{"sdk":{"version":"11.0.100"}}');
+    git(upstream, 'add', '.');
+    git(upstream, 'commit', '--quiet', '-m', 'net11 bootstrap');
+    const monoSha = git(upstream, 'rev-parse', 'HEAD');
+    git(f.runtime, 'fetch', '--quiet', upstream, 'HEAD:refs/remotes/origin/release/11.0');
+    const options = { ...f.options, 'include-mono-before': true };
+    const first = await compare(options, f.dependencies);
+    const comparison = JSON.parse(await readFile(first.comparisonPath, 'utf8'));
+    assert.equal(comparison.monoSource.commit, monoSha);
+    assert.equal(comparison.monoSource.ref, 'refs/remotes/origin/release/11.0');
+    assert.equal(comparison.setup.beforeSha, f.baseline);
+    const mono = JSON.parse(await readFile(comparison.monoBefore.manifestPath));
+    const full = JSON.parse(await readFile(comparison.before.manifestPath));
+    assert.equal(mono.sdkInfo.runtimeGitHash, monoSha);
+    assert.equal(mono.sdkInfo.sdkVersion, '11.0.100');
+    assert.equal(full.sdkInfo.sdkVersion, '12.0.100');
+    assert.equal(comparison.monoBefore.setup.beforeSha, monoSha);
+    assert.match(comparison.monoBefore.setup.baselineGlobalJson, /11.0.100/);
+    assert.ok(f.published.every(row => row.sdk === undefined), 'Own-checkout SDK remains the default');
+    assert.ok(comparison.warnings.some(warning => warning.includes('cross-branch')));
+    const count = f.published.length;
+    await compare(options, f.dependencies);
+    assert.equal(f.published.length, count + 1, 'Only after rebuilds when both independent controls are cached');
+    assert.equal(git(f.runtime, 'rev-parse', 'HEAD'), f.initial.head);
+    assert.equal(git(f.runtime, 'status', '--porcelain'), f.initial.status);
 });
 
 test('SDK packaging failures stop publishing and preserve measured controls and source edits', async t => {

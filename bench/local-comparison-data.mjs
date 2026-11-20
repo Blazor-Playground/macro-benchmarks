@@ -1,6 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
+import { monoBaselineCommit } from './local-baseline-sources.mjs';
 
 async function loadRun(record) {
     const status = JSON.parse(await readFile(record.statusPath, 'utf8'));
@@ -42,7 +43,15 @@ export async function loadLocalComparisonData(comparison) {
         before: await loadRun(comparison.before),
         after: await loadRun(comparison.after),
         monoBefore: comparison.monoBefore ? await loadRun(comparison.monoBefore) : undefined,
+        ...(comparison.monoSource === undefined ? {} : { monoSource: comparison.monoSource }),
     };
+    const monoCommit = monoBaselineCommit(data.before.manifest.sdkInfo.runtimeGitHash, comparison.monoSource);
+    if (comparison.monoSource !== undefined && !data.monoBefore) throw new Error('Explicit Mono provenance has no Mono control.');
+    if (data.monoBefore && (data.monoBefore.manifest.runtime !== 'mono' ||
+        data.monoBefore.manifest.sdkInfo.runtimeGitHash !== monoCommit ||
+        data.monoBefore.manifest.sdkInfo.localRuntime?.source?.dirty !== false)) {
+        throw new Error('Mono before must match its clean baseline commit or explicit release/11.0 provenance.');
+    }
     if (comparison.beforeHistory !== undefined) {
         if (!Array.isArray(comparison.beforeHistory) || !comparison.beforeHistory.length) {
             throw new Error('Invalid comparison history records.');
@@ -56,11 +65,16 @@ export async function loadLocalComparisonData(comparison) {
                 throw new Error('Invalid or duplicate comparison history entry.');
             }
             seen.add(entry.day);
-            const item = { day: entry.day, commit: entry.commit, status: entry.status, error: entry.error };
+            const expectedMonoCommit = monoBaselineCommit(entry.commit, entry.monoSource);
+            if (entry.status === 'passed' && entry.monoSource !== undefined && !entry.monoBefore) {
+                throw new Error(`Explicit Mono provenance has no passed Mono control: ${entry.day}`);
+            }
+            const item = { day: entry.day, commit: entry.commit, status: entry.status, error: entry.error,
+                ...(entry.monoSource === undefined ? {} : { monoSource: entry.monoSource }) };
             for (const side of ['before', 'monoBefore']) {
                 if (!entry[side]) continue;
                 const run = await loadRun(entry[side]);
-                if (run.manifest.sdkInfo.runtimeGitHash !== entry.commit ||
+                if (run.manifest.sdkInfo.runtimeGitHash !== (side === 'monoBefore' ? expectedMonoCommit : entry.commit) ||
                     run.manifest.sdkInfo.localRuntime?.source?.dirty !== false ||
                     run.manifest.runtime !== (side === 'before' ? data.after.manifest.runtime : 'mono') ||
                     (side === 'before' && run.manifest.variant !== data.after.manifest.variant)) {

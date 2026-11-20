@@ -2,7 +2,12 @@ import { writeFile } from 'node:fs/promises';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { type BenchContext, type BuildManifestEntry } from '../context.js';
+import {
+    getRuntimeSource,
+    sdkInfoForBuild,
+    type BenchContext,
+    type BuildManifestEntry,
+} from '../context.js';
 import {
     type Engine, type Profile,
     App as A, Engine as E, Runtime as R,
@@ -149,10 +154,11 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
                     }
 
                     // Build and write result JSON
-                    const meta = buildMeta(ctx, entry, engine, profile);
+                    const runtimeSdkInfo = sdkInfoForBuild(ctx.sdkInfo, entry);
+                    const meta = buildMeta(ctx, entry, engine, profile, runtimeSdkInfo);
                     const resultJson = buildResultJson(meta, result.metrics, result.sampleCounts, result.rawSamples);
                     const filename = buildResultFilename(
-                        ctx.sdkInfo, entry.runtime, entry.preset,
+                        runtimeSdkInfo, entry.runtime, entry.preset,
                         profile, engine, entry.app, ctx.replica,
                     );
                     const outPath = join(ctx.resultsDir, filename);
@@ -176,14 +182,17 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
 // ── Meta Builder ─────────────────────────────────────────────────────────────
 
-function buildMeta(
+export function buildMeta(
     ctx: BenchContext,
     entry: BuildManifestEntry,
     engine: Engine,
     profile: Profile,
+    runtimeSdkInfo = sdkInfoForBuild(ctx.sdkInfo, entry),
 ): Record<string, unknown> {
+    const runtimeSource = getRuntimeSource(runtimeSdkInfo, entry.runtime);
     const meta: Record<string, unknown> = {
-        ...ctx.sdkInfo,
+        ...runtimeSdkInfo,
+        ...(runtimeSource ? { runtimeSource } : {}),
         runtime: entry.runtime,
         preset: entry.preset,
         ...(entry.presetRevision ? { presetRevision: entry.presetRevision } : {}),

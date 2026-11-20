@@ -6,6 +6,7 @@ import { dirname, join, resolve, sep } from 'node:path';
 import { cloneOptions, measureBefore, measurementOptions } from './compare-local-runtime.mjs';
 import { loadLocalComparisonData, writeLocalComparisonData } from './local-comparison-data.mjs';
 import { formatResults, readCurrentComparison, readLegacyComparison, registerComparison } from './local-results.mjs';
+import { CROSS_BRANCH_BASELINE_WARNING, selectMonoBaseline } from './local-baseline-sources.mjs';
 
 const dayMs = 86_400_000;
 const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -144,19 +145,19 @@ async function publishHistory(current, comparison, output, getCurrent, register)
     return comparisonPath;
 }
 
-async function historyCheckout({ output, runtimeRepo, beforeSha, origin, runtime, configuration, run }) {
+async function historyCheckout({ output, runtimeRepo, beforeSha, sourceRef, origin, runtime, configuration, run }) {
     const directory = join(output, 'history', 'sources');
     await mkdir(directory, { recursive: true });
     if (!(await realpath(directory)).startsWith(`${await realpath(output)}${sep}`)) {
         throw new Error(`Historical source directory is outside the output: ${directory}`);
     }
-    const id = hash({ origin, runtime, configuration });
+    const id = hash({ origin, sourceRef, runtime, configuration });
     const marker = join(directory, `${id}.json`);
     let source = await optionalJson(marker);
     const checkout = join(directory, `runtime-${runtime}-${id.slice(0, 12)}`);
     if (source) {
         if (source.checkout !== checkout || source.origin !== origin ||
-            source.runtime !== runtime || source.configuration !== configuration) {
+            source.sourceRef !== sourceRef || source.runtime !== runtime || source.configuration !== configuration) {
             throw new Error(`Invalid owned historical source record: ${marker}`);
         }
         let actual;
@@ -172,14 +173,14 @@ async function historyCheckout({ output, runtimeRepo, beforeSha, origin, runtime
     if (!source) {
         await run('git', ['clone', '--local', '--no-hardlinks', runtimeRepo, checkout, ...cloneOptions], { cwd: directory });
         git(checkout, ['remote', 'set-url', 'origin', origin]);
-        source = { checkout, commit: git(checkout, ['rev-parse', 'HEAD']), origin, runtime, configuration };
+        source = { checkout, commit: git(checkout, ['rev-parse', 'HEAD']), origin, sourceRef, runtime, configuration };
         await saveJson(marker, source);
     }
     if (source.commit !== beforeSha || source.pendingCommit) {
         await run('git', ['fetch', '--no-tags', runtimeRepo, beforeSha], { cwd: checkout });
         await saveJson(marker, { ...source, pendingCommit: beforeSha });
         await run('git', ['checkout', '--detach', beforeSha], { cwd: checkout });
-        await saveJson(marker, { checkout, commit: beforeSha, origin, runtime, configuration });
+        await saveJson(marker, { checkout, commit: beforeSha, origin, sourceRef, runtime, configuration });
     }
     if (runtime === 'mono') await writeFile(join(dirname(checkout), '.eslintrc.cjs'), 'module.exports = { root: true };\n');
     return checkout;
@@ -215,7 +216,7 @@ function checkSetup(options, comparison, data) {
 export async function collectRecentBefore(options, count, {
     now = () => new Date(), select = selectRecentCommits, measure = measureBefore,
     getCurrent = readCurrentComparison, getLegacy = readLegacyComparison, register = registerHistory,
-    measurementDependencies = {},
+    measurementDependencies = {}, selectMono = selectMonoBaseline,
 } = {}) {
     let current = await getCurrent();
     const legacy = current === null;
@@ -229,15 +230,36 @@ export async function collectRecentBefore(options, count, {
         console.log('All requested before-history dates are already measured; existing results are unchanged.');
         return { comparisonPath: current.path, selection: plan, beforeHistory: current.comparison.beforeHistory ?? [] };
     }
+    if (includeMono) {
+        let tip;
+        plan.days = plan.days.map(selected => {
+            const saved = current.comparison.beforeHistory?.find(entry =>
+                entry.day === selected.day && entry.status === 'passed' && entry.before && entry.monoBefore
+                && entry.monoSource === undefined && entry.commit === selected.commit);
+            if (saved) return selected;
+            const cutoff = new Date(Math.min(Date.parse(`${selected.day}T00:00:00Z`) + dayMs - 1, Date.parse(plan.selectedAt)));
+            const monoSource = selectMono(options['runtime-repo'], cutoff, tip);
+            tip ??= monoSource.selectedTip;
+            return { ...selected, monoSource };
+        });
+        plan.selectedMono = tip;
+        if (tip) plan.sourceMonoTipDate = new Date(Number(git(options['runtime-repo'],
+            ['show', '-s', '--format=%ct', tip])) * 1000).toISOString();
+    }
     for (const selected of plan.days) {
         const previous = current.comparison.beforeHistory?.find(entry => entry.day === selected.day && entry.status === 'passed');
-        if (!previous || previous.commit === selected.commit) continue;
-        try {
-            git(options['runtime-repo'], ['merge-base', '--is-ancestor', previous.commit, plan.selectedMain]);
-        } catch (error) {
-            if (typeof error.status !== 'number') throw error;
-            throw new Error(`Local origin/main cannot preserve the saved ${selected.day} snapshot ${previous.commit}. ` +
-                'Fetch/deepen the intended main history yourself before retrying; no saved dates were replaced.');
+        for (const [label, before, after] of [
+            ['origin/main', previous?.commit, plan.selectedMain],
+            ['origin/release/11.0', previous?.monoSource?.commit, plan.selectedMono],
+        ]) {
+            if (!before || !after) continue;
+            try {
+                git(options['runtime-repo'], ['merge-base', '--is-ancestor', before, after]);
+            } catch (error) {
+                if (typeof error.status !== 'number') throw error;
+                throw new Error(`Local ${label} cannot preserve the saved ${selected.day} snapshot ${before}. ` +
+                    'Fetch/deepen the intended history before retrying; no saved dates were replaced.');
+            }
         }
     }
     const output = resolve(options.output);
@@ -259,8 +281,17 @@ export async function collectRecentBefore(options, count, {
         const progress = { schemaVersion: 1, selection: old?.selection ?? plan, days: [], comparisonPath: current.path };
         console.log(`Daily before controls (UTC, in capture order): ${plan.days.map(day => day.day).join(', ')}.\n` +
             `Pinned local origin/main: ${plan.selectedMain} (${plan.sourceTipDate}); after evidence remains ${current.path}`);
+        if (plan.selectedMono) console.log(`${CROSS_BRANCH_BASELINE_WARNING} Pinned Mono tip: ${plan.selectedMono}`);
         const failures = [];
         for (const selected of plan.days) {
+            const saved = current.comparison.beforeHistory?.find(entry =>
+                entry.day === selected.day && entry.status === 'passed' && entry.before && entry.monoBefore
+                && entry.monoSource === undefined && entry.commit === selected.commit);
+            if (saved) {
+                progress.days.push(saved);
+                await saveJson(progressPath, progress);
+                continue;
+            }
             const previous = old?.days.find(day => day.day === selected.day);
             const entry = { ...selected, status: 'running', attempts: (previous?.attempts ?? 0) + 1 };
             progress.days.push(entry);
@@ -270,7 +301,8 @@ export async function collectRecentBefore(options, count, {
                 const dependencies = { ...measurementDependencies, getBaselineCheckout: historyCheckout };
                 if (includeMono) {
                     const mono = await measure({ ...controls, runtime: 'mono', variant: 'no-workload',
-                        'before-variant': 'no-workload' }, entry.commit, dependencies);
+                        'before-variant': 'no-workload' }, entry.monoSource.commit,
+                    { ...dependencies, baselineSourceRef: entry.monoSource.ref });
                     entry.monoBefore = mono.before;
                     await saveJson(progressPath, progress);
                 }
@@ -299,12 +331,20 @@ export async function collectRecentBefore(options, count, {
         }
         const warnings = current.comparison.warnings.filter(warning =>
             !warning.startsWith('History uses local origin/main last committed ') &&
+            !warning.startsWith('History uses local origin/release/11.0 last committed ') &&
             !progress.days.some(entry => warning.startsWith(`History retry failed for ${entry.day}:`)));
         warnings.push(...retryWarnings);
+        if (includeMono) warnings.push(CROSS_BRANCH_BASELINE_WARNING);
         const latestDay = plan.days.map(day => day.day).sort().at(-1);
         if (plan.sourceTipDate.slice(0, 10) < latestDay) {
             const warning = `History uses local origin/main last committed ${plan.sourceTipDate}. ` +
                 'Unchanged source days share cached evidence; fetch origin/main yourself if newer upstream snapshots are needed.';
+            console.warn(warning);
+            warnings.push(warning);
+        }
+        if (plan.sourceMonoTipDate && plan.sourceMonoTipDate.slice(0, 10) < latestDay) {
+            const warning = `History uses local origin/release/11.0 last committed ${plan.sourceMonoTipDate}. ` +
+                'Unchanged source days share cached evidence; fetch that branch if newer snapshots are needed.';
             console.warn(warning);
             warnings.push(warning);
         }

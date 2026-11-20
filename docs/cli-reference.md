@@ -52,7 +52,14 @@ See [history commands](local-runtime-measurements.md#add-daily-before-measuremen
 | `--sdk-version <ver>` | | Exact SDK version (overrides channel) |
 | `--runtime <rt>` | `mono` | Runtime flavor: `mono`, `coreclr` |
 | `--runtime-pack <ver>` | | Specific runtime pack version |
-| `--runtime-commit <sha>` | | Specific dotnet/runtime commit hash |
+| `--runtime-commit <sha>` | | Specific CoreCLR dotnet/runtime commit hash |
+| `--runtime-pr <number>` | | CoreCLR dotnet/runtime PR; resolves its fork, branch, and head commit |
+| `--runtime-repo <repo>` | `dotnet/runtime` | GitHub repository containing `--runtime-commit` |
+
+For source builds, these options select CoreCLR; Mono uses upstream
+`dotnet/runtime` `release/11.0` with a .NET 11 GA SDK and framework.
+`runtimeSources` records each ref, full commit and publishing SDK.
+Older results without it keep their same-source `runtimeGitHash` meaning.
 
 ### Filters
 

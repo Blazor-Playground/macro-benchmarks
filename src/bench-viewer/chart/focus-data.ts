@@ -99,12 +99,34 @@ export function historyBounds(range: FocusRange, now: Date): { startDay: string;
 }
 
 function variantKey(column: FocusColumn): string {
-    return JSON.stringify([
+    const identity = [
         column.sdkVersion, column.sdkGitHash, column.vmrGitHash, column.runtimeGitHash, column.aspnetCoreGitHash,
         column.runtimePackVersion, column.aspnetCoreVersion, column.workloadVersion, column.bootstrapSdkVersion,
         column.bundledFrameworkTfm, column.channel, column.isRuntimeCustomBuild, column.isAspnetCoreCustomBuild,
         column.runtimePR, column.aspnetCorePR,
-    ]);
+    ];
+    return JSON.stringify(column.runtimeSources === undefined ? identity : [...identity,
+        ...(['mono', 'coreclr'] as const).map(runtime => {
+            const source = column.runtimeSources?.[runtime];
+            return source ? [source.repo, source.ref, source.commit, source.sdkVersion,
+                source.targetFramework, source.runtimePackVersion] : null;
+        })]);
+}
+
+function baselineSources(column: FocusColumn): FocusPoint['baselineSources'] {
+    if (column.runtimeSources === undefined) return undefined;
+    const result: NonNullable<FocusPoint['baselineSources']> = {};
+    for (const runtime of ['mono', 'coreclr'] as const) {
+        const source = column.runtimeSources[runtime];
+        if (!source) continue;
+        result[runtime] = {
+            repo: source.repo, ref: source.ref, commit: source.commit,
+            sdk: source.sdkVersion ?? null, tfm: source.targetFramework ?? null,
+            committedAt: source.committedAt, commitAuthor: source.commitAuthor, commitMessage: source.commitMessage,
+            runtimePackVersion: source.runtimePackVersion ?? null,
+        };
+    }
+    return result;
 }
 
 export function orderObservations(a: FocusObservation, b: FocusObservation): number {
@@ -188,6 +210,14 @@ export function buildFocusReport(publication: FocusPublication, app: string, ran
     const cohort = resolveFocusCohort(flavor, publication.buckets
         .filter(bucket => bucket.header.columns.some(isEligible))
         .flatMap(bucket => (bucket.header.apps[app] ?? []).flatMap(key => Object.keys(bucket.metrics[key] ?? {}))));
+    if (observations.some(observation => {
+        const sources = observation.variant.runtimeSources;
+        return sources?.mono && sources.coreclr &&
+            (sources.mono.repo !== sources.coreclr.repo || sources.mono.ref !== sources.coreclr.ref ||
+                sources.mono.commit !== sources.coreclr.commit);
+    })) {
+        cohort.baselineDescription += ' Some observations use independently pinned runtime sources, not a same-source pair; per-point tooltips show the source and SDK/TFM for each arm.';
+    }
 
     const metrics: FocusMetricReport[] = focusMetrics(app).map(definition => {
         const profile = definition.id === 'startup' ? selection.startupProfile : 'desktop';
@@ -220,8 +250,15 @@ export function buildFocusReport(publication: FocusPublication, app: string, ran
                 const row = rowKeys[runtime];
                 return definition.key ? buckets.get(source.bucket)!.environments?.[definition.key]?.[row]?.[source.columnIndex] ?? undefined : undefined;
             };
+            const sources = baselineSources(observation.variant);
+            if (monoBaseline && sources) {
+                const monoSource = baselineSources(monoBaseline.variant)?.mono;
+                if (monoSource) sources.mono = monoSource;
+                else delete sources.mono;
+            }
             return { observation, position: 0, mono, coreclr, percent,
                 ...(monoBaseline ? { monoBaseline } : {}),
+                ...(sources === undefined ? {} : { baselineSources: sources }),
                 environments: { mono: environments('mono'), coreclr: environments('coreclr') },
                 issue: monoBaseline ? `Mono .NET11 GA baseline: SDK ${monoBaseline.sdkVersion}, ${monoBaseline.day}.`
                     : pairIssue(coreclr, mono, percent),
@@ -292,7 +329,9 @@ export function buildFocusReport(publication: FocusPublication, app: string, ran
     return {
         app, apps: publication.index.apps, flavor: selection.flavor, flavorLabel: flavor.label, cohort, startupProfile: selection.startupProfile,
         range, startDay, endDay, lastUpdated: publication.index.lastUpdated,
-        targetFrameworks: [...new Set(knownObservations.map(o => o.variant.bundledFrameworkTfm ?? 'Unknown'))].sort(),
+        targetFrameworks: [...new Set(knownObservations.flatMap(o => o.variant.runtimeSources === undefined
+            ? [o.variant.bundledFrameworkTfm ?? 'Unknown']
+            : Object.values(o.variant.runtimeSources).map(source => source?.targetFramework ?? 'Unknown')))].sort(),
         availableStartDay: knownObservations[0]?.day ?? null,
         availableEndDay: knownObservations.at(-1)?.day ?? null,
         excludedCustomBuilds, metrics,

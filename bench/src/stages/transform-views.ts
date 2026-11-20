@@ -1,7 +1,8 @@
 import { readFile, writeFile, readdir, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
-import { type BenchContext, type MeasurementEnvironment, type SdkInfo } from '../context.js';
+import { sdkInfoForRuntime, type BenchContext, type MeasurementEnvironment, type SdkInfo } from '../context.js';
+import { Runtime } from '../enums.js';
 import { banner, info, debug } from '../log.js';
 import { ensureBranchCheckout } from '../lib/branch-checkout.js';
 import { isPrerelease, getVersionMajor, compareVersions } from '../lib/version-utils.js';
@@ -126,17 +127,26 @@ async function loadResults(ctx: BenchContext): Promise<LoadedResult[]> {
             throw new Error(`Missing or unknown sdkVersion in ${filename}`);
         }
 
-        const { runtime, preset, profile: rawProfile, engine, app, environment, buildEnvironment, ...sdkFields } = m;
+        const {
+            runtime, preset, profile: rawProfile, engine, app, environment, buildEnvironment,
+            runtimeSource: _runtimeSource, ...sdkFields
+        } = m;
         for (const env of [environment, buildEnvironment]) {
             if (env !== undefined && (!env || typeof env.os !== 'string' || !env.os
                 || typeof env.arch !== 'string' || !env.arch)) throw new Error(`Invalid environment in ${filename}`);
         }
         const profile = rawProfile || 'desktop';
         const rowKey = `${runtime}/${preset}/${profile}/${engine}`;
-        const key = `${sdkFields.runtimeGitHash}|${sdkFields.sdkVersion}|${rowKey}|${app}`;
+        const key = [
+            runtimeComparisonKey(sdkFields),
+            sdkFields.runtimeGitHash,
+            sdkFields.sdkVersion,
+            rowKey,
+            app,
+        ].join('|');
         let g = groups.get(key);
         if (!g) {
-            g = { base: { ...sdkFields, rowKey, app }, replicas: [] };
+            g = { base: { ...comparisonSdkInfo(sdkFields), rowKey, app }, replicas: [] };
             groups.set(key, g);
         }
         g.replicas.push({ metrics: data.metrics, rawSamples: data.rawSamples, environment, buildEnvironment });
@@ -236,6 +246,30 @@ function requireField(value: unknown, name: string, filename: string): asserts v
     }
 }
 
+export function comparisonSdkInfo(sdkInfo: SdkInfo): SdkInfo {
+    const anchored = sdkInfoForRuntime(sdkInfo, Runtime.CoreCLR);
+    if (anchored === sdkInfo) return sdkInfo;
+    return {
+        ...anchored,
+        ...('benchmarkDateTime' in sdkInfo ? { benchmarkDateTime: sdkInfo.benchmarkDateTime } : {}),
+        ...('ciRunId' in sdkInfo ? { ciRunId: sdkInfo.ciRunId } : {}),
+        ...('ciRunUrl' in sdkInfo ? { ciRunUrl: sdkInfo.ciRunUrl } : {}),
+    };
+}
+
+export function runtimeComparisonKey(sdkInfo: SdkInfo): string {
+    const coreclr = sdkInfo.runtimeSources?.[Runtime.CoreCLR];
+    const mono = sdkInfo.runtimeSources?.[Runtime.Mono];
+    if (!coreclr && !mono) return sdkInfo.runtimeGitHash;
+    return JSON.stringify([coreclr, mono].map(source => source ? [
+        source.repo, source.ref, source.commit, source.runtimePackVersion ?? null,
+        source.sdkVersion ?? null, source.targetFramework ?? null,
+        source.sdkInfo?.sdkGitHash ?? null, source.sdkInfo?.vmrGitHash ?? null,
+        source.sdkInfo?.aspnetCoreVersion ?? null, source.sdkInfo?.aspnetCoreGitHash ?? null,
+        source.sdkInfo?.workloadVersion ?? null,
+    ] : null));
+}
+
 // ── Build Views ──────────────────────────────────────────────────────────────
 
 async function buildViews(ctx: BenchContext, allResults: LoadedResult[], viewsDir: string): Promise<string[]> {
@@ -266,7 +300,7 @@ async function buildViews(ctx: BenchContext, allResults: LoadedResult[], viewsDi
 
     for (const result of dailyResults) {
         if (getVersionMajor(result.sdkVersion) !== activeDailyMajor) continue;
-        const week = getWeekMonday(result.runtimeCommitDateTime.slice(0, 10));
+        const week = getWeekMonday(comparisonSdkInfo(result).runtimeCommitDateTime.slice(0, 10));
         if (!weekBuckets.has(week)) weekBuckets.set(week, []);
         weekBuckets.get(week)!.push(result);
     }
@@ -329,23 +363,29 @@ async function writeBucketView(
 
     const weekKey = (col: SdkInfo) => {
         let key = col.vmrGitHash;
-        if (col.isRuntimeCustomBuild) key += `_rt_${col.runtimeGitHash}`;
+        if (col.isRuntimeCustomBuild) key += `_rt_${runtimeComparisonKey(col)}`;
         if (col.isAspnetCoreCustomBuild) key += `_asp_${col.aspnetCoreGitHash}`;
         return key;
     };
+    const columnFor = (result: LoadedResult): SdkInfo => comparisonSdkInfo(result);
     const columnKey = type === 'week'
-        ? (r: LoadedResult) => weekKey(r)
-        : (r: LoadedResult) => r.sdkVersion;
+        ? (r: LoadedResult) => weekKey(columnFor(r))
+        : (r: LoadedResult) => r.runtimeSources
+            ? `${r.sdkVersion}|${runtimeComparisonKey(r)}`
+            : r.sdkVersion;
     const getColumnId = type === 'week'
         ? (column: SdkInfo) => weekKey(column)
-        : (column: SdkInfo) => column.sdkVersion;
+        : (column: SdkInfo) => column.runtimeSources
+            ? `${column.sdkVersion}|${runtimeComparisonKey(column)}`
+            : column.sdkVersion;
 
     // Deduplicate columns
     const columnMap = new Map<string, SdkInfo>();
     for (const r of results) {
         const key = columnKey(r);
         if (!columnMap.has(key)) {
-            const { rowKey, app, metrics, environments, ...column } = r;
+            const { rowKey, app, metrics, environments, ...rawColumn } = r;
+            const column = comparisonSdkInfo(rawColumn);
             columnMap.set(key, column);
         }
     }

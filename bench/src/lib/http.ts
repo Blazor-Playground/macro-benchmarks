@@ -106,7 +106,12 @@ export interface GitHubCommitMetadata {
     commitMessage: string;
 }
 
+export interface GitHubCommitInfo extends GitHubCommitMetadata {
+    sha: string;
+}
+
 const githubCommitMetadataRequests = new Map<string, Promise<GitHubCommitMetadata | null>>();
+const githubCommitInfoRequests = new Map<string, Promise<GitHubCommitInfo | null>>();
 
 /** Fetch GitHub commit metadata while collapsing repeated requests for the same repository/hash. */
 export async function fetchGitHubCommitMetadata(
@@ -136,6 +141,38 @@ export async function fetchGitHubCommitMetadata(
         throw error;
     });
     githubCommitMetadataRequests.set(key, request);
+    return request;
+}
+
+/** Resolve a GitHub commit-ish to its full SHA and committer metadata. */
+export async function fetchGitHubCommitInfo(
+    repo: string,
+    ref: string,
+    token?: string,
+): Promise<GitHubCommitInfo | null> {
+    const key = `${repo.toLowerCase()}@${ref.toLowerCase()}`;
+    const cached = githubCommitInfoRequests.get(key);
+    if (cached) return cached;
+
+    const request = fetchJson<GitHubCommitResponse & { sha: string }>(
+        `${GITHUB_API}/repos/${repo}/commits/${encodeURIComponent(ref)}`,
+        githubHeaders(token),
+    ).then(data => {
+        if (!data) {
+            githubCommitInfoRequests.delete(key);
+            return null;
+        }
+        return {
+            sha: data.sha,
+            commitDateTime: data.commit.committer.date,
+            commitAuthor: data.commit.author.name,
+            commitMessage: data.commit.message.split('\n')[0],
+        };
+    }).catch(error => {
+        githubCommitInfoRequests.delete(key);
+        throw error;
+    });
+    githubCommitInfoRequests.set(key, request);
     return request;
 }
 

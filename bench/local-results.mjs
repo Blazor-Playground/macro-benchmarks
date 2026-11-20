@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { styleText } from 'node:util';
 import { loadLocalComparisonData } from './local-comparison-data.mjs';
 import { terminalStylesEnabled } from './local-command.mjs';
+import { CROSS_BRANCH_BASELINE_WARNING, monoBaselineCommit } from './local-baseline-sources.mjs';
 
 const artifactsRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'artifacts');
 
@@ -208,18 +209,20 @@ export function formatResults(data, { bold = terminalStylesEnabled(), color = te
         const passed = data.beforeHistory.filter(entry => entry.status === 'passed').sort((a, b) => a.day.localeCompare(b.day));
         const latest = passed.at(-1);
         for (const entry of passed) {
+            const expectedMonoCommit = monoBaselineCommit(entry.commit, entry.monoSource);
+            if (entry.monoSource !== undefined && !entry.monoBefore) throw new Error('Explicit Mono provenance has no Mono control.');
             if (!/^\d{4}-\d{2}-\d{2}$/.test(entry.day) || !Number.isFinite(Date.parse(entry.day)) ||
                 entry.before?.manifest.sdkInfo?.runtimeGitHash !== entry.commit ||
                 entry.before.manifest.sdkInfo.localRuntime?.source?.dirty !== false ||
                 entry.before.manifest.variant !== data.after.manifest.variant ||
-                (entry.monoBefore && (entry.monoBefore.manifest.sdkInfo.runtimeGitHash !== entry.commit ||
+                (entry.monoBefore && (entry.monoBefore.manifest.sdkInfo.runtimeGitHash !== expectedMonoCommit ||
                     entry.monoBefore.manifest.sdkInfo.localRuntime?.source?.dirty !== false))) {
                 throw new Error(`Invalid saved historical baseline: ${entry.day}`);
             }
         }
         if (latest) {
             historyDay = latest.day;
-            data = { ...data, before: latest.before, monoBefore: latest.monoBefore };
+            data = { ...data, before: latest.before, monoBefore: latest.monoBefore, monoSource: latest.monoSource };
         } else historyUnavailable = true;
     } else if (view === 'matched' && (data.before.manifest.sdkInfo.runtimeGitHash !== data.after.manifest.sdkInfo.runtimeGitHash ||
         data.before.manifest.sdkInfo.localRuntime?.source?.dirty !== false ||
@@ -256,8 +259,17 @@ export function formatResults(data, { bold = terminalStylesEnabled(), color = te
         if (data.before.manifest.runtime !== 'coreclr' || data.after.manifest.runtime !== 'coreclr' ||
             data.monoBefore.manifest.runtime !== 'mono') throw new Error('A Mono control requires CoreCLR before/after and Mono before.');
         definitions.push(`${emphasize('CoreCLR change')}: 100 * (CoreCLR after / CoreCLR before - 1).`);
+        if (data.monoSource !== undefined) {
+            const expected = monoBaselineCommit(data.before.manifest.sdkInfo.runtimeGitHash, data.monoSource);
+            if (data.monoBefore.manifest.sdkInfo.runtimeGitHash !== expected) throw new Error('Mono control does not match its explicit source.');
+            lines.push(`WARNING: ${CROSS_BRANCH_BASELINE_WARNING}`);
+            lines.push(`Mono source: ${data.monoSource.ref} at ${expected}; CoreCLR baseline: ${data.before.manifest.sdkInfo.runtimeGitHash}.`);
+        }
     }
-    for (const warning of data.warnings ?? []) lines.push(`WARNING: ${warning}`);
+    for (const warning of data.warnings ?? []) {
+        if (data.monoSource && warning === CROSS_BRANCH_BASELINE_WARNING) continue;
+        lines.push(`WARNING: ${warning}`);
+    }
     for (const [label, run] of sides) {
         if (!run) {
             lines.push(`${label}: unavailable (no passed historical control).`);

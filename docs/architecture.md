@@ -53,7 +53,7 @@ The CLI executes stages in the order specified by `--stages`:
 ### SDK resolution and acquisition
 | Stage | Purpose |
 |-------|---------|
-| `resolve-sdk` | Pick SDK (latest, by version, or by commit); fetch runtime/SDK git SHAs from VMR `source-manifest.json` |
+| `resolve-sdk` | Select SDK and runtime versions; pin each source-built runtime |
 | `download-sdk` | Run `dotnet-install.ps1`/`.sh`; optionally restore runtime pack from NuGet |
 
 ### Compilation
@@ -71,6 +71,14 @@ The CLI executes stages in the order specified by `--stages`:
 | `publish-debug-views` | Explicit Debug publication; recompute the merge against the latest gh-pages state on every retry |
 | `transform-views` | Load result JSON, generate weekly/release view grids for the dashboard |
 | `update-views` | Commit views to gh-pages branch, push |
+
+Source builds use the selected commit or PR for CoreCLR and upstream
+`dotnet/runtime` `release/11.0` for Mono. Both commits are pinned before building.
+Mono apps use a .NET 11 GA SDK; CoreCLR keeps the selected SDK and ASP.NET inputs.
+Rows record their actual runtime source; headers retain both in `runtimeSources`
+and use CoreCLR for column identity and dates. Without that map, results retain
+their legacy same-source meaning.
+Custom builds remain excluded from published NET12 focus; use local mode for them.
 
 ### Auxiliary
 | Stage | Purpose |

@@ -11,6 +11,7 @@ import { runCommand, statusLine } from './local-command.mjs';
 import { checkPrerequisites, probeBrowsers, reportPrerequisites } from './local-prerequisites.mjs';
 import { loadLocalComparisonData, writeLocalComparisonData } from './local-comparison-data.mjs';
 import { currentComparisonPath, displaySavedResults, findLatestComparison, formatResults, readCurrentComparison, registerComparison } from './local-results.mjs';
+import { CROSS_BRANCH_BASELINE_WARNING, selectMonoBaseline } from './local-baseline-sources.mjs';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const cloneOptions = process.platform === 'win32' ? ['--config', 'core.longpaths=true'] : [];
@@ -26,7 +27,7 @@ node bench/compare-local-runtime.mjs [options] [-- <measurement options>]
   --runtime <coreclr|mono>      Default: coreclr (use separate checkouts per flavor)
   --variant <no-workload|r2r|aot|composite>  Default: composite for CoreCLR, interpreter for Mono
   --before-variant <variant>    Default: same as after (explicit override for mixed-mode experiments)
-  --include-mono-before        Also build/cache a separate clean Mono interpreter control
+  --include-mono-before        Build/cache a clean release/11.0 Mono interpreter control (cross-branch)
   --configuration <Release|Debug>      Default: Release runtime, Release app
   --sdk <directory>            Optional compatible SDK used for BOTH app publishes
   --tfm <netN.0>               Optional TFM override for both app publishes
@@ -298,8 +299,8 @@ export async function monoBaselineWarnings(record, setup) {
     return warnings;
 }
 
-async function baselineCheckout({ output, sessionDir, runtimeRepo, beforeSha, origin, runtime, configuration, run }) {
-    const sourceSetup = { beforeSha, origin, runtime, configuration };
+async function baselineCheckout({ output, sessionDir, runtimeRepo, beforeSha, sourceRef, origin, runtime, configuration, run }) {
+    const sourceSetup = { beforeSha, sourceRef, origin, runtime, configuration };
     const sourceDir = join(output, 'before-source');
     await mkdir(sourceDir, { recursive: true });
     const sourcePath = join(sourceDir, `${digest(JSON.stringify(sourceSetup))}.json`);
@@ -370,7 +371,8 @@ async function runComparison(options, {
     registerResult = registerComparison,
     getPreviousComparison = readCurrentComparison,
     getBaselineCheckout = baselineCheckout,
-    onSourceSelected = async () => {},
+    onSourceSelected = async () => {}, getMonoSource = selectMonoBaseline,
+    baselineSourceRef = 'refs/remotes/origin/main',
 } = {}, pinnedCommit) {
     const output = resolve(options.output);
     await mkdir(output, { recursive: true });
@@ -407,6 +409,8 @@ async function runComparison(options, {
             : git(runtimeRepo, ['merge-base', 'HEAD', 'refs/remotes/origin/main']);
         const origin = sourceRemote(git(runtimeRepo, ['remote', 'get-url', 'origin']));
         let monoBefore;
+        const monoSource = options['include-mono-before'] && !options['mono-before']
+            ? getMonoSource(runtimeRepo) : undefined;
         if (options['mono-before']) {
             monoBefore = await measurementRecord(resolve(options['mono-before']));
             const monoManifest = JSON.parse(await readFile(monoBefore.manifestPath, 'utf8'));
@@ -424,7 +428,7 @@ async function runComparison(options, {
                 ['--version'], { cwd: sdk, encoding: 'utf8' }).trim();
         }
         const setup = {
-            version: 1, beforeSha, beforeRef: 'refs/remotes/origin/main',
+            version: 1, beforeSha, beforeRef: baselineSourceRef,
             baselineStrategy: pinnedCommit ? 'daily-first-parent' : 'merge-base', origin,
             runtime: options.runtime, variant: options['before-variant'] ?? options.variant,
             afterVariant: options.variant,
@@ -441,6 +445,7 @@ async function runComparison(options, {
             benchmark: await getBenchmarkDigest(),
         };
         const warnings = monoBefore ? await monoBaselineWarnings(monoBefore, { ...setup, monoVariant: 'no-workload' }) : [];
+        if (monoSource) warnings.push(CROSS_BRANCH_BASELINE_WARNING);
         const key = baselineKey(setup);
         const cacheDir = join(output, 'before');
         await mkdir(cacheDir, { recursive: true });
@@ -477,15 +482,16 @@ async function runComparison(options, {
             return measurementRecord(manifest);
         };
         const measureBaseline = async (runtime, variant, label, baselineSetup) => {
+            const baselineSha = baselineSetup.beforeSha;
             const cacheKey = baselineKey(baselineSetup);
             const path = join(cacheDir, `${cacheKey}.json`);
             let record = options['force-before'] ? null : await loadBaseline(path, cacheKey);
             if (record) {
-                console.log(statusLine(`${label} ${beforeSha}: reuse ${record.resultsDir}`, 'CACHED'));
+                console.log(statusLine(`${label} ${baselineSha}: reuse ${record.resultsDir}`, 'CACHED'));
                 return record;
             }
-            const checkout = await getBaselineCheckout({ output, sessionDir: await ensureSession(), runtimeRepo, beforeSha, origin, runtime,
-                configuration: options.configuration, run });
+            const checkout = await getBaselineCheckout({ output, sessionDir: await ensureSession(), runtimeRepo, beforeSha: baselineSha, origin, runtime,
+                sourceRef: baselineSetup.beforeRef, configuration: options.configuration, run });
             record = { key: cacheKey, setup: baselineSetup, ...await buildAndMeasure(checkout, label, runtime, variant) };
             const temporary = join(sessionDir, `${label}-cache.json`);
             await writeFile(temporary, JSON.stringify(record, null, 2) + '\n');
@@ -494,14 +500,16 @@ async function runComparison(options, {
         };
         if (options['include-mono-before'] && !monoBefore) {
             monoBefore = await measureBaseline('mono', 'no-workload', 'mono-before',
-                { ...setup, runtime: 'mono', variant: 'no-workload', afterVariant: undefined });
+                { ...setup, beforeSha: monoSource.commit, beforeRef: monoSource.ref,
+                    baselineGlobalJson: git(runtimeRepo, ['show', `${monoSource.commit}:global.json`]),
+                    runtime: 'mono', variant: 'no-workload', afterVariant: undefined });
         }
         if (before) {
             console.log(statusLine(`Before ${beforeSha}: reuse ${before.resultsDir}`, 'CACHED'));
         } else {
             before = await measureBaseline(options.runtime, setup.variant, 'before', setup);
         }
-        if (pinnedCommit) return { before, monoBefore, setup, warnings };
+        if (pinnedCommit) return { before, monoBefore, ...(monoSource ? { monoSource } : {}), setup, warnings };
         const after = await buildAndMeasure(runtimeRepo, 'after');
         if (before.sdkVersion !== after.sdkVersion) {
             warnings.push(`Before SDK ${before.sdkVersion} differs from after SDK ${after.sdkVersion}. ` +
@@ -512,7 +520,7 @@ async function runComparison(options, {
                 'This comparison does not hold the app SDK constant.');
         }
         const comparisonPath = join(sessionDir, 'comparison.json');
-        const comparison = { setup, before, after, monoBefore, runtimeRepo, afterSha, warnings };
+        const comparison = { setup, before, after, monoBefore, ...(monoSource ? { monoSource } : {}), runtimeRepo, afterSha, warnings };
         const previous = await getPreviousComparison();
         if (previous?.comparison.beforeHistory && previous.comparison.runtimeRepo === runtimeRepo) {
             const data = await loadLocalComparisonData(previous.comparison);

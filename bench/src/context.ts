@@ -1,8 +1,24 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { dirname } from 'node:path';
+import { dirname, join } from 'node:path';
 import { type App, type Engine, type Preset, type Profile, type Runtime, type Stage } from './enums.js';
 
 // ── SDK Info (populated by resolve-sdk stage) ───────────────────────────────
+
+export interface RuntimeSourceInfo {
+    repo: string;
+    ref: string;
+    commit: string;
+    committedAt: string;
+    commitAuthor: string;
+    commitMessage: string;
+    sdkVersion?: string | null;
+    targetFramework?: string | null;
+    runtimePackVersion?: string | null;
+    sdkInfo?: Omit<SdkInfo, 'runtimeSources'>;
+}
+
+export type RuntimeSourceFlavor = 'mono' | 'coreclr';
+export type RuntimeSources = Partial<Record<RuntimeSourceFlavor, RuntimeSourceInfo>>;
 
 export interface SdkInfo {
     sdkVersion: string;
@@ -34,6 +50,8 @@ export interface SdkInfo {
     workloadVersion: string;
     bootstrapSdkVersion: string;
     releaseDate: string;
+    /** Absent on legacy results, where both runtimes use runtimeGitHash. */
+    runtimeSources?: RuntimeSources;
     /** dotnet/dotnet branch the VMR build came from (e.g. 'main', 'release/11.0.1xx', 'unknown'). */
     vmrBranch?: string;
     /**
@@ -65,6 +83,7 @@ export interface BuildManifestEntry {
     };
     integrity: { fileCount: number; totalBytes: number };
     publishDir: string;
+    runtimeSources?: RuntimeSources;
 }
 
 export interface BuildFailureSummary {
@@ -94,6 +113,8 @@ export interface BenchContext {
     runtimePack: string;
     runtimeCommit: string;
     runtimeRepo: string;
+    /** Source ref; runtimeCommit is the immutable checkout pin. */
+    runtimeRef: string;
     runtimePR: string;
     runtimeBuildRequired: boolean;
 
@@ -194,4 +215,65 @@ export async function saveContext(ctx: BenchContext, path: string): Promise<void
 export async function loadContext(path: string): Promise<BenchContext> {
     const raw = await readFile(path, 'utf-8');
     return JSON.parse(raw) as BenchContext;
+}
+
+export function getRuntimeSource(
+    sdkInfo: SdkInfo,
+    runtime: Runtime,
+): RuntimeSourceInfo | undefined {
+    if (runtime !== 'mono' && runtime !== 'coreclr') return undefined;
+    return sdkInfo.runtimeSources?.[runtime];
+}
+
+/** Select the row's runtime provenance; leave legacy results unchanged. */
+export function sdkInfoForRuntime(sdkInfo: SdkInfo, runtime: Runtime): SdkInfo {
+    const source = getRuntimeSource(sdkInfo, runtime);
+    if (!source) return sdkInfo;
+
+    return {
+        ...(source.sdkInfo ?? sdkInfo),
+        runtimeSources: sdkInfo.runtimeSources,
+        runtimeGitHash: source.commit,
+        runtimeCommitDateTime: source.committedAt,
+        runtimeCommitAuthor: source.commitAuthor,
+        runtimeCommitMessage: source.commitMessage,
+        runtimePackVersion: source.runtimePackVersion ?? source.sdkInfo?.runtimePackVersion ?? '',
+    };
+}
+
+export function recordRuntimeSdk(source: RuntimeSourceInfo, sdkInfo: SdkInfo): RuntimeSourceInfo {
+    const { runtimeSources: _sources, ...sdk } = sdkInfo;
+    return {
+        ...source,
+        sdkInfo: sdk,
+        sdkVersion: sdk.sdkVersion,
+        targetFramework: sdk.bundledFrameworkTfm ?? null,
+    };
+}
+
+export function runtimeBuildContext(ctx: BenchContext, runtime: Runtime): BenchContext {
+    const source = getRuntimeSource(ctx.sdkInfo, runtime);
+    if (ctx.runtimeBuildRequired && runtime === 'mono' && source && !source.sdkInfo) {
+        throw new Error('Source-built Mono requires its own resolved SDK metadata.');
+    }
+    const sdkInfo = sdkInfoForRuntime(ctx.sdkInfo, runtime);
+    const selected = {
+        ...ctx, sdkInfo,
+        ...(runtime === 'mono' && source?.sdkInfo ? {
+            aspnetCorePackagesDir: undefined, aspnetCorePackageVersion: undefined,
+        } : {}),
+    };
+    if (sdkInfo.sdkVersion === ctx.sdkInfo.sdkVersion) return selected;
+    const sdkDir = join(ctx.artifactsDir, 'sdks', `${ctx.platform}.sdk${sdkInfo.sdkVersion}`);
+    return {
+        ...selected, sdkVersion: sdkInfo.sdkVersion, sdkDir,
+        dotnetBin: join(sdkDir, ctx.platform === 'windows' ? 'dotnet.exe' : 'dotnet'),
+    };
+}
+
+export function sdkInfoForBuild(sdkInfo: SdkInfo, entry: BuildManifestEntry): SdkInfo {
+    return sdkInfoForRuntime(
+        entry.runtimeSources ? { ...sdkInfo, runtimeSources: entry.runtimeSources } : sdkInfo,
+        entry.runtime,
+    );
 }

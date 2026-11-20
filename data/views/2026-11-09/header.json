@@ -650,6 +650,39 @@
       "benchmarkDateTime": "2026-11-19T05:29:36.672Z",
       "ciRunId": "44460623592",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/44460623592"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26568.118",
+      "runtimeGitHash": "00178ee32a0d46acf976f96f1d6fa4a65f8dfc74",
+      "aspnetCoreGitHash": "327f5f8da154aa73a4d070f85ff64eae467e4d76",
+      "sdkGitHash": "dadf881084cc5e6b5cb0dba8e528f6620dd51542",
+      "vmrGitHash": "94b6099229a6b7490015cb2e208b34a80e4b55ea",
+      "sdkCommitDateTime": "2026-11-16T17:46:05Z",
+      "vmrCommitDateTime": "2026-11-19T04:11:51Z",
+      "runtimeCommitDateTime": "2026-11-13T16:35:52Z",
+      "runtimeCommitAuthor": "Pavel Savara",
+      "runtimeCommitMessage": "[wasm] Respect disabled debugger support in CoreCLR layout checks (#137496)",
+      "aspnetCoreCommitDateTime": "2026-11-19T00:02:00Z",
+      "aspnetCoreCommitAuthor": "Rich Lander",
+      "aspnetCoreCommitMessage": "Use Ubuntu Resolute for the Playwright benchmark image (#70685)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26568.118",
+      "runtimePackVersion": "12.0.0-alpha.1.26568.118",
+      "workloadVersion": "12.0.0-alpha.1.26568.118",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26557.102",
+      "releaseDate": "2026-11-18",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "monoRuntimePackAvailable": false,
+      "readyToRun": {
+        "compilation": "full",
+        "composite": true
+      },
+      "benchmarkDateTime": "2026-11-20T01:31:55.711Z",
+      "ciRunId": "44652369885",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/44652369885"
     }
   ],
   "apps": {

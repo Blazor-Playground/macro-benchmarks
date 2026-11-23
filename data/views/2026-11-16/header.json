@@ -263,6 +263,39 @@
       "benchmarkDateTime": "2026-11-21T20:34:08.140Z",
       "ciRunId": "44945413371",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/44945413371"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26571.109",
+      "runtimeGitHash": "4ab5617c35e2ad7950ffb32ff91a9975951cc165",
+      "aspnetCoreGitHash": "d3483989953ae3cccd773aea5ea04cb0c7198531",
+      "sdkGitHash": "dadf881084cc5e6b5cb0dba8e528f6620dd51542",
+      "vmrGitHash": "ee7a7c0752b641dc8c1142eb8f37fb1ec8510d0c",
+      "sdkCommitDateTime": "2026-11-16T17:46:05Z",
+      "vmrCommitDateTime": "2026-11-22T04:14:52Z",
+      "runtimeCommitDateTime": "2026-11-19T01:01:26Z",
+      "runtimeCommitAuthor": "Andy Ayers",
+      "runtimeCommitMessage": "JIT: preserve unused Swift error results (#137526)",
+      "aspnetCoreCommitDateTime": "2026-11-20T14:08:58Z",
+      "aspnetCoreCommitAuthor": "dependabot[bot]",
+      "aspnetCoreCommitMessage": "[main] (deps): Bump src/submodules/MessagePack-CSharp (#70748)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26571.109",
+      "runtimePackVersion": "12.0.0-alpha.1.26571.109",
+      "workloadVersion": "12.0.0-alpha.1.26571.109",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26557.102",
+      "releaseDate": "2026-11-21",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "monoRuntimePackAvailable": false,
+      "readyToRun": {
+        "compilation": "full",
+        "composite": true
+      },
+      "benchmarkDateTime": "2026-11-22T23:14:36.729Z",
+      "ciRunId": "45080270297",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/45080270297"
     }
   ],
   "apps": {

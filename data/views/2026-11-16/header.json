@@ -329,6 +329,39 @@
       "benchmarkDateTime": "2026-11-23T17:04:22.344Z",
       "ciRunId": "45219246211",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/45219246211"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26573.105",
+      "runtimeGitHash": "c54062f2a75b82a5b6baebb0caf41481679cdc1c",
+      "aspnetCoreGitHash": "d3483989953ae3cccd773aea5ea04cb0c7198531",
+      "sdkGitHash": "dadf881084cc5e6b5cb0dba8e528f6620dd51542",
+      "vmrGitHash": "9e6861e023ea344d78b08a3cdf9b9cd5de2f52d3",
+      "sdkCommitDateTime": "2026-11-16T17:46:05Z",
+      "vmrCommitDateTime": "2026-11-23T14:40:52Z",
+      "runtimeCommitDateTime": "2026-11-19T15:39:16Z",
+      "runtimeCommitAuthor": "springmin",
+      "runtimeCommitMessage": "native: OpenHarmony native library fixes (#136194)",
+      "aspnetCoreCommitDateTime": "2026-11-20T14:08:58Z",
+      "aspnetCoreCommitAuthor": "dependabot[bot]",
+      "aspnetCoreCommitMessage": "[main] (deps): Bump src/submodules/MessagePack-CSharp (#70748)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26573.105",
+      "runtimePackVersion": "12.0.0-alpha.1.26573.105",
+      "workloadVersion": "12.0.0-alpha.1.26573.105",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26557.102",
+      "releaseDate": "2026-11-23",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "monoRuntimePackAvailable": false,
+      "readyToRun": {
+        "compilation": "full",
+        "composite": true
+      },
+      "benchmarkDateTime": "2026-11-24T03:49:16.951Z",
+      "ciRunId": "45320207517",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/45320207517"
     }
   ],
   "apps": {

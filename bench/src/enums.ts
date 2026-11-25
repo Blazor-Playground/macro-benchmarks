@@ -15,9 +15,6 @@ export enum Preset {
     Aot = 'aot',
     R2RPgo = 'r2r-pgo',
     NativeRelink = 'native-relink',
-    NoJiterp = 'no-jiterp',
-    Invariant = 'invariant',
-    NoReflectionEmit = 'no-reflection-emit',
 }
 
 export enum Engine {
@@ -209,11 +206,6 @@ export const NON_WORKLOAD_PRESETS = new Set<Preset>([
     Preset.NoWorkload,
 ]);
 
-/** Presets only valid for Mono runtime (error with CoreCLR) */
-export const MONO_ONLY_PRESETS = new Set<Preset>([
-    Preset.NoJiterp,
-]);
-
 /** Apps that use Blazor (DOM-dependent, no CLI engine support). */
 export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazorPerf, App.BlazingPizza, App.HavitBootstrap, App.BenchViewer, App.MudBlazor, App.IgniteUILight, App.RadzenBlazor, App.BlazorPerf]);
 export const CORECLR_R2R_PRESETS = new Set<Preset>([
@@ -319,9 +311,6 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     if (runtime === Runtime.NativeAOTLLVM && preset !== Preset.Aot) {
         return `NativeAOTLLVM runtime does not build with preset '${preset}'`;
     }
-    if (MONO_ONLY_PRESETS.has(preset) && runtime === Runtime.CoreCLR) {
-        return `Preset '${preset}' is mono-only and cannot be used with runtime '${runtime}'`;
-    }
     if (CORECLR_R2R_PRESETS.has(preset) && preset !== Preset.Aot && runtime !== Runtime.CoreCLR) {
         return `Preset '${preset}' requires CoreCLR`;
     }
@@ -337,15 +326,6 @@ export function shouldSkipBuild(runtime: Runtime, app: App, preset: Preset, ctx:
     // from-source runtime is not required.
     if (runtime === Runtime.CoreCLR && preset === Preset.NativeRelink && ctx.sdkInfo.major < 12) {
         return `CoreCLR native-relink requires .NET 12 or later (crossgen2 via SDK, dotnet/runtime#133413)`;
-    }
-    if (runtime === Runtime.CoreCLR && (preset !== Preset.DevLoop && preset !== Preset.NoWorkload && !CORECLR_R2R_PRESETS.has(preset) && preset !== Preset.NativeRelink)) {
-        return `Preset '${preset}' requires native rebuild which is not supported with CoreCLR`;
-    }
-    if (BLAZOR_APPS.has(app) && preset === Preset.NoReflectionEmit) {
-        return `Blazor app '${app}' is not supported with preset '${preset}'`;
-    }
-    if (BLAZOR_APPS.has(app) && preset === Preset.Invariant) {
-        return `Blazor app '${app}' is not supported with preset '${preset}'`;
     }
     if (BLAZOR_APPS.has(app) && !BLAZOR_REDUCED_PRESETS.has(preset)) {
         return `Blazor app '${app}' with '${preset}' is in reduced matrix `;
@@ -383,9 +363,6 @@ export const PRESET_MAP: Record<Preset, string> = {
     [Preset.Aot]: 'Aot',
     [Preset.R2RPgo]: 'R2RPgo',
     [Preset.NativeRelink]: 'NativeRelink',
-    [Preset.NoJiterp]: 'NoJiterp',
-    [Preset.Invariant]: 'Invariant',
-    [Preset.NoReflectionEmit]: 'NoReflectionEmit',
 };
 
 /** Maps CLI preset to MSBuild Configuration value */
@@ -395,9 +372,6 @@ export const PRESET_CONFIG: Record<Preset, string> = {
     [Preset.Aot]: 'Release',
     [Preset.R2RPgo]: 'Release',
     [Preset.NativeRelink]: 'Release',
-    [Preset.NoJiterp]: 'Release',
-    [Preset.Invariant]: 'Release',
-    [Preset.NoReflectionEmit]: 'Release',
 };
 
 // ── Engine / Profile Constraints ─────────────────────────────────────────────
@@ -449,13 +423,6 @@ export function parseApp(value: string): App {
 
 export function parseStage(value: string): Stage {
     return parseEnum(value, ALL_STAGES, 'stage');
-}
-
-/** Validate that a preset is compatible with a runtime */
-export function validatePresetRuntime(preset: Preset, runtime: Runtime): void {
-    if (MONO_ONLY_PRESETS.has(preset) && runtime === Runtime.CoreCLR) {
-        throw new Error(`Preset '${preset}' is only valid for mono runtime, got '${runtime}'`);
-    }
 }
 
 export function getRuntimesForApp(app: App, filter?: Runtime[]): Runtime[] {

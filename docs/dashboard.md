@@ -13,13 +13,13 @@ SDK12-only.
 
 The main dashboard includes full and profile-guided CoreCLR R2R presets even
 before their first results appear in the published index. Only supported presets
-from the index are shown and duplicates are removed. `no-workload` remains the
-default selection; selecting an R2R preset does not substitute other results when
-that preset has no measurements.
+from the index are shown and duplicates are removed. The default selection is
+**AOT/R2R** (`aot`): Mono AOT or CoreCLR R2R. If the selected preset has no
+measurements, the dashboard does not substitute results from another preset.
 
 The R2R presets are `aot` and `r2r-pgo`, which follow the selected SDK's
-composite default. Unknown presets in historical data are ignored by filters
-and charts.
+composite default. Retired and unknown presets in historical data are ignored
+by filters and charts.
 
 The Radzen walkthrough is measured only on desktop Chrome. Its chart uses
 those measurements even when the profile filter is set to mobile. Runtime and

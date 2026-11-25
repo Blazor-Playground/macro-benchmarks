@@ -830,7 +830,7 @@ test('Home and Focus keep one shared brand/navigation at the top of the left pan
     await routeFocusFixture(page);
     await page.goto('/macro-benchmarks/');
     for (let visit = 0; visit < 2; visit++) {
-        await expect(page.locator('.nav-tabs .nav-link.active')).toHaveText('Blazing Pizza');
+        await expect(page.locator('.nav-tabs .nav-link.active')).toHaveText('Havit Bootstrap');
         const sidebar = page.getByRole('complementary', { name: 'Benchmark filters' });
         await expect(page.locator('.dashboard-sidebar-heading')).toHaveCount(1);
         await expect(sidebar.getByRole('link', { name: 'All benchmarks', exact: true })).toHaveAttribute('aria-current', 'page');
@@ -839,7 +839,7 @@ test('Home and Focus keep one shared brand/navigation at the top of the left pan
         await expect(page.locator('.main-content .dashboard-brand')).toHaveCount(0);
         await expect(sidebar.locator('#filter-profiles-mobile')).toBeChecked();
         await expect(sidebar.locator('#filter-profiles-desktop')).not.toBeChecked();
-        await expect(sidebar.locator('#filter-presets-no-workload')).toBeChecked();
+        await expect(sidebar.locator('#filter-presets-aot')).toBeChecked();
         await expect(sidebar.locator('#filter-engines-chrome')).toBeChecked();
         await expect(sidebar.locator('.sidebar-updated a')).toContainText('Updated');
         await expect(sidebar.getByTitle('GitHub Repository')).toHaveAttribute('href', /github\.com/);
@@ -850,8 +850,8 @@ test('Home and Focus keep one shared brand/navigation at the top of the left pan
             const filters = element.querySelector('.sidebar-body').getBoundingClientRect();
             return nav.top >= brand.bottom && nav.bottom <= filters.top && nav.left >= side.left && nav.right <= side.right;
         })).toBeTruthy();
-        await page.locator('.nav-tabs .nav-link', { hasText: 'Havit Bootstrap' }).click();
-        await expect(page.locator('.nav-tabs .nav-link.active')).toHaveText('Havit Bootstrap');
+        await page.locator('.nav-tabs .nav-link', { hasText: 'Blazing Pizza' }).click();
+        await expect(page.locator('.nav-tabs .nav-link.active')).toHaveText('Blazing Pizza');
         await expect(sidebar.locator('#filter-profiles-mobile')).toBeChecked();
         await sidebar.getByRole('link', { name: 'NET12 focus', exact: true }).click();
         await expect(page.locator('#focus-flavor')).toHaveValue('r2r-release');

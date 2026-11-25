@@ -33,8 +33,8 @@ test('All Benchmarks charts and details use MiB and KiB at the binary threshold'
     const points = await canvas.evaluate(element => {
         const chart = Chart.getChart(element);
         const datasetIndex = chart.data.datasets.findIndex((dataset, index) =>
-            dataset.rowKey === 'coreclr/no-workload/desktop/chrome' && chart.isDatasetVisible(index));
-        if (datasetIndex < 0) throw new Error('Expected visible CoreCLR no-workload dataset');
+            dataset.rowKey === 'coreclr/aot/desktop/chrome' && chart.isDatasetVisible(index));
+        if (datasetIndex < 0) throw new Error('Expected visible CoreCLR R2R dataset');
         return chart.getDatasetMeta(datasetIndex).data.slice(-2).map(point => ({ x: point.x, y: point.y }));
     });
 

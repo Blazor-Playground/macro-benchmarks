@@ -12,9 +12,6 @@ export const PRESET_DASH: Record<string, number[]> = {
     'aot': [10, 5],
     'r2r-pgo': [10, 2, 2, 2],
     'native-relink': [3, 3],
-    'no-jiterp': [10, 3, 3, 3],
-    'invariant': [10, 3, 3, 3],
-    'no-reflection-emit': [15, 5],
 };
 
 export const ENGINE_MARKER: Record<string, string> = {

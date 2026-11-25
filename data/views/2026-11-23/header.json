@@ -32,6 +32,39 @@
       "benchmarkDateTime": "2026-11-24T14:44:58.113Z",
       "ciRunId": "45413226714",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/45413226714"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26574.104",
+      "runtimeGitHash": "9db18faac964a1b22fcf961aceb7716d89731ea7",
+      "aspnetCoreGitHash": "a6110c23cfa4805ee95a6a00ee3812a1e9f1857f",
+      "sdkGitHash": "dadf881084cc5e6b5cb0dba8e528f6620dd51542",
+      "vmrGitHash": "ef544d55f723ac04899adb29423df4987466e8be",
+      "sdkCommitDateTime": "2026-11-16T17:46:05Z",
+      "vmrCommitDateTime": "2026-11-24T15:25:49Z",
+      "runtimeCommitDateTime": "2026-11-24T01:06:54Z",
+      "runtimeCommitAuthor": "Egor Bogatov",
+      "runtimeCommitMessage": "Enable unsafe-v2 by default in src/libraries (690 csproj enrolled) (#138081)",
+      "aspnetCoreCommitDateTime": "2026-11-24T00:56:45Z",
+      "aspnetCoreCommitAuthor": "Rich Lander",
+      "aspnetCoreCommitMessage": "Run Components E2E tests in Chrome container (#70689)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26574.104",
+      "runtimePackVersion": "12.0.0-alpha.1.26574.104",
+      "workloadVersion": "12.0.0-alpha.1.26574.104",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26557.102",
+      "releaseDate": "2026-11-24",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "monoRuntimePackAvailable": false,
+      "readyToRun": {
+        "compilation": "full",
+        "composite": true
+      },
+      "benchmarkDateTime": "2026-11-25T00:29:47.122Z",
+      "ciRunId": "45516269447",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/45516269447"
     }
   ],
   "apps": {

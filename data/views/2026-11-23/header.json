@@ -131,6 +131,39 @@
       "benchmarkDateTime": "2026-11-25T10:55:10.307Z",
       "ciRunId": "45596760702",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/45596760702"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26575.102",
+      "runtimeGitHash": "95095745fbd4e45a66f18ac7f8b33538778d7119",
+      "aspnetCoreGitHash": "d848fbf2e3ead0c4f7aa53df35e9b808960a5dea",
+      "sdkGitHash": "dadf881084cc5e6b5cb0dba8e528f6620dd51542",
+      "vmrGitHash": "b672dd6ac9d1bad8c7c1415d015c27277d5093dc",
+      "sdkCommitDateTime": "2026-11-16T17:46:05Z",
+      "vmrCommitDateTime": "2026-11-25T12:28:59Z",
+      "runtimeCommitDateTime": "2026-11-25T00:01:08Z",
+      "runtimeCommitAuthor": "Rich Lander",
+      "runtimeCommitMessage": "Move SuperPMI Linux x64 collections to Azure Linux 4 (#137882)",
+      "aspnetCoreCommitDateTime": "2026-11-24T23:10:21Z",
+      "aspnetCoreCommitAuthor": "Rich Lander",
+      "aspnetCoreCommitMessage": "Use Azure Linux 4 primary queues and supported Ubuntu 26.04 CI targets (#70801)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26575.102",
+      "runtimePackVersion": "12.0.0-alpha.1.26575.102",
+      "workloadVersion": "12.0.0-alpha.1.26575.102",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26557.102",
+      "releaseDate": "2026-11-25",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "monoRuntimePackAvailable": false,
+      "readyToRun": {
+        "compilation": "full",
+        "composite": true
+      },
+      "benchmarkDateTime": "2026-11-25T21:03:15.701Z",
+      "ciRunId": "45698073137",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/45698073137"
     }
   ],
   "apps": {

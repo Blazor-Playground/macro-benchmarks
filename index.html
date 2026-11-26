@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>.NET WASM Benchmark Dashboard</title>
     <base href="/macro-benchmarks/" />
-    <link href="_framework/dotnet.la6nn5wovx.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-nSruSPOTGU4w2gFtLkteaGACnBQs5V/YNBEwoC5sV/c=" />
+    <link href="_framework/dotnet.sn0ksz274l.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-WCja25el1jMuJ07UsVpIJjlnlNWTe17Uz8BmJCFG/sk=" />
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
@@ -16,25 +16,25 @@
     <script src="lib/chartjs/hammer.min.4uqs2me7ef.js"></script>
     <script type="importmap">{
   "imports": {
-    "./_framework/dotnet.js": "./_framework/dotnet.la6nn5wovx.js",
-    "./_framework/dotnet.native.js": "./_framework/dotnet.native.z0d2nj0t0e.js",
-    "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.4nrw2318tg.js",
-    "./chart/chart-factory.js": "./chart/chart-factory.ai9fcoe8cb.js",
+    "./_framework/dotnet.native.js": "./_framework/dotnet.native.dmqvp1z5b6.js",
+    "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.uvi6mn7e8c.js",
+    "./_framework/dotnet.js": "./_framework/dotnet.sn0ksz274l.js",
+    "./chart/chart-factory.js": "./chart/chart-factory.1au2cc3mz1.js",
     "./chart/chart-interop.js": "./chart/chart-interop.ej6sfw4gy6.js",
-    "./chart/constants.js": "./chart/constants.95tjgkztwj.js",
+    "./chart/constants.js": "./chart/constants.duso02o5fg.js",
     "./chart/data-fetcher.js": "./chart/data-fetcher.wuf8yj6b1v.js",
     "./chart/dataset-builder.js": "./chart/dataset-builder.ruewr7fqpv.js",
     "./chart/debug-data.js": "./chart/debug-data.pbouvgmint.js",
     "./chart/debug-interop.js": "./chart/debug-interop.n31okt8p63.js",
     "./chart/debug-loader.js": "./chart/debug-loader.kmu6quc5u1.js",
     "./chart/debug-types.js": "./chart/debug-types.ih7wveipk6.js",
-    "./chart/focus-chart.js": "./chart/focus-chart.xva9p5gae6.js",
-    "./chart/focus-data.js": "./chart/focus-data.7j5uwsc3ti.js",
+    "./chart/focus-chart.js": "./chart/focus-chart.ncy68fhpqk.js",
+    "./chart/focus-data.js": "./chart/focus-data.ghqd4fx5wy.js",
     "./chart/focus-interop.js": "./chart/focus-interop.0fh519cakb.js",
-    "./chart/focus-loader.js": "./chart/focus-loader.9moexusmoz.js",
+    "./chart/focus-loader.js": "./chart/focus-loader.wuf16nbwkr.js",
     "./chart/focus-selection.js": "./chart/focus-selection.7fdpjkgiop.js",
     "./chart/focus-types.js": "./chart/focus-types.snkbmmy1c8.js",
-    "./chart/local-focus.js": "./chart/local-focus.70h71utgcz.js",
+    "./chart/local-focus.js": "./chart/local-focus.i1kizqsa1f.js",
     "./chart/tick-layout.js": "./chart/tick-layout.k9clcfhy0u.js",
     "./lib/bootstrap/dist/js/bootstrap.bundle.js": "./lib/bootstrap/dist/js/bootstrap.bundle.c2gs0umjsq.js",
     "./lib/bootstrap/dist/js/bootstrap.bundle.min.js": "./lib/bootstrap/dist/js/bootstrap.bundle.min.hd3gran6i8.js",
@@ -46,24 +46,25 @@
     "./lib/chartjs/chartjs-adapter-date-fns.bundle.min.js": "./lib/chartjs/chartjs-adapter-date-fns.bundle.min.3fzizwo9jc.js",
     "./lib/chartjs/chartjs-plugin-zoom.min.js": "./lib/chartjs/chartjs-plugin-zoom.min.uqvkc91v5r.js",
     "./lib/chartjs/hammer.min.js": "./lib/chartjs/hammer.min.4uqs2me7ef.js",
-    "./main.mjs": "./main.dbdzhdj1ep.mjs",
+    "./main.mjs": "./main.rseh4a6rl1.mjs",
     "./pages-navigation.mjs": "./pages-navigation.4nf4ou2den.mjs",
-    "./runtime-ready.mjs": "./runtime-ready.mhgcjtn3z1.mjs"
+    "./runtime-ready.mjs": "./runtime-ready.4j1bfepg70.mjs",
+    "./startup-metrics.mjs": "./startup-metrics.rv27bgk2pg.mjs"
   },
   "scopes": {},
   "integrity": {
-    "./_framework/dotnet.js": "sha256-nSruSPOTGU4w2gFtLkteaGACnBQs5V/YNBEwoC5sV/c=",
-    "./_framework/dotnet.la6nn5wovx.js": "sha256-nSruSPOTGU4w2gFtLkteaGACnBQs5V/YNBEwoC5sV/c=",
-    "./_framework/dotnet.native.js": "sha256-c5HO9vyPyW57O+rlAAL0IdaALShnV5eJLEeelKDzaYs=",
-    "./_framework/dotnet.native.z0d2nj0t0e.js": "sha256-c5HO9vyPyW57O+rlAAL0IdaALShnV5eJLEeelKDzaYs=",
-    "./_framework/dotnet.runtime.4nrw2318tg.js": "sha256-8JFI5oEXA0ZeOIDICYJjKjdRlAbOU2BjKMNwpZdhlv0=",
-    "./_framework/dotnet.runtime.js": "sha256-8JFI5oEXA0ZeOIDICYJjKjdRlAbOU2BjKMNwpZdhlv0=",
-    "./chart/chart-factory.ai9fcoe8cb.js": "sha256-HlYVHNEn8vG+9K3SBpu7f18AiTBsLFEwXPXqwk6YSus=",
-    "./chart/chart-factory.js": "sha256-HlYVHNEn8vG+9K3SBpu7f18AiTBsLFEwXPXqwk6YSus=",
+    "./_framework/dotnet.js": "sha256-WCja25el1jMuJ07UsVpIJjlnlNWTe17Uz8BmJCFG/sk=",
+    "./_framework/dotnet.native.dmqvp1z5b6.js": "sha256-hWWb0lTcGHgQQpJfn4Zpr25Lcsgh97hwJiqPNghLh2o=",
+    "./_framework/dotnet.native.js": "sha256-hWWb0lTcGHgQQpJfn4Zpr25Lcsgh97hwJiqPNghLh2o=",
+    "./_framework/dotnet.runtime.js": "sha256-5tgZ32yboNr9WYFuMZTPQXtI+RU53lBT8lkv+xku1k0=",
+    "./_framework/dotnet.runtime.uvi6mn7e8c.js": "sha256-5tgZ32yboNr9WYFuMZTPQXtI+RU53lBT8lkv+xku1k0=",
+    "./_framework/dotnet.sn0ksz274l.js": "sha256-WCja25el1jMuJ07UsVpIJjlnlNWTe17Uz8BmJCFG/sk=",
+    "./chart/chart-factory.1au2cc3mz1.js": "sha256-Nw59nM2HDvPobxt2aOXE95UHfT6B3AoiZBldW9ki4AE=",
+    "./chart/chart-factory.js": "sha256-Nw59nM2HDvPobxt2aOXE95UHfT6B3AoiZBldW9ki4AE=",
     "./chart/chart-interop.ej6sfw4gy6.js": "sha256-5sBsPd0yjNiPnjxtX2Udb4Yj1NcerEknzevzxnPMdr4=",
     "./chart/chart-interop.js": "sha256-5sBsPd0yjNiPnjxtX2Udb4Yj1NcerEknzevzxnPMdr4=",
-    "./chart/constants.95tjgkztwj.js": "sha256-TWplLYiXaxZZaB4O5GcMc/aBN3e5N9ZtTL6GhwTOaB4=",
-    "./chart/constants.js": "sha256-TWplLYiXaxZZaB4O5GcMc/aBN3e5N9ZtTL6GhwTOaB4=",
+    "./chart/constants.duso02o5fg.js": "sha256-+0/ZvHWTMxWWBVOCwkkAcqbiXOtDnKjQaCJf4AfOOaI=",
+    "./chart/constants.js": "sha256-+0/ZvHWTMxWWBVOCwkkAcqbiXOtDnKjQaCJf4AfOOaI=",
     "./chart/data-fetcher.js": "sha256-SLBrY4GTcvckFbBLgBxcm6D2i5ktPHR5J1pfaq24lBA=",
     "./chart/data-fetcher.wuf8yj6b1v.js": "sha256-SLBrY4GTcvckFbBLgBxcm6D2i5ktPHR5J1pfaq24lBA=",
     "./chart/dataset-builder.js": "sha256-zQWRF1mrmDPDCdwMoQSgG59Au+PnmMW6dDDuDBjeRFc=",
@@ -76,20 +77,20 @@
     "./chart/debug-loader.kmu6quc5u1.js": "sha256-dI0zbNMyIAeBCH1UKKjiKIme9B+p/zZsYeOTr+//cII=",
     "./chart/debug-types.ih7wveipk6.js": "sha256-5sQlAeNHvORnq81oHLWx8DWJOsSp3wgWxMbRhp9bgJ8=",
     "./chart/debug-types.js": "sha256-5sQlAeNHvORnq81oHLWx8DWJOsSp3wgWxMbRhp9bgJ8=",
-    "./chart/focus-chart.js": "sha256-o/MNbi952BTuOUCU6HwJ1Ys2VYZc4ClITTSlIBtAQyA=",
-    "./chart/focus-chart.xva9p5gae6.js": "sha256-o/MNbi952BTuOUCU6HwJ1Ys2VYZc4ClITTSlIBtAQyA=",
-    "./chart/focus-data.7j5uwsc3ti.js": "sha256-gwfINOtiI/QckXWNoZX7JRKe2BQLyVAzmIt/84QMdHQ=",
-    "./chart/focus-data.js": "sha256-gwfINOtiI/QckXWNoZX7JRKe2BQLyVAzmIt/84QMdHQ=",
+    "./chart/focus-chart.js": "sha256-Z+dfqK2r+M4gsNO7z+WWUb6DUNBFJCKc56Wq6ehonEI=",
+    "./chart/focus-chart.ncy68fhpqk.js": "sha256-Z+dfqK2r+M4gsNO7z+WWUb6DUNBFJCKc56Wq6ehonEI=",
+    "./chart/focus-data.ghqd4fx5wy.js": "sha256-rMjfRGJ+zu3saM0LUPZzrrFNuwQkGMvvF+iKFbPHEC4=",
+    "./chart/focus-data.js": "sha256-rMjfRGJ+zu3saM0LUPZzrrFNuwQkGMvvF+iKFbPHEC4=",
     "./chart/focus-interop.0fh519cakb.js": "sha256-bIyQkSNE1NIVUSwPU/dVqReCE2AwVtUC11dJ122dsPM=",
     "./chart/focus-interop.js": "sha256-bIyQkSNE1NIVUSwPU/dVqReCE2AwVtUC11dJ122dsPM=",
-    "./chart/focus-loader.9moexusmoz.js": "sha256-31KlUNJcUSruQiAgSq2hwTPS2wsYn96/H/KywNMqa8M=",
-    "./chart/focus-loader.js": "sha256-31KlUNJcUSruQiAgSq2hwTPS2wsYn96/H/KywNMqa8M=",
+    "./chart/focus-loader.js": "sha256-iDhdyH8viqdhcPjSmrssVW7mkFUAhG9WQsSJABps0us=",
+    "./chart/focus-loader.wuf16nbwkr.js": "sha256-iDhdyH8viqdhcPjSmrssVW7mkFUAhG9WQsSJABps0us=",
     "./chart/focus-selection.7fdpjkgiop.js": "sha256-zazUJ+q+XHuzlMXsBHAs9SUP1eGYukbKeEQ1BO0Mcaw=",
     "./chart/focus-selection.js": "sha256-zazUJ+q+XHuzlMXsBHAs9SUP1eGYukbKeEQ1BO0Mcaw=",
     "./chart/focus-types.js": "sha256-WIvA2gbLCTcJN0loEuXYvDWqTeiutXhB2ruDoyxKaj0=",
     "./chart/focus-types.snkbmmy1c8.js": "sha256-WIvA2gbLCTcJN0loEuXYvDWqTeiutXhB2ruDoyxKaj0=",
-    "./chart/local-focus.70h71utgcz.js": "sha256-KQVBEz62SmnmlwMx+lT2p9nCwxX3R2t5LyIiJeEnJ78=",
-    "./chart/local-focus.js": "sha256-KQVBEz62SmnmlwMx+lT2p9nCwxX3R2t5LyIiJeEnJ78=",
+    "./chart/local-focus.i1kizqsa1f.js": "sha256-Ct/LKVSfHOizX6bzm6ndaS2R/xkTjnrPQ6Yg05TMiJg=",
+    "./chart/local-focus.js": "sha256-Ct/LKVSfHOizX6bzm6ndaS2R/xkTjnrPQ6Yg05TMiJg=",
     "./chart/tick-layout.js": "sha256-WOkO9dJ8sJQ8gntN+coH7U8xZ/BKSbcuJ9gffaSmcH0=",
     "./chart/tick-layout.k9clcfhy0u.js": "sha256-WOkO9dJ8sJQ8gntN+coH7U8xZ/BKSbcuJ9gffaSmcH0=",
     "./lib/bootstrap/dist/js/bootstrap.bundle.c2gs0umjsq.js": "sha256-VJjRA1MaZxAgC39Druy1Iw9M5lIMcrv0irI3gwEW4tE=",
@@ -112,12 +113,14 @@
     "./lib/chartjs/chartjs-plugin-zoom.min.uqvkc91v5r.js": "sha256-tv2LCZ11b3ZRARYonNt57j5KpHRbn81Mis4TTLVWVEA=",
     "./lib/chartjs/hammer.min.4uqs2me7ef.js": "sha256-3HDSH0r/gwYSX4FTdgIFq3LSz1bVN9d7MaK1xG8fSmw=",
     "./lib/chartjs/hammer.min.js": "sha256-3HDSH0r/gwYSX4FTdgIFq3LSz1bVN9d7MaK1xG8fSmw=",
-    "./main.dbdzhdj1ep.mjs": "sha256-KaPFb7KyEWg1+dF/kRbtE34OwMTgHDdCEzMDJ+eh0X8=",
-    "./main.mjs": "sha256-KaPFb7KyEWg1+dF/kRbtE34OwMTgHDdCEzMDJ+eh0X8=",
+    "./main.mjs": "sha256-1Y4e/btn373C8vJa1K+qYDgqKRkACo/We5rnbUtuRYk=",
+    "./main.rseh4a6rl1.mjs": "sha256-1Y4e/btn373C8vJa1K+qYDgqKRkACo/We5rnbUtuRYk=",
     "./pages-navigation.4nf4ou2den.mjs": "sha256-0CcV7DiPvmaLAgwtymx7NlvttcpBKnwZHOS+Ustba9Q=",
     "./pages-navigation.mjs": "sha256-0CcV7DiPvmaLAgwtymx7NlvttcpBKnwZHOS+Ustba9Q=",
-    "./runtime-ready.mhgcjtn3z1.mjs": "sha256-epUwvx6yJk9+Q1Py3Rk+yI4Ntl3McgpkPf3zFzo0e/k=",
-    "./runtime-ready.mjs": "sha256-epUwvx6yJk9+Q1Py3Rk+yI4Ntl3McgpkPf3zFzo0e/k="
+    "./runtime-ready.4j1bfepg70.mjs": "sha256-gCxfrexjfrqYyY/QMs8yuy9jdcGbgLGGedIit8CPp7E=",
+    "./runtime-ready.mjs": "sha256-gCxfrexjfrqYyY/QMs8yuy9jdcGbgLGGedIit8CPp7E=",
+    "./startup-metrics.mjs": "sha256-V/VLCuoXtG0qqu3kWZHmQ1czAy9nhUUSwwniUnksngE=",
+    "./startup-metrics.rv27bgk2pg.mjs": "sha256-V/VLCuoXtG0qqu3kWZHmQ1czAy9nhUUSwwniUnksngE="
   }
 }</script>
 </head>
@@ -137,7 +140,7 @@
         <span class="dismiss">🗙</span>
     </div>
     <script src="_framework/blazor.webassembly.js" autostart="false"></script>
-    <script src="main.dbdzhdj1ep.mjs" type="module"></script>
+    <script src="main.rseh4a6rl1.mjs" type="module"></script>
 </body>
 
 </html>

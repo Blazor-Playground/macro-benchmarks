@@ -215,7 +215,7 @@ export async function measurementRecord(manifestPath) {
         const path = join(status.resultsDir, name);
         const text = await readFile(path, 'utf8');
         const result = JSON.parse(text);
-        const metrics = ['time-to-reach-managed-cold', 'time-to-reach-managed-warm'];
+        const metrics = ['time-to-first-render-cold', 'time-to-first-render-warm', 'first-interaction-cold', 'first-interaction-warm'];
         if (result.meta?.engine === 'chrome' && result.meta?.profile === 'desktop') metrics.push('havit-walkthrough');
         for (const metric of metrics) {
             if (!(result.metrics[metric] > 0)) throw new Error(`Invalid baseline metric ${metric} in ${path}`);

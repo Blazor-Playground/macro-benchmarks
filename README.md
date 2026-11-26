@@ -46,7 +46,7 @@ Default: `resolve-sdk,download-sdk,build,measure,transform-views`
 - **Compile time** — wall-clock `dotnet publish` duration
 - **Disk size** — native `.wasm` and managed `.dll` sizes
 - **Download size** — compressed bytes over the wire (Chrome CDP)
-- **Time to managed** — cold (first load) and warm (min of reloads) to `dotnet_managed_ready`
+- **Time to first render** — cold and warm navigation to the first paint opportunity after initial app content is ready; shown above the separate legacy managed-initialization timings
 - **Memory peak** — max JS heap observed during load
 - **Walkthrough timing** — interactive navigation scenarios (pizza, havit, mud, Radzen and other galleries)
 - **Microbenchmark ops/sec** — JS interop, JSON parse, exception handling

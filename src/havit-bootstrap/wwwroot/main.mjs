@@ -1,7 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-import { withRuntimeReady } from './runtime-ready.mjs';
+import { configureStartupRuntime } from './runtime-ready.mjs';
+import { observeInitialContent, registerDomFirstInteraction } from './startup-metrics.mjs';
 
 function setManagedReady() {
     globalThis.dotnet_managed_ready = performance.now();
@@ -22,15 +23,7 @@ function setManagedReady() {
     }
 }
 
-function registerBenchmarkImports() {
-    globalThis.dotnet_created = performance.now();
-    const { setModuleImports } = globalThis.getDotnetRuntime(0);
-    setModuleImports('main.mjs', {
-        bench: {
-            setManagedReady
-        }
-    });
-}
+registerDomFirstInteraction('a.nav-link.hx-sidebar-item:not(.dropdown-item)[href$="/components/Inputs"]', '.doc-content #input-groups');
 
 async function outer() {
     globalThis.onConsole = [];
@@ -43,22 +36,12 @@ async function outer() {
     };
 
     globalThis.js_loaded = performance.now();
+    observeInitialContent('#done');
 
     await Blazor.start({
-        configureRuntime: dotnet => {
-            dotnet.withModuleConfig({
-                onRuntimeInitialized: () => {
-                    console.log("Blazor runtime initialized");
-                    // Some Mono builds omit ready callbacks; later callbacks still reset timing.
-                    if (typeof globalThis.getDotnetRuntime(0)?.setModuleImports === 'function') {
-                        registerBenchmarkImports();
-                    } else {
-                        console.log("Runtime imports are not ready; waiting for the managed-ready callback.");
-                    }
-                }
-            });
-            withRuntimeReady(dotnet, registerBenchmarkImports);
-        }
+        configureRuntime: dotnet => configureStartupRuntime(dotnet, ({ setModuleImports }) => {
+            setModuleImports('main.mjs', { bench: { setManagedReady } });
+        }, true),
     });
 }
 

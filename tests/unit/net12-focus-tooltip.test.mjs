@@ -80,7 +80,7 @@ test('historical point details show missing SDK and VMR dates without inferring 
 
 test('raw and averaged hover labels identify GA baselines even when the latest point uses Mono12', () => {
     const fixture = monoGaFixture();
-    fixture.buckets[1].appMetrics['havit-bootstrap']['time-to-reach-managed-cold']['mono/no-workload/mobile/chrome'][13] = null;
+    fixture.buckets[1].appMetrics['havit-bootstrap']['time-to-first-render-cold']['mono/no-workload/mobile/chrome'][13] = null;
     const report = buildFocusReport(publicationFor('havit-bootstrap', fixture), 'havit-bootstrap', '14d', new Date('2026-09-20'));
     const metric = report.metrics[0], index = metric.points.findIndex(point => point.monoBaseline);
     assert(index >= 0);

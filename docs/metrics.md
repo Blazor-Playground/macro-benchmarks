@@ -85,8 +85,12 @@ and [local commands](cli-reference.md#clean-debug).
 
 | Key | Unit | Description |
 |-----|------|-------------|
-| `time-to-reach-managed-warm` | ms | Minimum across warm reloads to `dotnet_managed_ready` |
-| `time-to-reach-managed-cold` | ms | First navigation (empty cache) to `dotnet_managed_ready` |
+| `time-to-first-render-{cold,warm}` | ms | Navigation to the first paint opportunity after required initial app content is ready |
+| `time-to-content-ready-{cold,warm}` | ms | Navigation to required initial content reaching the DOM or native view |
+| `time-to-runtime-initialized-{cold,warm}` | ms | Navigation to the native/module initialization callback, where observable |
+| `time-to-runtime-ready-{cold,warm}` | ms | Navigation to the runtime API-ready signal; its source is recorded per sample |
+| `first-interaction-{cold,warm}` | ms | App-specific scripted action to a paint opportunity for its rendered response |
+| `time-to-reach-managed-{cold,warm}` | ms | Legacy marker: normally benchmark JS start to app-specific managed initialization (not first render) |
 | `time-to-create-dotnet-warm` | ms | Warm reload to dotnet runtime creation |
 | `time-to-create-dotnet-cold` | ms | Cold load to dotnet runtime creation |
 | `time-to-exit-warm` | ms | Warm reload to app exit |
@@ -147,8 +151,8 @@ interquartile mean of 3 runs, and each run is the median of several samples.
 3. **Apply throttle profile** — desktop: none; mobile: 3× CPU slowdown, 20 Mbps / 5 Mbps, 70 ms latency
 4. **Track network** — `Network.loadingFinished` events, sum `encodedDataLength` for download size
 5. **Sample memory** — poll `Performance.getMetrics` `JSHeapUsedSize` every 100 ms, record maximum
-6. **Cold load** — navigate to page, wait for `bench_complete` global variable
-7. **Warm loads** — reload N times in same context, record minimum timing
+6. **Cold loads** — navigate with fresh browser state; collect legacy timing and counters at `bench_complete`, then collect the independent first-render milestone on instrumented apps
+7. **Warm loads** — reload in the same context; browser caches may be warm but each reload creates a new runtime. Cold and warm startup times use the interquartile mean (IQM) of their respective samples
 8. **Walkthroughs** — (Chrome/desktop only) run app-specific interactive scenarios, take median
 9. **Collect results** — extract timing markers from `globalThis`
 
@@ -159,9 +163,28 @@ interquartile mean of 3 runs, and each run is the median of several samples.
 3. Parse stdout for JSON containing timing fields
 4. For microbenchmarks: extract `bench_samples` array, compute stats
 
-### Timing marker: `dotnet_managed_ready`
+### Startup endpoints and clock origins
 
-Apps set `globalThis.dotnet_managed_ready = performance.now()` via `[JSImport]` interop when managed code has fully initialized. Blazor apps (empty-blazor, blazing-pizza, etc.) do **not** set this marker — measurement falls back to wall-clock timing.
+`bench_complete` still means the app's legacy benchmark results are available. For most Blazor apps the managed marker is root-component initialization, which can run before the first render. Native apps have their own launch callbacks; BlazorPerf's historical value uses navigation timing and a host/browser lifecycle callback, not managed initialization. These historical series do not change.
+
+The new startup series use navigation-relative `performance.now()`. In raw result JSON, `startupSamples.cold` and `.warm` carry `jsStart`, `contentReady`, `firstRender`, and the available runtime timestamps on that same clock. Subtract `jsStart` for benchmark-JavaScript-start-relative durations. The runtime-ready source distinguishes the dedicated callback, older callback, native-init fallback, `dotnet.create()` resolution, and Uno bootstrap.
+
+Each rendered app declares its initial content: the route heading (Empty Blazor), `#done` on Getting Started (Havit), populated pizza cards (Blazing Pizza), installation content (MudBlazor), gallery links (Ignite UI and Radzen), the dashboard navigation (BenchViewer, independent of published data), Overview loaded (Uno), or the initial native view/tab (Avalonia). Two animation-frame callbacks after content readiness provide a paint opportunity, not confirmation of presented pixels, loading-screen FCP, or time to interactive. Neither initial render nor first interaction waits for deferred R2R. Empty Browser, Micro Benchmarks, BlazorPerf, and CLI runs do not report the new render metrics.
+
+First interaction uses separate navigations so its work cannot change startup counters or warm the cache used for startup measurement. A warm interaction reloads a context primed only by the home page. Its clock starts just before the scripted click or managed action, not at navigation or JS start. These are app-specific measurements, not a general time-to-interactive metric or a substitute for walkthroughs.
+
+| App | First interaction |
+|-----|-------------------|
+| Empty Blazor | Counter navigation to the initialized count |
+| Blazing Pizza | First pizza card to the configuration dialog |
+| Havit Bootstrap | Inputs sidebar link to the Inputs content |
+| MudBlazor | Docs link to the component overview |
+| Ignite UI Light | Input gallery link to the Input demo |
+| Radzen Blazor | Accordion gallery link to the route-render acknowledgment and subsequent paint opportunity |
+| BenchViewer | NET12 Focus link to the initialized comparison controls, not the fetched charts |
+| Uno Gallery | Managed navigation to the loaded Button demo |
+| Semi Avalonia | Managed selection of the Palette tab |
+| Avalonia Bench | Managed preparation and rendering of the virtualized scroll scenario; scrolling is not timed |
 
 ## Throttle profiles
 

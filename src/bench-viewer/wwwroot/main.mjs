@@ -5,7 +5,10 @@ import * as chartInterop from './chart/chart-interop.js';
 import * as focusInterop from './chart/focus-interop.js';
 import { restorePagesRoute } from './pages-navigation.mjs';
 import * as debugInterop from './chart/debug-interop.js';
-import { withRuntimeReady } from './runtime-ready.mjs';
+import { configureStartupRuntime } from './runtime-ready.mjs';
+import { observeInitialContent, registerDomFirstInteraction } from './startup-metrics.mjs';
+
+registerDomFirstInteraction('.dashboard-mode-tabs a[href="net12-focus"]', '.net12-focus #focus-flavor:not([disabled])');
 
 function setManagedReady() {
     globalThis.dotnet_managed_ready = performance.now();
@@ -29,27 +32,15 @@ function setManagedReady() {
 async function outer() {
     restorePagesRoute(document.baseURI, window.location, window.history);
     globalThis.js_loaded = performance.now();
+    observeInitialContent('.dashboard-mode-tabs a[aria-current="page"]');
 
     await Blazor.start({
-        configureRuntime: dotnet => {
-            dotnet.withModuleConfig({
-                onRuntimeInitialized: () => {
-                    console.log("Blazor runtime initialized");
-                }
-            });
-            withRuntimeReady(dotnet, () => {
-                globalThis.dotnet_created = performance.now();
-                const { setModuleImports } = globalThis.getDotnetRuntime(0);
-                setModuleImports('chart-interop.js', chartInterop);
-                setModuleImports('focus-interop.js', focusInterop);
-                setModuleImports('debug-interop.js', debugInterop);
-                setModuleImports('main.mjs', {
-                    bench: {
-                        setManagedReady
-                    }
-                });
-            });
-        }
+        configureRuntime: dotnet => configureStartupRuntime(dotnet, ({ setModuleImports }) => {
+            setModuleImports('chart-interop.js', chartInterop);
+            setModuleImports('focus-interop.js', focusInterop);
+            setModuleImports('debug-interop.js', debugInterop);
+            setModuleImports('main.mjs', { bench: { setManagedReady } });
+        }),
     });
 }
 

@@ -5,6 +5,8 @@ using Avalonia.Markup.Xaml;
 using Semi.Avalonia.Demo.ViewModels;
 using Semi.Avalonia.Demo.Views;
 using System.Runtime.InteropServices.JavaScript;
+using System;
+using System.Threading.Tasks;
 
 namespace Semi.Avalonia.Demo;
 
@@ -31,4 +33,20 @@ public partial class App : Application
 
     [JSImport("bench.setManagedReady", "main.mjs")]
     internal static partial void SetManagedReady();
+
+    [JSImport("bench.setContentReady", "main.mjs")]
+    internal static partial void SetContentReady();
+
+    [JSImport("bench.setFirstFrameRendered", "main.mjs")]
+    internal static partial void SetFirstFrameRendered();
+
+    [JSExport]
+    internal static Task SelectPaletteForBenchmark()
+    {
+        if (Current?.ApplicationLifetime is not ISingleViewApplicationLifetime { MainView: MainView view })
+        {
+            throw new InvalidOperationException("Semi Avalonia's main view is not available.");
+        }
+        return view.SelectPaletteForBenchmark();
+    }
 }

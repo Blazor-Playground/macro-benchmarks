@@ -26,7 +26,7 @@ public partial class MainView : UserControl
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        LogRenderedTab(tab);
+        LogRenderedTab(tab, initial: true);
     }
 
     private void OnTabSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -38,17 +38,26 @@ public partial class MainView : UserControl
         }
     }
 
-    private void LogRenderedTab(TabControl tabControl)
+    private void LogRenderedTab(TabControl tabControl, bool initial = false)
     {
         if (tabControl.SelectedItem is not TabItem { Header: string header } tabItem || TopLevel.GetTopLevel(this) is not { } topLevel)
         {
             return;
         }
 
+        if (initial)
+        {
+            App.SetContentReady();
+        }
+
         topLevel.RequestAnimationFrame(_ => topLevel.RequestAnimationFrame(_ =>
         {
             if (tabControl.SelectedItem == tabItem)
             {
+                if (initial)
+                {
+                    App.SetFirstFrameRendered();
+                }
                 // The walkthrough script waits for "[semi-rendered] <tab>".
                 // Run it on the next two frames to ensure that the tab is fully rendered.
                 Console.WriteLine($"[semi-rendered] {header}");
@@ -66,6 +75,20 @@ public partial class MainView : UserControl
                 break;
             }
         }
+    }
+
+    internal Task SelectPaletteForBenchmark()
+    {
+        var topLevel = TopLevel.GetTopLevel(this) ?? throw new InvalidOperationException("MainView is not attached.");
+        MessageHandler(this, "Palette");
+        if (tab.SelectedItem is not TabItem { Header: "Palette" })
+        {
+            throw new InvalidOperationException("The Palette tab was not selected.");
+        }
+
+        var completion = new TaskCompletionSource();
+        topLevel.RequestAnimationFrame(_ => topLevel.RequestAnimationFrame(_ => completion.SetResult()));
+        return completion.Task;
     }
 }
 

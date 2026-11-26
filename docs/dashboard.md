@@ -135,7 +135,7 @@ Download measurements are not assumed to be profile-independent.
 
 | Card | Published key | Display and boundary |
 |---|---|---|
-| Cold startup / Time to managed (cold) | `time-to-reach-managed-cold` | Milliseconds from JS bootstrap to managed-ready, not runtime creation or navigation-to-LCP |
+| Cold first render | `time-to-first-render-cold` | Milliseconds from navigation to the first paint opportunity for required app content; not confirmed pixel presentation or time to interactive |
 | Walkthrough | App-specific, e.g. `havit-walkthrough` | Scenario milliseconds converted to seconds; initial load excluded |
 | Cold download size | `download-size-cold` | First cold-load encoded bytes in binary MiB (1,048,576 bytes) |
 | Build time | `compile-time` | Clean publish milliseconds converted to seconds; preceding restore excluded |

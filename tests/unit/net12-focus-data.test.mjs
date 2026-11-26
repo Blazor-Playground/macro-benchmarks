@@ -102,10 +102,10 @@ test('unit conversion is presentation-only, with binary MiB and publish millisec
     assert.equal(formatFocusValue(null, metrics[0]), 'Not available');
 });
 
-test('cold startup is explicitly time to managed on desktop, not runtime creation or mobile', () => {
+test('cold first render is navigation-relative and uses the selected desktop rows', () => {
     const definition = focusMetrics('havit-bootstrap')[0];
-    assert.equal(definition.key, 'time-to-reach-managed-cold');
-    assert.match(definition.description, /Time to managed \(cold\)/);
+    assert.equal(definition.key, 'time-to-first-render-cold');
+    assert.match(definition.description, /navigation to the first paint opportunity/);
     const result = report();
     assert.match(result.metrics[0].description, /desktop\/Chromium.*no CPU or network throttling/);
     const fixture = focusFixture();
@@ -116,6 +116,20 @@ test('cold startup is explicitly time to managed on desktop, not runtime creatio
     assert.equal(latest.coreclr, rows['coreclr/no-workload/desktop/chrome'][latest.observation.columnIndex]);
     assert.notEqual(latest.mono, rows['mono/no-workload/mobile/chrome'][latest.observation.columnIndex]);
     assert.notEqual(latest.coreclr, rows['coreclr/no-workload/mobile/chrome'][latest.observation.columnIndex]);
+});
+
+test('historical managed initialization does not fill missing first-render data', () => {
+    const fixture = focusFixture();
+    const app = 'havit-bootstrap';
+    const key = 'time-to-first-render-cold';
+    for (const bucket of fixture.buckets) {
+        assert.ok(bucket.appMetrics[app]['time-to-reach-managed-cold']);
+        bucket.header.apps[app] = bucket.header.apps[app].filter(metric => metric !== key);
+        delete bucket.appMetrics[app][key];
+    }
+    const startup = report(app, '14d', now, fixture).metrics[0];
+    assert.equal(startup.latest, null);
+    assert.ok(startup.points.every(point => point.mono === null && point.coreclr === null));
 });
 
 test('14 inclusive UTC days and calendar months handle leap years, clamping and offsets', () => {

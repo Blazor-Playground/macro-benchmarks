@@ -8,6 +8,7 @@ import { runInNewContext } from 'node:vm';
 
 const srcRoot = fileURLToPath(new URL('../../src/', import.meta.url));
 const legacyCallback = /\bon(?:ConfigLoaded|DotnetReady|DownloadResourceProgress)\s*:/;
+const runtimeBridge = (await readFile(join(srcRoot, 'runtime-ready.mjs'), 'utf8')).replace(/^export /gm, '');
 
 async function collectMainModules(directory) {
     const modules = [];
@@ -36,7 +37,7 @@ test('Blazor apps use dedicated runtime builder callback APIs', async () => {
         const appPath = relative(srcRoot, path);
         assert.doesNotMatch(source, legacyCallback, `${appPath} uses a legacy module callback`);
         if (source.includes('setModuleImports(')) {
-            assert.match(source, /withRuntimeReady\s*\(dotnet,/, `${appPath} must use the shared runtime ready API bridge`);
+            assert.match(source, /configureStartupRuntime\s*\(dotnet,/, `${appPath} must use the shared runtime ready API bridge`);
         }
     }
 
@@ -70,6 +71,8 @@ test('viewer ready registration works with modern and retained older SDK builder
         let tick = 0;
         const context = {
             chartInterop: {}, focusInterop: {}, debugInterop: {}, restorePagesRoute: () => {},
+            observeInitialContent: () => {},
+            registerDomFirstInteraction: () => {},
             document: { baseURI: 'http://local/', getElementById: () => null },
             window: { location: {}, history: {} },
             console: { log: () => {}, warn: message => warnings.push(message) },
@@ -90,44 +93,8 @@ test('viewer ready registration works with modern and retained older SDK builder
                 registrations.find(entry => entry.name === 'main.mjs').imports.bench.setManagedReady();
             } },
         };
-        await runInNewContext(`const withRuntimeReady = ${withRuntimeReady.toString()}; (async () => { ${executable} })()`, context);
+        await runInNewContext(`${runtimeBridge}\n(async () => { ${executable} })()`, context);
         assert.deepEqual(registrations.map(entry => entry.name), ['chart-interop.js', 'focus-interop.js', 'debug-interop.js', 'main.mjs']);
-        assert.equal(context.bench_complete, true);
-        assert.equal(warnings.length, modern ? 0 : 1);
-    }
-});
-
-test('Havit registers imports and preserves ready timing with modern, legacy and omitted ready callbacks', async () => {
-    const source = (await readFile(join(srcRoot, 'havit-bootstrap', 'wwwroot', 'main.mjs'), 'utf8'))
-        .replace(/^import .+;$/gm, '');
-    for (const [modern, firesReady] of [[true, true], [false, true], [false, false]]) {
-        const registrations = [];
-        const warnings = [];
-        let tick = 0;
-        const context = {
-            window: {}, document: { getElementById: () => null },
-            console: { log: () => {}, warn: message => warnings.push(message) },
-            performance: { now: () => ++tick },
-            getDotnetRuntime: () => ({
-                Module: { HEAPU8: { byteLength: 4096 } },
-                setModuleImports: (name, imports) => registrations.push({ name, imports }),
-            }),
-            Blazor: { start: async options => {
-                const config = {};
-                let ready;
-                options.configureRuntime({
-                    withModuleConfig: values => Object.assign(config, values),
-                    ...(modern ? { withDotnetReady: callback => { ready = callback; } } : {}),
-                });
-                config.onRuntimeInitialized();
-                assert.equal(context.dotnet_created, 2);
-                if (firesReady) (modern ? ready : config.onDotnetReady)();
-                registrations.at(-1).imports.bench.setManagedReady();
-            } },
-        };
-        await runInNewContext(`const withRuntimeReady = ${withRuntimeReady.toString()}; (async () => { ${source} })()`, context);
-        assert.deepEqual(registrations.map(entry => entry.name), firesReady ? ['main.mjs', 'main.mjs'] : ['main.mjs']);
-        assert.equal(context.dotnet_created, firesReady ? 3 : 2);
         assert.equal(context.bench_complete, true);
         assert.equal(warnings.length, modern ? 0 : 1);
     }

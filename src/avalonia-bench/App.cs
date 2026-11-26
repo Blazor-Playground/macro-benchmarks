@@ -29,7 +29,8 @@ public sealed class App : Application
         var host = (BenchHost)sender!;
         host.AttachedToVisualTree -= OnHostAttached;
 
-        // The second animation-frame callback only runs once the first frame has been presented.
+        BenchInterop.SetContentReady();
+        // Allow a paint opportunity after attaching the benchmark view.
         await host.WaitForFramesAsync(2);
         BenchInterop.SetFirstFrameRendered();
     }

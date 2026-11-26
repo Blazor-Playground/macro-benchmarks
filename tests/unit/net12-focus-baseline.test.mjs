@@ -95,7 +95,7 @@ test('no-workload holes and a missing individual metric row never acquire native
         }
         delete bucket.metrics['compile-time']['coreclr/no-workload/desktop/chrome'];
     }
-    const rows = publication.buckets[1].metrics['time-to-reach-managed-cold'];
+    const rows = publication.buckets[1].metrics['time-to-first-render-cold'];
     rows['coreclr/no-workload/mobile/chrome'][14] = null;
     rows['mono/no-workload/mobile/chrome'][13] = null;
     const result = buildFocusReport(publication, 'havit-bootstrap', '14d', now, { flavor: 'release-release', startupProfile: 'mobile' });
@@ -223,7 +223,7 @@ test('missing Mono12 uses matching GA11 rows without adding GA dates to SDK12 hi
 
 test('valid Mono12 wins, invalid values do not fall back, and comparison windows reset at transition', () => {
     const fixture = monoGaFixture();
-    const rows = fixture.buckets[1].appMetrics['havit-bootstrap']['time-to-reach-managed-cold'];
+    const rows = fixture.buckets[1].appMetrics['havit-bootstrap']['time-to-first-render-cold'];
     const original = rows['mono/no-workload/mobile/chrome'][12];
     rows['mono/no-workload/mobile/chrome'][13] = 0;
     rows['mono/no-workload/mobile/chrome'][14] = null;
@@ -257,7 +257,7 @@ test('latest valid GA measurement excludes previews, custom builds and wrong-pro
     let metric = buildFocusReport(publication, 'havit-bootstrap', '14d', now).metrics[0];
     assert.equal(metric.latest.mono, 500);
     assert.equal(metric.latest.monoBaseline.sdkVersion, '11.0.101');
-    delete ga.appMetrics['havit-bootstrap']['time-to-reach-managed-cold']['mono/no-workload/mobile/chrome'];
+    delete ga.appMetrics['havit-bootstrap']['time-to-first-render-cold']['mono/no-workload/mobile/chrome'];
     metric = buildFocusReport(publicationFor('havit-bootstrap', fixture), 'havit-bootstrap', '14d', now).metrics[0];
     assert.equal(metric.latest, null, 'desktop and Firefox cannot replace the selected mobile/Chromium row');
 });
@@ -265,7 +265,7 @@ test('latest valid GA measurement excludes previews, custom builds and wrong-pro
 test('point details keep separate main and GA-baseline environments; older records stay unknown', () => {
     const fixture = monoGaFixture();
     const latest = fixture.buckets[1];
-    const key = 'time-to-reach-managed-cold';
+    const key = 'time-to-first-render-cold';
     latest.appMetrics['havit-bootstrap'][key]['mono/no-workload/mobile/chrome'][14] = null;
     latest.environments = { 'havit-bootstrap': { [key]: {
         'coreclr/aot/mobile/chrome': latest.header.columns.map(() => [{ os: 'Ubuntu 24.04', arch: 'arm64' }]),

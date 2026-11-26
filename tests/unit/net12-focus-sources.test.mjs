@@ -67,7 +67,7 @@ test('a GA fallback never inherits the source descriptor of an unmeasured Mono a
     const { publication, bucket } = splitFixture(monoGaFixture());
     const row = 'mono/no-workload/desktop/chrome';
     const coreRow = 'coreclr/no-workload/desktop/chrome';
-    const metric = 'time-to-reach-managed-cold';
+    const metric = 'time-to-first-render-cold';
     bucket.metrics[metric][row][bucket.header.columns.length - 1] = null;
     bucket.environments = { [metric]: { [coreRow]: bucket.header.columns.map(() => [{ os: 'Core host', arch: 'x64' }]) } };
     const ga = publication.buckets.find(item => item.path === 'releases/net11');

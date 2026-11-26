@@ -156,7 +156,7 @@ export async function findLatestComparison(output, artifacts = artifactsRoot, wr
     return latest;
 }
 const metrics = [
-    { title: 'Cold startup', profile: 'mobile', key: 'time-to-reach-managed-cold', unit: 'ms', divisor: 1 },
+    { title: 'Cold first render', profile: 'mobile', key: 'time-to-first-render-cold', unit: 'ms', divisor: 1 },
     { title: 'Walkthrough', profile: 'desktop', key: 'havit-walkthrough', unit: 's', divisor: 1000 },
     { title: 'Cold download', profile: 'desktop', key: 'download-size-cold', unit: 'MiB', divisor: 1_048_576 },
     { title: 'Havit publish', profile: 'desktop', key: 'compile-time', unit: 's', divisor: 1000 },
@@ -330,8 +330,8 @@ export function formatResults(data, { bold = terminalStylesEnabled(), color = te
         for (const [label] of sides) {
             const startup = groupFor('mobile').get(label);
             const desktop = groupFor('desktop').get(label);
-            lines.push(`Samples ${label}: mobile cold ${startup?.samples?.['time-to-reach-managed-cold'] ?? 'unknown'}, ` +
-                `warm ${startup?.samples?.['time-to-reach-managed-warm'] ?? 'unknown'}; ` +
+            lines.push(`Samples ${label}: mobile cold ${startup?.samples?.['time-to-first-render-cold'] ?? 'unknown'}, ` +
+                `warm ${startup?.samples?.['time-to-first-render-warm'] ?? 'unknown'}; ` +
                 `desktop walkthrough ${desktop?.samples?.['havit-walkthrough'] ?? 'unknown'}`);
             if (!startup) lines.push(`WARNING: ${label} ${engine}/mobile startup row unavailable; no desktop fallback.`);
             if (!desktop) lines.push(`WARNING: ${label} ${engine}/desktop metric rows unavailable; no mobile fallback.`);

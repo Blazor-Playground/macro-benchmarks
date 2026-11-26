@@ -20,10 +20,26 @@ const runtime = await m.default(context => {
         dotnet: { withModuleConfig(config) { registered = config; } },
         async default(configure) { configure({}); },
     };
-    const bootstrapper = { configure() {}, asDotnetConfig: () => moduleConfig };
-    const run = new Function('m', 'bootstrapper', 'preRun', `return (async () => { ${patched} })();`);
-    return run(m, bootstrapper, preRun).then(() => {
-        assert.deepEqual(registered, { ...moduleConfig, preRun });
+    const calls = [];
+    const bootstrapper = {
+        configure() {}, asDotnetConfig: () => moduleConfig,
+        onDotnetReady: (...args) => calls.push(args),
+    };
+    const globals = {};
+    let tick = 0;
+    const run = new Function('m', 'bootstrapper', 'preRun', 'globalThis', 'performance',
+        `return (async () => { ${patched} })();`);
+    return run(m, bootstrapper, preRun, globals, { now: () => ++tick }).then(() => {
+        assert.equal(registered.onConfigLoaded, moduleConfig.onConfigLoaded);
+        assert.equal(registered.onDownloadResourceProgress, moduleConfig.onDownloadResourceProgress);
+        assert.equal(registered.preRun, preRun);
+        registered.onRuntimeInitialized();
+        registered.onRuntimeInitialized();
+        registered.onDotnetReady('first');
+        registered.onDotnetReady('second');
+        assert.equal(globals.bench_runtime_initialized, 1);
+        assert.deepEqual(globals.bench_runtime_ready, { at: 2, source: 'onDotnetReady' });
+        assert.deepEqual(calls, [['first'], ['second']]);
         assert.equal(fixBootstrap(patched), patched);
     });
 });

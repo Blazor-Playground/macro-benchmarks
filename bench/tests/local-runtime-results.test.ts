@@ -11,8 +11,14 @@ function result(engine: string, profile: string) {
     return {
         meta: { engine, profile },
         metrics: { 'time-to-reach-managed-cold': 200, 'time-to-reach-managed-warm': 100,
+            'time-to-first-render-cold': 420, 'time-to-first-render-warm': 275,
+            'time-to-content-ready-cold': 390, 'time-to-content-ready-warm': 245,
+            'first-interaction-cold': 80, 'first-interaction-warm': 75,
             ...(engine === 'chrome' && profile === 'desktop' ? { 'havit-walkthrough': 500 } : {}) },
         samples: { 'time-to-reach-managed-cold': 2, 'time-to-reach-managed-warm': 1,
+            'time-to-first-render-cold': 2, 'time-to-first-render-warm': 1,
+            'time-to-content-ready-cold': 2, 'time-to-content-ready-warm': 1,
+            'first-interaction-cold': 2, 'first-interaction-warm': 1,
             ...(engine === 'chrome' && profile === 'desktop' ? { 'havit-walkthrough': 1 } : {}) },
     };
 }
@@ -54,7 +60,7 @@ test('failed or incomplete Chrome desktop navigation and incomplete startup stil
     await assert.rejects(validateMeasurementResults(root, new Set(['chrome/desktop']), requested), /Incomplete/);
     const mobile = result('chrome', 'mobile');
     await writeFile(join(root, 'result.json'), JSON.stringify({
-        ...mobile, samples: { ...mobile.samples, 'time-to-reach-managed-cold': 1 },
+        ...mobile, samples: { ...mobile.samples, 'time-to-first-render-cold': 1 },
     }));
     await assert.rejects(validateMeasurementResults(root, new Set(['chrome/mobile']), requested), /Incomplete/);
 });

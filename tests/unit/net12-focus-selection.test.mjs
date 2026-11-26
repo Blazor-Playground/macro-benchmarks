@@ -83,7 +83,7 @@ test('mobile changes startup only; unavailable R2R rows stay gaps even when publ
 test('missing selected-profile or R2R data never falls back to desktop, interpreter or native-relink', () => {
     const fixture = focusFixture();
     for (const bucket of fixture.buckets) {
-        delete bucket.appMetrics['havit-bootstrap']['time-to-reach-managed-cold']['coreclr/aot/mobile/chrome'];
+        delete bucket.appMetrics['havit-bootstrap']['time-to-first-render-cold']['coreclr/aot/mobile/chrome'];
     }
     const report = buildFocusReport(publicationFor('havit-bootstrap', fixture), 'havit-bootstrap', '14d', now());
     assert.equal(report.metrics[0].status, 'incomplete-pair');

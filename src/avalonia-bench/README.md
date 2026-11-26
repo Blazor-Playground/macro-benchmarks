@@ -6,9 +6,11 @@ HarfBuzz ship as static libraries, so only the `native-relink` and `aot` presets
 
 ## Startup metrics
 
-`wwwroot/main.mjs` reports `time-to-create-dotnet` and `time-to-reach-managed`
-(Avalonia `OnFrameworkInitializationCompleted`). A UI app never exits, so there is no `time-to-exit`.
-`bench_complete` is set after the first rendered frame, so scenarios start with the view attached.
+The legacy timings are runtime creation and `OnFrameworkInitializationCompleted`. The
+navigation-relative content marker records attachment of the benchmark view, and first render
+records a paint opportunity using two Avalonia frame callbacks. `bench_complete` also waits for
+the scenario exports, so the first-render timestamp does not depend on scenario setup.
+A UI app never exits, so there is no `time-to-exit`.
 
 ## Scenarios
 

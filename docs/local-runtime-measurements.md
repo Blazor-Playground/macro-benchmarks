@@ -207,7 +207,7 @@ With history, the summary uses the latest passed controls against fixed after;
 `--view matched` uses the saved same-base pair. The UI and CLI show the same view,
 date and comparison path.
 
-The summary uses mobile cold startup and desktop walkthrough/download/publish.
+The summary uses mobile cold first render and desktop walkthrough/download/publish.
 Download uses binary MiB (1 MiB = 1,048,576 bytes); publish time excludes
 restore and runtime builds.
 
@@ -286,8 +286,9 @@ node --import ./bench/node_modules/tsx/dist/loader.mjs \
   --system-chrome --profile desktop,mobile
 ```
 
-Measurements check asset integrity, requested samples, startup and desktop Chrome
-navigation. Mobile and Firefox collect startup only. Firefox requires its
+Local Havit measurements check asset integrity and requested samples for startup, first
+interaction, and desktop Chrome walkthroughs. Mobile and Firefox omit the
+walkthrough, not first interaction. Firefox requires its
 Playwright browser. Each driver has `--help`.
 
 ## Manual runtime builds

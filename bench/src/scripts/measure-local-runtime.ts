@@ -43,16 +43,18 @@ export async function validateMeasurementResults(
         if (hasWalkthrough && !(result.metrics?.['havit-walkthrough'] > 0)) {
             throw new Error(`Havit walkthrough failed in ${file}; retained startup data is not a valid performance comparison.`);
         }
-        if (!(result.metrics?.['time-to-reach-managed-cold'] > 0) ||
-            !(result.metrics?.['time-to-reach-managed-warm'] > 0)) {
-            throw new Error(`Missing cold/warm startup metrics in ${file}.`);
-        }
         const walkthroughRuns = requested.walkthroughRuns > 0 ? requested.walkthroughRuns :
             (requested.warmRuns > 1 ? requested.warmRuns * 4 : 1);
-        if (result.samples?.['time-to-reach-managed-cold'] !== requested.coldRuns ||
-            result.samples?.['time-to-reach-managed-warm'] !== requested.warmRuns ||
-            (hasWalkthrough && result.samples?.['havit-walkthrough'] !== walkthroughRuns)) {
-            throw new Error(`Incomplete startup/walkthrough samples in ${file}; refusing to accept a partial measurement.`);
+        for (const key of ['time-to-reach-managed', 'time-to-first-render', 'time-to-content-ready', 'first-interaction']) {
+            for (const [mode, count] of [['cold', requested.coldRuns], ['warm', requested.warmRuns]] as const) {
+                const metric = `${key}-${mode}`;
+                if (!(result.metrics?.[metric] > 0) || result.samples?.[metric] !== count) {
+                    throw new Error(`Incomplete ${metric} samples in ${file}; expected ${count}.`);
+                }
+            }
+        }
+        if (hasWalkthrough && result.samples?.['havit-walkthrough'] !== walkthroughRuns) {
+            throw new Error(`Incomplete Havit walkthrough samples in ${file}; expected ${walkthroughRuns}.`);
         }
     }
 }

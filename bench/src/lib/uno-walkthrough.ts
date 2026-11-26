@@ -19,6 +19,7 @@
  */
 
 import { debug } from '../log.js';
+import { hasFirstRender } from './startup.js';
 import { type WalkthroughOpts } from './walkthrough-types.js';
 
 // Minimal Playwright Page type surface used by the walkthrough
@@ -291,6 +292,7 @@ const browserUnoWalkthrough = (args: unknown): Promise<number> => {
  */
 export async function runUnoWalkthrough(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
     const { page, url, timeout, verbose = false } = opts;
+    if (!page) throw new Error('The Uno walkthrough requires a browser page');
     const log = verbose ? (msg: string) => debug(`Uno: ${msg}`) : () => { };
 
     // ── Capture [uno-nav] console messages from C# SelectionChanged handler ─
@@ -326,10 +328,7 @@ export async function runUnoWalkthrough(opts: WalkthroughOpts<PlaywrightPage>): 
         // ── Step 0: Load home (via Playwright — not part of the timed section) ──
         log('navigating to home...');
         await page.goto(url, { timeout, waitUntil: 'load' });
-        await page.waitForFunction(
-            () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
-            null, { timeout },
-        );
+        await page.waitForFunction(hasFirstRender, null, { timeout });
         log('home loaded');
 
         // Wait for Uno canvas to be created

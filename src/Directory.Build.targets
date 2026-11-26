@@ -16,11 +16,11 @@
     </Target>
     <Target Name="StageBenchmarkRuntimeReady" BeforeTargets="ResolveProjectStaticWebAssets"
             Condition="'$(UsingMicrosoftNETSdkBlazorWebAssembly)' == 'true'">
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)runtime-ready.mjs"
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)runtime-ready.mjs;$(MSBuildThisFileDirectory)startup-metrics.mjs"
               DestinationFolder="$(MSBuildProjectDirectory)/wwwroot" SkipUnchangedFiles="true" />
         <ItemGroup>
-            <Content Include="wwwroot/runtime-ready.mjs" Exclude="@(Content)" />
-            <FileWrites Include="wwwroot/runtime-ready.mjs" />
+            <Content Include="wwwroot/runtime-ready.mjs;wwwroot/startup-metrics.mjs" Exclude="@(Content)" />
+            <FileWrites Include="wwwroot/runtime-ready.mjs;wwwroot/startup-metrics.mjs" />
         </ItemGroup>
     </Target>
 

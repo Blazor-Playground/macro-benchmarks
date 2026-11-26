@@ -21,6 +21,7 @@ using MUXC = Microsoft.UI.Xaml.Controls;
 using MUXCP = Microsoft.UI.Xaml.Controls.Primitives;
 using Window = Microsoft.UI.Xaml.Window;
 using System.Runtime.InteropServices.JavaScript;
+using System.Threading.Tasks;
 
 namespace Uno.Gallery
 {
@@ -511,5 +512,31 @@ namespace Uno.Gallery
 
 		[JSImport("bench.setManagedReady", "main.mjs")]
 		internal static partial void SetManagedReady();
+
+		[JSImport("bench.setContentReady", "main.mjs")]
+		internal static partial void SetContentReady();
+
+		[JSExport]
+		internal static async Task NavigateToButtonDemoForBenchmark()
+		{
+			var app = (App)Current;
+			var shell = app.GetWindowShell(app.MainWindow);
+			app.ShellNavigateTo<ButtonSamplePage>(shell, trySynchronizeCurrentItem: false);
+			if (shell.NavigationView.Content is not ButtonSamplePage page)
+			{
+				throw new InvalidOperationException("The Uno Button sample did not become the current page.");
+			}
+			if (!page.IsLoaded)
+			{
+				var completion = new TaskCompletionSource();
+				void OnLoaded(object sender, RoutedEventArgs args)
+				{
+					page.Loaded -= OnLoaded;
+					completion.SetResult();
+				}
+				page.Loaded += OnLoaded;
+				await completion.Task;
+			}
+		}
 	}
 }

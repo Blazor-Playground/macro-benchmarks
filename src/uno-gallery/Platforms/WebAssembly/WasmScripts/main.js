@@ -15,16 +15,34 @@ function setManagedReady() {
     }
 }
 
+function setContentReady() {
+    if (globalThis.bench_content_ready !== undefined) return;
+    globalThis.bench_content_ready = performance.now();
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        globalThis.bench_first_render = performance.now();
+    }));
+}
+
+globalThis.benchStartFirstInteraction = async () => {
+    const { Uno } = await globalThis.getDotnetRuntime(0).getAssemblyExports('Uno.Gallery');
+    const start = performance.now();
+    await Uno.Gallery.App.NavigateToButtonDemoForBenchmark();
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    return performance.now() - start;
+};
+
 async function outer() {
     const { setModuleImports } = globalThis.getDotnetRuntime(0);
 
     setModuleImports('main.mjs', {
         bench: {
             setManagedReady,
+            setContentReady,
         }
     });
 
     globalThis.dotnet_created = performance.now();
+    globalThis.bench_runtime_ready ??= { at: globalThis.dotnet_created, source: 'uno-bootstrap' };
     globalThis.bench_results = {};
 }
 

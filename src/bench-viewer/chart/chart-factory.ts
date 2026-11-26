@@ -60,11 +60,25 @@ const frozenZonePlugin: ChartPlugin = {
 
 Chart.register(frozenZonePlugin);
 
+function startupTimingDescription(metric: string, appCanvasId: string): string | undefined {
+    switch (metric.replace(/-(cold|warm)$/, '')) {
+        case 'time-to-first-render': return 'Navigation to first paint opportunity for initial content';
+        case 'time-to-content-ready': return 'Navigation to initial content readiness';
+        case 'time-to-runtime-initialized': return 'Navigation to the native/module initialization callback';
+        case 'time-to-runtime-ready': return 'Navigation to the runtime API-ready signal';
+        case 'first-interaction': return 'Scripted app action to a paint opportunity for its response';
+        case 'time-to-reach-managed': return appCanvasId.startsWith('chart-blazor-perf-')
+            ? 'Legacy navigation-relative host/browser lifecycle marker'
+            : 'Legacy benchmark JS start to app-specific managed initialization';
+    }
+}
+
 // ── Chart Creation ───────────────────────────────────────────────────────────
 
 export function createChart(canvas: HTMLCanvasElement, metric: string, mergedDatasets: ChartDatasetBase[], filters: Filters, dataBaseUrl: string, pointClickCallback: ((json: string) => void) | null, tickLayout: TickLayout): ChartInstance {
     const unit = metricUnit(metric);
     const displayName = metricDisplay(metric);
+    const startupDescription = startupTimingDescription(metric, canvas.id);
     const { dividerDates, tickMap: tickToSdk } = tickLayout;
 
     // Convert x from number to Date for Chart.js time scale
@@ -91,6 +105,7 @@ export function createChart(canvas: HTMLCanvasElement, metric: string, mergedDat
                     font: { size: 14, weight: 'bold' },
                     align: 'start',
                 },
+                ...(startupDescription && { subtitle: { display: true, text: startupDescription, align: 'start' } }),
                 legend: {
                     display: true,
                     position: 'bottom',

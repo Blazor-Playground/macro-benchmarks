@@ -78,7 +78,8 @@ test('publish views retain replica environments per metric and never borrow the 
         for (const [replica, os] of ['Ubuntu 24.04', 'Ubuntu 22.04'].entries()) {
             await writeFile(join(resultsDir, `result-${replica}.json`), JSON.stringify({
                 meta: { ...meta, environment: { os, arch: 'arm64' }, buildEnvironment: { os: 'Ubuntu 24.04', arch: 'x64' } },
-                metrics: { 'compile-time': 1000, 'time-to-reach-managed-cold': 100 + replica * 20, 'memory-peak': 50 },
+                metrics: { 'compile-time': 1000, 'time-to-reach-managed-cold': 100 + replica * 20, 'memory-peak': 50,
+                    'time-to-first-render-cold': 250, 'time-to-first-render-warm': 150 },
                 ...(replica === 0 ? { rawSamples: { 'time-to-reach-managed-cold': [100] } } : {}),
             }));
         }
@@ -94,6 +95,10 @@ test('publish views retain replica environments per metric and never borrow the 
             'sample-pooled metrics exclude replicas without raw samples');
         const memory = JSON.parse(await readFile(join(dir, 'havit-bootstrap_memory-peak.environment.json'), 'utf8'));
         assert.deepEqual(memory[row][0].map((e: { os: string }) => e.os).sort(), ['Ubuntu 22.04', 'Ubuntu 24.04']);
+        for (const [mode, value] of [['cold', 250], ['warm', 150]] as const) {
+            const render = JSON.parse(await readFile(join(dir, `havit-bootstrap_time-to-first-render-${mode}.json`), 'utf8'));
+            assert.deepEqual(render[row], [value]);
+        }
         const header = JSON.parse(await readFile(join(dir, 'header.json'), 'utf8'));
         assert.equal(header.columns[0].environment, undefined, 'one runner must not become SDK-wide metadata');
         save();
@@ -107,7 +112,7 @@ test('publish views retain replica environments per metric and never borrow the 
         }));
         await transformViews({ ...ctx, resultsDir: legacyDir });
         const updated = JSON.parse(await readFile(join(dir, 'header.json'), 'utf8'));
-        assert.deepEqual(updated.environments['havit-bootstrap'], ['compile-time', 'memory-peak'],
+        assert.deepEqual(updated.environments['havit-bootstrap'], ['compile-time', 'memory-peak', 'time-to-first-render-cold', 'time-to-first-render-warm'],
             'an unknown overwrite clears stale host metadata');
         assert.deepEqual(JSON.parse(await readFile(join(dir, 'havit-bootstrap_time-to-reach-managed-cold.json'), 'utf8'))[row], [135]);
         assert.deepEqual(JSON.parse(await readFile(join(dir, 'havit-bootstrap_compile-time.environment.json'), 'utf8')), build);

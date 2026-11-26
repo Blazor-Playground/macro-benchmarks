@@ -24,11 +24,11 @@ function fixture() {
             meta: { app: 'havit-bootstrap', runtime: 'coreclr', preset: 'no-workload',
                 profile, engine: 'chrome', benchmarkDateTime: '2026-10-08T12:00:00Z' },
             metrics: {
-                'time-to-reach-managed-cold': cold * (profile === 'mobile' ? 2 : 1),
-                'time-to-reach-managed-warm': cold - 100,
+                'time-to-first-render-cold': cold * (profile === 'mobile' ? 2 : 1),
+                'time-to-first-render-warm': cold - 100,
                 'havit-walkthrough': 9000, 'compile-time': 40000, 'download-size-cold': 5000000,
             },
-            samples: { 'time-to-reach-managed-cold': 5, 'time-to-reach-managed-warm': 3 },
+            samples: { 'time-to-first-render-cold': 5, 'time-to-first-render-warm': 3 },
         })),
     });
     return {
@@ -110,7 +110,7 @@ test('Mono reference makes the main percentage CoreCLR-after versus Mono-before 
     data.monoBefore.manifest.runtime = 'mono';
     data.monoBefore.results.forEach(result => {
         result.meta.runtime = 'mono';
-        result.metrics['time-to-reach-managed-cold'] = 200;
+        result.metrics['time-to-first-render-cold'] = 200;
     });
     const result = localFocusReport(data, 'desktop');
     const startup = result.report.metrics[0];
@@ -210,7 +210,7 @@ test('daily baseline history uses chronological source days, fixed after values 
     const entry = (day, digit, cold) => {
         const before = structuredClone(data.before);
         before.manifest.sdkInfo.runtimeGitHash = digit.repeat(40);
-        before.results.forEach(result => { result.metrics['time-to-reach-managed-cold'] = cold; });
+        before.results.forEach(result => { result.metrics['time-to-first-render-cold'] = cold; });
         return { day, commit: digit.repeat(40), status: 'passed', before };
     };
     data.beforeHistory = [
@@ -270,7 +270,7 @@ test('daily three-series history uses a Mono control matched to each day rather 
         monoBefore.manifest.runtime = 'mono';
         monoBefore.results.forEach(row => {
             row.meta.runtime = 'mono';
-            row.metrics['time-to-reach-managed-cold'] = 100 + index * 50;
+            row.metrics['time-to-first-render-cold'] = 100 + index * 50;
         });
 
         return { day, commit: before.manifest.sdkInfo.runtimeGitHash, status: 'passed', before, monoBefore };

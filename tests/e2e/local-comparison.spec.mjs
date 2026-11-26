@@ -14,9 +14,9 @@ function run(runtime, cold, commit = 'a'.repeat(40), dirty = false) {
         results: ['desktop', 'mobile'].map(profile => ({
             meta: { app: 'havit-bootstrap', runtime, preset, engine: 'chrome', profile,
                 benchmarkDateTime: '2026-10-14T12:00:00Z', timingAggregation: { rounds: 3 } },
-            metrics: { 'time-to-reach-managed-cold': cold, 'time-to-reach-managed-warm': 250,
+            metrics: { 'time-to-first-render-cold': cold, 'time-to-first-render-warm': 250,
                 'havit-walkthrough': 2000, 'download-size-cold': 5000000, 'compile-time': 10000 },
-            samples: { 'time-to-reach-managed-cold': 30, 'time-to-reach-managed-warm': 15 },
+            samples: { 'time-to-first-render-cold': 30, 'time-to-first-render-warm': 15 },
         })),
     };
 }
@@ -71,7 +71,7 @@ test('local history keeps before dots separate from its after reference, reloads
     ]);
 
     data.comparisonPath = '/fixture/next/comparison.json';
-    for (const row of data.after.results) row.metrics['time-to-reach-managed-cold'] = 600;
+    for (const row of data.after.results) row.metrics['time-to-first-render-cold'] = 600;
     await page.getByRole('button', { name: 'Reload local data' }).click();
     await expect(card.locator('.focus-values dd')).toHaveText(['600 ms', '800 ms', '1,100 ms']);
     await expect(page.locator('.focus-cohort dd[title]')).toHaveText(data.comparisonPath);

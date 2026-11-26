@@ -101,6 +101,16 @@ export enum MetricKey {
     DownloadSizeWarm = 'download-size-warm',
     ServerRequestsCold = 'server-requests-cold',
     ServerRequestsWarm = 'server-requests-warm',
+    TimeToFirstRenderCold = 'time-to-first-render-cold',
+    TimeToFirstRenderWarm = 'time-to-first-render-warm',
+    TimeToContentReadyCold = 'time-to-content-ready-cold',
+    TimeToContentReadyWarm = 'time-to-content-ready-warm',
+    TimeToRuntimeInitializedCold = 'time-to-runtime-initialized-cold',
+    TimeToRuntimeInitializedWarm = 'time-to-runtime-initialized-warm',
+    TimeToRuntimeReadyCold = 'time-to-runtime-ready-cold',
+    TimeToRuntimeReadyWarm = 'time-to-runtime-ready-warm',
+    FirstInteractionCold = 'first-interaction-cold',
+    FirstInteractionWarm = 'first-interaction-warm',
     TimeToReachManagedWarm = 'time-to-reach-managed-warm',
     TimeToReachManagedCold = 'time-to-reach-managed-cold',
     TimeToCreateDotnetWarm = 'time-to-create-dotnet-warm',
@@ -164,6 +174,8 @@ export interface AppConfig {
     internal: boolean;
     /** Only runs with Mono runtime (no CoreCLR support) */
     monoOnly: boolean;
+    /** Reports initial content and paint-opportunity milestones in browser runs. */
+    initialRender?: boolean;
     /**
      * App hosts its own ASP.NET Core Kestrel server instead of being served as a static site.
      * Effects:
@@ -184,21 +196,21 @@ export interface AppConfig {
 export const APP_CONFIG: Record<App, AppConfig> = {
     [App.EmptyBrowser]: { browserOnly: false, internal: false, monoOnly: false },
     [App.MicroBenchmarks]: { browserOnly: false, internal: true, monoOnly: false },
-    [App.EmptyBlazor]: { browserOnly: true, internal: false, monoOnly: false },
+    [App.EmptyBlazor]: { browserOnly: true, internal: false, monoOnly: false, initialRender: true },
     [App.BlazorPerf]: { browserOnly: true, internal: false, monoOnly: false, kestrelHosted: true, projectPath: 'BlazorPerf/BlazorPerf.csproj' },
-    [App.BlazingPizza]: { browserOnly: true, internal: false, monoOnly: false },
-    [App.HavitBootstrap]: { browserOnly: true, internal: false, monoOnly: false },
-    [App.MudBlazor]: { browserOnly: true, internal: false, monoOnly: false },
-    [App.IgniteUILight]: { browserOnly: true, internal: false, monoOnly: false },
-    [App.RadzenBlazor]: { browserOnly: true, internal: false, monoOnly: false },
+    [App.BlazingPizza]: { browserOnly: true, internal: false, monoOnly: false, initialRender: true },
+    [App.HavitBootstrap]: { browserOnly: true, internal: false, monoOnly: false, initialRender: true },
+    [App.MudBlazor]: { browserOnly: true, internal: false, monoOnly: false, initialRender: true },
+    [App.IgniteUILight]: { browserOnly: true, internal: false, monoOnly: false, initialRender: true },
+    [App.RadzenBlazor]: { browserOnly: true, internal: false, monoOnly: false, initialRender: true },
 
-    [App.BenchViewer]: { browserOnly: true, internal: false, monoOnly: false },
+    [App.BenchViewer]: { browserOnly: true, internal: false, monoOnly: false, initialRender: true },
     // Uno's WASM bootstrap isn't CoreCLR-compatible.
-    [App.UnoGallery]: { browserOnly: true, internal: false, monoOnly: true },
+    [App.UnoGallery]: { browserOnly: true, internal: false, monoOnly: true, initialRender: true },
     // semi-avalonia gains CoreCLR from .NET 12 (gated in shouldSkipBuild).
-    [App.SemiAvalonia]: { browserOnly: true, internal: false, monoOnly: false },
+    [App.SemiAvalonia]: { browserOnly: true, internal: false, monoOnly: false, initialRender: true },
     // avalonia-bench: minimal Avalonia.Browser app for startup + Avalonia scenario benchmarks.
-    [App.AvaloniaBench]: { browserOnly: true, internal: false, monoOnly: false },
+    [App.AvaloniaBench]: { browserOnly: true, internal: false, monoOnly: false, initialRender: true },
 };
 
 // ── Preset Constraints ───────────────────────────────────────────────────────

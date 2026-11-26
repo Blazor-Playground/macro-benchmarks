@@ -10,6 +10,16 @@ export function focusFixture() {
             column.sdkCommitDateTime ??= `${column.releaseDate}T06:15:00Z`;
             column.vmrCommitDateTime ??= `${column.releaseDate}T04:30:00Z`;
         }
+        // The recorded fixture predates first render. Reuse its series shape for the synthetic first-render tests.
+        for (const [app, rows] of Object.entries(bucket.appMetrics)) {
+            const legacy = 'time-to-reach-managed-cold';
+            const firstRender = 'time-to-first-render-cold';
+            if (!rows[legacy]) continue;
+            rows[firstRender] = structuredClone(rows[legacy]);
+            bucket.header.apps[app].push(firstRender);
+            const environments = bucket.environments?.[app];
+            if (environments?.[legacy]) environments[firstRender] = structuredClone(environments[legacy]);
+        }
     }
     return fixture;
 }
@@ -94,7 +104,7 @@ export function expectedComparison(app, flavor, startupProfile, fixture = focusF
         }
         identities.add(identity);
     }
-    return ['time-to-reach-managed-cold', walkthrough, 'download-size-cold', 'compile-time'].map((key, metricIndex) => {
+    return ['time-to-first-render-cold', walkthrough, 'download-size-cold', 'compile-time'].map((key, metricIndex) => {
         const profile = metricIndex === 0 ? startupProfile : 'desktop';
         const coreclrRow = `coreclr/${presets[0]}/${profile}/chrome`;
         const monoRow = `mono/${presets[1]}/${profile}/chrome`;

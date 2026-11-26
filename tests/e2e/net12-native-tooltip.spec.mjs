@@ -177,7 +177,7 @@ test('native tooltip keeps independent window counts, raw values and full SDK id
     expect(tooltip.body[2]).toContain(`Mean +${source.percent.toFixed(1)}; min +${source.percent.toFixed(1)}; max +${source.percent.toFixed(1)}%`);
 
     await canvas.click({ position: selected.position });
-    const detail = page.getByRole('dialog', { name: 'Cold startup' });
+    const detail = page.getByRole('dialog', { name: 'Cold first render' });
     await expect(detail).toBeVisible();
     await expect(detail).toContainText(source.sdk);
     await expect(detail).toContainText(source.runtimePackVersion);

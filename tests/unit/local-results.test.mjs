@@ -20,15 +20,15 @@ function run(runtime, cold, warm, download = 4936829) {
         results: [{
             meta: { app: 'havit-bootstrap', runtime, preset: 'no-workload', engine: 'chrome', profile: 'desktop',
                 benchmarkDateTime: '2026-10-08T12:00:00Z' },
-            metrics: { 'time-to-reach-managed-cold': cold + 10000, 'time-to-reach-managed-warm': warm + 10000,
+            metrics: { 'time-to-first-render-cold': cold + 10000, 'time-to-first-render-warm': warm + 10000,
                 'download-size-cold': download, 'havit-walkthrough': 9589, 'compile-time': 41999 },
-            samples: { 'time-to-reach-managed-cold': 5, 'time-to-reach-managed-warm': 3, 'havit-walkthrough': 1 },
+            samples: { 'time-to-first-render-cold': 5, 'time-to-first-render-warm': 3, 'havit-walkthrough': 1 },
         }, {
             meta: { app: 'havit-bootstrap', runtime, preset: 'no-workload', engine: 'chrome', profile: 'mobile',
                 benchmarkDateTime: '2026-10-08T12:00:00Z' },
-            metrics: { 'time-to-reach-managed-cold': cold, 'time-to-reach-managed-warm': warm,
+            metrics: { 'time-to-first-render-cold': cold, 'time-to-first-render-warm': warm,
                 'download-size-cold': 99000000 },
-            samples: { 'time-to-reach-managed-cold': 5, 'time-to-reach-managed-warm': 3 },
+            samples: { 'time-to-first-render-cold': 5, 'time-to-first-render-warm': 3 },
         }],
     };
 }
@@ -83,9 +83,9 @@ test('summary prints real units, samples, SDK/TFM, the Mono denominator and Core
     assert.match(text, /9\.59 s/);
     assert.match(text, /42\.00 s/);
     assert.match(text, /mobile cold 5, warm 3; desktop walkthrough 1/);
-    assert.match(text, /Cold startup \(mobile\)/);
+    assert.match(text, /Cold first render \(mobile\)/);
     assert.match(text, /Walkthrough \(desktop\)/);
-    assert.doesNotMatch(text, /Warm startup|12,351 ms|94\.414 MiB/);
+    assert.doesNotMatch(text, /Warm first render|12,351 ms|94\.414 MiB/);
     assert.equal((text.match(/Havit \/ chrome \/ NET12 focus/g) ?? []).length, 1);
     assert.match(text, /TFM net11\.0/);
     assert.match(text, /Checkout: \/recorded\/clean-runtime/);
@@ -119,7 +119,7 @@ test('console focus metrics use the same mobile/desktop values as the dashboard'
     assert.match(text, /2,351 ms/);
     assert.equal(dashboard.report.metrics[2].latest.coreclr, 4936829);
     assert.match(text, /4\.708 MiB/);
-    assert.doesNotMatch(text, /12,351 ms|94\.414 MiB|Warm startup/);
+    assert.doesNotMatch(text, /12,351 ms|94\.414 MiB|Warm first render/);
 });
 
 test('history and matched console views use the same controls as the corresponding UI view', () => {
@@ -159,7 +159,7 @@ test('all-unmeasured history shows the fixed after and unavailable comparisons w
     const text = formatResults(input, { bold: false, color: false });
     assert.match(text, /View: history; no successful historical baseline/);
     assert.match(text, /2026-10-09: failed.*unsupported snapshot/);
-    assert.match(text, /unavailable\s+unavailable\s+Cold startup \(mobile\)\s+unavailable\s+unavailable\s+2,351 ms/);
+    assert.match(text, /unavailable\s+unavailable\s+Cold first render \(mobile\)\s+unavailable\s+unavailable\s+2,351 ms/);
     assert.doesNotMatch(text, /268 ms|404 ms|\+777\.2%|\+481\.9%/);
     assert.match(text, /fixed reference, not a historical observation/);
 });
@@ -167,7 +167,7 @@ test('all-unmeasured history shows the fixed after and unavailable comparisons w
 test('comparison columns lead every metric row and their definitions appear below the table', () => {
     const text = formatResults(data(), { bold: false, color: false });
     assert.match(text, /^NET12 focus\s+CoreCLR change\s+Metric\s+Mono before/m);
-    assert.match(text, /^\+777\.2% slower\s+\+481\.9% slower\s+Cold startup \(mobile\)/m);
+    assert.match(text, /^\+777\.2% slower\s+\+481\.9% slower\s+Cold first render \(mobile\)/m);
     assert.doesNotMatch(text, /Main change/);
     const footer = text.indexOf('NET12 focus: 100 *');
     assert.ok(footer > text.indexOf('Havit publish (desktop)'));
@@ -351,8 +351,8 @@ test('one current pointer selects pooled history evidence and ignores stale dash
     for (const side of ['before', 'monoBefore']) {
         historyInput[side].manifest.sdkInfo.runtimeGitHash = 'c'.repeat(40);
     }
-    historyInput.before.results.find(row => row.meta.profile === 'mobile').metrics['time-to-reach-managed-cold'] = 500;
-    historyInput.monoBefore.results.find(row => row.meta.profile === 'mobile').metrics['time-to-reach-managed-cold'] = 300;
+    historyInput.before.results.find(row => row.meta.profile === 'mobile').metrics['time-to-first-render-cold'] = 500;
+    historyInput.monoBefore.results.find(row => row.meta.profile === 'mobile').metrics['time-to-first-render-cold'] = 300;
     const history = await save('history', '2026-10-11T12:00:00Z', historyInput);
     latest.comparison.beforeHistory = [{ day: '2026-10-11', commit: 'c'.repeat(40), status: 'passed',
         before: history.comparison.before, monoBefore: history.comparison.monoBefore }];
@@ -361,7 +361,7 @@ test('one current pointer selects pooled history evidence and ignores stale dash
     const dashboardPath = join(root, 'comparisons', 'comparison-pooled', 'dashboard.json');
     await writeFile(dashboardPath, '{"stale":"ignored export"}');
     assert.equal(await currentComparisonPath(artifacts), latest.path);
-    assert.equal((await loadCurrentComparisonData(artifacts)).beforeHistory[0].before.results[1].metrics['time-to-reach-managed-cold'], 500);
+    assert.equal((await loadCurrentComparisonData(artifacts)).beforeHistory[0].before.results[1].metrics['time-to-first-render-cold'], 500);
     const output = [];
     await displaySavedResults(latest.path, text => output.push(text));
     assert.match(output[0], /View: history/);

@@ -2,11 +2,11 @@ import { test, expect } from 'playwright/test';
 import { expectedComparison, focusFixture, monoGaFixture, FOCUS_FIXTURE_TIME, routeFocusFixture } from '../helpers/focus-fixture.mjs';
 
 const path = '/macro-benchmarks/net12-focus';
-const titles = ['Cold startup', 'Walkthrough', 'Cold download size', 'Build time'];
+const titles = ['Cold first render', 'Walkthrough', 'Cold download size', 'Build time'];
 
 test('GA baseline and recorded environments appear in the point side pane', async ({ page }) => {
     const fixture = monoGaFixture();
-    const latest = fixture.buckets[1], ga = fixture.buckets.at(-1), key = 'time-to-reach-managed-cold';
+    const latest = fixture.buckets[1], ga = fixture.buckets.at(-1), key = 'time-to-first-render-cold';
     for (const rows of Object.values(latest.appMetrics['havit-bootstrap'])) rows['mono/no-workload/desktop/chrome'][14] = null;
     latest.header.environments = { 'havit-bootstrap': [key] };
     latest.environments = { 'havit-bootstrap': { [key]: {
@@ -27,7 +27,7 @@ test('GA baseline and recorded environments appear in the point side pane', asyn
         return { x: last.x, y: last.y };
     });
     await canvas.click({ position: point });
-    const detail = page.getByRole('dialog', { name: 'Cold startup' });
+    const detail = page.getByRole('dialog', { name: 'Cold first render' });
     await expect(detail).toContainText('Mono .NET11 GA baseline');
     await expect(detail).toContainText('11.0.100');
     await expect(detail).toContainText('Ubuntu 24.04');
@@ -98,7 +98,7 @@ function boundaryPublication(columns, coreclr, mono) {
     const fixture = focusFixture();
     const app = 'havit-bootstrap';
     const path = '2026-07-06';
-    const keys = ['time-to-reach-managed-cold', 'havit-walkthrough', 'download-size-cold', 'compile-time'];
+    const keys = ['time-to-first-render-cold', 'havit-walkthrough', 'download-size-cold', 'compile-time'];
     const template = fixture.buckets[0].header.columns[0];
     const header = {
         week: path,
@@ -283,7 +283,7 @@ for (const oneSided of [false, true]) {
         for (const bucket of fixture.buckets) {
             const metrics = bucket.appMetrics['semi-avalonia'];
             if (oneSided) {
-                metrics['time-to-reach-managed-cold']['mono/no-workload/mobile/chrome'] = bucket.header.columns.map(() => 26031);
+                metrics['time-to-first-render-cold']['mono/no-workload/mobile/chrome'] = bucket.header.columns.map(() => 26031);
             } else {
                 metrics['compile-time']['mono/no-workload/desktop/firefox'] = bucket.header.columns.map(() => null);
             }
@@ -349,7 +349,7 @@ test('no-workload holes stay gaps in actual Chart.js even when native rows could
         }
         delete bucket.appMetrics['havit-bootstrap']['compile-time']['coreclr/no-workload/desktop/chrome'];
     }
-    const rows = fixture.buckets[1].appMetrics['havit-bootstrap']['time-to-reach-managed-cold'];
+    const rows = fixture.buckets[1].appMetrics['havit-bootstrap']['time-to-first-render-cold'];
     rows['coreclr/no-workload/mobile/chrome'][14] = null;
     rows['mono/no-workload/mobile/chrome'][13] = null;
     await open(page, fixture, { flavor: 'release-release', startupProfile: 'mobile' });
@@ -440,7 +440,7 @@ test('real Blazor deep-link preserves the explicit publish/desktop comparison an
     await expect(page.locator('.focus-provenance')).toContainText('not a controlled same-runner result');
     await expect(page.locator('[data-metric="startup"] .focus-measurement')).toContainText('Time to managed (cold)');
     await expect(page.locator('[data-metric="startup"] .focus-measurement')).toContainText('Desktop');
-    await expect(page.locator('[data-metric="startup"] .focus-measurement')).toHaveAttribute('title', /time-to-reach-managed-cold.*desktop\/Chromium.*no CPU or network throttling/);
+    await expect(page.locator('[data-metric="startup"] .focus-measurement')).toHaveAttribute('title', /time-to-first-render-cold.*desktop\/Chromium.*no CPU or network throttling/);
     await expect(page.locator('.focus-card h2')).toHaveText(titles);
     await expect(page.locator('.focus-card-number')).toHaveCount(0);
     expect(await page.locator('.focus-card-summary').evaluateAll(summaries =>
@@ -635,7 +635,7 @@ test('all calendar ranges retain overlap values and expose short history, not em
 
 test('short rolling counts and independent colors end at the latest valid SDK', async ({ page }) => {
     const fixture = focusFixture();
-    const rows = fixture.buckets[1].appMetrics['havit-bootstrap']['time-to-reach-managed-cold'];
+    const rows = fixture.buckets[1].appMetrics['havit-bootstrap']['time-to-first-render-cold'];
     for (let i = 10; i <= 14; i++) {
         rows['mono/no-workload/desktop/chrome'][i] = 100;
         rows['coreclr/no-workload/desktop/chrome'][i] = i === 14 ? 112 : 50;
@@ -689,7 +689,7 @@ test('loading and unsupported metrics do not acquire a cohort-gap explanation', 
 test('gaps reset each window, older complete pairs are labeled and no caption is fabricated', async ({ page }) => {
     const fixture = focusFixture();
     const metrics = fixture.buckets[1].appMetrics['havit-bootstrap'];
-    metrics['time-to-reach-managed-cold']['coreclr/no-workload/desktop/chrome'][12] = null;
+    metrics['time-to-first-render-cold']['coreclr/no-workload/desktop/chrome'][12] = null;
     metrics['havit-walkthrough']['coreclr/no-workload/desktop/chrome'][14] = null;
     for (const bucket of fixture.buckets) bucket.appMetrics['havit-bootstrap']['compile-time']['mono/no-workload/desktop/chrome'].fill(0);
     await open(page, fixture);
@@ -703,7 +703,7 @@ test('gaps reset each window, older complete pairs are labeled and no caption is
     expect(chart.values[0].at(-3).y).toBeNull();
     expect(chart.values[2].at(-3).y).toBeNull();
     expect(chart.values[1].at(-3).y).not.toBeNull();
-    const sharedBuild = page.locator('.focus-latest-build').filter({ hasText: 'Cold startup, Cold download size:' });
+    const sharedBuild = page.locator('.focus-latest-build').filter({ hasText: 'Cold first render, Cold download size:' });
     const olderBuild = page.locator('.focus-latest-build').filter({ hasText: 'Walkthrough:' });
     await expect(page.locator('.focus-latest-build')).toHaveCount(2);
     await expect(sharedBuild).toHaveAttribute('data-sdk', fixture.buckets[1].header.columns[14].sdkVersion);
@@ -819,6 +819,30 @@ test('focus navigation disposes its charts and Home/Delta keep their behavior', 
     await page.reload();
     await expect(page.getByText('Current Build', { exact: true })).toBeVisible();
     await expect(page.locator('#blazor-error-ui')).toBeHidden();
+});
+
+test('Home shows cold and warm first render above legacy managed timings', async ({ page }) => {
+    const fixture = focusFixture();
+    const app = 'havit-bootstrap';
+    const metrics = ['time-to-first-render-cold', 'time-to-first-render-warm',
+        'time-to-reach-managed-cold', 'time-to-reach-managed-warm'];
+    fixture.index.metrics[app] = [...metrics].reverse();
+    for (const bucket of fixture.buckets) {
+        const rows = bucket.appMetrics[app];
+        if (!rows) continue;
+        rows['time-to-first-render-warm'] = rows['time-to-first-render-cold'];
+        rows['time-to-reach-managed-warm'] = rows['time-to-reach-managed-cold'];
+        bucket.header.apps[app] = metrics;
+    }
+    await routeFocusFixture(page, fixture);
+    await page.goto('/macro-benchmarks/');
+    const canvases = page.locator('.charts-area canvas');
+    await expect(canvases).toHaveCount(metrics.length);
+    await expect.poll(() => canvases.evaluateAll(elements => elements.map(element => element.id)))
+        .toEqual(metrics.map(metric => `chart-${app}-${metric}`));
+    await expect.poll(() => canvases.first().evaluate(canvas => Chart.getChart(canvas)?.options.plugins.subtitle.text))
+        .toContain('Navigation to first paint opportunity');
+    await page.waitForFunction(() => globalThis.bench_first_render > globalThis.bench_content_ready);
 });
 
 test('Home and Focus keep one shared brand/navigation at the top of the left pane across route switches', async ({ page }) => {

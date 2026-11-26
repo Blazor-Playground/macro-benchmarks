@@ -92,7 +92,8 @@ async function fixture(t) {
             await writeFile(join(resultsDir, `${profile}.json`), JSON.stringify({
                 meta: { app: 'havit-bootstrap', engine: 'chrome', profile, runtime: options.runtime,
                     preset, benchmarkDateTime: '2026-10-14T12:00:00Z' },
-                metrics: { 'time-to-reach-managed-cold': 500, 'time-to-reach-managed-warm': 250,
+                metrics: { 'time-to-first-render-cold': 500, 'time-to-first-render-warm': 250,
+                    'first-interaction-cold': 70, 'first-interaction-warm': 65,
                     'havit-walkthrough': 1000, 'download-size-cold': 5000000, 'compile-time': 10000 },
             }));
         }

@@ -41,7 +41,7 @@ test('loader fetches headers regardless of bucket names and only four selected-a
     assert.equal(http.requests.filter(key => key === 'index.json').length, 2);
     const metrics = http.requests.filter(key => key.includes('havit-bootstrap'));
     assert.equal(metrics.length, 8);
-    assert(metrics.every(key => /_(time-to-reach-managed-cold|havit-walkthrough|download-size-cold|compile-time)\.json$/.test(key)));
+    assert(metrics.every(key => /_(time-to-first-render-cold|havit-walkthrough|download-size-cold|compile-time)\.json$/.test(key)));
     assert.equal(data.buckets[0].header.columns[0].isRuntimeCustomBuild, null);
 });
 

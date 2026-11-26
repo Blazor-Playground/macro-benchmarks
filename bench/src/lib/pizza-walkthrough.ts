@@ -12,6 +12,7 @@
  */
 
 import { debug } from '../log.js';
+import { hasFirstRender } from './startup.js';
 import { type WalkthroughOpts } from './walkthrough-types.js';
 
 // Minimal Playwright Page type surface used by the walkthrough
@@ -273,6 +274,7 @@ const browserWalkthrough = (args: unknown): Promise<number> => {
  */
 export async function runPizzaWalkthrough(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
     const { page, url, timeout: t, verbose = false } = opts;
+    if (!page) throw new Error('The Pizza walkthrough requires a browser page');
     const log = verbose ? (msg: string) => debug(`Pizza: ${msg}`) : () => { };
 
     // Handle confirm dialogs (remove-pizza triggers one)
@@ -284,11 +286,7 @@ export async function runPizzaWalkthrough(opts: WalkthroughOpts<PlaywrightPage>)
         // ── Step 0: Load home (via Playwright — not part of the timed section) ──
         log('navigating to home...');
         await page.goto(url, { timeout: t, waitUntil: 'load' });
-        await page.waitForFunction(
-            () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
-            null, { timeout: t },
-        );
-        await page.waitForSelector('[data-testid="pizza-cards"]', { timeout: t });
+        await page.waitForFunction(hasFirstRender, null, { timeout: t });
         await page.waitForSelector('[data-testid="pizza-special-1"]', { timeout: t });
         log('home loaded, specials rendered');
 

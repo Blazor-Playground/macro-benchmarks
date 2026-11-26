@@ -90,7 +90,8 @@ async function fixture(t, { longPath = false } = {}) {
             await writeFile(join(resultsDir, 'havit.json'), JSON.stringify({
                 meta: { app: 'havit-bootstrap', engine: 'chrome', profile: 'desktop', runtime: options.runtime,
                     preset: options.variant === 'no-workload' ? 'no-workload' : 'aot', benchmarkDateTime: '2026-10-08T12:00:00Z' },
-                metrics: { 'havit-walkthrough': 100, 'time-to-reach-managed-cold': 200, 'time-to-reach-managed-warm': 100 },
+                metrics: { 'havit-walkthrough': 100, 'time-to-first-render-cold': 200, 'time-to-first-render-warm': 100,
+                    'first-interaction-cold': 40, 'first-interaction-warm': 30 },
             }));
             await writeFile(join(runDir, 'logs', 'measurement-1.status.json'), JSON.stringify({
                 status: 'passed', resultsDir,
@@ -427,13 +428,15 @@ test('failed, incomplete, or corrupt measurement evidence cannot be recorded', a
         for (const [engine, profile] of [['chrome', 'mobile'], ['firefox', 'desktop']]) {
             await writeFile(record.results[0].path, JSON.stringify({
                 meta: { engine, profile },
-                metrics: { 'time-to-reach-managed-cold': 200, 'time-to-reach-managed-warm': 100 },
+                metrics: { 'time-to-first-render-cold': 200, 'time-to-first-render-warm': 100,
+                    'first-interaction-cold': 40, 'first-interaction-warm': 30 },
             }));
             assert.equal((await measurementRecord(manifest)).results.length, 1);
         }
         await writeFile(record.results[0].path, JSON.stringify({
             meta: { engine: 'chrome', profile: 'desktop' },
-            metrics: { 'time-to-reach-managed-cold': 200, 'time-to-reach-managed-warm': 100 },
+            metrics: { 'time-to-first-render-cold': 200, 'time-to-first-render-warm': 100,
+                'first-interaction-cold': 40, 'first-interaction-warm': 30 },
         }));
         await assert.rejects(measurementRecord(manifest), /havit-walkthrough/);
     });

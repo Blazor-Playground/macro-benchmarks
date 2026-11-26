@@ -31,6 +31,7 @@ import { measurementEnvironment } from '../lib/environment.js';
 import { getEngineCommand, parseCliOutput } from '../lib/internal-utils.js';
 import { runPizzaWalkthrough } from '../lib/pizza-walkthrough.js';
 import { runHavitWalkthrough } from '../lib/havit-walkthrough.js';
+import { collectStartup, measureFirstInteraction, type StartupSample } from '../lib/startup.js';
 import { runMudWalkthrough } from '../lib/mud-walkthrough.js';
 import { runIgniteUIWalkthrough } from '../lib/igniteui-walkthrough.js';
 import { runRadzenWalkthrough } from '../lib/radzen-walkthrough.js';
@@ -156,7 +157,10 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
                     // Build and write result JSON
                     const runtimeSdkInfo = sdkInfoForBuild(ctx.sdkInfo, entry);
                     const meta = buildMeta(ctx, entry, engine, profile, runtimeSdkInfo);
-                    const resultJson = buildResultJson(meta, result.metrics, result.sampleCounts, result.rawSamples);
+                    const resultJson = {
+                        ...buildResultJson(meta, result.metrics, result.sampleCounts, result.rawSamples),
+                        ...(result.startupSamples && { startupSamples: result.startupSamples }),
+                    };
                     const filename = buildResultFilename(
                         runtimeSdkInfo, entry.runtime, entry.preset,
                         profile, engine, entry.app, ctx.replica,
@@ -217,7 +221,18 @@ export function buildMeta(
 const TIMING_KEYS = ['reachManaged', 'createDotnet', 'wasmMemory', 'exit'] as const;
 type TimingKey = typeof TIMING_KEYS[number];
 type BenchTimings = Record<TimingKey, number | null>;
-type TimingArrays = Record<TimingKey, number[]>;
+
+const STARTUP_KEYS = ['firstRender', 'contentReady', 'runtimeInitialized', 'runtimeReady', 'firstInteraction'] as const;
+type StartupKey = typeof STARTUP_KEYS[number];
+type TimingArrays = Record<TimingKey | StartupKey, number[]> & { startupSamples: StartupSample[] };
+
+const STARTUP_METRICS: Record<StartupKey, readonly [MetricKey, MetricKey]> = {
+    firstRender: [MetricKey.TimeToFirstRenderCold, MetricKey.TimeToFirstRenderWarm],
+    contentReady: [MetricKey.TimeToContentReadyCold, MetricKey.TimeToContentReadyWarm],
+    runtimeInitialized: [MetricKey.TimeToRuntimeInitializedCold, MetricKey.TimeToRuntimeInitializedWarm],
+    runtimeReady: [MetricKey.TimeToRuntimeReadyCold, MetricKey.TimeToRuntimeReadyWarm],
+    firstInteraction: [MetricKey.FirstInteractionCold, MetricKey.FirstInteractionWarm],
+};
 
 const TIMING_SOURCE: Record<TimingKey, string> = {
     reachManaged: 'time-to-reach-managed',
@@ -239,17 +254,29 @@ function pushTiming(arrays: TimingArrays, t: BenchTimings): void {
 }
 
 function emptyTimingArrays(): TimingArrays {
-    const a = {} as TimingArrays;
-    for (const k of TIMING_KEYS) a[k] = [];
-    return a;
+    return {
+        reachManaged: [], createDotnet: [], wasmMemory: [], exit: [],
+        firstRender: [], contentReady: [], runtimeInitialized: [], runtimeReady: [], firstInteraction: [],
+        startupSamples: [],
+    };
 }
 
 function mergeTimingArrays(target: TimingArrays, source: TimingArrays): void {
-    for (const key of TIMING_KEYS) {
+    for (const key of [...TIMING_KEYS, ...STARTUP_KEYS]) {
         target[key].push(...source[key]);
     }
+    target.startupSamples.push(...source.startupSamples);
 }
 
+async function addStartup(page: Page, timeout: number, arrays: TimingArrays, verbose: boolean): Promise<void> {
+    const sample = await collectStartup(page, timeout);
+    arrays.startupSamples.push(sample);
+    arrays.firstRender.push(sample.firstRender);
+    arrays.contentReady.push(sample.contentReady);
+    if (sample.runtimeInitialized !== undefined) arrays.runtimeInitialized.push(sample.runtimeInitialized);
+    if (sample.runtimeReady !== undefined) arrays.runtimeReady.push(sample.runtimeReady.at);
+    if (verbose) debug(`Startup (ms since navigation; subtract jsStart for JS-relative): ${JSON.stringify(sample)}`);
+}
 // avalonia-bench FPS scenarios: longer samples (frame counts are noisy over short windows).
 const AVALONIA_FPS_OPTIONS = { samples: 4, warmup: 1, sampleDurationMs: 2000 };
 
@@ -340,6 +367,7 @@ interface MetricsResult {
     sampleCounts: Partial<Record<MetricKey, number>>;
     /** Raw per-run samples per metric, for cross-replica pooling at aggregate time. */
     rawSamples?: Partial<Record<MetricKey, number[]>>;
+    startupSamples?: { cold: StartupSample[]; warm: StartupSample[] };
 }
 
 /** Average of the top-N largest values in an array (default N=3). */
@@ -425,8 +453,24 @@ function buildExternalMetrics(
     walkthroughSampleCounts: Partial<Record<MetricKey, number>>,
     walkthroughRawSamples?: Partial<Record<MetricKey, number[]>>,
 ): MetricsResult {
+    const startupMetrics: Partial<Record<MetricKey, number | null>> = {};
+    const startupCounts: Partial<Record<MetricKey, number>> = {};
+    const startupRaw: Partial<Record<MetricKey, number[]>> = {};
+    for (const key of STARTUP_KEYS) {
+        const [cold, warm] = STARTUP_METRICS[key];
+        for (const [metric, values] of [[cold, coldArrays[key]], [warm, warmArrays[key]]] as const) {
+            if (values.length === 0) continue;
+            startupMetrics[metric] = sortedIQM(values);
+            startupCounts[metric] = values.length;
+            startupRaw[metric] = values;
+        }
+    }
     return {
+        ...(coldArrays.startupSamples.length > 0 && {
+            startupSamples: { cold: coldArrays.startupSamples, warm: warmArrays.startupSamples },
+        }),
         metrics: {
+            ...startupMetrics,
             [MetricKey.CompileTime]: compileTime,
             [MetricKey.DiskSizeNative]: fileSizes.diskSizeNative,
             [MetricKey.DiskSizeAssemblies]: fileSizes.diskSizeAssemblies,
@@ -445,6 +489,7 @@ function buildExternalMetrics(
             ...walkthroughMetrics,
         },
         sampleCounts: {
+            ...startupCounts,
             [MetricKey.TimeToReachManagedWarm]: warmArrays.reachManaged.length || undefined,
             [MetricKey.TimeToReachManagedCold]: coldArrays.reachManaged.length || undefined,
             [MetricKey.TimeToCreateDotnetWarm]: warmArrays.createDotnet.length || undefined,
@@ -454,6 +499,7 @@ function buildExternalMetrics(
             ...walkthroughSampleCounts,
         },
         rawSamples: {
+            ...startupRaw,
             [MetricKey.TimeToReachManagedWarm]: warmArrays.reachManaged,
             [MetricKey.TimeToReachManagedCold]: coldArrays.reachManaged,
             [MetricKey.TimeToCreateDotnetWarm]: warmArrays.createDotnet,
@@ -543,7 +589,7 @@ async function setupCDP(
 
 async function waitForBenchComplete(page: Page, timeout: number): Promise<Record<string, number>> {
     await page.waitForFunction(
-        () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
+        () => (globalThis as Record<string, unknown>).bench_complete === true,
         null,
         { timeout },
     );
@@ -586,15 +632,16 @@ async function prepareColdContext(
 async function runColdLoads(
     launchBrowser: () => Promise<Browser>,
     pageUrl: string,
-    warmRuns: number,
+    runs: number,
     timeout: number,
     profile: Profile,
     useCDP: boolean,
     verbose: boolean,
+    initialRender: boolean,
 ): Promise<TimingArrays> {
     const arrays = emptyTimingArrays();
-    for (let i = 0; i < warmRuns; i++) {
-        if (verbose) debug(`Cold load ${i + 1}/${warmRuns}: fresh browser...`);
+    for (let i = 0; i < runs; i++) {
+        if (verbose) debug(`Cold load ${i + 1}/${runs}: fresh browser...`);
         // Full browser teardown per iteration. Reusing a BrowserContext leaks
         // renderer/GPU processes on constrained CI runners, inflating each
         // successive cold load (observed 7s → 235s); a fresh process reaps them.
@@ -606,8 +653,9 @@ async function runColdLoads(
             await coldPage.goto(pageUrl, { timeout, waitUntil: 'load' });
             const results = await waitForBenchComplete(coldPage, timeout);
             const t = extractTimings(results);
-            if (verbose) debug(`Cold load ${i + 1}/${warmRuns}: time-to-reach-managed=${t.reachManaged}`);
+            if (verbose) debug(`Cold load ${i + 1}/${runs}: time-to-reach-managed=${t.reachManaged}`);
             pushTiming(arrays, t);
+            if (initialRender) await addStartup(coldPage, timeout, arrays, verbose);
         } finally {
             await sleep(100);
             try { await coldBrowser.close(); } catch { /* already closed */ }
@@ -622,6 +670,7 @@ async function runWarmLoads(
     warmRuns: number,
     timeout: number,
     verbose: boolean,
+    initialRender: boolean,
     cdp?: CDPState | null,
     srv?: StaticServer,
 ): Promise<{ timings: TimingArrays; downloadSizes: number[]; requestCounts: number[] }> {
@@ -640,8 +689,41 @@ async function runWarmLoads(
         pushTiming(arrays, t);
         if (cdp) downloadSizes.push(cdp.downloadSizeTotal);
         if (srv) requestCounts.push(srv.requestCount);
+        if (initialRender) await addStartup(page, timeout, arrays, verbose);
     }
     return { timings: arrays, downloadSizes, requestCounts };
+}
+
+async function runFirstInteractions(
+    launchBrowser: () => Promise<Browser>,
+    pageUrl: string,
+    runs: number,
+    timeout: number,
+    profile: Profile,
+    useCDP: boolean,
+    warm: boolean,
+): Promise<number[]> {
+    const samples: number[] = [];
+    for (let i = 0; i < runs; i++) {
+        // Keep interaction-triggered work out of startup counters and the cache used to prime warm runs.
+        const browser = await launchBrowser();
+        try {
+            const context = await browser.newContext(BROWSER_CONTEXT_OPTIONS);
+            const page = await context.newPage();
+            await prepareColdContext(page, context, pageUrl, profile, useCDP);
+            await page.goto(pageUrl, { timeout, waitUntil: 'load' });
+            await collectStartup(page, timeout);
+            if (warm) {
+                await page.reload({ timeout, waitUntil: 'load' });
+                await collectStartup(page, timeout);
+            }
+            samples.push(await measureFirstInteraction(page, timeout));
+        } finally {
+            await browser.close();
+            await sleep(400);
+        }
+    }
+    return samples;
 }
 
 // (#5) Simplified walkthrough filter — early return instead of loop-with-continue
@@ -848,6 +930,7 @@ async function runBrowserSession(
     restartServer: (() => Promise<string>) | null,
     coreclrWasmReady: boolean,
 ): Promise<MetricsResult> {
+    const initialRender = APP_CONFIG[entry.app].initialRender === true;
     const context = await browser.newContext(BROWSER_CONTEXT_OPTIONS);
     const page = await context.newPage();
 
@@ -884,12 +967,13 @@ async function runBrowserSession(
 
     const coldArrays = emptyTimingArrays();
     pushTiming(coldArrays, firstCold);
+    if (initialRender) await addStartup(page, timeout, coldArrays, verbose);
 
     // Additional cold loads + warm loads (external apps only)
     if (!isInternal) {
         if (coldRuns > 1) {
             const extraCold = await runColdLoads(
-                launchBrowser, pageUrl, coldRuns - 1, timeout, profile, useCDP, verbose,
+                launchBrowser, pageUrl, coldRuns - 1, timeout, profile, useCDP, verbose, initialRender,
             );
             mergeTimingArrays(coldArrays, extraCold);
         }
@@ -899,7 +983,7 @@ async function runBrowserSession(
     }
 
     const warmResult = !isInternal
-        ? await runWarmLoads(page, warmRuns, timeout, verbose, cdp, srv ?? undefined)
+        ? await runWarmLoads(page, warmRuns, timeout, verbose, initialRender, cdp, srv ?? undefined)
         : { timings: emptyTimingArrays(), downloadSizes: [] as number[], requestCounts: [] as number[] };
     const warmArrays = warmResult.timings;
 
@@ -998,6 +1082,15 @@ async function runBrowserSession(
         ? (avgOfTopN(walkthroughResult.wasmMemorySamples) ?? null)
         : wasmMemorySize;
 
+    if (initialRender) {
+        coldArrays.firstInteraction = await runFirstInteractions(
+            launchBrowser, pageUrl, coldRuns, timeout, profile, useCDP, false,
+        );
+        warmArrays.firstInteraction = await runFirstInteractions(
+            launchBrowser, pageUrl, warmRuns, timeout, profile, useCDP, true,
+        );
+    }
+
     return buildExternalMetrics(
         compileTime, fileSizes!,
         coldArrays, warmArrays,
@@ -1051,8 +1144,9 @@ async function measureBrowser(
         kestrel = await startKestrelServer(entry.publishDir, ctx.dotnetBin);
         pageUrl = kestrel.url + '/';
     } else {
-        srv = await startStaticServer(webRoot);
-        pageUrl = `http://127.0.0.1:${srv.port}/`;
+        const basePath = entry.app === A.BenchViewer ? '/macro-benchmarks/' : '/';
+        srv = await startStaticServer(webRoot, 0, basePath);
+        pageUrl = `http://127.0.0.1:${srv.port}${basePath}`;
     }
     info(`    Serving on ${pageUrl}`);
     if (ctx.verbose) {

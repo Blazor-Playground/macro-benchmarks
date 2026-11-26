@@ -1,7 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-import { withRuntimeReady } from './runtime-ready.mjs';
+import { configureStartupRuntime } from './runtime-ready.mjs';
+import { observeInitialContent, registerDomFirstInteraction } from './startup-metrics.mjs';
+
+registerDomFirstInteraction('[data-testid="nav-counter"]', '[data-testid="counter-value"]');
 
 function setManagedReady() {
     globalThis.dotnet_managed_ready = performance.now();
@@ -24,24 +27,12 @@ function setManagedReady() {
 
 async function outer() {
     globalThis.js_loaded = performance.now();
+    observeInitialContent('#app h1');
 
     await Blazor.start({
-        configureRuntime: dotnet => {
-            dotnet.withModuleConfig({
-                onRuntimeInitialized: () => {
-                    console.log("Blazor runtime initialized");
-                }
-            });
-            withRuntimeReady(dotnet, () => {
-                globalThis.dotnet_created = performance.now();
-                const { setModuleImports } = globalThis.getDotnetRuntime(0);
-                setModuleImports('main.mjs', {
-                    bench: {
-                        setManagedReady
-                    }
-                });
-            });
-        }
+        configureRuntime: dotnet => configureStartupRuntime(dotnet, ({ setModuleImports }) => {
+            setModuleImports('main.mjs', { bench: { setManagedReady } });
+        }),
     });
 }
 

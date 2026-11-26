@@ -35,6 +35,9 @@ namespace Uno.Gallery.Views.GeneralPages
 			{
 				tb.Text = GetAppVersion();
 			}
+#if __WASM__
+			App.SetContentReady();
+#endif
 		}
 
 		private string GetAppVersion()

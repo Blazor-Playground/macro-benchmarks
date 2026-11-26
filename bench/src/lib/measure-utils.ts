@@ -47,7 +47,7 @@ const MIME_TYPES: Record<string, string> = {
  *
  * Includes path traversal protection.
  */
-export function startStaticServer(webRoot: string, port = 0): Promise<StaticServer> {
+export function startStaticServer(webRoot: string, port = 0, basePath = '/'): Promise<StaticServer> {
     const root = resolve(webRoot);
     const etag = '"' + Date.now().toString(36) + '"';
     let requestCount = 0;
@@ -58,6 +58,12 @@ export function startStaticServer(webRoot: string, port = 0): Promise<StaticServ
             let filePath: string | undefined;
             try {
                 let urlPath = new URL(req.url || '/', `http://localhost`).pathname;
+                if (!urlPath.startsWith(basePath)) {
+                    res.writeHead(404);
+                    res.end('Not Found');
+                    return;
+                }
+                urlPath = '/' + urlPath.slice(basePath.length);
                 if (urlPath === '/') urlPath = '/index.html';
 
                 // Path traversal protection

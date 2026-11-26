@@ -6,13 +6,25 @@ import { dotnet } from './_framework/dotnet.js'
 // bench_complete is set once the first Avalonia frame is rendered, so scenarios start with the view attached.
 
 let scenarioExports = null;
+let scenarioExportsReady;
+
+globalThis.benchStartFirstInteraction = async () => {
+    const exports = await scenarioExportsReady;
+    const start = performance.now();
+    await exports.PrepareScenario('virtualized-scroll');
+    return performance.now() - start;
+};
 
 function setManagedReady() {
     globalThis.dotnet_managed_ready = performance.now();
 }
 
+function setContentReady() {
+    globalThis.bench_content_ready ??= performance.now();
+}
+
 function setFirstFrameRendered() {
-    globalThis.dotnet_first_frame = performance.now();
+    globalThis.dotnet_first_frame = globalThis.bench_first_render ??= performance.now();
     tryComplete();
 }
 
@@ -180,11 +192,16 @@ async function outer() {
 
     const { setModuleImports, getAssemblyExports, runMain } = await dotnet
         .withApplicationArgumentsFromQuery()
+        .withModuleConfig({
+            onRuntimeInitialized: () => { globalThis.bench_runtime_initialized ??= performance.now(); },
+        })
         .create();
+    globalThis.bench_runtime_ready = { at: performance.now(), source: 'create' };
 
     setModuleImports('main.mjs', {
         bench: {
             setManagedReady,
+            setContentReady,
             setFirstFrameRendered,
         }
     });
@@ -195,8 +212,8 @@ async function outer() {
     // Main keeps the Avalonia app alive; don't gate startup on it resolving.
     runMain("AvaloniaBench", []).catch(e => console.error(e));
 
-    const exports = await getAssemblyExports("AvaloniaBench");
-    scenarioExports = exports.AvaloniaBench.Scenarios.ScenarioExports;
+    scenarioExportsReady = getAssemblyExports("AvaloniaBench").then(exports => exports.AvaloniaBench.Scenarios.ScenarioExports);
+    scenarioExports = await scenarioExportsReady;
     globalThis.avaloniaBench = { list: listScenarios, run: runScenario };
     tryComplete();
 }

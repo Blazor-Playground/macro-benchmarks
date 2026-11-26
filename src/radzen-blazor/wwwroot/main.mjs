@@ -1,4 +1,7 @@
-import { withRuntimeReady } from './runtime-ready.mjs';
+import { configureStartupRuntime } from './runtime-ready.mjs';
+import { observeInitialContent, registerDomFirstInteraction } from './startup-metrics.mjs';
+
+registerDomFirstInteraction('#page-content a[href="accordion"]', '#page-content[data-benchmark-rendered="/accordion"]');
 
 function setManagedReady() {
     globalThis.dotnet_managed_ready = performance.now();
@@ -29,13 +32,11 @@ globalThis.scrollToElement = selector => {
 };
 
 globalThis.js_loaded = performance.now();
+observeInitialContent('#page-content a[data-benchmark-route]');
 await Blazor.start({
-    configureRuntime: dotnet => {
-        withRuntimeReady(dotnet, () => {
-            globalThis.dotnet_created = performance.now();
-            globalThis.getDotnetRuntime(0).setModuleImports('main.mjs', {
-                bench: { setManagedReady, setRendered },
-            });
+    configureRuntime: dotnet => configureStartupRuntime(dotnet, ({ setModuleImports }) => {
+        setModuleImports('main.mjs', {
+            bench: { setManagedReady, setRendered },
         });
-    },
+    }),
 });

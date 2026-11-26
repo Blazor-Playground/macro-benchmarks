@@ -10,6 +10,7 @@
  */
 
 import { debug } from '../log.js';
+import { hasFirstRender } from './startup.js';
 import { type WalkthroughOpts } from './walkthrough-types.js';
 
 // Minimal Playwright Page type surface used by the walkthrough
@@ -298,11 +299,7 @@ export async function runHavitWalkthrough(opts: WalkthroughOpts<PlaywrightPage>)
         // ── Step 0: Load home (via Playwright — not part of the timed section) ──
         log('navigating to home...');
         await page.goto(url, { timeout: t, waitUntil: 'load' });
-        await page.waitForFunction(
-            () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
-            null, { timeout: t },
-        );
-        await page.waitForSelector('#done', { timeout: t });
+        await page.waitForFunction(hasFirstRender, null, { timeout: t });
         log('home loaded');
 
         // ── Run ALL walkthrough steps inside the browser ─────────────────────

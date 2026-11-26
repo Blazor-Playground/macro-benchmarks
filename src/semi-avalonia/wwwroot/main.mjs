@@ -29,13 +29,19 @@ async function outer() {
 
     globalThis.js_loaded = performance.now();
 
-    const { setModuleImports, runMain } = await dotnet
+    const { setModuleImports, getAssemblyExports, runMain } = await dotnet
         .withApplicationArgumentsFromQuery()
+        .withModuleConfig({
+            onRuntimeInitialized: () => { globalThis.bench_runtime_initialized ??= performance.now(); },
+        })
         .create();
+    globalThis.bench_runtime_ready = { at: performance.now(), source: 'create' };
 
     setModuleImports('main.mjs', {
         bench: {
             setManagedReady,
+            setContentReady: () => { globalThis.bench_content_ready ??= performance.now(); },
+            setFirstFrameRendered: () => { globalThis.bench_first_render ??= performance.now(); },
         },
         browser: {
             isFirefox: () => /firefox/i.test(globalThis.navigator?.userAgent ?? ''),
@@ -44,6 +50,13 @@ async function outer() {
 
     globalThis.dotnet_created = performance.now();
     globalThis.bench_results = {};
+
+    globalThis.benchStartFirstInteraction = async () => {
+        const { Semi } = await getAssemblyExports('Semi.Avalonia.Demo');
+        const start = performance.now();
+        await Semi.Avalonia.Demo.App.SelectPaletteForBenchmark();
+        return performance.now() - start;
+    };
 
     await runMain("Semi.Avalonia.Demo", []);
 

@@ -2,7 +2,12 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 
 const original = '.withModuleConfig({';
-const replacement = '.withModuleConfig({ ...bootstrapper.asDotnetConfig(),';
+const replacement = `.withModuleConfig({ ...bootstrapper.asDotnetConfig(),
+                            onRuntimeInitialized: () => { globalThis.bench_runtime_initialized ??= performance.now(); },
+                            onDotnetReady: (...args) => {
+                                globalThis.bench_runtime_ready ??= { at: performance.now(), source: 'onDotnetReady' };
+                                return bootstrapper.onDotnetReady(...args);
+                            },`;
 
 export function fixBootstrap(source) {
     if (source.split(original).length !== 2) {

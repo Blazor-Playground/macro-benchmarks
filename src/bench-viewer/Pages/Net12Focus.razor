@@ -176,7 +176,8 @@ else
                     Any no-workload row keeps no-workload for both runtimes, even if all its values are null or it covers only one runtime, metric, profile or engine.
                     Only apps with no no-workload rows use native-relink in publish baseline slots, when published. Effective runtime labels and the baseline context disclose this choice.
                     Native-relink never replaces explicit R2R/AOT slots or fills individual missing values.</p>
-                <p>The startup profile selector affects only time-to-managed (cold). Mobile emulates 3x CPU slowdown, 20 Mbps download, 5 Mbps upload and 70 ms latency;
+                <p>The startup profile selector affects only cold first render. This measures a paint opportunity for initial app content, not interactivity. Historical managed initialization times are not substituted.
+                    Mobile emulates 3x CPU slowdown, 20 Mbps download, 5 Mbps upload and 70 ms latency;
                     desktop has no throttling. This timer runs from JS bootstrap to managed-ready, not navigation to full rendering.
                     Walkthrough, download and build comparisons use their published desktop/Chromium rows for the selected flavor.
                     Download bytes are not assumed profile-independent.</p>

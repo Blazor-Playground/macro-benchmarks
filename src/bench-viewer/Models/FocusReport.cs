@@ -111,7 +111,7 @@ public sealed class FocusMetricReport
 
     public static IReadOnlyList<FocusMetricReport> Placeholders { get; } =
     [
-        new() { Id = "startup", Title = "Cold startup" },
+        new() { Id = "startup", Title = "Cold first render" },
         new() { Id = "walkthrough", Title = "Walkthrough" },
         new() { Id = "download", Title = "Cold download size" },
         new() { Id = "build", Title = "Build time" },

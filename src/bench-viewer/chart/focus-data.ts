@@ -19,8 +19,8 @@ const WALKTHROUGHS: Readonly<Record<string, string>> = {
 
 export function focusMetrics(app: string): FocusMetricDefinition[] {
     return [
-        { id: 'startup', title: 'Cold startup', key: 'time-to-reach-managed-cold', unit: 'ms', divisor: 1,
-            description: 'Time to managed (cold): time-to-reach-managed-cold. JS bootstrap to managed-ready, not time to create .NET or navigation-to-LCP.' },
+        { id: 'startup', title: 'Cold first render', key: 'time-to-first-render-cold', unit: 'ms', divisor: 1,
+            description: 'time-to-first-render-cold: navigation to the first paint opportunity after initial app content is ready. Not confirmed pixel presentation or time to interactive.' },
         { id: 'walkthrough', title: 'Walkthrough', key: WALKTHROUGHS[app] ?? null, unit: 's', divisor: 1000,
             description: 'App-specific scripted navigation; initial page load is excluded.' },
         { id: 'download', title: 'Cold download size', key: 'download-size-cold', unit: 'MiB', divisor: 1_048_576,

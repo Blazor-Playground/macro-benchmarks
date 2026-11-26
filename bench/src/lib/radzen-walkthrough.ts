@@ -58,8 +58,7 @@ export async function runRadzenWalkthrough(opts: WalkthroughOpts<Page>): Promise
 
     await page.goto(url, { timeout, waitUntil: 'load' });
     await page.waitForFunction(
-        () => (globalThis as Record<string, unknown>).bench_complete === true &&
-            document.querySelector<HTMLElement>('#page-content')?.dataset.benchmarkRendered === '/',
+        () => document.querySelector<HTMLElement>('#page-content')?.dataset.benchmarkRendered === '/',
         null, { timeout },
     );
     // esbuild keepNames helpers must exist when Playwright serializes the function.

@@ -16,6 +16,7 @@
  */
 
 import { debug } from '../log.js';
+import { hasFirstRender } from './startup.js';
 import { type WalkthroughOpts } from './walkthrough-types.js';
 
 // Minimal Playwright Page type surface used by the walkthrough
@@ -202,6 +203,7 @@ const browserSemiWalkthrough = (args: unknown): Promise<number> => {
  */
 export async function runSemiWalkthrough(opts: WalkthroughOpts<PlaywrightPage>): Promise<number> {
     const { page, url, timeout, verbose = false } = opts;
+    if (!page) throw new Error('The Semi Avalonia walkthrough requires a browser page');
     const log = verbose ? (msg: string) => debug(`Semi: ${msg}`) : () => { };
 
     // ── Capture [semi-rendered] console messages from MainView ───────────────
@@ -235,10 +237,7 @@ export async function runSemiWalkthrough(opts: WalkthroughOpts<PlaywrightPage>):
         // ── Step 0: Load home (via Playwright — not part of the timed section) ──
         log('navigating to home...');
         await page.goto(url, { timeout, waitUntil: 'load' });
-        await page.waitForFunction(
-            () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
-            null, { timeout },
-        );
+        await page.waitForFunction(hasFirstRender, null, { timeout });
         await waitForRendered(TAB_NAMES[0]);
         log(`${TAB_NAMES[0]} rendered`);
 

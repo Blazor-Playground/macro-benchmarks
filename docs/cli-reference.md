@@ -68,7 +68,7 @@ Comma-separated lists that restrict which combinations get built and measured.
 | Flag | Valid values |
 |------|-------------|
 | `--app <list>` | empty-browser, empty-blazor, blazing-pizza, havit-bootstrap, mud-blazor, micro-benchmarks, uno-gallery, igniteui-light, radzen-blazor, blazor-perf, semi-avalonia, avalonia-bench |
-| `--preset <list>` | dev-loop, no-workload, native-relink, aot, r2r-pgo, no-jiterp, invariant, no-reflection-emit |
+| `--preset <list>` | dev-loop, no-workload, native-relink, aot, r2r-pgo |
 | `--engine <list>` | chrome, firefox, v8, node |
 | `--profile <list>` | desktop, mobile |
 

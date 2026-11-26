@@ -20,7 +20,7 @@ test('live metrics reuse the existing dev-loop preset without adding a Debug fla
     assert.deepEqual(ctx.profiles, ['desktop']);
     assert.equal(ctx.debugRuns, 1);
     assert.deepEqual((await buildContext([])).presets, ALL_PRESETS);
-    assert.deepEqual(ALL_PRESETS, ['dev-loop', 'no-workload', 'aot', 'r2r-pgo', 'native-relink', 'no-jiterp', 'invariant', 'no-reflection-emit']);
+    assert.deepEqual(ALL_PRESETS, ['dev-loop', 'no-workload', 'aot', 'r2r-pgo', 'native-relink']);
     await assert.rejects(() => buildContext(['--preset', 'debug']), /Invalid preset/);
     await assert.rejects(() => buildContext(['--stages', 'measure-dev-loop', '--preset', 'no-workload']), /requires dev-loop/);
     await assert.rejects(() => buildContext(['--stages', 'measure-dev-loop,build']), /only optional/);
@@ -31,6 +31,12 @@ test('live metrics reuse the existing dev-loop preset without adding a Debug fla
     assert.deepEqual(debugBuildArgs('mono'), [
         '-p:BenchmarkPreset=DevLoop', '-p:Configuration=Debug', '-p:RuntimeFlavor=Mono',
     ]);
+});
+
+test('the CLI rejects retired build presets', async () => {
+    for (const preset of ['no-jiterp', 'invariant', 'no-reflection-emit']) {
+        await assert.rejects(() => buildContext(['--preset', preset]), { message: new RegExp(`^Invalid preset: '${preset}'`) });
+    }
 });
 
 test('the Actions measurement command retains its prepared per-runtime SDK context', async () => {

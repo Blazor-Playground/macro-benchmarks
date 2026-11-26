@@ -11,15 +11,10 @@ Build presets are defined in `src/presets.props` and selected via the `--preset`
 | `native-relink` | Release | ✓ | ✓ | Native WASM via Emscripten, no AOT |
 | `aot` | Release | Mono only* | ✓ | Full Mono AOT or full CoreCLR R2R (SDK-default composite mode) |
 | `r2r-pgo` | Release | No* | ✓ | CoreCLR profile-guided partial R2R (SDK-default composite mode) |
-| `no-jiterp` | Release | ✓ | ✓ | Disables Jiterpreter (interpreter fallback) |
-| `invariant` | Release | ✓ | ✓ | Invariant globalization, no diagnostics, full trimming |
-| `no-reflection-emit` | Release | — | ✓ | No dynamic code generation (extends invariant) |
 
 ## Constraints
 
-- **Mono-only**: `no-jiterp`.
 - **CoreCLR-only**: `r2r-pgo`.
-- **Blazor-incompatible**: `no-reflection-emit` — requires dynamic code for component rendering
 - **No workload required**: `no-workload` explicitly avoids native WASM compilation; `dev-loop` follows SDK/app Debug defaults and is built before optional workload installation in the existing pipeline.
 
 *CoreCLR R2R does not require native relinking or wasm-tools except for apps with

@@ -71,7 +71,7 @@ public partial class Home : IAsyncDisposable
             checkedValues = new Dictionary<string, HashSet<string>>
             {
                 ["runtimes"] = new HashSet<string>(filterGroups["runtimes"]),
-                ["presets"] = new HashSet<string> { "no-workload" },
+                ["presets"] = new HashSet<string> { "aot" },
                 ["profiles"] = new HashSet<string> { "mobile" },
                 ["engines"] = new HashSet<string> { "chrome" },
             };

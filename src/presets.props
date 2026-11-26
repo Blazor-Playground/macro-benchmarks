@@ -58,46 +58,6 @@
     <BenchmarkReadyToRunPgo>true</BenchmarkReadyToRunPgo>
   </PropertyGroup>
 
-  <!-- Preset NoJiterp -->
-  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NoJiterp'">
-    <Configuration>Release</Configuration>
-    <WasmBuildNative>true</WasmBuildNative>
-    <WasmNativeStrip>true</WasmNativeStrip>
-    <BlazorWebAssemblyJiterpreter>false</BlazorWebAssemblyJiterpreter>
-
-    <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
-    <PublishTrimmed>true</PublishTrimmed>
-  </PropertyGroup>
-
-  <!-- Preset Invariant -->
-  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Invariant' or '$(BenchmarkPreset)' == 'NoReflectionEmit'">
-    <Configuration>Release</Configuration>
-    <WasmBuildNative>true</WasmBuildNative>
-    <WasmNativeStrip>true</WasmNativeStrip>
-
-    <InvariantGlobalization>true</InvariantGlobalization>
-    <InvariantTimeZone>true</InvariantTimeZone>
-
-    <EnableDiagnostics>false</EnableDiagnostics>
-    <MetricsSupport>false</MetricsSupport>
-    <EventSourceSupport>false</EventSourceSupport>
-    <StackTraceSupport>false</StackTraceSupport>
-    <DebugSymbols>false</DebugSymbols>
-    <PredefinedCulturesOnly>true</PredefinedCulturesOnly>
-    <StackTraceLineNumberSupport>false</StackTraceLineNumberSupport>
-    <WasmEmitSymbolMap>false</WasmEmitSymbolMap>
-
-    <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
-    <PublishTrimmed>true</PublishTrimmed>
-    <TrimMode>full</TrimMode>
-  </PropertyGroup>
-
-  <!-- Preset NoReflectionEmit -->
-  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NoReflectionEmit'">
-    <DynamicCodeSupport>false</DynamicCodeSupport>
-    <StackTraceSupport>false</StackTraceSupport>
-  </PropertyGroup>
-
   <!-- consider
     <WasmFingerprintAssets>false</WasmFingerprintAssets>
     <WasmFingerprintDotnetJs>true</WasmFingerprintDotnetJs>

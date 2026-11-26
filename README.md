@@ -39,7 +39,6 @@ Default: `resolve-sdk,download-sdk,build,measure,transform-views`
 | native-relink | Release | ✓ | Native WASM via Emscripten, no AOT |
 | aot | Release | Mono | Full Mono AOT or full CoreCLR R2R (SDK-default composite mode) |
 | r2r-pgo | Release | App-dependent | CoreCLR profile-guided partial R2R |
-| invariant | Release | ✓ | Invariant globalization (no ICU data) |
 
 ## Metrics collected
 

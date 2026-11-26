@@ -95,6 +95,9 @@ tracking or cache updates. Publish and live commands share
 `bench/src/lib/build-settings.ts`; only their measurement lifecycles differ.
 The existing `dev-loop` preset sets `Configuration=Debug`. Shared SDK targeting
 compatibility remains in `versions.props`, separate from feature settings.
+Isolated copies include the shared build files and browser modules used by
+MSBuild. The source fingerprint includes those modules, not any generated
+copies left in an app's `wwwroot`.
 
 Tagged batches retain every attempt, source/configuration provenance and
 render/update evidence. `transform-debug-views` writes immutable generations

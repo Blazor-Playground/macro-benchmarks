@@ -3,11 +3,12 @@ import test from 'node:test';
 import { readFile, mkdtemp, rm, mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { buildContext } from '../src/args.js';
 import { ALL_PRESETS, Preset, Runtime } from '../src/enums.js';
 import { buildExecutionArgs, buildSettings, msbuildArgs } from '../src/lib/build-settings.js';
 import { summarizeDebug, hotReloadFailure, type RenderEvidence, type DebugAttempt } from '../src/lib/debug-results.js';
-import { debugBuildArgs, debugEntryHtml } from '../src/stages/measure-dev-loop.js';
+import { debugBuildArgs, debugEntryHtml, snapshotDebugApp } from '../src/stages/measure-dev-loop.js';
 import { DebugProcess } from '../src/lib/debug-process.js';
 import { DEBUG_BROWSER_SIGNAL_OPTIONS, waitForDebugOperation } from '../src/lib/debug-cancellation.js';
 import { measureFileSizes } from '../src/lib/measure-utils.js';
@@ -120,6 +121,18 @@ test('DevLoop disk sizes follow emitted compression rather than old no-compressi
 test('the Debug entrypoint preserves app styles instead of borrowing a reduced publish alternative', () => {
     assert.equal(debugEntryHtml('<link href="EmptyBlazor.styles.css"><script type="importmap"></script><script src="main#[.{fingerprint}].mjs"></script>'),
         '<link href="EmptyBlazor.styles.css"><script src="main.mjs"></script>');
+});
+
+test('clean Debug snapshots give MSBuild the shared browser modules from source', async () => {
+    const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
+    const root = await mkdtemp(join(tmpdir(), 'debug-app-snapshot-'));
+    try {
+        await snapshotDebugApp(repoRoot, 'empty-blazor', 'coreclr', root, '12.0.100');
+        for (const file of ['runtime-ready.mjs', 'startup-metrics.mjs']) {
+            assert.deepEqual(await readFile(join(root, 'src', file)), await readFile(join(repoRoot, 'src', file)));
+            await assert.rejects(readFile(join(root, 'src', 'empty-blazor', 'wwwroot', file)), { code: 'ENOENT' });
+        }
+    } finally { await rm(root, { recursive: true }); }
 });
 
 test('real in-place update proof rejects reload, restart and missing deltas', () => {

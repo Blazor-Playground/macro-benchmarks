@@ -25,6 +25,11 @@ import {
 const PROJECTS: Record<string, string> = {
     'empty-blazor': 'EmptyBlazor.csproj', 'havit-bootstrap': 'HavitBootstrap.csproj',
 };
+const STAGED_BROWSER_ASSETS = ['runtime-ready.mjs', 'startup-metrics.mjs'];
+const SHARED_SOURCE_FILES = [
+    'Directory.Build.props', 'Directory.Build.targets', 'versions.props', 'presets.props', 'runtimes.props',
+    ...STAGED_BROWSER_ASSETS,
+];
 const PROPERTY_NAMES = [
     'NETCoreSdkVersion', 'NETCoreSdkRuntimeIdentifier', 'TargetFramework', 'Configuration', 'BenchmarkPreset', 'RuntimeFlavor', 'UseMonoRuntime',
     'RuntimeIdentifier', 'RuntimeFrameworkVersion', 'BundledNETCoreAppPackageVersion',
@@ -47,12 +52,16 @@ export function debugEntryHtml(html: string): string {
     return html.replaceAll('#[.{fingerprint}]', '').replace('<script type="importmap"></script>', '');
 }
 
+function isStagedBrowserAsset(directory: string, name: string): boolean {
+    return STAGED_BROWSER_ASSETS.includes(name) && basename(directory) === 'wwwroot';
+}
+
 async function hashTree(root: string): Promise<string> {
     const hash = createHash('sha256');
     async function walk(dir: string, prefix: string): Promise<void> {
         for (const entry of (await readdir(dir, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
             if (['bin', 'obj', 'node_modules', 'artifacts', '.git'].includes(entry.name)) continue;
-            if (entry.name === 'runtime-ready.mjs' && prefix.endsWith('wwwroot/')) continue;
+            if (isStagedBrowserAsset(dir, entry.name)) continue;
             if (entry.isSymbolicLink()) throw new Error(`Source snapshot cannot contain symlinks: ${join(dir, entry.name)}`);
             const path = join(dir, entry.name);
             if (entry.isDirectory()) await walk(path, `${prefix}${entry.name}/`);
@@ -72,10 +81,10 @@ async function availablePort(): Promise<number> {
     return address.port;
 }
 
-async function snapshot(ctx: BenchContext, app: string, runtime: DebugRuntime, root: string, sdk: string): Promise<string> {
+export async function snapshotDebugApp(repoRoot: string, app: string, runtime: DebugRuntime, root: string, sdk: string): Promise<string> {
     await mkdir(join(root, 'src'), { recursive: true });
-    for (const name of ['Directory.Build.props', 'Directory.Build.targets', 'versions.props', 'presets.props', 'runtimes.props', 'runtime-ready.mjs']) {
-        await cp(join(ctx.repoRoot, 'src', name), join(root, 'src', name));
+    for (const name of SHARED_SOURCE_FILES) {
+        await cp(join(repoRoot, 'src', name), join(root, 'src', name));
     }
     const props = join(root, 'src', 'Directory.Build.props');
     const originalProps = await readFile(props, 'utf8');
@@ -83,14 +92,14 @@ async function snapshot(ctx: BenchContext, app: string, runtime: DebugRuntime, r
     const settingsXml = Object.entries(buildSettings(Preset.DevLoop, parseRuntime(runtime)))
         .map(([name, value]) => `    <${name}>${value}</${name}>`).join('\n');
     await writeFile(props, originalProps.replace('<Project>', `<Project>\n  <PropertyGroup>\n${settingsXml}\n  </PropertyGroup>`));
-    await cp(join(ctx.repoRoot, 'NuGet.config'), join(root, 'NuGet.config'));
-    await cp(join(ctx.repoRoot, 'src', app), join(root, 'src', app), {
+    await cp(join(repoRoot, 'NuGet.config'), join(root, 'NuGet.config'));
+    await cp(join(repoRoot, 'src', app), join(root, 'src', app), {
         recursive: true, preserveTimestamps: true,
         filter: source => !['bin', 'obj', 'node_modules', 'artifacts'].includes(basename(source))
-            && !(basename(source) === 'runtime-ready.mjs' && basename(dirname(source)) === 'wwwroot'),
+            && !isStagedBrowserAsset(dirname(source), basename(source)),
     });
     const appDir = join(root, 'src', app);
-    await cp(join(ctx.repoRoot, 'bench', 'fixtures', 'debug-probe'), join(appDir, 'BenchmarkProbe'), { recursive: true });
+    await cp(join(repoRoot, 'bench', 'fixtures', 'debug-probe'), join(appDir, 'BenchmarkProbe'), { recursive: true });
     const appFile = join(appDir, 'App.razor');
     await writeFile(appFile, `${await readFile(appFile, 'utf8')}\n@using MacroBenchmarks.DebugProbe\n<DebugProbe />\n`);
     // Resolve only the publish-specific placeholders, retaining the real app's styles/content.
@@ -134,7 +143,7 @@ async function runTrial(options: TrialOptions): Promise<{ attempt: DebugAttempt;
     let phase = 'restore';
     let logs = '';
     const preparationStarted = performance.now();
-    const project = await snapshot(ctx, app, runtime, root, sdk);
+    const project = await snapshotDebugApp(ctx.repoRoot, app, runtime, root, sdk);
     const sourceFile = join(dirname(project), 'BenchmarkProbe', 'BenchmarkEdit.cs');
     const source = await readFile(sourceFile, 'utf8');
     attempt.sourceBefore = digest(source);
@@ -370,7 +379,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const runRoot = resolve(ctx.artifactsDir, 'debug-runs', runId);
     await mkdir(runRoot, { recursive: true });
     const sha = await execCapture('git', ['rev-parse', 'HEAD'], { cwd: ctx.repoRoot });
-    const sharedInputs = await Promise.all(['Directory.Build.props', 'Directory.Build.targets', 'versions.props', 'presets.props', 'runtimes.props', 'runtime-ready.mjs']
+    const sharedInputs = await Promise.all(SHARED_SOURCE_FILES
         .map(file => readFile(join(ctx.repoRoot, 'src', file), 'utf8')));
     const harnessDigest = digest(JSON.stringify([
         await hashTree(join(ctx.repoRoot, 'bench', 'src')), await hashTree(join(ctx.repoRoot, 'bench', 'fixtures', 'debug-probe')),

@@ -95,9 +95,9 @@
         "compilation": "full",
         "composite": true
       },
-      "benchmarkDateTime": "2026-11-25T12:06:04.835Z",
-      "ciRunId": "45607979875",
-      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/45607979875"
+      "benchmarkDateTime": "2026-11-27T01:25:59.017Z",
+      "ciRunId": "45920174464",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/45920174464"
     },
     {
       "sdkVersion": "12.0.100-alpha.1.26574.116",

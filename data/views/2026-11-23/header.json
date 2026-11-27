@@ -296,6 +296,39 @@
       "benchmarkDateTime": "2026-11-26T13:38:32.427Z",
       "ciRunId": "45827834702",
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/45827834702"
+    },
+    {
+      "sdkVersion": "12.0.100-alpha.1.26576.108",
+      "runtimeGitHash": "328c39f5808f3595b9ed77e95b762dd4ab4f6af2",
+      "aspnetCoreGitHash": "d0cdff505ed9d46dc7f59888404b29d7a485ce4d",
+      "sdkGitHash": "dadf881084cc5e6b5cb0dba8e528f6620dd51542",
+      "vmrGitHash": "6afe48f84174fd028895c45b54ee878373e6edda",
+      "sdkCommitDateTime": "2026-11-16T17:46:05Z",
+      "vmrCommitDateTime": "2026-11-26T23:16:02Z",
+      "runtimeCommitDateTime": "2026-11-26T01:12:28Z",
+      "runtimeCommitAuthor": "Aaron Franke",
+      "runtimeCommitMessage": "Fix `ConstructorInvoker.Create` with a null argument (#138309)",
+      "aspnetCoreCommitDateTime": "2026-11-25T21:03:03Z",
+      "aspnetCoreCommitAuthor": "Shane Neuville",
+      "aspnetCoreCommitMessage": "Bump skill-eval Copilot CLI to 1.0.103 (#70849)",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26576.108",
+      "runtimePackVersion": "12.0.0-alpha.1.26576.108",
+      "workloadVersion": "12.0.0-alpha.1.26576.108",
+      "bootstrapSdkVersion": "12.0.100-alpha.1.26571.102",
+      "releaseDate": "2026-11-26",
+      "major": 12,
+      "minor": 0,
+      "patch": 100,
+      "channel": "12.0",
+      "isPrerelease": true,
+      "monoRuntimePackAvailable": false,
+      "readyToRun": {
+        "compilation": "full",
+        "composite": true
+      },
+      "benchmarkDateTime": "2026-11-27T06:03:35.155Z",
+      "ciRunId": "45946913041",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/45946913041"
     }
   ],
   "apps": {

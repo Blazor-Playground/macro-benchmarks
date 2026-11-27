@@ -232,7 +232,7 @@
       "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/44910701176"
     },
     {
-      "sdkVersion": "12.0.100-alpha.1.26571.102",
+      "sdkVersion": "12.0.100-alpha.1.26571.101",
       "runtimeGitHash": "4ab5617c35e2ad7950ffb32ff91a9975951cc165",
       "aspnetCoreGitHash": "d3483989953ae3cccd773aea5ea04cb0c7198531",
       "sdkGitHash": "dadf881084cc5e6b5cb0dba8e528f6620dd51542",
@@ -245,9 +245,9 @@
       "aspnetCoreCommitDateTime": "2026-11-20T14:08:58Z",
       "aspnetCoreCommitAuthor": "dependabot[bot]",
       "aspnetCoreCommitMessage": "[main] (deps): Bump src/submodules/MessagePack-CSharp (#70748)",
-      "aspnetCoreVersion": "12.0.0-alpha.1.26571.102",
-      "runtimePackVersion": "12.0.0-alpha.1.26571.102",
-      "workloadVersion": "12.0.0-alpha.1.26571.102",
+      "aspnetCoreVersion": "12.0.0-alpha.1.26571.101",
+      "runtimePackVersion": "12.0.0-alpha.1.26571.101",
+      "workloadVersion": "12.0.0-alpha.1.26571.101",
       "bootstrapSdkVersion": "12.0.100-alpha.1.26557.102",
       "releaseDate": "2026-11-21",
       "major": 12,
@@ -260,9 +260,9 @@
         "compilation": "full",
         "composite": true
       },
-      "benchmarkDateTime": "2026-11-27T10:04:20.244Z",
-      "ciRunId": "45975792670",
-      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/45975792670"
+      "benchmarkDateTime": "2026-11-27T11:12:38.805Z",
+      "ciRunId": "45984508082",
+      "ciRunUrl": "https://github.com/Blazor-Playground/macro-benchmarks/actions/runs/45984508082"
     },
     {
       "sdkVersion": "12.0.100-alpha.1.26571.109",
